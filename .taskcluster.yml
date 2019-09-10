@@ -1,0 +1,52 @@
+version: 1
+policy:
+  pullRequests: public
+tasks:
+  $let:
+    user: ${event.sender.login}
+
+    head_branch:
+      $if: 'tasks_for == "github-pull-request"'
+      then: ${event.pull_request.head.ref}
+      else:
+        $if: 'tasks_for == "github-push"'
+        then: ${event.ref}
+        else: ${event.release.target_commitish}
+
+    head_rev:
+      $if: 'tasks_for == "github-pull-request"'
+      then: ${event.pull_request.head.sha}
+      else:
+        $if: 'tasks_for == "github-push"'
+        then: ${event.after}
+        else: ${event.release.tag_name}
+
+    repository:
+      $if: 'tasks_for == "github-pull-request"'
+      then: ${event.pull_request.head.repo.html_url}
+      else: ${event.repository.html_url}
+  in:
+    $if: 'tasks_for in ["github-pull-request", "github-push"]'
+    then:
+      - taskId: {$eval: as_slugid("lint_test_task")}
+        created: {$fromNow: ''}
+        deadline: {$fromNow: '1 hour'}
+        provisionerId: aws-provisioner-v1
+        workerType: github-worker
+        payload:
+          maxRunTime: 3600
+          image: "rust:buster"
+          command:
+            - "/bin/bash"
+            - "-cx"
+            - "rustup toolchain install stable &&
+               rustup default stable &&
+               git clone --recursive --quiet ${repository} &&
+               cd dump_syms &&
+               git -c advice.detachedHead=false checkout ${head_rev} &&
+               cargo test"
+        metadata:
+          name: dump_syms test
+          description: dump_syms test
+          owner: ${user}@users.noreply.github.com
+          source: ${repository}/raw/${head_rev}/.taskcluster.yml
