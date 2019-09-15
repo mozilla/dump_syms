@@ -194,7 +194,10 @@ mod tests {
                 }
             }
 
-            assert!(pe_info.funcs_info.functions == funcs);
+            assert_eq!(
+                pe_info.funcs_info.functions, funcs,
+                "Function information are different"
+            );
         }
     }
 
@@ -206,11 +209,17 @@ mod tests {
             let pe_info = PEInfo::new(path, &bin_buf).unwrap();
             let bp_obj = BreakpadObject::parse(&sym_buf).unwrap();
 
-            // Check that the code ids are the same
-            assert!(pe_info.code_id == bp_obj.code_id().unwrap().as_str().to_uppercase());
+            assert_eq!(
+                pe_info.code_id,
+                bp_obj.code_id().unwrap().as_str().to_uppercase(),
+                "Code ids are different"
+            );
 
-            // Check the debug file name
-            assert!(pe_info.name().unwrap() == bp_obj.name());
+            assert_eq!(
+                pe_info.name().unwrap(),
+                bp_obj.name(),
+                "Debug file names are different"
+            );
         }
     }
 
