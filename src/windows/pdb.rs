@@ -104,8 +104,7 @@ impl SelectedSymbol {
                     name
                 )?;
             }
-            self.source.finalize(self.len, &address_map);
-            write!(writer, "{}", self.source)
+            self.source.dump(self.len, &address_map, writer)
         }
     }
 }

@@ -5,6 +5,7 @@
 
 use pdb::{AddressMap, PdbInternalRva};
 use std::fmt::{Display, Formatter};
+use std::io::Write;
 
 #[derive(Clone, Debug)]
 struct Line {
@@ -158,8 +159,14 @@ impl Lines {
         }
     }
 
-    pub fn finalize(&mut self, sym_len: u32, address_map: &AddressMap) {
+    pub fn dump<W: Write>(
+        &mut self,
+        sym_len: u32,
+        address_map: &AddressMap,
+        writer: &mut W,
+    ) -> std::io::Result<()> {
         self.compute_len(sym_len);
         self.compute_rva(address_map);
+        write!(writer, "{}", self)
     }
 }
