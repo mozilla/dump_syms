@@ -6,7 +6,7 @@
 use pdb::{
     AddressMap, BlockSymbol, DebugInformation, FallibleIterator, LineProgram, MachineType,
     ModuleInfo, PDBInformation, PdbInternalRva, PdbInternalSectionOffset, ProcedureSymbol,
-    PublicSymbol, Result, Source, StringTable, SymbolData, TypeIndex, PDB,
+    PublicSymbol, Result, Source, StringRef, StringTable, SymbolData, TypeIndex, PDB,
 };
 use std::collections::{btree_map, hash_map, BTreeMap, HashMap, HashSet};
 use std::fmt::{Display, Formatter};
@@ -87,6 +87,10 @@ impl PDBInfo {
         format!("{}{:x}", guid, age)
     }
 
+    fn name_to_string(str_ref: StringRef, string_table: &StringTable) -> Result<String> {
+        Ok(str_ref.to_string_lossy(&string_table)?.into_owned())
+    }
+
     fn collect_source(
         &mut self,
         file_ids: &mut HashMap<u32, u32>,
@@ -103,16 +107,8 @@ impl PDBInfo {
                 hash_map::Entry::Occupied(_) => {}
                 hash_map::Entry::Vacant(e) => {
                     e.insert(last_id);
-                    let file_name = file
-                        .name
-                        .to_raw_string(&string_table)
-                        .unwrap()
-                        .to_string()
-                        .into_owned();
-                    self.all_files.push(FileInfo {
-                        name: file_name,
-                        id: last_id,
-                    });
+                    let name = Self::name_to_string(file.name, string_table)?;
+                    self.all_files.push(FileInfo { name, id: last_id });
 
                     // if we put this increment just after the match, then we get exactly the same id
                     // as in the original breakpad
