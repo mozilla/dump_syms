@@ -489,7 +489,7 @@ impl PDBInfo {
         pe: Option<PeObject>,
         address_map: &AddressMap,
         mut writer: W,
-    ) -> std::io::Result<W> {
+    ) -> common::Result<()> {
         writeln!(
             writer,
             "MODULE windows {} {} {}",
@@ -512,19 +512,13 @@ impl PDBInfo {
         let mut cfi_writer = AsciiCfiWriter::new(writer);
         if self.cpu == "x86_64" {
             if let Some(pe) = pe {
-                if let Err(e) = cfi_writer.process(&Object::Pe(pe)) {
-                    panic!("Cannot write stack information: {}", e);
-                }
+                cfi_writer.process(&Object::Pe(pe))?;
             }
         } else if let Some(pdb) = pdb {
-            if let Err(e) = cfi_writer.process(&Object::Pdb(pdb)) {
-                panic!("Cannot write stack information: {}", e);
-            }
+            cfi_writer.process(&Object::Pdb(pdb))?;
         }
 
-        writer = cfi_writer.into_inner();
-
-        Ok(writer)
+        Ok(())
     }
 
     pub fn dump<W: Write>(
@@ -568,10 +562,6 @@ impl PDBInfo {
             Some(PdbObject::parse(&buf).unwrap())
         };
 
-        if let Err(e) = module.dump_all(type_dumper, pdb_object, pe, &address_map, writer) {
-            panic!("Cannot write the sym file: {}", e);
-        }
-
-        Ok(())
+        module.dump_all(type_dumper, pdb_object, pe, &address_map, writer)
     }
 }

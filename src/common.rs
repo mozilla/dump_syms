@@ -5,12 +5,16 @@
 
 use pdb::Error;
 use std::fmt::{self, Debug, Display, Formatter};
+use std::io;
 use std::result;
+use symbolic_minidump::cfi;
 
 #[derive(Debug)]
 pub enum DumpSymError {
     PdbError(Error),
-    IOError(&'static str),
+    Message(&'static str),
+    IOError(io::Error),
+    CfiError(cfi::CfiError),
 }
 
 pub type Result<T> = result::Result<T, DumpSymError>;
@@ -21,10 +25,22 @@ impl From<Error> for DumpSymError {
     }
 }
 
+impl From<io::Error> for DumpSymError {
+    fn from(e: io::Error) -> Self {
+        DumpSymError::IOError(e)
+    }
+}
+
+impl From<cfi::CfiError> for DumpSymError {
+    fn from(e: cfi::CfiError) -> Self {
+        DumpSymError::CfiError(e)
+    }
+}
+
 impl Display for DumpSymError {
     fn fmt(&self, f: &mut Formatter) -> result::Result<(), fmt::Error> {
         match *self {
-            DumpSymError::IOError(s) => write!(f, "{}", s),
+            DumpSymError::Message(s) => writeln!(f, "{}", s),
             _ => Debug::fmt(self, f),
         }
     }

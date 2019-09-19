@@ -56,7 +56,7 @@ fn main() {
                 let output = get_writer_for_sym(&pdb_name);
                 windows::pdb::PDBInfo::dump(&pdb_buf, pdb_name, filename, Some(pe), output)
             } else {
-                Err(DumpSymError::IOError("No pdb file found"))
+                Err(DumpSymError::Message("No pdb file found"))
             }
         }
         "pdb" => {
