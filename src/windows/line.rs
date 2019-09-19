@@ -50,33 +50,14 @@ impl Lines {
             self.lines.sort_by_key(|x| x.rva);
         }
 
-        let n_lines = self.lines.len();
-
-        unsafe {
-            let first_rva = if n_lines > 1 {
-                // The 2 next lines are valid because n_lines > 1
-                let next_rva = self.lines.get_unchecked(1).rva;
-                let line = self.lines.get_unchecked_mut(0);
-
-                let first_rva = line.rva;
-                line.len = next_rva - first_rva;
-
-                for i in 1..n_lines - 1 {
-                    // Valid because i + 1 < n_lines - 1 + 1
-                    let next_rva = self.lines.get_unchecked(i + 1).rva;
-                    let line = self.lines.get_unchecked_mut(i);
-                    line.len = next_rva - line.rva;
-                }
-
-                first_rva
-            } else {
-                // Valid because self.lines is not empty
-                self.lines.get_unchecked(0).rva
-            };
-
-            // Valid because self.lines is not empty
-            let last = self.lines.get_unchecked_mut(n_lines - 1);
-            last.len = sym_len - (last.rva - first_rva);
+        let first_rva = self.lines[0].rva;
+        let lens: Vec<u32> = self.lines.windows(2).map(|w| w[1].rva - w[0].rva).collect();
+        if let Some((last, lines)) = self.lines.split_last_mut() {
+            lines
+                .iter_mut()
+                .zip(lens.iter())
+                .for_each(|(line, len)| line.len = *len);
+            last.len = sym_len - (last.rva - first_rva)
         }
     }
 
