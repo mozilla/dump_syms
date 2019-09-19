@@ -7,11 +7,13 @@
 extern crate clap;
 #[macro_use]
 extern crate log;
+mod common;
 mod utils;
 mod windows;
 
 use clap::{App, Arg};
 
+use common::DumpSymError;
 use simplelog::{Config, LevelFilter, TermLogger, TerminalMode};
 use std::fs::File;
 use std::io::BufWriter;
@@ -47,22 +49,22 @@ fn main() {
     let buf = utils::read_file(&path);
     let filename = path.file_name().unwrap().to_str().unwrap().to_string();
 
-    match path.extension().unwrap().to_str().unwrap() {
+    if let Err(e) = match path.extension().unwrap().to_str().unwrap() {
         "dll" | "exe" => {
             let res = windows::utils::get_pe_pdb_buf(path, &buf);
             if let Some((pe, pdb_buf, pdb_name)) = res {
                 let output = get_writer_for_sym(&pdb_name);
                 windows::pdb::PDBInfo::dump(&pdb_buf, pdb_name, filename, Some(pe), output)
-                    .unwrap_or_else(|e| panic!(e));
             } else {
-                panic!("No pdb file found");
+                Err(DumpSymError::IOError("No pdb file found"))
             }
         }
         "pdb" => {
             let output = get_writer_for_sym(&filename);
             windows::pdb::PDBInfo::dump(&buf, filename, "".to_string(), None, output)
-                .unwrap_or_else(|e| panic!(e));
         }
-        _ => {}
+        _ => Ok(()),
+    } {
+        eprintln!("{}", e);
     }
 }

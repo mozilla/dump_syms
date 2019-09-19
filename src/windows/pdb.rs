@@ -17,6 +17,7 @@ use uuid::Uuid;
 
 use super::line::Lines;
 use super::types::TypeDumper;
+use crate::common;
 
 type RvaSymbols = BTreeMap<u32, SelectedSymbol>;
 type RvaLabels = HashSet<u32>;
@@ -507,7 +508,7 @@ impl PDBInfo {
         pe_name: String,
         pe: Option<PeObject>,
         writer: W,
-    ) -> Result<()> {
+    ) -> common::Result<()> {
         let cursor = Cursor::new(buf);
         let mut pdb = PDB::open(cursor)?;
         let pi = pdb.pdb_information()?;
