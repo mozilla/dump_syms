@@ -53,7 +53,8 @@ struct SelectedSymbol {
 pub struct PDBInfo {
     cpu: &'static str,
     debug_id: String,
-    file_name: String,
+    pe_name: String,
+    pdb_name: String,
     all_files: Vec<FileInfo>,
     rva_symbols: RvaSymbols,
 }
@@ -139,13 +140,44 @@ impl PDBInfo {
         file_ids: &HashMap<u32, u32>,
     ) -> Result<Lines> {
         let mut lines_for_proc = Vec::new();
+
+        // lines_at_offset is pretty slow (linear)
         let mut lines = line_program.lines_at_offset(offset);
-        let mut last_rva = 0;
         let mut is_sorted = true;
+
+        // Get the first element just to have file_index, file_id
+        // which are likely the same for all lines
+        let (mut last_rva, mut last_file_index, mut last_file_id) =
+            if let Some(line) = lines.next()? {
+                let rva = line.offset.to_internal_rva(address_map).unwrap();
+                let file = line_program.get_file_info(line.file_index)?;
+                let file_id = *file_ids.get(&file.name.0).unwrap();
+                lines_for_proc.push(Line {
+                    rva: rva.0,
+                    num: line.line_start,
+                    len: 0,
+                    file_id,
+                });
+                (rva.0, line.file_index.0, file_id)
+            } else {
+                return Ok(Lines {
+                    lines: lines_for_proc,
+                    is_sorted,
+                });
+            };
+
         while let Some(line) = lines.next()? {
             let rva = line.offset.to_internal_rva(address_map).unwrap();
-            let file = line_program.get_file_info(line.file_index)?;
-            let file_id = *file_ids.get(&file.name.0).unwrap();
+
+            // The file_id is very likely always the same
+            let file_id = if line.file_index.0 == last_file_index {
+                last_file_id
+            } else {
+                last_file_index = line.file_index.0;
+                let file = line_program.get_file_info(line.file_index)?;
+                last_file_id = *file_ids.get(&file.name.0).unwrap();
+                last_file_id
+            };
             lines_for_proc.push(Line {
                 rva: rva.0,
                 num: line.line_start,
@@ -173,32 +205,33 @@ impl PDBInfo {
         while let Some(symbol) = symbols.next()? {
             if let Ok(symbol) = symbol.parse() {
                 if let SymbolData::Public(symbol) = symbol {
-                    let rva = symbol.offset.to_rva(&address_map).unwrap();
-                    if symbol.code || symbol.function || rva_labels.contains(&rva.0) {
-                        match self.rva_symbols.entry(rva.0) {
-                            btree_map::Entry::Occupied(selected) => {
-                                let selected = selected.into_mut();
-                                if selected.is_public {
-                                    let sym_name = symbol.name.to_string().into_owned();
-                                    selected.is_multiple = true;
-                                    if sym_name < selected.name {
-                                        selected.name = sym_name;
-                                        selected.offset = symbol.offset;
+                    if let Some(rva) = symbol.offset.to_rva(&address_map) {
+                        if symbol.code || symbol.function || rva_labels.contains(&rva.0) {
+                            match self.rva_symbols.entry(rva.0) {
+                                btree_map::Entry::Occupied(selected) => {
+                                    let selected = selected.into_mut();
+                                    if selected.is_public {
+                                        let sym_name = symbol.name.to_string().into_owned();
+                                        selected.is_multiple = true;
+                                        if sym_name < selected.name {
+                                            selected.name = sym_name;
+                                            selected.offset = symbol.offset;
+                                        }
                                     }
                                 }
-                            }
-                            btree_map::Entry::Vacant(e) => {
-                                let sym_name = symbol.name.to_string().into_owned();
-                                let offset = symbol.offset;
-                                e.insert(SelectedSymbol {
-                                    name: sym_name,
-                                    type_index: TypeIndex(0),
-                                    is_public: true,
-                                    is_multiple: false,
-                                    offset,
-                                    len: 0,
-                                    source: Default::default(),
-                                });
+                                btree_map::Entry::Vacant(e) => {
+                                    let sym_name = symbol.name.to_string().into_owned();
+                                    let offset = symbol.offset;
+                                    e.insert(SelectedSymbol {
+                                        name: sym_name,
+                                        type_index: TypeIndex(0),
+                                        is_public: true,
+                                        is_multiple: false,
+                                        offset,
+                                        len: 0,
+                                        source: Default::default(),
+                                    });
+                                }
                             }
                         }
                     }
@@ -282,21 +315,23 @@ impl PDBInfo {
         if let Some(parent) = module_info.symbols_at(block.parent)?.next()? {
             if let Ok(parent) = parent.parse() {
                 if let SymbolData::Procedure(parent) = parent {
-                    let block_rva = block.offset.to_rva(&address_map).unwrap();
-                    let parent_rva = parent.offset.to_rva(&address_map).unwrap();
-                    if block_rva < parent_rva || block_rva > parent_rva + parent.len {
-                        // So the block is outside of its parent procedure
-                        self.add_function_symbol(
-                            &address_map,
-                            &line_program,
-                            &file_ids,
-                            parent,
-                            BlockInfo {
-                                rva: block_rva.0,
-                                offset: block.offset,
-                                len: block.len,
-                            },
-                        )?;
+                    if let Some(block_rva) = block.offset.to_rva(&address_map) {
+                        if let Some(parent_rva) = parent.offset.to_rva(&address_map) {
+                            if block_rva < parent_rva || block_rva > parent_rva + parent.len {
+                                // So the block is outside of its parent procedure
+                                self.add_function_symbol(
+                                    &address_map,
+                                    &line_program,
+                                    &file_ids,
+                                    parent,
+                                    BlockInfo {
+                                        rva: block_rva.0,
+                                        offset: block.offset,
+                                        len: block.len,
+                                    },
+                                )?;
+                            }
+                        }
                     }
                 }
             }
@@ -327,22 +362,24 @@ impl PDBInfo {
                     if let Ok(symbol) = symbol.parse() {
                         match symbol {
                             SymbolData::Procedure(procedure) => {
-                                let rva = procedure.offset.to_rva(&address_map).unwrap();
-                                self.add_function_symbol(
-                                    &address_map,
-                                    &line_program,
-                                    &file_ids,
-                                    procedure,
-                                    BlockInfo {
-                                        rva: rva.0,
-                                        offset: procedure.offset,
-                                        len: procedure.len,
-                                    },
-                                )?;
+                                if let Some(rva) = procedure.offset.to_rva(&address_map) {
+                                    self.add_function_symbol(
+                                        &address_map,
+                                        &line_program,
+                                        &file_ids,
+                                        procedure,
+                                        BlockInfo {
+                                            rva: rva.0,
+                                            offset: procedure.offset,
+                                            len: procedure.len,
+                                        },
+                                    )?;
+                                }
                             }
                             SymbolData::Label(label) => {
-                                let rva = label.offset.to_rva(&address_map).unwrap();
-                                rva_labels.insert(rva.0);
+                                if let Some(rva) = label.offset.to_rva(&address_map) {
+                                    rva_labels.insert(rva.0);
+                                }
                             }
                             SymbolData::Block(block) => {
                                 self.add_block(
@@ -371,7 +408,6 @@ impl PDBInfo {
         &mut self,
         type_dumper: TypeDumper,
         pdb: Option<PdbObject>,
-        pe_name: String,
         pe: Option<PeObject>,
         address_map: &AddressMap,
         mut writer: W,
@@ -379,12 +415,12 @@ impl PDBInfo {
         writeln!(
             writer,
             "MODULE windows {} {} {}",
-            self.cpu, self.debug_id, self.file_name
+            self.cpu, self.debug_id, self.pdb_name
         )?;
 
         if let Some(pe) = pe.as_ref() {
             let code_id = pe.code_id().unwrap().as_str().to_uppercase();
-            writeln!(writer, "INFO CODE_ID {} {}", code_id, pe_name)?;
+            writeln!(writer, "INFO CODE_ID {} {}", code_id, self.pe_name)?;
         }
 
         for file_info in self.all_files.iter() {
@@ -466,7 +502,8 @@ impl PDBInfo {
         let mut module = PDBInfo {
             cpu,
             debug_id,
-            file_name: pdb_name,
+            pe_name,
+            pdb_name: pdb_name,
             all_files: Vec::new(),
             rva_symbols: RvaSymbols::new(),
         };
@@ -487,8 +524,7 @@ impl PDBInfo {
             Some(PdbObject::parse(&buf).unwrap())
         };
 
-        if let Err(e) = module.dump_all(type_dumper, pdb_object, pe_name, pe, &address_map, writer)
-        {
+        if let Err(e) = module.dump_all(type_dumper, pdb_object, pe, &address_map, writer) {
             panic!("Cannot write the sym file: {}", e);
         }
 
