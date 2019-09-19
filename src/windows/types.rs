@@ -35,7 +35,6 @@ impl<'a> TypeDumper<'a> {
         if name.is_empty() {
             Ok("<name omitted>".to_string())
         } else if index == TypeIndex(0) {
-            // TODO: add failed demangling in a log file
             Ok(Self::demangle(name))
         } else {
             let typ = self.finder.find(index)?;
@@ -140,22 +139,17 @@ impl<'a> TypeDumper<'a> {
     }
 
     fn dump_attributes(attrs: Vec<PointerAttributes>) -> String {
-        let mut buf = String::new();
-        if let Some((first, attrs)) = attrs.split_first() {
-            if first.is_const() {
-                buf.push_str("const ");
-            }
-            buf.push(if first.is_reference() { '&' } else { '*' });
-
-            for attr in attrs.iter() {
+        attrs
+            .iter()
+            .fold(String::new(), |mut buf, attr| {
                 if attr.is_const() {
                     buf.push_str(" const ");
                 }
                 buf.push(if attr.is_reference() { '&' } else { '*' });
-            }
-        }
-
-        buf
+                buf
+            })
+            .trim_start()
+            .to_string()
     }
 
     fn dump_ptr(&self, ptr: PointerType) -> Result<String> {
