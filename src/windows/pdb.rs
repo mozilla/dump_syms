@@ -15,7 +15,7 @@ use symbolic_debuginfo::{pdb::PdbObject, pe::PeObject, Object};
 use symbolic_minidump::cfi::AsciiCfiWriter;
 use uuid::Uuid;
 
-use super::line::{Line, Lines};
+use super::line::Lines;
 use super::types::TypeDumper;
 
 type RvaSymbols = BTreeMap<u32, SelectedSymbol>;
@@ -139,32 +139,23 @@ impl PDBInfo {
         offset: PdbInternalSectionOffset,
         file_ids: &HashMap<u32, u32>,
     ) -> Result<Lines> {
-        let mut lines_for_proc = Vec::new();
-
         // lines_at_offset is pretty slow (linear)
         let mut lines = line_program.lines_at_offset(offset);
-        let mut is_sorted = true;
+
+        let mut source_lines = Lines::new();
 
         // Get the first element just to have file_index, file_id
         // which are likely the same for all lines
-        let (mut last_rva, mut last_file_index, mut last_file_id) =
-            if let Some(line) = lines.next()? {
-                let rva = line.offset.to_internal_rva(address_map).unwrap();
-                let file = line_program.get_file_info(line.file_index)?;
-                let file_id = *file_ids.get(&file.name.0).unwrap();
-                lines_for_proc.push(Line {
-                    rva: rva.0,
-                    num: line.line_start,
-                    len: 0,
-                    file_id,
-                });
-                (rva.0, line.file_index.0, file_id)
-            } else {
-                return Ok(Lines {
-                    lines: lines_for_proc,
-                    is_sorted,
-                });
-            };
+        let (mut last_file_index, mut last_file_id) = if let Some(line) = lines.next()? {
+            let rva = line.offset.to_internal_rva(address_map).unwrap();
+            let file = line_program.get_file_info(line.file_index)?;
+            let file_id = *file_ids.get(&file.name.0).unwrap();
+
+            source_lines.add_line(rva.0, line.line_start, file_id);
+            (line.file_index.0, file_id)
+        } else {
+            return Ok(source_lines);
+        };
 
         while let Some(line) = lines.next()? {
             let rva = line.offset.to_internal_rva(address_map).unwrap();
@@ -178,20 +169,10 @@ impl PDBInfo {
                 last_file_id = *file_ids.get(&file.name.0).unwrap();
                 last_file_id
             };
-            lines_for_proc.push(Line {
-                rva: rva.0,
-                num: line.line_start,
-                len: 0,
-                file_id,
-            });
-            is_sorted = is_sorted && last_rva <= rva.0;
-            last_rva = rva.0;
+            source_lines.add_line(rva.0, line.line_start, file_id);
         }
 
-        Ok(Lines {
-            lines: lines_for_proc,
-            is_sorted,
-        })
+        Ok(source_lines)
     }
 
     fn collect_public_symbols<'a, S: 'a + Source<'a>>(
@@ -229,7 +210,7 @@ impl PDBInfo {
                                         is_multiple: false,
                                         offset,
                                         len: 0,
-                                        source: Default::default(),
+                                        source: Lines::new(),
                                     });
                                 }
                             }

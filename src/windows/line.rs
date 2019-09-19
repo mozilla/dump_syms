@@ -7,17 +7,27 @@ use pdb::{AddressMap, PdbInternalRva};
 use std::fmt::{Display, Formatter};
 
 #[derive(Clone, Debug)]
-pub struct Line {
-    pub rva: u32,
-    pub num: u32,
-    pub len: u32,
-    pub file_id: u32,
+struct Line {
+    // rva stands for relative virtual address
+    rva: u32,
+    // line number
+    num: u32,
+    // line length in the binary
+    // this data isn't in the pdb so we need to infer it before dumping
+    len: u32,
+    // file identifier where this line is
+    file_id: u32,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Lines {
-    pub lines: Vec<Line>,
-    pub is_sorted: bool,
+    // The lines
+    lines: Vec<Line>,
+    // Each time we insert a new line we check
+    // that its rva is greater than the previous one.
+    // If is_sorted is false before finalizing data, we'll sort them.
+    is_sorted: bool,
+    last_rva: u32,
 }
 
 impl Display for Lines {
@@ -34,6 +44,28 @@ impl Display for Lines {
 }
 
 impl Lines {
+    pub fn new() -> Self {
+        Self {
+            lines: Vec::new(),
+            is_sorted: true,
+            last_rva: 0,
+        }
+    }
+
+    pub fn add_line(&mut self, rva: u32, num: u32, file_id: u32) {
+        self.lines.push(Line {
+            rva,
+            num,
+            len: 0,
+            file_id,
+        });
+
+        // There are no guarantee that the rva are sorted
+        // So we check each time we push an element and we'll sort if it's required
+        self.is_sorted = self.is_sorted && self.last_rva <= rva;
+        self.last_rva = rva;
+    }
+
     fn compute_len(&mut self, sym_len: u32) {
         // The length (in the binary) of the line is not in the pdb but we can infer it:
         // RVA     LINE NUMBER
@@ -46,6 +78,7 @@ impl Lines {
             return;
         }
 
+        // If the rva aren't ordered we need to sort the lines
         if !self.is_sorted {
             self.lines.sort_by_key(|x| x.rva);
         }
@@ -66,6 +99,7 @@ impl Lines {
         // So replace them (and eventually split lines) by the rva in the binary
         let mut to_insert = Vec::new();
 
+        // Just to check that the lines are ordered according to their rva
         let mut is_sorted = true;
         let mut last_rva = 0;
 
