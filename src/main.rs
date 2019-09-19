@@ -49,7 +49,7 @@ fn main() {
 
     match path.extension().unwrap().to_str().unwrap() {
         "dll" | "exe" => {
-            let res = windows::utils::get_pe_pdb_buf(&path, &buf);
+            let res = windows::utils::get_pe_pdb_buf(path, &buf);
             if let Some((pe, pdb_buf, pdb_name)) = res {
                 let output = get_writer_for_sym(&pdb_name);
                 windows::pdb::PDBInfo::dump(&pdb_buf, pdb_name, filename, Some(pe), output)

@@ -13,10 +13,12 @@ pub fn get_win_path(path: &str) -> PathBuf {
 }
 
 fn try_to_find_pdb(path: PathBuf, pdb_filename: &str) -> Option<Vec<u8>> {
+    // Just check that the file is in the same directory as the PE one
     let pdb = path.with_file_name(pdb_filename);
     if pdb.is_file() {
         Some(utils::read_file(pdb))
     } else {
+        // We try in CWD
         let mut pdb = std::env::current_dir().expect("Unable to get the current working directory");
         pdb.set_file_name(pdb_filename);
         if pdb.is_file() {
@@ -27,34 +29,37 @@ fn try_to_find_pdb(path: PathBuf, pdb_filename: &str) -> Option<Vec<u8>> {
     }
 }
 
-pub fn get_pe_pdb_buf<'a>(
-    path: &PathBuf,
-    buf: &'a [u8],
-) -> Option<(PeObject<'a>, Vec<u8>, String)> {
-    let path = PathBuf::from(path);
+#[cfg(windows)]
+fn os_specific_try_to_find_pdb(path: PathBuf, pdb_filename: String) -> (Option<Vec<u8>>, String) {
+    // We've probably a win path: C:\foo\bar\toto.pdb and we're on a windows machine
+    // so we can try to check if this file exists.
+    let pdb_path = PathBuf::from(pdb_filename);
+    let pdb_name = pdb_path.file_name().unwrap().to_str().unwrap().to_string();
+
+    if pdb_path.is_file() {
+        (Some(utils::read_file(pdb_path)), pdb_name)
+    } else {
+        (try_to_find_pdb(path, &pdb_name), pdb_name)
+    }
+}
+
+#[cfg(unix)]
+fn os_specific_try_to_find_pdb(path: PathBuf, pdb_filename: String) -> (Option<Vec<u8>>, String) {
+    // We've probably a win path: C:\foo\bar\toto.pdb and we're on a unix machine
+    // so no need to look for this path.
+    // Just change the \ to / to be able to call file_name()
+    // (else it won't work since "C:\foo\bar\toto.pdb" is a correct filename)
+    let pdb_path = get_win_path(&pdb_filename);
+    let pdb_name = pdb_path.file_name().unwrap().to_str().unwrap().to_string();
+    (try_to_find_pdb(path, &pdb_name), pdb_name)
+}
+
+pub fn get_pe_pdb_buf<'a>(path: PathBuf, buf: &'a [u8]) -> Option<(PeObject<'a>, Vec<u8>, String)> {
     let pe = PeObject::parse(&buf)
         .unwrap_or_else(|_| panic!("Unable to parse the PE file {}", path.to_str().unwrap()));
     if let Some(pdb_filename) = pe.debug_file_name() {
         let pdb_filename = pdb_filename.into_owned();
-
-        #[cfg(windows)]
-        let (pdb, pdb_name) = {
-            let pdb_path = PathBuf::from(pdb_filename);
-            let pdb_name = pdb_path.file_name().unwrap().to_str().unwrap().to_string();
-
-            if pdb_path.is_file() {
-                (Some(utils::read_file(pdb_path)), pdb_name)
-            } else {
-                (try_to_find_pdb(path, &pdb_name), pdb_name)
-            }
-        };
-
-        #[cfg(unix)]
-        let (pdb, pdb_name) = {
-            let pdb_path = get_win_path(&pdb_filename);
-            let pdb_name = pdb_path.file_name().unwrap().to_str().unwrap().to_string();
-            (try_to_find_pdb(path, &pdb_name), pdb_name)
-        };
+        let (pdb, pdb_name) = os_specific_try_to_find_pdb(path, pdb_filename);
 
         if let Some(pdb_buf) = pdb {
             Some((pe, pdb_buf, pdb_name))
