@@ -51,6 +51,65 @@ struct SelectedSymbol {
     source: Lines,
 }
 
+impl SelectedSymbol {
+    fn split_address(&self, address_map: &AddressMap) -> Vec<(u32, u32)> {
+        let start = self.offset.to_internal_rva(&address_map).unwrap();
+        let end = PdbInternalRva(start.0 + self.len);
+        let mut ranges = Vec::new();
+
+        for rg in address_map.rva_ranges(start..end) {
+            if rg.start != rg.end {
+                ranges.push((rg.start.0, rg.end.0 - rg.start.0));
+            }
+        }
+        ranges
+    }
+
+    fn get_und(&self, dumper: &TypeDumper) -> String {
+        if let Ok(und) = dumper.dump_function(&self.name, self.type_index) {
+            und
+        } else {
+            // Shouldn't happen
+            self.name.clone()
+        }
+    }
+
+    fn get_multiple(&self) -> &'static str {
+        if self.is_multiple {
+            "m "
+        } else {
+            ""
+        }
+    }
+
+    fn dump<W: Write>(
+        &mut self,
+        address_map: &AddressMap,
+        dumper: &TypeDumper,
+        rva: u32,
+        writer: &mut W,
+    ) -> std::io::Result<()> {
+        let name = self.get_und(dumper);
+        if self.is_public {
+            writeln!(writer, "PUBLIC {}{:x} {}", self.get_multiple(), rva, name)
+        } else {
+            for (rva, len) in self.split_address(address_map) {
+                writeln!(
+                    writer,
+                    "FUNC {}{:x} {:x} {} {}",
+                    self.get_multiple(),
+                    rva,
+                    len,
+                    0,
+                    name
+                )?;
+            }
+            self.source.finalize(self.len, &address_map);
+            write!(writer, "{}", self.source)
+        }
+    }
+}
+
 pub struct PDBInfo {
     cpu: &'static str,
     debug_id: String,
@@ -447,41 +506,7 @@ impl PDBInfo {
         }
 
         for (rva, sym) in self.rva_symbols.iter_mut() {
-            let unmangled = type_dumper
-                .dump_function(&sym.name, sym.type_index)
-                .unwrap();
-            if !sym.is_public {
-                let start = sym.offset.to_internal_rva(&address_map).unwrap();
-                let end = PdbInternalRva(start.0 + sym.len);
-
-                for rg in address_map.rva_ranges(start..end) {
-                    if rg.start != rg.end {
-                        writeln!(
-                            writer,
-                            "FUNC {}{:x} {:x} {} {}",
-                            if sym.is_multiple { "m " } else { "" },
-                            rg.start.0,
-                            rg.end.0 - rg.start.0,
-                            0, // TODO: handle the stack size
-                            unmangled
-                        )?;
-                    }
-                }
-
-                sym.source.finalize(sym.len, &address_map);
-
-                write!(writer, "{}", sym.source)?;
-            } else {
-                writeln!(
-                    writer,
-                    "PUBLIC {}{:x} {}",
-                    if sym.is_multiple { "m " } else { "" },
-                    rva,
-                    type_dumper
-                        .dump_function(&sym.name, sym.type_index)
-                        .unwrap()
-                )?;
-            }
+            sym.dump(address_map, &type_dumper, *rva, &mut writer)?;
         }
 
         let mut cfi_writer = AsciiCfiWriter::new(writer);
@@ -522,7 +547,7 @@ impl PDBInfo {
             cpu,
             debug_id,
             pe_name,
-            pdb_name: pdb_name,
+            pdb_name,
             all_files: Vec::new(),
             rva_symbols: RvaSymbols::new(),
         };
