@@ -5,8 +5,8 @@
 
 use pdb::{
     AddressMap, BlockSymbol, DebugInformation, FallibleIterator, LineProgram, MachineType,
-    ModuleInfo, PDBInformation, PdbInternalRva, PdbInternalSectionOffset, ProcedureSymbol, Result,
-    Source, SymbolData, TypeIndex, PDB,
+    ModuleInfo, PDBInformation, PdbInternalRva, PdbInternalSectionOffset, ProcedureSymbol,
+    PublicSymbol, Result, Source, StringTable, SymbolData, TypeIndex, PDB,
 };
 use std::collections::{btree_map, hash_map, BTreeMap, HashMap, HashSet};
 use std::fmt::{Display, Formatter};
@@ -87,6 +87,42 @@ impl PDBInfo {
         format!("{}{:x}", guid, age)
     }
 
+    fn collect_source(
+        &mut self,
+        file_ids: &mut HashMap<u32, u32>,
+        line_program: LineProgram,
+        string_table: &StringTable,
+        last_id: u32,
+    ) -> Result<u32> {
+        let mut files = line_program.files();
+        let mut last_id = last_id;
+        while let Some(file) = files.next()? {
+            // string_ref is an u32 corresponding to the offset in the string table
+            let string_ref = file.name.0;
+            match file_ids.entry(string_ref) {
+                hash_map::Entry::Occupied(_) => {}
+                hash_map::Entry::Vacant(e) => {
+                    e.insert(last_id);
+                    let file_name = file
+                        .name
+                        .to_raw_string(&string_table)
+                        .unwrap()
+                        .to_string()
+                        .into_owned();
+                    self.all_files.push(FileInfo {
+                        name: file_name,
+                        id: last_id,
+                    });
+
+                    // if we put this increment just after the match, then we get exactly the same id
+                    // as in the original breakpad
+                    last_id += 1;
+                }
+            }
+        }
+        Ok(last_id)
+    }
+
     fn collect_source_files<'a, S: 'a + Source<'a>>(
         &mut self,
         pdb: &mut PDB<'a, S>,
@@ -102,31 +138,12 @@ impl PDBInfo {
         // the table contains deduplicated strings so each source file must have an unique StringRef.
         while let Some(module) = modules.next()? {
             if let Some(info) = pdb.module_info(&module)? {
-                let mut files = info.line_program()?.files();
-                while let Some(file) = files.next()? {
-                    // string_ref is an u32 corresponding to the offset in the string table
-                    let string_ref = file.name.0;
-                    match file_ids.entry(string_ref) {
-                        hash_map::Entry::Occupied(_) => {}
-                        hash_map::Entry::Vacant(e) => {
-                            e.insert(last_id);
-                            let file_name = file
-                                .name
-                                .to_raw_string(&string_table)
-                                .unwrap()
-                                .to_string()
-                                .into_owned();
-                            self.all_files.push(FileInfo {
-                                name: file_name,
-                                id: last_id,
-                            });
-
-                            // if we put this increment just after the match, then we get exactly the same id
-                            // as in the original breakpad
-                            last_id += 1;
-                        }
-                    }
-                }
+                last_id = self.collect_source(
+                    &mut file_ids,
+                    info.line_program()?,
+                    &string_table,
+                    last_id,
+                )?;
             }
         }
 
@@ -175,6 +192,44 @@ impl PDBInfo {
         Ok(source_lines)
     }
 
+    fn add_public_symbol(
+        &mut self,
+        symbol: PublicSymbol,
+        address_map: &AddressMap,
+        rva_labels: &RvaLabels,
+    ) {
+        if let Some(rva) = symbol.offset.to_rva(address_map) {
+            if symbol.code || symbol.function || rva_labels.contains(&rva.0) {
+                match self.rva_symbols.entry(rva.0) {
+                    btree_map::Entry::Occupied(selected) => {
+                        let selected = selected.into_mut();
+                        if selected.is_public {
+                            let sym_name = symbol.name.to_string().into_owned();
+                            selected.is_multiple = true;
+                            if sym_name < selected.name {
+                                selected.name = sym_name;
+                                selected.offset = symbol.offset;
+                            }
+                        }
+                    }
+                    btree_map::Entry::Vacant(e) => {
+                        let sym_name = symbol.name.to_string().into_owned();
+                        let offset = symbol.offset;
+                        e.insert(SelectedSymbol {
+                            name: sym_name,
+                            type_index: TypeIndex(0),
+                            is_public: true,
+                            is_multiple: false,
+                            offset,
+                            len: 0,
+                            source: Lines::new(),
+                        });
+                    }
+                }
+            }
+        }
+    }
+
     fn collect_public_symbols<'a, S: 'a + Source<'a>>(
         &mut self,
         pdb: &mut PDB<'a, S>,
@@ -186,36 +241,7 @@ impl PDBInfo {
         while let Some(symbol) = symbols.next()? {
             if let Ok(symbol) = symbol.parse() {
                 if let SymbolData::Public(symbol) = symbol {
-                    if let Some(rva) = symbol.offset.to_rva(&address_map) {
-                        if symbol.code || symbol.function || rva_labels.contains(&rva.0) {
-                            match self.rva_symbols.entry(rva.0) {
-                                btree_map::Entry::Occupied(selected) => {
-                                    let selected = selected.into_mut();
-                                    if selected.is_public {
-                                        let sym_name = symbol.name.to_string().into_owned();
-                                        selected.is_multiple = true;
-                                        if sym_name < selected.name {
-                                            selected.name = sym_name;
-                                            selected.offset = symbol.offset;
-                                        }
-                                    }
-                                }
-                                btree_map::Entry::Vacant(e) => {
-                                    let sym_name = symbol.name.to_string().into_owned();
-                                    let offset = symbol.offset;
-                                    e.insert(SelectedSymbol {
-                                        name: sym_name,
-                                        type_index: TypeIndex(0),
-                                        is_public: true,
-                                        is_multiple: false,
-                                        offset,
-                                        len: 0,
-                                        source: Lines::new(),
-                                    });
-                                }
-                            }
-                        }
-                    }
+                    self.add_public_symbol(symbol, &address_map, &rva_labels);
                 }
             }
         }
@@ -320,6 +346,49 @@ impl PDBInfo {
         Ok(())
     }
 
+    fn handle_symbol(
+        &mut self,
+        symbol: SymbolData,
+        address_map: &AddressMap,
+        line_program: &LineProgram,
+        module_info: &ModuleInfo,
+        file_ids: &HashMap<u32, u32>,
+        rva_labels: &mut RvaLabels,
+    ) -> Result<()> {
+        match symbol {
+            SymbolData::Procedure(procedure) => {
+                if let Some(rva) = procedure.offset.to_rva(&address_map) {
+                    self.add_function_symbol(
+                        &address_map,
+                        &line_program,
+                        &file_ids,
+                        procedure,
+                        BlockInfo {
+                            rva: rva.0,
+                            offset: procedure.offset,
+                            len: procedure.len,
+                        },
+                    )?;
+                }
+            }
+            SymbolData::Label(label) => {
+                if let Some(rva) = label.offset.to_rva(&address_map) {
+                    rva_labels.insert(rva.0);
+                }
+            }
+            SymbolData::Block(block) => {
+                self.add_block(&module_info, &address_map, &line_program, &file_ids, block)?;
+            }
+            /*S_ATTR_REGREL => {
+                // Could be useful to compute the stack size
+                // We should get a symbol here and put in a vec in the last SelectedSymbol
+            },*/
+            _ => {}
+        }
+
+        Ok(())
+    }
+
     fn collect_functions<'a, S: 'a + Source<'a>>(
         &mut self,
         pdb: &mut PDB<'a, S>,
@@ -331,7 +400,7 @@ impl PDBInfo {
 
         // Some public symbols corresponds to a label (most of the time they come from inline assembly)
         // So need to get such symbols because they've some code.
-        let mut rva_labels = HashSet::new();
+        let mut rva_labels = RvaLabels::new();
 
         // We get all the procedures and the labels
         // Labels correspond to some labelled code we can map with some public symbols (assembly)
@@ -341,42 +410,14 @@ impl PDBInfo {
                 let line_program = module_info.line_program()?;
                 while let Some(symbol) = symbols.next()? {
                     if let Ok(symbol) = symbol.parse() {
-                        match symbol {
-                            SymbolData::Procedure(procedure) => {
-                                if let Some(rva) = procedure.offset.to_rva(&address_map) {
-                                    self.add_function_symbol(
-                                        &address_map,
-                                        &line_program,
-                                        &file_ids,
-                                        procedure,
-                                        BlockInfo {
-                                            rva: rva.0,
-                                            offset: procedure.offset,
-                                            len: procedure.len,
-                                        },
-                                    )?;
-                                }
-                            }
-                            SymbolData::Label(label) => {
-                                if let Some(rva) = label.offset.to_rva(&address_map) {
-                                    rva_labels.insert(rva.0);
-                                }
-                            }
-                            SymbolData::Block(block) => {
-                                self.add_block(
-                                    &module_info,
-                                    &address_map,
-                                    &line_program,
-                                    &file_ids,
-                                    block,
-                                )?;
-                            }
-                            /*S_ATTR_REGREL => {
-                                // Could be useful to compute the stack size
-                                // We should get a symbol here and put in a vec in the last SelectedSymbol
-                            },*/
-                            _ => {}
-                        }
+                        self.handle_symbol(
+                            symbol,
+                            &address_map,
+                            &line_program,
+                            &module_info,
+                            &file_ids,
+                            &mut rva_labels,
+                        )?;
                     }
                 }
             }
