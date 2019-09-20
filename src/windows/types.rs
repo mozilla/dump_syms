@@ -4,8 +4,8 @@
 // copied, modified, or distributed except according to those terms.
 
 use pdb::{
-    ClassKind, FallibleIterator, MemberFunctionType, PointerAttributes, PointerType, PrimitiveKind,
-    ProcedureType, Result, TypeData, TypeFinder, TypeIndex, TypeInformation,
+    ClassKind, FallibleIterator, MemberFunctionType, PointerAttributes, PointerMode, PointerType,
+    PrimitiveKind, ProcedureType, Result, TypeData, TypeFinder, TypeIndex, TypeInformation,
 };
 use symbolic_common::{Language, Name};
 use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
@@ -203,7 +203,11 @@ impl<'a> TypeDumper<'a> {
                 if attr.is_const() {
                     buf.push_str(" const ");
                 }
-                buf.push(if attr.is_reference() { '&' } else { '*' });
+                match attr.pointer_mode() {
+                    PointerMode::LValueReference => buf.push('&'),
+                    PointerMode::RValueReference => buf.push_str("&&"),
+                    _ => buf.push('*'),
+                }
                 buf
             })
             .trim_start()
