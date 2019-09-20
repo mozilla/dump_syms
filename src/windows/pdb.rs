@@ -4,9 +4,10 @@
 // copied, modified, or distributed except according to those terms.
 
 use pdb::{
-    AddressMap, BlockSymbol, DebugInformation, FallibleIterator, LineProgram, MachineType,
-    ModuleInfo, PDBInformation, PdbInternalRva, PdbInternalSectionOffset, ProcedureSymbol,
-    PublicSymbol, Result, Source, StringRef, StringTable, SymbolData, TypeIndex, PDB,
+    AddressMap, BlockSymbol, DebugInformation, FallibleIterator, FrameTable, LineProgram,
+    MachineType, ModuleInfo, PDBInformation, PdbInternalRva, PdbInternalSectionOffset,
+    ProcedureSymbol, PublicSymbol, Result, Source, StringRef, StringTable, SymbolData, TypeIndex,
+    PDB,
 };
 use std::collections::{btree_map, hash_map, BTreeMap, HashMap, HashSet};
 use std::fmt::{Display, Formatter};
@@ -74,6 +75,22 @@ impl SelectedSymbol {
         }
     }
 
+    fn get_stack_param_size(&self, _address_map: &AddressMap, _frame_table: &FrameTable) -> u32 {
+        // TODO: check if this value is the correct one
+        // For now (legacy) return 0
+        /*if frame_table.is_empty() {
+            return 0;
+        }
+
+        let internal_rva = self.offset.to_internal_rva(&address_map).unwrap();
+        if let Ok(frame) = frame_table.iter_at_rva(internal_rva).next() {
+            if let Some(frame) =  frame {
+                return frame.params_size;
+            }
+        }*/
+        0
+    }
+
     fn get_multiple(&self) -> &'static str {
         if self.is_multiple {
             "m "
@@ -85,13 +102,16 @@ impl SelectedSymbol {
     fn dump<W: Write>(
         &mut self,
         address_map: &AddressMap,
+        frame_table: &FrameTable,
         dumper: &TypeDumper,
         rva: u32,
         writer: &mut W,
     ) -> std::io::Result<()> {
         let name = self.get_und(dumper);
         let (name, stack_param_size) = match name {
-            FuncName::Undecorated(name) => (name, 0),
+            FuncName::Undecorated(name) => {
+                (name, self.get_stack_param_size(address_map, frame_table))
+            }
             FuncName::Unknown((name, sps)) => (name, sps),
         };
         if self.is_public {
@@ -491,6 +511,7 @@ impl PDBInfo {
         pdb: Option<PdbObject>,
         pe: Option<PeObject>,
         address_map: &AddressMap,
+        frame_table: &FrameTable,
         mut writer: W,
     ) -> common::Result<()> {
         writeln!(
@@ -509,7 +530,7 @@ impl PDBInfo {
         }
 
         for (rva, sym) in self.rva_symbols.iter_mut() {
-            sym.dump(address_map, &type_dumper, *rva, &mut writer)?;
+            sym.dump(address_map, frame_table, &type_dumper, *rva, &mut writer)?;
         }
 
         let mut cfi_writer = AsciiCfiWriter::new(writer);
@@ -536,6 +557,7 @@ impl PDBInfo {
         let pi = pdb.pdb_information()?;
         let dbi = pdb.debug_information()?;
         let address_map = pdb.address_map()?;
+        let frame_table = pdb.frame_table()?;
 
         let cpu = Self::get_cpu(&dbi);
         let debug_id = Self::get_debug_id(&dbi, pi);
@@ -565,6 +587,13 @@ impl PDBInfo {
             Some(PdbObject::parse(&buf).unwrap())
         };
 
-        module.dump_all(type_dumper, pdb_object, pe, &address_map, writer)
+        module.dump_all(
+            type_dumper,
+            pdb_object,
+            pe,
+            &address_map,
+            &frame_table,
+            writer,
+        )
     }
 }
