@@ -14,6 +14,43 @@ pub struct TypeDumper<'a> {
     finder: TypeFinder<'a>,
 }
 
+pub enum FuncName {
+    // The undecorated name even in case of failure
+    // (there is a bug somewhere else but the name should be undecorated)
+    Undecorated(String),
+    // The name hasn't been undecorated because the language is unknown
+    Unknown((String, u32)),
+}
+
+impl FuncName {
+    pub fn get_unknown(name: String) -> Self {
+        if !name.is_empty() && name.chars().find(|c| *c == ':' || *c == '(').is_none() {
+            let first = name.chars().nth(0).unwrap();
+            if first == '_' || first == '@' {
+                let sub = name.get(1..).unwrap();
+                if let Some(pos) = sub.rfind(|c: char| c == '@') {
+                    if let Ok(stack_param_size) = sub.get(pos + 1..).unwrap().parse::<u32>() {
+                        let sps = if first == '@' {
+                            if stack_param_size > 8 {
+                                stack_param_size - 8
+                            } else {
+                                0
+                            }
+                        } else {
+                            stack_param_size
+                        };
+                        return FuncName::Unknown((sub.get(..pos).unwrap().to_string(), sps));
+                    }
+                }
+                if first == '_' {
+                    return FuncName::Unknown((sub.to_string(), 0));
+                }
+            }
+        }
+        FuncName::Unknown((name, 0))
+    }
+}
+
 impl<'a> TypeDumper<'a> {
     /// Collect all the Type and their TypeIndex to be able to search for a TypeIndex
     pub fn new<'b>(type_info: &'a TypeInformation<'b>) -> Result<Self> {
@@ -31,9 +68,9 @@ impl<'a> TypeDumper<'a> {
 
     /// Dump a ProcedureType at the given TypeIndex
     /// If the TypeIndex is 0 then try to use demanglers to have the correct name
-    pub fn dump_function(&self, name: &str, index: TypeIndex) -> Result<String> {
+    pub fn dump_function(&self, name: &str, index: TypeIndex) -> Result<FuncName> {
         if name.is_empty() {
-            Ok("<name omitted>".to_string())
+            Ok(FuncName::Undecorated("<name omitted>".to_string()))
         } else if index == TypeIndex(0) {
             Ok(Self::demangle(name))
         } else {
@@ -42,13 +79,26 @@ impl<'a> TypeDumper<'a> {
             match typ {
                 TypeData::MemberFunction(t) => {
                     let (ret, args) = self.dump_method_parts(t)?;
-                    Ok(format!("{}{}({})", Self::fix_return(ret), name, args))
+                    Ok(FuncName::Undecorated(format!(
+                        "{}{}({})",
+                        Self::fix_return(ret),
+                        name,
+                        args
+                    )))
                 }
                 TypeData::Procedure(t) => {
                     let (ret, args) = self.dump_procedure_parts(t)?;
-                    Ok(format!("{}{}({})", Self::fix_return(ret), name, args))
+                    Ok(FuncName::Undecorated(format!(
+                        "{}{}({})",
+                        Self::fix_return(ret),
+                        name,
+                        args
+                    )))
                 }
-                _ => Ok(format!("Not a function: {}", name)),
+                _ => {
+                    error!("Function {} hasn't a function type", name);
+                    Ok(FuncName::Undecorated(name.to_string()))
+                }
             }
         }
     }
@@ -61,22 +111,26 @@ impl<'a> TypeDumper<'a> {
         name
     }
 
-    fn demangle(ident: &str) -> String {
+    fn demangle(ident: &str) -> FuncName {
+        // If the name is not mangled maybe we can guess stacksize in using it.
+        // So the boolean flag in the returned value is here for that (true == known language)
         // For information:
         //  - msvc-demangler has no problem with symbols containing ".llvm."
 
-        let name = Name::new(ident);
+        let lang = Name::new(ident).detect_language();
+        if lang == Language::Unknown {
+            return FuncName::get_unknown(ident.to_string());
+        }
+
+        let name = Name::with_language(ident, lang);
         match name.demangle(DemangleOptions {
             format: DemangleFormat::Full,
             with_arguments: true,
         }) {
-            Some(demangled) => demangled,
+            Some(demangled) => FuncName::Undecorated(demangled),
             None => {
-                let lang = name.detect_language();
-                if lang != Language::Unknown {
-                    warn!("Didn't manage to demangle {}", ident);
-                }
-                ident.to_string()
+                warn!("Didn't manage to demangle {}", ident);
+                FuncName::Undecorated(ident.to_string())
             }
         }
     }
@@ -293,5 +347,62 @@ impl<'a> TypeDumper<'a> {
         };
 
         Ok(typ)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_funcname() {
+        match FuncName::get_unknown("_foo@123".to_string()) {
+            FuncName::Unknown((name, sps)) => {
+                assert_eq!(name, "foo");
+                assert_eq!(sps, 123);
+            }
+            _ => {}
+        }
+
+        match FuncName::get_unknown("_foo@123()".to_string()) {
+            FuncName::Unknown((name, sps)) => {
+                assert_eq!(name, "_foo@123()");
+                assert_eq!(sps, 0);
+            }
+            _ => {}
+        }
+
+        match FuncName::get_unknown("@foo@123".to_string()) {
+            FuncName::Unknown((name, sps)) => {
+                assert_eq!(name, "foo");
+                assert_eq!(sps, 115);
+            }
+            _ => {}
+        }
+
+        match FuncName::get_unknown("@foo@3".to_string()) {
+            FuncName::Unknown((name, sps)) => {
+                assert_eq!(name, "foo");
+                assert_eq!(sps, 0);
+            }
+            _ => {}
+        }
+
+        match FuncName::get_unknown("_foo@".to_string()) {
+            FuncName::Unknown((name, sps)) => {
+                assert_eq!(name, "foo@");
+                assert_eq!(sps, 0);
+            }
+            _ => {}
+        }
+
+        match FuncName::get_unknown("_foo".to_string()) {
+            FuncName::Unknown((name, sps)) => {
+                assert_eq!(name, "foo");
+                assert_eq!(sps, 0);
+            }
+            _ => {}
+        }
     }
 }

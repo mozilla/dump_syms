@@ -16,7 +16,7 @@ use symbolic_minidump::cfi::AsciiCfiWriter;
 use uuid::Uuid;
 
 use super::line::Lines;
-use super::types::TypeDumper;
+use super::types::{FuncName, TypeDumper};
 use crate::common;
 
 type RvaSymbols = BTreeMap<u32, SelectedSymbol>;
@@ -65,12 +65,12 @@ impl SelectedSymbol {
         ranges
     }
 
-    fn get_und(&self, dumper: &TypeDumper) -> String {
+    fn get_und(&self, dumper: &TypeDumper) -> FuncName {
         if let Ok(und) = dumper.dump_function(&self.name, self.type_index) {
             und
         } else {
             // Shouldn't happen
-            self.name.clone()
+            FuncName::get_unknown(self.name.clone())
         }
     }
 
@@ -90,6 +90,10 @@ impl SelectedSymbol {
         writer: &mut W,
     ) -> std::io::Result<()> {
         let name = self.get_und(dumper);
+        let (name, stack_param_size) = match name {
+            FuncName::Undecorated(name) => (name, 0),
+            FuncName::Unknown((name, sps)) => (name, sps),
+        };
         if self.is_public {
             writeln!(writer, "PUBLIC {}{:x} {}", self.get_multiple(), rva, name)
         } else {
@@ -100,7 +104,7 @@ impl SelectedSymbol {
                     self.get_multiple(),
                     rva,
                     len,
-                    0,
+                    stack_param_size,
                     name
                 )?;
             }
