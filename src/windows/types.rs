@@ -78,9 +78,11 @@ impl<'a> TypeDumper<'a> {
             let typ = typ.parse()?;
             match typ {
                 TypeData::MemberFunction(t) => {
-                    let (ret, args) = self.dump_method_parts(t)?;
+                    let (ztatic, ret, args) = self.dump_method_parts(t)?;
+                    let ztatic = if ztatic { "static " } else { "" };
                     Ok(FuncName::Undecorated(format!(
-                        "{}{}({})",
+                        "{}{}{}({})",
+                        ztatic,
                         Self::fix_return(ret),
                         name,
                         args
@@ -161,7 +163,7 @@ impl<'a> TypeDumper<'a> {
         })
     }
 
-    fn dump_method_parts(&self, typ: MemberFunctionType) -> Result<(String, String)> {
+    fn dump_method_parts(&self, typ: MemberFunctionType) -> Result<(bool, String, String)> {
         let attrs = typ.attributes;
         let ret_typ = if attrs.is_constructor() || attrs.cxx_return_udt() {
             "".to_string()
@@ -174,7 +176,9 @@ impl<'a> TypeDumper<'a> {
         // https://hg.mozilla.org/releases/mozilla-release/annotate/7ece03f6971968eede29275477502309bbe399da/toolkit/components/bitsdownload/src/bits_interface/task/service_task.rs#l217
         // So we dump "this" when the underlying type (modulo pointer) is different from the class type
 
-        let args_typ = if let Some(this_typ) = typ.this_pointer_type {
+        let ztatic = typ.this_pointer_type.is_none();
+        let args_typ = if !ztatic {
+            let this_typ = typ.this_pointer_type.unwrap();
             if !self.check_this_type(this_typ, typ.class_type)? {
                 let this_typ = self.dump_index(this_typ)?;
                 if args_typ.is_empty() {
@@ -189,7 +193,7 @@ impl<'a> TypeDumper<'a> {
             args_typ
         };
 
-        Ok((ret_typ, args_typ))
+        Ok((ztatic, ret_typ, args_typ))
     }
 
     fn dump_attributes(attrs: Vec<PointerAttributes>) -> String {
@@ -219,7 +223,7 @@ impl<'a> TypeDumper<'a> {
                     ptr = t;
                 }
                 TypeData::MemberFunction(t) => {
-                    let (ret, args) = self.dump_method_parts(t)?;
+                    let (_, ret, args) = self.dump_method_parts(t)?;
                     let attrs = Self::dump_attributes(attributes);
                     return Ok(format!("{}({})({})", Self::fix_return(ret), attrs, args));
                 }
@@ -306,7 +310,7 @@ impl<'a> TypeDumper<'a> {
                 format!("{} {}", name, t.name)
             }
             TypeData::MemberFunction(t) => {
-                let (ret, args) = self.dump_method_parts(t)?;
+                let (_, ret, args) = self.dump_method_parts(t)?;
                 format!("{}()({})", Self::fix_return(ret), args)
             }
             TypeData::Procedure(t) => {
