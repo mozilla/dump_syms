@@ -5,5 +5,7 @@
 
 mod line;
 pub mod pdb;
+mod source;
+mod symbol;
 mod types;
 pub mod utils;

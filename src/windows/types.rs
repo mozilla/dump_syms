@@ -10,7 +10,7 @@ use pdb::{
 use symbolic_common::{Language, Name};
 use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
 
-pub struct TypeDumper<'a> {
+pub(super) struct TypeDumper<'a> {
     finder: TypeFinder<'a>,
 }
 
@@ -365,52 +365,34 @@ mod tests {
 
     #[test]
     fn test_funcname() {
-        match FuncName::get_unknown("_foo@123".to_string()) {
-            FuncName::Unknown((name, sps)) => {
-                assert_eq!(name, "foo");
-                assert_eq!(sps, 123);
-            }
-            _ => {}
+        if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("_foo@123".to_string()) {
+            assert_eq!(name, "foo");
+            assert_eq!(sps, 123);
         }
 
-        match FuncName::get_unknown("_foo@123()".to_string()) {
-            FuncName::Unknown((name, sps)) => {
-                assert_eq!(name, "_foo@123()");
-                assert_eq!(sps, 0);
-            }
-            _ => {}
+        if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("_foo@123()".to_string()) {
+            assert_eq!(name, "_foo@123()");
+            assert_eq!(sps, 0);
         }
 
-        match FuncName::get_unknown("@foo@123".to_string()) {
-            FuncName::Unknown((name, sps)) => {
-                assert_eq!(name, "foo");
-                assert_eq!(sps, 115);
-            }
-            _ => {}
+        if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("@foo@123".to_string()) {
+            assert_eq!(name, "foo");
+            assert_eq!(sps, 115);
         }
 
-        match FuncName::get_unknown("@foo@3".to_string()) {
-            FuncName::Unknown((name, sps)) => {
-                assert_eq!(name, "foo");
-                assert_eq!(sps, 0);
-            }
-            _ => {}
+        if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("@foo@3".to_string()) {
+            assert_eq!(name, "foo");
+            assert_eq!(sps, 0);
         }
 
-        match FuncName::get_unknown("_foo@".to_string()) {
-            FuncName::Unknown((name, sps)) => {
-                assert_eq!(name, "foo@");
-                assert_eq!(sps, 0);
-            }
-            _ => {}
+        if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("_foo@".to_string()) {
+            assert_eq!(name, "foo@");
+            assert_eq!(sps, 0);
         }
 
-        match FuncName::get_unknown("_foo".to_string()) {
-            FuncName::Unknown((name, sps)) => {
-                assert_eq!(name, "foo");
-                assert_eq!(sps, 0);
-            }
-            _ => {}
+        if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("_foo".to_string()) {
+            assert_eq!(name, "foo");
+            assert_eq!(sps, 0);
         }
     }
 }
