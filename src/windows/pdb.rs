@@ -4,11 +4,11 @@
 // copied, modified, or distributed except according to those terms.
 
 use pdb::{
-    AddressMap, BlockSymbol, DebugInformation, FallibleIterator, FrameTable, LineProgram,
-    MachineType, ModuleInfo, PDBInformation, ProcedureSymbol, PublicSymbol, Result, Source,
-    StringRef, StringTable, SymbolData, SymbolTable, TypeIndex, PDB,
+    AddressMap, BlockSymbol, DebugInformation, FallibleIterator, FrameTable, MachineType,
+    ModuleInfo, PDBInformation, ProcedureSymbol, PublicSymbol, Result, Source, SymbolData,
+    SymbolTable, TypeIndex, PDB,
 };
-use std::collections::{btree_map, hash_map, BTreeMap, HashMap, HashSet};
+use std::collections::{btree_map, BTreeMap, HashSet};
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
 use symbolic_debuginfo::{pdb::PdbObject, pe::PeObject, Object};
@@ -16,26 +16,13 @@ use symbolic_minidump::cfi::AsciiCfiWriter;
 use uuid::Uuid;
 
 use super::line::Lines;
-use super::source::SourceLineCollector;
+use super::source::{SourceFiles, SourceLineCollector};
 use super::symbol::{BlockInfo, SelectedSymbol};
 use super::types::TypeDumper;
 use crate::common;
 
 type RvaSymbols = BTreeMap<u32, SelectedSymbol>;
 type RvaLabels = HashSet<u32>;
-pub(super) type FileIds = HashMap<u32, u32>;
-
-#[derive(Debug)]
-struct FileInfo {
-    name: String,
-    id: u32,
-}
-
-impl Display for FileInfo {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "FILE {} {}", self.id, self.name)
-    }
-}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum CPU {
@@ -63,8 +50,7 @@ pub(crate) struct PDBInfo<'s> {
     debug_id: String,
     pe_name: String,
     pdb_name: String,
-    all_files: Vec<FileInfo>,
-    file_ids: FileIds,
+    source_files: SourceFiles<'s>,
     rva_symbols: RvaSymbols,
     address_map: AddressMap<'s>,
 }
@@ -97,84 +83,35 @@ impl PDBInfo<'_> {
         format!("{}{:x}", guid, age)
     }
 
-    fn name_to_string(str_ref: StringRef, string_table: &StringTable) -> Result<String> {
-        Ok(str_ref.to_string_lossy(&string_table)?.into_owned())
-    }
-
-    fn collect_source(
-        &mut self,
-        line_program: LineProgram,
-        string_table: &StringTable,
-        last_id: u32,
-    ) -> Result<u32> {
-        let mut files = line_program.files();
-        let mut last_id = last_id;
-        while let Some(file) = files.next()? {
-            // string_ref is an u32 corresponding to the offset in the string table
-            let string_ref = file.name.0;
-            match self.file_ids.entry(string_ref) {
-                hash_map::Entry::Occupied(_) => {}
-                hash_map::Entry::Vacant(e) => {
-                    e.insert(last_id);
-                    let name = Self::name_to_string(file.name, string_table)?;
-                    self.all_files.push(FileInfo { name, id: last_id });
-
-                    // if we put this increment just after the match, then we get exactly the same id
-                    // as in the original breakpad
-                    last_id += 1;
-                }
-            }
-        }
-        Ok(last_id)
-    }
-
-    fn collect_source_files<'a, S: 'a + Source<'a>>(
-        &mut self,
-        pdb: &mut PDB<'a, S>,
-        dbi: &DebugInformation,
-    ) -> Result<()> {
-        let mut modules = dbi.modules()?;
-        let string_table = pdb.string_table()?;
-        let mut last_id = 1;
-
-        // Get all source files and generate an unique id for each one.
-        // According to the docs: https://docs.rs/pdb/0.5.0/pdb/struct.PDB.html#method.string_table
-        // the table contains deduplicated strings so each source file must have an unique StringRef.
-        while let Some(module) = modules.next()? {
-            if let Some(info) = pdb.module_info(&module)? {
-                last_id = self.collect_source(info.line_program()?, &string_table, last_id)?;
-            }
-        }
-
-        Ok(())
-    }
-
     fn add_public_symbol(
         &self,
         symbol: PublicSymbol,
         rva_labels: &RvaLabels,
         rva_symbols: &mut RvaSymbols,
     ) {
-        if let Some(rva) = symbol.offset.to_rva(&self.address_map) {
-            if symbol.code || symbol.function || rva_labels.contains(&rva.0) {
-                match rva_symbols.entry(rva.0) {
-                    btree_map::Entry::Occupied(selected) => {
-                        let selected = selected.into_mut();
-                        selected.update_public(symbol);
-                    }
-                    btree_map::Entry::Vacant(e) => {
-                        let sym_name = symbol.name.to_string().into_owned();
-                        let offset = symbol.offset;
-                        e.insert(SelectedSymbol {
-                            name: sym_name,
-                            type_index: TypeIndex(0),
-                            is_public: true,
-                            is_multiple: false,
-                            offset,
-                            len: 0,
-                            source: Lines::new(),
-                        });
-                    }
+        let rva = match symbol.offset.to_rva(&self.address_map) {
+            Some(rva) => rva,
+            _ => return,
+        };
+
+        if symbol.code || symbol.function || rva_labels.contains(&rva.0) {
+            match rva_symbols.entry(rva.0) {
+                btree_map::Entry::Occupied(selected) => {
+                    let selected = selected.into_mut();
+                    selected.update_public(symbol);
+                }
+                btree_map::Entry::Vacant(e) => {
+                    let sym_name = symbol.name.to_string().into_owned();
+                    let offset = symbol.offset;
+                    e.insert(SelectedSymbol {
+                        name: sym_name,
+                        type_index: TypeIndex(0),
+                        is_public: true,
+                        is_multiple: false,
+                        offset,
+                        len: 0,
+                        source: Lines::new(),
+                    });
                 }
             }
         }
@@ -188,10 +125,13 @@ impl PDBInfo<'_> {
     ) -> Result<()> {
         let mut symbols = globals.iter();
         while let Some(symbol) = symbols.next()? {
-            if let Ok(symbol) = symbol.parse() {
-                if let SymbolData::Public(symbol) = symbol {
-                    self.add_public_symbol(symbol, &rva_labels, rva_symbols);
-                }
+            let symbol = match symbol.parse() {
+                Ok(s) => s,
+                _ => return Ok(()),
+            };
+
+            if let SymbolData::Public(symbol) = symbol {
+                self.add_public_symbol(symbol, &rva_labels, rva_symbols);
             }
         }
 
@@ -247,29 +187,45 @@ impl PDBInfo<'_> {
         // of those blocks and print out an extra FUNC line for blocks
         // that are not contained in their parent functions.
 
-        if let Some(parent) = module_info.symbols_at(block.parent)?.next()? {
-            if let Ok(parent) = parent.parse() {
-                if let SymbolData::Procedure(parent) = parent {
-                    if let Some(block_rva) = block.offset.to_rva(&self.address_map) {
-                        if let Some(parent_rva) = parent.offset.to_rva(&self.address_map) {
-                            if block_rva < parent_rva || block_rva > parent_rva + parent.len {
-                                // So the block is outside of its parent procedure
-                                self.add_function_symbol(
-                                    &line_collector,
-                                    parent,
-                                    BlockInfo {
-                                        rva: block_rva.0,
-                                        offset: block.offset,
-                                        len: block.len,
-                                    },
-                                    rva_symbols,
-                                )?;
-                            }
-                        }
-                    }
-                }
-            }
+        let parent = match module_info.symbols_at(block.parent)?.next()? {
+            Some(p) => p,
+            _ => return Ok(()),
+        };
+
+        let parent = match parent.parse() {
+            Ok(p) => p,
+            _ => return Ok(()),
+        };
+
+        let parent = match parent {
+            SymbolData::Procedure(p) => p,
+            _ => return Ok(()),
+        };
+
+        let block_rva = match block.offset.to_rva(&self.address_map) {
+            Some(rva) => rva,
+            _ => return Ok(()),
+        };
+
+        let parent_rva = match parent.offset.to_rva(&self.address_map) {
+            Some(rva) => rva,
+            _ => return Ok(()),
+        };
+
+        if block_rva < parent_rva || block_rva > parent_rva + parent.len {
+            // So the block is outside of its parent procedure
+            self.add_function_symbol(
+                &line_collector,
+                parent,
+                BlockInfo {
+                    rva: block_rva.0,
+                    offset: block.offset,
+                    len: block.len,
+                },
+                rva_symbols,
+            )?;
         }
+
         Ok(())
     }
 
@@ -283,18 +239,21 @@ impl PDBInfo<'_> {
     ) -> Result<()> {
         match symbol {
             SymbolData::Procedure(procedure) => {
-                if let Some(rva) = procedure.offset.to_rva(&self.address_map) {
-                    self.add_function_symbol(
-                        line_collector,
-                        procedure,
-                        BlockInfo {
-                            rva: rva.0,
-                            offset: procedure.offset,
-                            len: procedure.len,
-                        },
-                        rva_symbols,
-                    )?;
-                }
+                let rva = match procedure.offset.to_rva(&self.address_map) {
+                    Some(rva) => rva,
+                    _ => return Ok(()),
+                };
+
+                self.add_function_symbol(
+                    line_collector,
+                    procedure,
+                    BlockInfo {
+                        rva: rva.0,
+                        offset: procedure.offset,
+                        len: procedure.len,
+                    },
+                    rva_symbols,
+                )?;
             }
             SymbolData::Label(label) => {
                 if let Some(rva) = label.offset.to_rva(&self.address_map) {
@@ -329,24 +288,31 @@ impl PDBInfo<'_> {
         // We get all the procedures and the labels
         // Labels correspond to some labelled code we can map with some public symbols (assembly)
         while let Some(module) = modules.next()? {
-            if let Some(module_info) = pdb.module_info(&module)? {
-                let line_collector = SourceLineCollector::new(
-                    &self.address_map,
-                    &self.file_ids,
-                    module_info.line_program()?,
-                );
-                let mut symbols = module_info.symbols()?;
-                while let Some(symbol) = symbols.next()? {
-                    if let Ok(symbol) = symbol.parse() {
-                        self.handle_symbol(
-                            symbol,
-                            &line_collector,
-                            &module_info,
-                            &mut rva_labels,
-                            rva_symbols,
-                        )?;
-                    }
-                }
+            let module_info = match pdb.module_info(&module)? {
+                Some(info) => info,
+                _ => continue,
+            };
+
+            let line_collector = SourceLineCollector::new(
+                &self.address_map,
+                &self.source_files,
+                module_info.line_program()?,
+            );
+
+            let mut symbols = module_info.symbols()?;
+            while let Some(symbol) = symbols.next()? {
+                let symbol = match symbol.parse() {
+                    Ok(s) => s,
+                    _ => continue,
+                };
+
+                self.handle_symbol(
+                    symbol,
+                    &line_collector,
+                    &module_info,
+                    &mut rva_labels,
+                    rva_symbols,
+                )?;
             }
         }
 
@@ -372,9 +338,7 @@ impl PDBInfo<'_> {
             writeln!(writer, "INFO CODE_ID {} {}", code_id, self.pe_name)?;
         }
 
-        for file_info in self.all_files.iter() {
-            writeln!(writer, "{}", file_info)?;
-        }
+        self.source_files.dump(&mut writer)?;
 
         for (rva, sym) in self.rva_symbols.iter_mut() {
             sym.dump(
@@ -414,18 +378,17 @@ impl PDBInfo<'_> {
         let cpu = Self::get_cpu(&dbi);
         let debug_id = Self::get_debug_id(&dbi, pi);
 
+        let source_files = SourceFiles::new(&mut pdb)?;
+
         let mut module = PDBInfo {
             cpu,
             debug_id,
             pe_name,
             pdb_name,
-            all_files: Vec::new(),
-            file_ids: FileIds::default(),
+            source_files,
             rva_symbols: RvaSymbols::new(),
             address_map: pdb.address_map()?,
         };
-
-        module.collect_source_files(&mut pdb, &dbi)?;
 
         let mut rva_symbols = RvaSymbols::default();
         let rva_labels = module.collect_functions(&mut pdb, &dbi, &mut rva_symbols)?;
