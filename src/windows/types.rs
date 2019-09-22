@@ -216,9 +216,11 @@ impl<'a> TypeDumper<'a> {
                     buf.push_str(" const ");
                 }
                 match attr.pointer_mode() {
+                    PointerMode::Pointer => buf.push('*'),
                     PointerMode::LValueReference => buf.push('&'),
+                    PointerMode::Member => buf.push_str("::*"),
+                    PointerMode::MemberFunction => buf.push_str("::"),
                     PointerMode::RValueReference => buf.push_str("&&"),
-                    _ => buf.push('*'),
                 }
                 buf
             })
