@@ -24,29 +24,41 @@ pub enum FuncName {
 
 impl FuncName {
     pub fn get_unknown(name: String) -> Self {
-        if !name.is_empty() && name.chars().find(|c| *c == ':' || *c == '(').is_none() {
-            let first = name.chars().nth(0).unwrap();
-            if first == '_' || first == '@' {
-                let sub = name.get(1..).unwrap();
-                if let Some(pos) = sub.rfind(|c: char| c == '@') {
-                    if let Ok(stack_param_size) = sub.get(pos + 1..).unwrap().parse::<u32>() {
-                        let sps = if first == '@' {
-                            if stack_param_size > 8 {
-                                stack_param_size - 8
-                            } else {
-                                0
-                            }
-                        } else {
-                            stack_param_size
-                        };
-                        return FuncName::Unknown((sub.get(..pos).unwrap().to_string(), sps));
-                    }
-                }
-                if first == '_' {
-                    return FuncName::Unknown((sub.to_string(), 0));
-                }
-            }
+        if name.is_empty() {
+            return FuncName::Unknown((name, 0));
         }
+
+        let (first, sub) = name.split_at(1);
+
+        if sub.find(|c: char| c == ':' || c == '(').is_some() {
+            return FuncName::Unknown((name, 0));
+        }
+
+        if first != "_" && first != "@" {
+            return FuncName::Unknown((name, 0));
+        }
+
+        let parts: Vec<_> = sub.rsplitn(2, '@').collect();
+        if parts.len() <= 1 {
+            let name = if first == "_" { sub.to_string() } else { name };
+            return FuncName::Unknown((name, 0));
+        }
+
+        if let Ok(stack_param_size) = parts[0].parse::<u32>() {
+            let sps = if first == "@" {
+                if stack_param_size > 8 {
+                    stack_param_size - 8
+                } else {
+                    0
+                }
+            } else {
+                stack_param_size
+            };
+            return FuncName::Unknown((parts[1].to_string(), sps));
+        }
+
+        let name = if first == "_" { sub.to_string() } else { name };
+
         FuncName::Unknown((name, 0))
     }
 }
@@ -364,15 +376,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_funcname() {
+    fn test_funcname_sps() {
         if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("_foo@123".to_string()) {
             assert_eq!(name, "foo");
             assert_eq!(sps, 123);
-        }
-
-        if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("_foo@123()".to_string()) {
-            assert_eq!(name, "_foo@123()");
-            assert_eq!(sps, 0);
         }
 
         if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("@foo@123".to_string()) {
@@ -384,6 +391,14 @@ mod tests {
             assert_eq!(name, "foo");
             assert_eq!(sps, 0);
         }
+    }
+
+    #[test]
+    fn test_funcname() {
+        if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("_foo@123()".to_string()) {
+            assert_eq!(name, "_foo@123()");
+            assert_eq!(sps, 0);
+        }
 
         if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("_foo@".to_string()) {
             assert_eq!(name, "foo@");
@@ -392,6 +407,21 @@ mod tests {
 
         if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("_foo".to_string()) {
             assert_eq!(name, "foo");
+            assert_eq!(sps, 0);
+        }
+
+        if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("_foo@bar".to_string()) {
+            assert_eq!(name, "foo@bar");
+            assert_eq!(sps, 0);
+        }
+
+        if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("foobar".to_string()) {
+            assert_eq!(name, "foobar");
+            assert_eq!(sps, 0);
+        }
+
+        if let FuncName::Unknown((name, sps)) = FuncName::get_unknown("@foobar".to_string()) {
+            assert_eq!(name, "@foobar");
             assert_eq!(sps, 0);
         }
     }
