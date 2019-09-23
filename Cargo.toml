@@ -7,6 +7,7 @@ license = "MIT/Apache-2.0"
 
 [dependencies]
 clap = "2.33"
+failure = "0.1"
 is_sorted = "0.1"
 log = "0.4"
 pdb = { git = "https://github.com/willglynn/pdb", rev = "2ebb389828b349a28cf42e83c9ba5bf7bbfda6ed"}

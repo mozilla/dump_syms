@@ -13,7 +13,6 @@ mod windows;
 
 use clap::{App, Arg};
 
-use common::DumpSymError;
 use simplelog::{Config, LevelFilter, TermLogger, TerminalMode};
 use std::fs::File;
 use std::io::BufWriter;
@@ -56,7 +55,7 @@ fn main() {
                 let output = get_writer_for_sym(&pdb_name);
                 windows::pdb::PDBInfo::dump(&pdb_buf, pdb_name, filename, Some(pe), output)
             } else {
-                Err(DumpSymError::Message("No pdb file found"))
+                Err(From::from("No pdb file found"))
             }
         }
         "pdb" => {

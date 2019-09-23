@@ -246,6 +246,7 @@ name = "dump_syms"
 version = "0.0.1"
 dependencies = [
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "is_sorted 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "pdb 0.5.0 (git+https://github.com/willglynn/pdb?rev=2ebb389828b349a28cf42e83c9ba5bf7bbfda6ed)",

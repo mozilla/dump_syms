@@ -3,6 +3,7 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use failure::Fail;
 use pdb::{
     AddressMap, BlockSymbol, DebugInformation, FallibleIterator, FrameTable, MachineType,
     ModuleInfo, PDBInformation, ProcedureSymbol, PublicSymbol, Result, Source, SymbolData,
@@ -353,10 +354,14 @@ impl PDBInfo<'_> {
         let mut cfi_writer = AsciiCfiWriter::new(writer);
         if self.cpu == CPU::X86_64 {
             if let Some(pe) = pe {
-                cfi_writer.process(&Object::Pe(pe))?;
+                cfi_writer
+                    .process(&Object::Pe(pe))
+                    .map_err(|e| e.compat())?;
             }
         } else if let Some(pdb) = pdb {
-            cfi_writer.process(&Object::Pdb(pdb))?;
+            cfi_writer
+                .process(&Object::Pdb(pdb))
+                .map_err(|e| e.compat())?;
         }
 
         Ok(())
