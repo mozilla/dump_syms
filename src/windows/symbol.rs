@@ -93,7 +93,7 @@ impl SelectedSymbol {
             self.type_index = function.type_index;
             self.offset = block_info.offset;
             self.len = block_info.len;
-            self.source = line_collector.collect_source_lines(block_info.offset)?;
+            self.source = line_collector.collect_source_lines(block_info.offset, block_info.len)?;
         }
 
         Ok(())

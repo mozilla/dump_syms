@@ -158,7 +158,8 @@ impl PDBInfo<'_> {
                     .update_private(function, block_info, line_collector)?;
             }
             btree_map::Entry::Vacant(e) => {
-                let source = line_collector.collect_source_lines(block_info.offset)?;
+                let source =
+                    line_collector.collect_source_lines(block_info.offset, block_info.len)?;
                 e.insert(SelectedSymbol {
                     name: fun_name,
                     type_index: function.type_index,
@@ -298,7 +299,7 @@ impl PDBInfo<'_> {
                 &self.address_map,
                 &self.source_files,
                 module_info.line_program()?,
-            );
+            )?;
 
             let mut symbols = module_info.symbols()?;
             while let Some(symbol) = symbols.next()? {
@@ -418,4 +419,30 @@ impl PDBInfo<'_> {
 
         module.dump_all(type_dumper, pdb_object, pe, &frame_table, writer)
     }
+}
+
+#[cfg(test)]
+mod tests {
+
+    /*use std::path::PathBuf;
+
+    use super::*;
+
+    fn get_output(file_name: &str) -> Vec<u8> {
+        let path = PathBuf::from("./tests");
+        let path = path.join(file_name);
+
+        let pe_buf = crate::utils::read_file(&path);
+        let (pe, pdb_buf, pdb_name) = crate::windows::utils::get_pe_pdb_buf(path, &pe_buf).unwrap();
+        let mut output = Vec::new();
+        let cursor = Cursor::new(&mut output);
+        PDBInfo::dump(&pdb_buf, pdb_name, file_name.to_string(), Some(pe), cursor);
+
+        output
+    }
+
+    #[test]
+    fn test_basic32() {
+        let output = get_output("basic32.dll");
+    }*/
 }

@@ -4,17 +4,19 @@
 // copied, modified, or distributed except according to those terms.
 
 use pdb::{
-    AddressMap, FallibleIterator, LineProgram, PdbInternalSectionOffset, Result, Source, StringRef,
-    StringTable, PDB,
+    AddressMap, FallibleIterator, LineInfo, LineProgram, PdbInternalSectionOffset, Result, Source,
+    StringRef, StringTable, PDB,
 };
-use std::collections::{hash_map, HashMap};
+use std::collections::{hash_map, BTreeMap, HashMap};
 use std::io::Write;
+use std::ops::Bound::{Excluded, Included};
 
 use super::line::Lines;
 
 pub(super) struct SourceLineCollector<'a, 's> {
     address_map: &'a AddressMap<'s>,
     source_files: &'a SourceFiles<'s>,
+    lines: BTreeMap<(u16, u32), LineInfo>,
     line_program: LineProgram<'a>,
 }
 
@@ -23,34 +25,59 @@ impl<'a, 's> SourceLineCollector<'a, 's> {
         address_map: &'a AddressMap<'s>,
         source_files: &'a SourceFiles<'s>,
         line_program: LineProgram<'a>,
-    ) -> Self {
-        Self {
+    ) -> Result<Self> {
+        let mut source_lines = BTreeMap::default();
+        let mut lines = line_program.lines();
+
+        // Some symbols corresponding to assembly code don't necessarly start at the correct offset
+        // in LineProgram (e.g. the executable code is at address 0xf00 and source starts at 0xee0).
+        // And the same for symbol length.
+        // So finally we get all the lines by internal offset
+        // and just get the ones which are in corresponding range ([start, start+len[)
+        while let Some(line) = lines.next()? {
+            let offset = line.offset;
+            source_lines.insert((offset.section, offset.offset), line);
+        }
+
+        Ok(Self {
             address_map,
             source_files,
+            lines: source_lines,
             line_program,
-        }
+        })
     }
 
-    pub(super) fn collect_source_lines(&self, offset: PdbInternalSectionOffset) -> Result<Lines> {
-        // lines_at_offset is pretty slow (linear)
-        let mut lines = self.line_program.lines_at_offset(offset);
-
+    pub(super) fn collect_source_lines(
+        &self,
+        offset: PdbInternalSectionOffset,
+        len: u32,
+    ) -> Result<Lines> {
         let mut source_lines = Lines::new();
+        if self.lines.is_empty() {
+            return Ok(source_lines);
+        }
+
+        let start = (offset.section, offset.offset);
+        let end = (offset.section, offset.offset + len);
+        let mut lines = self.lines.range((Included(&start), Excluded(&end)));
+
+        let first = lines.next();
+        if first.is_none() {
+            return Ok(source_lines);
+        }
 
         // Get the first element just to have file_index, file_id
         // which are likely the same for all lines
-        let (mut last_file_index, mut last_file_id) = if let Some(line) = lines.next()? {
-            let rva = line.offset.to_internal_rva(&self.address_map).unwrap();
-            let file = self.line_program.get_file_info(line.file_index)?;
-            let file_id = self.source_files.get_id(file.name);
+        let (_, line) = first.unwrap();
+        let rva = line.offset.to_internal_rva(&self.address_map).unwrap();
+        let file = self.line_program.get_file_info(line.file_index)?;
+        let file_id = self.source_files.get_id(file.name);
 
-            source_lines.add_line(rva.0, line.line_start, file_id);
-            (line.file_index.0, file_id)
-        } else {
-            return Ok(source_lines);
-        };
+        source_lines.add_line(rva.0, line.line_start, file_id);
+        let mut last_file_index = line.file_index.0;
+        let mut last_file_id = file_id;
 
-        while let Some(line) = lines.next()? {
+        for (_, line) in lines {
             let rva = line.offset.to_internal_rva(&self.address_map).unwrap();
 
             // The file_id is very likely always the same

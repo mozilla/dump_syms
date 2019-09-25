@@ -86,13 +86,16 @@ impl Lines {
 
         let first_rva = self.lines[0].rva;
         let lens: Vec<u32> = self.lines.windows(2).map(|w| w[1].rva - w[0].rva).collect();
-        if let Some((last, lines)) = self.lines.split_last_mut() {
-            lines
-                .iter_mut()
-                .zip(lens.iter())
-                .for_each(|(line, len)| line.len = *len);
-            last.len = sym_len - (last.rva - first_rva)
-        }
+
+        // Cannot fail since self.lines isn't empty
+        let (last, lines) = self.lines.split_last_mut().unwrap();
+
+        lines
+            .iter_mut()
+            .zip(lens.iter())
+            .for_each(|(line, len)| line.len = *len);
+
+        last.len = sym_len - (last.rva - first_rva);
     }
 
     fn compute_rva(&mut self, address_map: &AddressMap) {
