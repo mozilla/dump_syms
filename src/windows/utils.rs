@@ -8,6 +8,7 @@ use symbolic_debuginfo::pe::PeObject;
 
 use crate::utils;
 
+#[cfg(unix)]
 pub fn get_win_path(path: &str) -> PathBuf {
     PathBuf::from(path.replace("\\", "/"))
 }
