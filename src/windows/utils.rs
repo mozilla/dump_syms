@@ -16,18 +16,23 @@ pub fn get_win_path(path: &str) -> PathBuf {
 fn try_to_find_pdb(path: PathBuf, pdb_filename: &str) -> Option<Vec<u8>> {
     // Just check that the file is in the same directory as the PE one
     let pdb = path.with_file_name(pdb_filename);
-    if pdb.is_file() {
-        Some(utils::read_file(pdb))
-    } else {
-        // We try in CWD
-        let mut pdb = std::env::current_dir().expect("Unable to get the current working directory");
-        pdb.set_file_name(pdb_filename);
+    let mut pdb_cab = pdb.clone();
+    pdb_cab.set_extension("pd_");
+
+    for pdb in vec![pdb, pdb_cab].drain(..) {
         if pdb.is_file() {
-            Some(utils::read_file(pdb))
+            return Some(utils::read_file(pdb));
         } else {
-            None
+            // We try in CWD
+            let mut pdb =
+                std::env::current_dir().expect("Unable to get the current working directory");
+            pdb.set_file_name(pdb_filename);
+            if pdb.is_file() {
+                return Some(utils::read_file(pdb));
+            }
         }
     }
+    None
 }
 
 #[cfg(windows)]

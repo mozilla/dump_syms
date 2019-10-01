@@ -40,7 +40,7 @@ fn main() {
         .about("Dump debug symbols to breakpad symbols")
         .arg(
             Arg::with_name("filename")
-                .help("File to dump")
+                .help("File to dump (.dll, .exe, .pdb or .pd_)")
                 .required(true)
                 .takes_value(true),
         )
@@ -70,7 +70,7 @@ fn main() {
                 Err(From::from("No pdb file found"))
             }
         }
-        "pdb" => {
+        "pdb" | "pd_" => {
             let output = get_writer_for_sym(&output);
             windows::pdb::PDBInfo::dump(&buf, filename, "".to_string(), None, output)
         }
