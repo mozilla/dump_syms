@@ -52,5 +52,5 @@ tasks:
         metadata:
           name: dump_syms test
           description: dump_syms test
-          owner: ${user}@users.noreply.github.com
+          owner: cdenizet@mozilla.com
           source: ${repository}/raw/${head_rev}/.taskcluster.yml
