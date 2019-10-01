@@ -28,7 +28,7 @@ tasks:
   in:
     $if: 'tasks_for in ["github-pull-request", "github-push"]'
     then:
-      - taskId: {$eval: as_slugid("lint_test_task")}
+      - taskId: {$eval: as_slugid("lint_task")}
         created: {$fromNow: ''}
         deadline: {$fromNow: '1 hour'}
         provisionerId: aws-provisioner-v1
@@ -47,8 +47,39 @@ tasks:
                cd dump_syms &&
                git -c advice.detachedHead=false checkout ${head_rev} &&
                cargo fmt -- --check &&
-               cargo clippy --all-features --tests --all --examples -- -D clippy::all &&
-               cargo test"
+               cargo clippy --all-features --tests --all --examples -- -D clippy::all"
+        metadata:
+          name: dump_syms lint
+          description: dump_syms lint
+          owner: cdenizet@mozilla.com
+          source: ${repository}/raw/${head_rev}/.taskcluster.yml
+    $if: 'tasks_for in ["github-pull-request", "github-push"]'
+    then:
+      - taskId: {$eval: as_slugid("test_task")}
+        created: {$fromNow: ''}
+        deadline: {$fromNow: '1 hour'}
+        provisionerId: aws-provisioner-v1
+        workerType: github-worker
+        payload:
+          maxRunTime: 3600
+          image: "rust:buster"
+          env:
+            CODECOV_TOKEN="0951320b-00b4-481a-b38e-2248fe45256b"
+            CARGO_INCREMENTAL=0
+            RUSTFLAGS="-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
+          command:
+            - "/bin/bash"
+            - "-cx"
+            - "rustup toolchain install nightly &&
+               rustup default nightly &&
+               curl -L https://github.com/mozilla/grcov/releases/latest/download/grcov-linux-x86_64.tar.bz2 | tar jxf - &&
+               git clone --recursive --quiet ${repository} &&
+               cd dump_syms &&
+               git -c advice.detachedHead=false checkout ${head_rev} &&
+               cargo test &&
+               zip -0 ccov.zip `find . \( -name 'dump_syms*.gc*' \) -print` &&
+               ./grcov ccov.zip -s . -t lcov --llvm --branch --ignore-not-existing --ignore-dir '/*' -o lcov.info &&
+               bash <(curl -s https://codecov.io/bash) -f lcov.info"
         metadata:
           name: dump_syms test
           description: dump_syms test
