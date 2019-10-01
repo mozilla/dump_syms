@@ -41,9 +41,13 @@ tasks:
             - "-cx"
             - "rustup toolchain install stable &&
                rustup default stable &&
+               rustup component add clippy &&
+               rustup component add rustfmt &&
                git clone --recursive --quiet ${repository} &&
                cd dump_syms &&
                git -c advice.detachedHead=false checkout ${head_rev} &&
+               cargo fmt -- --check &&
+               cargo clippy --all-features --tests --all --examples -- -D clippy::all &&
                cargo test"
         metadata:
           name: dump_syms test
