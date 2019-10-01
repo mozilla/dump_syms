@@ -68,7 +68,9 @@ tasks:
           command:
             - "/bin/bash"
             - "-cx"
-            - "rustup toolchain install nightly &&
+            - "apt-get -qq update &&
+               apt-get -qq install -y zip &&
+               rustup toolchain install nightly &&
                rustup default nightly &&
                curl -L https://github.com/mozilla/grcov/releases/latest/download/grcov-linux-x86_64.tar.bz2 | tar jxf - &&
                git clone --recursive --quiet ${repository} &&
