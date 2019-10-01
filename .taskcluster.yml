@@ -53,8 +53,6 @@ tasks:
           description: dump_syms lint
           owner: cdenizet@mozilla.com
           source: ${repository}/raw/${head_rev}/.taskcluster.yml
-    $if: 'tasks_for in ["github-pull-request", "github-push"]'
-    then:
       - taskId: {$eval: as_slugid("test_task")}
         created: {$fromNow: ''}
         deadline: {$fromNow: '1 hour'}
