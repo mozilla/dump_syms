@@ -6,6 +6,7 @@ edition = "2018"
 license = "MIT/Apache-2.0"
 
 [dependencies]
+cab = "0.2"
 clap = "2.33"
 failure = "0.1"
 fxhash = "0.2"
