@@ -4,26 +4,23 @@
 // copied, modified, or distributed except according to those terms.
 
 use failure::Fail;
+use fxhash::FxHashSet;
 use pdb::{
     AddressMap, BlockSymbol, DebugInformation, FallibleIterator, FrameTable, MachineType,
-    ModuleInfo, PDBInformation, ProcedureSymbol, PublicSymbol, Result, Source, SymbolData,
-    SymbolTable, TypeIndex, PDB,
+    ModuleInfo, PDBInformation, Register, Result, Source, SymbolData, SymbolTable, PDB,
 };
-use std::collections::{btree_map, BTreeMap, HashSet};
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
 use symbolic_debuginfo::{pdb::PdbObject, pe::PeObject, Object};
 use symbolic_minidump::cfi::AsciiCfiWriter;
 use uuid::Uuid;
 
-use super::line::Lines;
 use super::source::{SourceFiles, SourceLineCollector};
-use super::symbol::{BlockInfo, SelectedSymbol};
+use super::symbol::{BlockInfo, RvaSymbols};
 use super::types::TypeDumper;
 use crate::common;
 
-type RvaSymbols = BTreeMap<u32, SelectedSymbol>;
-type RvaLabels = HashSet<u32>;
+pub(super) type RvaLabels = FxHashSet<u32>;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum CPU {
@@ -76,46 +73,8 @@ impl PDBInfo<'_> {
         // Here the guid is treated like a 128-bit uuid (PDB >=7.0)
         let mut buf = Uuid::encode_buffer();
         let guid = pi.guid.to_simple().encode_upper(&mut buf);
-        let age = if let Some(age) = dbi.age() {
-            age
-        } else {
-            pi.age
-        };
+        let age = dbi.age().unwrap_or(pi.age);
         format!("{}{:x}", guid, age)
-    }
-
-    fn add_public_symbol(
-        &self,
-        symbol: PublicSymbol,
-        rva_labels: &RvaLabels,
-        rva_symbols: &mut RvaSymbols,
-    ) {
-        let rva = match symbol.offset.to_rva(&self.address_map) {
-            Some(rva) => rva,
-            _ => return,
-        };
-
-        if symbol.code || symbol.function || rva_labels.contains(&rva.0) {
-            match rva_symbols.entry(rva.0) {
-                btree_map::Entry::Occupied(selected) => {
-                    let selected = selected.into_mut();
-                    selected.update_public(symbol);
-                }
-                btree_map::Entry::Vacant(e) => {
-                    let sym_name = symbol.name.to_string().into_owned();
-                    let offset = symbol.offset;
-                    e.insert(SelectedSymbol {
-                        name: sym_name,
-                        type_index: TypeIndex(0),
-                        is_public: true,
-                        is_multiple: false,
-                        offset,
-                        len: 0,
-                        source: Lines::new(),
-                    });
-                }
-            }
-        }
     }
 
     fn collect_public_symbols(
@@ -132,45 +91,10 @@ impl PDBInfo<'_> {
             };
 
             if let SymbolData::Public(symbol) = symbol {
-                self.add_public_symbol(symbol, &rva_labels, rva_symbols);
+                rva_symbols.add_public_symbol(symbol, &rva_labels, &self.address_map);
             }
         }
 
-        Ok(())
-    }
-
-    fn add_function_symbol(
-        &self,
-        line_collector: &SourceLineCollector,
-        function: ProcedureSymbol,
-        block_info: BlockInfo,
-        rva_symbols: &mut RvaSymbols,
-    ) -> Result<()> {
-        // Since several symbols may have the same rva (because they've the same disassembly code)
-        // we need to "select" the a symbol for a rva.
-        // Anyway it could lead to strange backtraces.
-
-        let fun_name = function.name.to_string().into_owned();
-        match rva_symbols.entry(block_info.rva) {
-            btree_map::Entry::Occupied(selected) => {
-                selected
-                    .into_mut()
-                    .update_private(function, block_info, line_collector)?;
-            }
-            btree_map::Entry::Vacant(e) => {
-                let source =
-                    line_collector.collect_source_lines(block_info.offset, block_info.len)?;
-                e.insert(SelectedSymbol {
-                    name: fun_name,
-                    type_index: function.type_index,
-                    is_public: false,
-                    is_multiple: false,
-                    offset: block_info.offset,
-                    len: block_info.len,
-                    source,
-                });
-            }
-        }
         Ok(())
     }
 
@@ -188,7 +112,6 @@ impl PDBInfo<'_> {
         // that are children of them. We can then find the lexical parents
         // of those blocks and print out an extra FUNC line for blocks
         // that are not contained in their parent functions.
-
         let parent = match module_info.symbols_at(block.parent)?.next()? {
             Some(p) => p,
             _ => return Ok(()),
@@ -216,7 +139,7 @@ impl PDBInfo<'_> {
 
         if block_rva < parent_rva || block_rva > parent_rva + parent.len {
             // So the block is outside of its parent procedure
-            self.add_function_symbol(
+            rva_symbols.add_procedure_symbol(
                 &line_collector,
                 parent,
                 BlockInfo {
@@ -224,7 +147,6 @@ impl PDBInfo<'_> {
                     offset: block.offset,
                     len: block.len,
                 },
-                rva_symbols,
             )?;
         }
 
@@ -246,7 +168,7 @@ impl PDBInfo<'_> {
                     _ => return Ok(()),
                 };
 
-                self.add_function_symbol(
+                rva_symbols.add_procedure_symbol(
                     line_collector,
                     procedure,
                     BlockInfo {
@@ -254,21 +176,31 @@ impl PDBInfo<'_> {
                         offset: procedure.offset,
                         len: procedure.len,
                     },
-                    rva_symbols,
                 )?;
             }
             SymbolData::Label(label) => {
                 if let Some(rva) = label.offset.to_rva(&self.address_map) {
-                    rva_labels.insert(rva.0);
+                    if line_collector.has_lines() {
+                        rva_labels.insert(rva.0);
+                    }
                 }
             }
             SymbolData::Block(block) => {
                 self.add_block(&module_info, line_collector, block, rva_symbols)?;
             }
-            /*S_ATTR_REGREL => {
-                // Could be useful to compute the stack size
-                // We should get a symbol here and put in a vec in the last SelectedSymbol
-            },*/
+            SymbolData::RegisterRelative(regrel) => {
+                // TODO: check that's the correct way to know if we've a parameter here
+                // 22 comes from https://github.com/microsoft/microsoft-pdb/blob/master/include/cvconst.h#L436
+                if self.cpu == CPU::X86
+                    && regrel.register == Register(22 /* EBP */)
+                    && regrel.offset > 0
+                {
+                    rva_symbols.add_ebp(regrel);
+                }
+            }
+            SymbolData::ScopeEnd => {
+                rva_symbols.close_procedure();
+            }
             _ => {}
         }
 
@@ -342,15 +274,8 @@ impl PDBInfo<'_> {
 
         self.source_files.dump(&mut writer)?;
 
-        for (rva, sym) in self.rva_symbols.iter_mut() {
-            sym.dump(
-                &self.address_map,
-                frame_table,
-                &type_dumper,
-                *rva,
-                &mut writer,
-            )?;
-        }
+        self.rva_symbols
+            .dump(&self.address_map, frame_table, &type_dumper, &mut writer)?;
 
         let mut cfi_writer = AsciiCfiWriter::new(writer);
         if self.cpu == CPU::X86_64 {
@@ -392,7 +317,7 @@ impl PDBInfo<'_> {
             pe_name,
             pdb_name,
             source_files,
-            rva_symbols: RvaSymbols::new(),
+            rva_symbols: RvaSymbols::default(),
             address_map: pdb.address_map()?,
         };
 
@@ -424,25 +349,255 @@ impl PDBInfo<'_> {
 #[cfg(test)]
 mod tests {
 
-    /*use std::path::PathBuf;
+    use std::fs::File;
+    use std::io::Read;
+    use std::path::PathBuf;
+    use symbolic_debuginfo::breakpad::{
+        BreakpadFileMap, BreakpadFuncRecord, BreakpadLineRecord, BreakpadObject,
+    };
 
     use super::*;
 
-    fn get_output(file_name: &str) -> Vec<u8> {
-        let path = PathBuf::from("./tests");
-        let path = path.join(file_name);
+    #[derive(Debug, PartialEq)]
+    struct StackWin {
+        typ: u32,
+        rva: u32,
+        code_size: u32,
+        prolog_size: u32,
+        epilog_size: u32,
+        params_size: u32,
+        regs_size: u32,
+        locals_size: u32,
+        max_stack_size: u32,
+        extra: String,
+    }
+
+    fn get_new_bp(file_name: &str) -> Vec<u8> {
+        let path = PathBuf::from("./test_data");
+        let mut path = path.join(file_name);
+
+        if !path.exists() {
+            path.set_extension("exe");
+        }
 
         let pe_buf = crate::utils::read_file(&path);
         let (pe, pdb_buf, pdb_name) = crate::windows::utils::get_pe_pdb_buf(path, &pe_buf).unwrap();
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
-        PDBInfo::dump(&pdb_buf, pdb_name, file_name.to_string(), Some(pe), cursor);
+        PDBInfo::dump(&pdb_buf, pdb_name, file_name.to_string(), Some(pe), cursor).unwrap();
 
         output
     }
 
+    fn get_data(file_name: &str) -> Vec<u8> {
+        let path = PathBuf::from("./test_data");
+        let path = path.join(file_name);
+
+        let mut file = File::open(&path).unwrap();
+        let mut buf = Vec::new();
+        file.read_to_end(&mut buf).unwrap();
+
+        buf
+    }
+
+    fn clean_old_lines(func: &BreakpadFuncRecord) -> Vec<BreakpadLineRecord> {
+        let mut res: Vec<BreakpadLineRecord> = Vec::new();
+        func.lines().for_each(|l| {
+            let line = l.unwrap();
+            if line.line >= 0xf00_000 {
+                res.last_mut().unwrap().size += line.size
+            } else {
+                res.push(line);
+            }
+        });
+
+        res
+    }
+
+    fn check_headers(new: &BreakpadObject, old: &BreakpadObject) {
+        assert_eq!(new.code_id(), old.code_id(), "Bad code id");
+        assert_eq!(new.debug_id(), old.debug_id(), "Bad debug id");
+        assert_eq!(new.arch(), old.arch(), "Bad arch");
+        assert_eq!(new.name(), old.name(), "Bad name");
+        assert_eq!(new.kind(), old.kind(), "Bad kind");
+    }
+
+    fn check_func(
+        pos: usize,
+        new: BreakpadFuncRecord,
+        old: BreakpadFuncRecord,
+        file_map_new: &BreakpadFileMap,
+        file_map_old: &BreakpadFileMap,
+    ) {
+        assert_eq!(
+            new.address,
+            old.address,
+            "Not the same address for FUNC at position {}",
+            pos + 1
+        );
+        assert_eq!(
+            new.multiple, old.multiple,
+            "Not the same multiplicity for FUNC at rva {:x}",
+            new.address
+        );
+        assert_eq!(
+            new.size, old.size,
+            "Not the same size for FUNC at rva {:x}",
+            new.address
+        );
+        assert_eq!(
+            new.parameter_size, old.parameter_size,
+            "Not the same parameter size for FUNC at rva {:x}",
+            new.address
+        );
+
+        // TODO: find a way to compare function names
+
+        let line_old = clean_old_lines(&old);
+        let line_new = new.lines();
+
+        assert_eq!(
+            line_new.clone().count(),
+            line_old.len(),
+            "Not the same number of lines for FUNC at rva {:x}",
+            new.address
+        );
+        for (i, (line_n, line_o)) in line_new.zip(line_old.iter()).enumerate() {
+            let line_n = line_n.unwrap();
+
+            assert_eq!(
+                line_n.address,
+                line_o.address,
+                "Not the same address for line at position {} in FUNC at rva {:x}",
+                i + 1,
+                new.address
+            );
+
+            if i < line_old.len() - 1 {
+                // Sometimes the last line is different
+                // For a line, DIA seems to compute the length using the address of next line minus address of the line
+                // But it appears that in assembly files we may have several symbols for the same offset
+                // and so the length may be incorrect.
+                assert_eq!(
+                    line_n.size,
+                    line_o.size,
+                    "Not the same size for line at position {} in FUNC at rva {:x}",
+                    i + 1,
+                    new.address
+                );
+            }
+
+            assert_eq!(
+                line_n.line,
+                line_o.line,
+                "Not the same line number for line at position {} in FUNC at rva {:x}",
+                i + 1,
+                new.address
+            );
+
+            assert_eq!(
+                file_map_new.get(&line_n.file_id),
+                file_map_old.get(&line_o.file_id),
+                "Not the same file for line at position {} in FUNC at rva {:x}",
+                i + 1,
+                new.address
+            );
+        }
+    }
+
+    fn test_file(name: &str) {
+        let dll = name.to_string() + ".dll";
+        let out = get_new_bp(&dll);
+        let new = BreakpadObject::parse(&out).unwrap();
+
+        let sym = name.to_string() + ".old.sym";
+        let out = get_data(&sym);
+        let old = BreakpadObject::parse(&out).unwrap();
+
+        check_headers(&new, &old);
+
+        let file_map_old = old.file_map();
+        let file_map_new = new.file_map();
+        let files_old: Vec<_> = file_map_old.values().collect();
+        let files_new: Vec<_> = file_map_new.values().collect();
+
+        assert_eq!(files_new, files_old, "Not the same files");
+
+        let func_old = old.func_records();
+        let func_new = new.func_records();
+
+        assert_eq!(
+            func_new.clone().count(),
+            func_old.clone().count(),
+            "Not the same number of FUNC"
+        );
+
+        for (i, (func_n, func_o)) in func_new.zip(func_old).enumerate() {
+            let func_n = func_n.unwrap();
+            let func_o = func_o.unwrap();
+
+            check_func(i, func_n, func_o, &file_map_new, &file_map_old);
+        }
+
+        let public_old = old.public_records();
+        let public_new = new.public_records();
+
+        assert_eq!(
+            public_new.clone().count(),
+            public_old.clone().count(),
+            "Not the same number of PUBLIC"
+        );
+
+        for (i, (public_n, public_o)) in public_new.zip(public_old).enumerate() {
+            let public_n = public_n.unwrap();
+            let public_o = public_o.unwrap();
+
+            assert_eq!(
+                public_n.address,
+                public_o.address,
+                "Not the same address for PUBLIC at position {}",
+                i + 1
+            );
+            assert_eq!(
+                public_n.multiple, public_o.multiple,
+                "Not the same multiplicity for PUBLIC at rva {:x}",
+                public_n.address
+            );
+            assert_eq!(
+                public_n.parameter_size, public_o.parameter_size,
+                "Not the same parameter size for PUBLIC at rva {:x}",
+                public_n.address
+            );
+            assert_eq!(
+                public_n.name, public_o.name,
+                "Not the same name for PUBLIC at rva {:x}",
+                public_n.address
+            );
+        }
+    }
+
     #[test]
     fn test_basic32() {
-        let output = get_output("basic32.dll");
-    }*/
+        test_file("basic32");
+    }
+
+    #[test]
+    fn test_basic64() {
+        test_file("basic64");
+    }
+
+    #[test]
+    fn test_basic_opt32() {
+        test_file("basic-opt32");
+    }
+
+    #[test]
+    fn test_basic_opt64() {
+        test_file("basic-opt64");
+    }
+
+    #[test]
+    fn test_dump_syms_regtest64() {
+        test_file("dump_syms_regtest64");
+    }
 }

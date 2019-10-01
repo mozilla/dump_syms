@@ -6,6 +6,7 @@
 use pdb::{
     ClassKind, FallibleIterator, MemberFunctionType, PointerAttributes, PointerMode, PointerType,
     PrimitiveKind, ProcedureType, Result, TypeData, TypeFinder, TypeIndex, TypeInformation,
+    Variant,
 };
 use symbolic_common::{Language, Name};
 use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
@@ -24,17 +25,18 @@ pub enum FuncName {
 
 impl FuncName {
     pub fn get_unknown(name: String) -> Self {
+        // https://docs.microsoft.com/en-us/cpp/build/reference/decorated-names?view=vs-2019
+        // __cdecl Leading underscore (_)
+        // __stdcall Leading underscore (_) and a trailing at sign (@) followed by the number of bytes in the parameter list in decimal
+        // __fastcall Leading and trailing at signs (@) followed by a decimal number representing the number of bytes in the parameter list
+
         if name.is_empty() {
             return FuncName::Unknown((name, 0));
         }
 
         let (first, sub) = name.split_at(1);
 
-        if sub.find(|c: char| c == ':' || c == '(').is_some() {
-            return FuncName::Unknown((name, 0));
-        }
-
-        if first != "_" && first != "@" {
+        if (first != "_" && first != "@") || sub.find(|c: char| c == ':' || c == '(').is_some() {
             return FuncName::Unknown((name, 0));
         }
 
@@ -46,6 +48,7 @@ impl FuncName {
 
         if let Ok(stack_param_size) = parts[0].parse::<u32>() {
             let sps = if first == "@" {
+                // __fastcall: the two first args are put in ECX and EDX
                 if stack_param_size > 8 {
                     stack_param_size - 8
                 } else {
@@ -76,6 +79,76 @@ impl<'a> TypeDumper<'a> {
         }
 
         Ok(Self { finder })
+    }
+
+    pub fn get_type_size(&self, index: TypeIndex, ptr: u32) -> u32 {
+        let typ = match self.finder.find(index) {
+            Ok(t) => t,
+            _ => return 0,
+        };
+
+        let typ = match typ.parse() {
+            Ok(t) => t,
+            _ => return 0,
+        };
+
+        match typ {
+            TypeData::Primitive(t) => {
+                if t.indirection.is_some() {
+                    return ptr;
+                }
+                match t.kind {
+                    PrimitiveKind::NoType | PrimitiveKind::Void => 0,
+                    PrimitiveKind::Char
+                    | PrimitiveKind::UChar
+                    | PrimitiveKind::RChar
+                    | PrimitiveKind::I8
+                    | PrimitiveKind::U8
+                    | PrimitiveKind::Bool8 => 1,
+                    PrimitiveKind::WChar
+                    | PrimitiveKind::RChar16
+                    | PrimitiveKind::I16
+                    | PrimitiveKind::U16
+                    | PrimitiveKind::F16
+                    | PrimitiveKind::Bool16 => 2,
+                    PrimitiveKind::RChar32
+                    | PrimitiveKind::I32
+                    | PrimitiveKind::U32
+                    | PrimitiveKind::F32
+                    | PrimitiveKind::F32PP
+                    | PrimitiveKind::Bool32
+                    | PrimitiveKind::HRESULT => 4,
+                    PrimitiveKind::I64
+                    | PrimitiveKind::U64
+                    | PrimitiveKind::F64
+                    | PrimitiveKind::Complex32
+                    | PrimitiveKind::Bool64 => 8,
+                    PrimitiveKind::I128
+                    | PrimitiveKind::U128
+                    | PrimitiveKind::F128
+                    | PrimitiveKind::Complex64 => 16,
+                    PrimitiveKind::F48 => 6,
+                    PrimitiveKind::F80 => 10,
+                    PrimitiveKind::Complex80 => 20,
+                    PrimitiveKind::Complex128 => 32,
+                }
+            }
+            TypeData::Class(t) => u32::from(t.size),
+            TypeData::MemberFunction(_) => ptr,
+            TypeData::Procedure(_) => ptr,
+            TypeData::Pointer(_) => ptr,
+            TypeData::Array(t) => *t.dimensions.last().unwrap(),
+            TypeData::Union(t) => t.size,
+            TypeData::Enumeration(t) => self.get_type_size(t.underlying_type, ptr),
+            TypeData::Enumerate(t) => match t.value {
+                Variant::I8(_) | Variant::U8(_) => 1,
+                Variant::I16(_) | Variant::U16(_) => 2,
+                Variant::I32(_) | Variant::U32(_) => 4,
+                Variant::I64(_) | Variant::U64(_) => 8,
+            },
+            TypeData::Modifier(t) => self.get_type_size(t.underlying_type, ptr),
+            _ => 0,
+        }
     }
 
     /// Dump a ProcedureType at the given TypeIndex
@@ -130,7 +203,6 @@ impl<'a> TypeDumper<'a> {
         // So the boolean flag in the returned value is here for that (true == known language)
         // For information:
         //  - msvc-demangler has no problem with symbols containing ".llvm."
-
         let lang = Name::new(ident).detect_language();
         if lang == Language::Unknown {
             return FuncName::get_unknown(ident.to_string());
@@ -141,9 +213,16 @@ impl<'a> TypeDumper<'a> {
             format: DemangleFormat::Full,
             with_arguments: true,
         }) {
-            Some(demangled) => FuncName::Undecorated(demangled),
+            Some(demangled) => {
+                if demangled == ident {
+                    // Maybe the langage detection was finally wrong
+                    FuncName::get_unknown(demangled)
+                } else {
+                    FuncName::Undecorated(demangled)
+                }
+            }
             None => {
-                warn!("Didn't manage to demangle {}", ident);
+                //warn!("Didn't manage to demangle {}", ident);
                 FuncName::Undecorated(ident.to_string())
             }
         }

@@ -3,15 +3,18 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use fxhash::FxHashMap;
 use pdb::{
-    AddressMap, FallibleIterator, LineInfo, LineProgram, PdbInternalSectionOffset, Result, Source,
-    StringRef, StringTable, PDB,
+    AddressMap, FallibleIterator, FileIndex, LineInfo, LineProgram, PdbInternalSectionOffset,
+    Result, Source, StringRef, StringTable, PDB,
 };
-use std::collections::{hash_map, BTreeMap, HashMap};
+use std::collections::{hash_map, BTreeMap};
 use std::io::Write;
 use std::ops::Bound::{Excluded, Included};
 
 use super::line::Lines;
+
+type RefToIds = FxHashMap<StringRef, u32>;
 
 pub(super) struct SourceLineCollector<'a, 's> {
     address_map: &'a AddressMap<'s>,
@@ -47,6 +50,10 @@ impl<'a, 's> SourceLineCollector<'a, 's> {
         })
     }
 
+    pub(super) fn has_lines(&self) -> bool {
+        !self.lines.is_empty()
+    }
+
     pub(super) fn collect_source_lines(
         &self,
         offset: PdbInternalSectionOffset,
@@ -59,37 +66,17 @@ impl<'a, 's> SourceLineCollector<'a, 's> {
 
         let start = (offset.section, offset.offset);
         let end = (offset.section, offset.offset + len);
-        let mut lines = self.lines.range((Included(&start), Excluded(&end)));
+        let mut last_file_index = FileIndex(std::u32::MAX);
+        let mut last_file_id = 0;
 
-        let first = lines.next();
-        if first.is_none() {
-            return Ok(source_lines);
-        }
-
-        // Get the first element just to have file_index, file_id
-        // which are likely the same for all lines
-        let (_, line) = first.unwrap();
-        let rva = line.offset.to_internal_rva(&self.address_map).unwrap();
-        let file = self.line_program.get_file_info(line.file_index)?;
-        let file_id = self.source_files.get_id(file.name);
-
-        source_lines.add_line(rva.0, line.line_start, file_id);
-        let mut last_file_index = line.file_index.0;
-        let mut last_file_id = file_id;
-
-        for (_, line) in lines {
+        for (_, line) in self.lines.range((Included(&start), Excluded(&end))) {
             let rva = line.offset.to_internal_rva(&self.address_map).unwrap();
-
-            // The file_id is very likely always the same
-            let file_id = if line.file_index.0 == last_file_index {
-                last_file_id
-            } else {
-                last_file_index = line.file_index.0;
-                let file = self.line_program.get_file_info(line.file_index)?;
+            if last_file_index != line.file_index {
+                let file = self.line_program.get_file_info(line.file_index).unwrap();
+                last_file_index = line.file_index;
                 last_file_id = self.source_files.get_id(file.name);
-                last_file_id
-            };
-            source_lines.add_line(rva.0, line.line_start, file_id);
+            }
+            source_lines.add_line(rva.0, line.line_start, last_file_id);
         }
 
         Ok(source_lines)
@@ -99,7 +86,7 @@ impl<'a, 's> SourceLineCollector<'a, 's> {
 #[derive(Debug)]
 pub(super) struct SourceFiles<'a> {
     string_table: StringTable<'a>,
-    ref_to_id: HashMap<StringRef, u32>,
+    ref_to_id: RefToIds,
     id_to_ref: Vec<StringRef>,
 }
 
@@ -108,7 +95,7 @@ impl<'a> SourceFiles<'a> {
         let string_table = pdb.string_table()?;
         let dbi = pdb.debug_information()?;
         let mut modules = dbi.modules()?;
-        let mut ref_to_id = HashMap::default();
+        let mut ref_to_id = RefToIds::default();
         let mut id_to_ref = Vec::new();
         let mut id = 0;
 
@@ -123,7 +110,6 @@ impl<'a> SourceFiles<'a> {
 
             let mut files = module_info.line_program()?.files();
             while let Some(file) = files.next()? {
-                // string_ref is an u32 corresponding to the offset in the string table
                 match ref_to_id.entry(file.name) {
                     hash_map::Entry::Occupied(_) => {}
                     hash_map::Entry::Vacant(e) => {

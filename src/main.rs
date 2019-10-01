@@ -77,5 +77,6 @@ fn main() {
         _ => Ok(()),
     } {
         eprintln!("{}", e);
+        std::process::exit(1);
     }
 }
