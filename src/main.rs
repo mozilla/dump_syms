@@ -7,6 +7,7 @@
 extern crate clap;
 #[macro_use]
 extern crate log;
+mod cache;
 mod common;
 mod utils;
 mod windows;

@@ -5,7 +5,9 @@
 
 use std::path::PathBuf;
 use symbolic_debuginfo::pe::PeObject;
+use uuid::Uuid;
 
+use crate::cache;
 use crate::utils;
 
 #[cfg(unix)]
@@ -70,8 +72,27 @@ pub fn get_pe_pdb_buf<'a>(path: PathBuf, buf: &'a [u8]) -> Option<(PeObject<'a>,
         if let Some(pdb_buf) = pdb {
             Some((pe, pdb_buf, pdb_name))
         } else {
-            None
+            // Not here so try symbol server (or cache)
+            let debug_id = get_pe_debug_id(Some(&pe)).unwrap();
+            let (pdb, pdb_name) = cache::search_symbol_file(pdb_name, &debug_id);
+            if let Some(pdb_buf) = pdb {
+                Some((pe, pdb_buf, pdb_name))
+            } else {
+                None
+            }
         }
+    } else {
+        None
+    }
+}
+
+pub fn get_pe_debug_id(pe: Option<&PeObject>) -> Option<String> {
+    if let Some(pe) = pe {
+        let mut buf = Uuid::encode_buffer();
+        let debug_id = pe.debug_id();
+        let uuid = debug_id.uuid().to_simple().encode_upper(&mut buf);
+        let appendix = debug_id.appendix();
+        Some(format!("{}{:x}", uuid, appendix))
     } else {
         None
     }
