@@ -7,7 +7,7 @@ use dirs::home_dir;
 use futures::{stream, Future, Stream};
 use reqwest::r#async::{Client, Decoder};
 use std::fs::{self, File};
-use std::io::{BufWriter, Cursor, Read, Write};
+use std::io::{BufWriter, Read, Write};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tokio;
@@ -115,11 +115,11 @@ fn copy_in_cache(path: Option<PathBuf>, data: &[u8]) -> bool {
         return false;
     }
 
-    if path.is_none() {
-        return true;
-    }
+    let path = match path {
+        Some(p) => p,
+        _ => return true,
+    };
 
-    let path = path.unwrap();
     if let Some(parent) = path.parent() {
         if !parent.exists() {
             fs::create_dir_all(parent).unwrap_or_else(|_| {
@@ -141,25 +141,18 @@ fn copy_in_cache(path: Option<PathBuf>, data: &[u8]) -> bool {
     true
 }
 
-pub fn search_symbol_file(file_name: String, debug_id: &str) -> (Option<Vec<u8>>, String) {
-    if file_name.is_empty() {
-        return (None, file_name);
-    }
-
-    let servers = match read_config() {
-        Some(s) => s,
-        _ => return (None, file_name),
-    };
-
-    // Start with the caches
+fn search_in_cache(servers: &[SymbolServer], debug_id: &str, file_name: &str) -> Option<PathBuf> {
     for cache in servers.iter().filter_map(|x| x.cache.as_ref()) {
         let path = PathBuf::from(cache).join(debug_id).join(&file_name);
         if path.exists() {
-            return (Some(utils::read_file(path)), file_name);
+            return Some(path);
         }
     }
+    None
+}
 
-    // Try the symbol servers
+fn get_jobs(servers: &[SymbolServer], debug_id: &str, file_name: &str) -> Vec<Job> {
+    // The query urls are: https://symbols.mozilla.org/xul.pdb/DEBUG_ID/xul.pd_
     let mut jobs = Vec::new();
     for server in servers.iter() {
         let path = if let Some(cache) = server.cache.as_ref() {
@@ -189,37 +182,42 @@ pub fn search_symbol_file(file_name: String, debug_id: &str) -> (Option<Vec<u8>>
         }
     }
 
+    jobs
+}
+
+fn retrieve_data(jobs: Vec<Job>) -> Vec<Vec<u8>> {
     let client = Client::new();
     let n_queries = jobs.len();
+    let results = Arc::new(Mutex::new(Vec::new()));
 
-    let bodies = stream::iter_ok(jobs)
-        .map(move |job| {
-            client
-                .get(&job.url)
-                .send()
-                .and_then(|mut res| {
-                    let body = std::mem::replace(res.body_mut(), Decoder::empty());
-                    body.concat2().map_err(Into::into)
-                })
-                .and_then(move |body| {
-                    Ok(if copy_in_cache(job.cache, &body) {
-                        Some(body.to_vec())
-                    } else {
-                        None
+    let pdbs = stream::iter_ok(jobs)
+        .map({
+            move |job| {
+                client
+                    .get(&job.url)
+                    .send()
+                    .and_then(|mut res| {
+                        let body = std::mem::replace(res.body_mut(), Decoder::empty());
+                        body.concat2().map_err(Into::into)
                     })
-                })
+                    .and_then(move |body| {
+                        Ok(if copy_in_cache(job.cache, &body) {
+                            Some(body.to_vec())
+                        } else {
+                            None
+                        })
+                    })
+            }
         })
         .buffer_unordered(n_queries);
 
-    let results = Arc::new(Mutex::new(Vec::new()));
-    let work = bodies
+    let work = pdbs
+        .filter_map(|d| d)
         .for_each({
             let results = Arc::clone(&results);
-            move |b| {
-                if let Some(b) = b {
-                    let mut results = results.lock().unwrap();
-                    results.push(b);
-                }
+            move |d| {
+                let mut results = results.lock().unwrap();
+                results.push(d);
                 Ok(())
             }
         })
@@ -227,14 +225,35 @@ pub fn search_symbol_file(file_name: String, debug_id: &str) -> (Option<Vec<u8>>
 
     tokio::run(work);
 
-    let mut results = Arc::try_unwrap(results).unwrap().into_inner().unwrap();
-    if results.is_empty() {
+    Arc::try_unwrap(results).unwrap().into_inner().unwrap()
+}
+
+pub fn search_symbol_file(file_name: String, debug_id: &str) -> (Option<Vec<u8>>, String) {
+    if file_name.is_empty() {
         return (None, file_name);
     }
 
-    let buf = results.pop().unwrap();
-    let path = PathBuf::from(&file_name);
-    let buf = utils::read_cabinet(buf, path)
-        .unwrap_or_else(|| panic!("Unable to read the file {} from the server", file_name));
-    (Some(buf), file_name)
+    let servers = match read_config() {
+        Some(s) => s,
+        _ => return (None, file_name),
+    };
+
+    // Start with the caches
+    if let Some(path) = search_in_cache(&servers, debug_id, &file_name) {
+        return (Some(utils::read_file(path)), file_name);
+    }
+
+    // Try the symbol servers
+    // Each job contains the path where to cache data (if one) and a query url
+    let jobs = get_jobs(&servers, debug_id, &file_name);
+    let mut pdbs = retrieve_data(jobs);
+
+    if let Some(buf) = pdbs.pop() {
+        let path = PathBuf::from(&file_name);
+        let buf = utils::read_cabinet(buf, path)
+            .unwrap_or_else(|| panic!("Unable to read the file {} from the server", file_name));
+        (Some(buf), file_name)
+    } else {
+        (None, file_name)
+    }
 }

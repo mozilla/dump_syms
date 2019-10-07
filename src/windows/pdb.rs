@@ -308,17 +308,6 @@ impl PDBInfo<'_> {
         let frame_table = pdb.frame_table()?;
         let cpu = Self::get_cpu(&dbi);
         let debug_id = Self::get_debug_id(&dbi, pi);
-        let pe_debug_id = get_pe_debug_id(pe.as_ref());
-
-        if let Some(pe_debug_id) = pe_debug_id {
-            if debug_id != pe_debug_id {
-                return Err(From::from(format!(
-                    "Debug ids aren't the same: {} (pdb) != {} (pe)",
-                    debug_id, pe_debug_id
-                )));
-            }
-        }
-
         let source_files = SourceFiles::new(&mut pdb)?;
         let mut module = PDBInfo {
             cpu,
