@@ -102,7 +102,11 @@ fn read_config() -> Option<Vec<SymbolServer>> {
     let content = String::from_utf8(buf)
         .unwrap_or_else(|_| panic!("Not utf-8 data in the file {}", conf.to_str().unwrap()));
 
-    let servers = parse_sympath(&content);
+    read_config_from_str(&content)
+}
+
+fn read_config_from_str(s: &str) -> Option<Vec<SymbolServer>> {
+    let servers = parse_sympath(&s);
     if servers.is_empty() {
         None
     } else {
@@ -228,12 +232,16 @@ fn retrieve_data(jobs: Vec<Job>) -> Vec<Vec<u8>> {
     Arc::try_unwrap(results).unwrap().into_inner().unwrap()
 }
 
-pub fn search_symbol_file(file_name: String, debug_id: &str) -> (Option<Vec<u8>>, String) {
+pub fn search_symbol_file(
+    file_name: String,
+    debug_id: &str,
+    symbol_server: Option<&str>,
+) -> (Option<Vec<u8>>, String) {
     if file_name.is_empty() {
         return (None, file_name);
     }
 
-    let servers = match read_config() {
+    let servers = match symbol_server.map_or_else(read_config, read_config_from_str) {
         Some(s) => s,
         _ => return (None, file_name),
     };

@@ -379,7 +379,8 @@ mod tests {
         }
 
         let pe_buf = crate::utils::read_file(&path);
-        let (pe, pdb_buf, pdb_name) = crate::windows::utils::get_pe_pdb_buf(path, &pe_buf).unwrap();
+        let (pe, pdb_buf, pdb_name) =
+            crate::windows::utils::get_pe_pdb_buf(path, &pe_buf, None).unwrap();
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
         PDBInfo::dump(&pdb_buf, pdb_name, file_name.to_string(), Some(pe), cursor).unwrap();

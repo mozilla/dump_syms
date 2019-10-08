@@ -62,7 +62,11 @@ fn os_specific_try_to_find_pdb(path: PathBuf, pdb_filename: String) -> (Option<V
     (try_to_find_pdb(path, &pdb_name), pdb_name)
 }
 
-pub fn get_pe_pdb_buf<'a>(path: PathBuf, buf: &'a [u8]) -> Option<(PeObject<'a>, Vec<u8>, String)> {
+pub fn get_pe_pdb_buf<'a>(
+    path: PathBuf,
+    buf: &'a [u8],
+    symbol_server: Option<&str>,
+) -> Option<(PeObject<'a>, Vec<u8>, String)> {
     let pe = PeObject::parse(&buf)
         .unwrap_or_else(|_| panic!("Unable to parse the PE file {}", path.to_str().unwrap()));
     if let Some(pdb_filename) = pe.debug_file_name() {
@@ -74,7 +78,7 @@ pub fn get_pe_pdb_buf<'a>(path: PathBuf, buf: &'a [u8]) -> Option<(PeObject<'a>,
         } else {
             // Not here so try symbol server (or cache)
             let debug_id = get_pe_debug_id(Some(&pe)).unwrap();
-            let (pdb, pdb_name) = cache::search_symbol_file(pdb_name, &debug_id);
+            let (pdb, pdb_name) = cache::search_symbol_file(pdb_name, &debug_id, symbol_server);
             if let Some(pdb_buf) = pdb {
                 Some((pe, pdb_buf, pdb_name))
             } else {
