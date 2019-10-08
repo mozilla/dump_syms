@@ -7,6 +7,7 @@ basic: basic.cpp
 	clang.exe -shared -m32 -g2 -o basic32.dll basic32.obj
 	dump_syms.exe basic32.dll > basic32.old.sym
 	dump_syms.exe basic64.dll > basic64.old.sym
+	makecab.exe basic32.pdb basic32.pd_
 
 basic-opt: basic.cpp
 	clang-cl.exe -c -Z7 -O2 -I. basic.cpp -o basic64.obj

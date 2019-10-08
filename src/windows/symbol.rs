@@ -89,7 +89,7 @@ impl SelectedSymbol {
         let (min_start, max_end) = self.ebp.drain(..).fold((std::u32::MAX, 0), |acc, i| {
             (
                 acc.0.min(i.offset),
-                acc.1.max(i.offset + dumper.get_type_size(i.type_index, 4)),
+                acc.1.max(i.offset + dumper.get_type_size(i.type_index)),
             )
         });
 
