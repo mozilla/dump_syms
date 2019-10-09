@@ -11,7 +11,7 @@ use std::collections::{btree_map, BTreeMap};
 use std::io::Write;
 
 use super::line::Lines;
-use super::pdb::RvaLabels;
+use super::pdb::PDBSections;
 use super::source::SourceLineCollector;
 use super::types::{FuncName, TypeDumper};
 
@@ -243,7 +243,7 @@ impl RvaSymbols {
     pub(super) fn add_public_symbol(
         &mut self,
         symbol: PublicSymbol,
-        rva_labels: &RvaLabels,
+        pdb_sections: &PDBSections,
         address_map: &AddressMap,
     ) {
         let rva = match symbol.offset.to_rva(address_map) {
@@ -251,7 +251,7 @@ impl RvaSymbols {
             _ => return,
         };
 
-        if symbol.code || symbol.function || rva_labels.contains(&rva.0) {
+        if symbol.code || symbol.function || pdb_sections.is_code(symbol.offset.section) {
             match self.map.entry(rva.0) {
                 btree_map::Entry::Occupied(selected) => {
                     let selected = selected.into_mut();

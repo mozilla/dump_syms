@@ -50,10 +50,6 @@ impl<'a, 's> SourceLineCollector<'a, 's> {
         })
     }
 
-    pub(super) fn has_lines(&self) -> bool {
-        !self.lines.is_empty()
-    }
-
     pub(super) fn collect_source_lines(
         &self,
         offset: PdbInternalSectionOffset,
