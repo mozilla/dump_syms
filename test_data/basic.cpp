@@ -46,6 +46,9 @@ unsigned long ***************** test10(char *& x) {
 	return nullptr;
 }
 
+int test_array(char a[12], int b[12][34], std::string c[12][34][56], double* d[12][34][56][78]) {
+	return 0;
+}
 
 class DllExport A {
 public:

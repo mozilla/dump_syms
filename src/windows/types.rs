@@ -3,16 +3,21 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use fxhash::FxHashMap;
 use pdb::{
-    ClassKind, FallibleIterator, MemberFunctionType, PointerAttributes, PointerMode, PointerType,
-    PrimitiveKind, ProcedureType, Result, TypeData, TypeFinder, TypeIndex, TypeInformation,
-    Variant,
+    ArrayType, ClassKind, ClassType, FallibleIterator, MemberFunctionType, PointerAttributes,
+    PointerMode, PointerType, PrimitiveKind, ProcedureType, RawString, Result, TypeData,
+    TypeFinder, TypeIndex, TypeInformation, UnionType, Variant,
 };
 use symbolic_common::{Language, Name};
 use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
 
+type FwdRefSize<'a> = FxHashMap<RawString<'a>, u32>;
+
 pub(super) struct TypeDumper<'a> {
     finder: TypeFinder<'a>,
+    fwd: FwdRefSize<'a>,
+    ptr_size: u32,
 }
 
 pub enum FuncName {
@@ -68,34 +73,96 @@ impl FuncName {
 
 impl<'a> TypeDumper<'a> {
     /// Collect all the Type and their TypeIndex to be able to search for a TypeIndex
-    pub fn new<'b>(type_info: &'a TypeInformation<'b>) -> Result<Self> {
-        let mut finder = type_info.finder();
+    pub fn new<'b>(type_info: &'a TypeInformation<'b>, ptr_size: u32) -> Result<Self> {
         let mut types = type_info.iter();
+        let mut finder = type_info.finder();
 
-        // Populate finder
-        finder.update(&types);
-        while let Some(_) = types.next()? {
+        // Some struct are incomplete so they've no size but they're forward references
+        // So create a map containing names defining the struct (when they aren't fwd ref) and their size.
+        // Once we'll need to compute a size for a fwd ref, we just use this map.
+        let mut fwd = FwdRefSize::default();
+
+        while let Some(typ) = types.next()? {
             finder.update(&types);
+            if let Ok(typ) = typ.parse() {
+                match typ {
+                    TypeData::Class(t) => {
+                        if !t.properties.forward_reference() {
+                            let name = if let Some(unique) = t.unique_name {
+                                unique
+                            } else {
+                                t.name
+                            };
+                            fwd.insert(name, t.size.into());
+                        }
+                    }
+                    TypeData::Union(t) => {
+                        if !t.properties.forward_reference() {
+                            let name = if let Some(unique) = t.unique_name {
+                                unique
+                            } else {
+                                t.name
+                            };
+                            fwd.insert(name, t.size);
+                        }
+                    }
+                    _ => {}
+                }
+            }
         }
 
-        Ok(Self { finder })
+        Ok(Self {
+            finder,
+            fwd,
+            ptr_size,
+        })
     }
 
-    pub fn get_type_size(&self, index: TypeIndex, ptr: u32) -> u32 {
-        let typ = match self.finder.find(index) {
-            Ok(t) => t,
-            _ => return 0,
-        };
+    fn find(&self, index: TypeIndex) -> Result<TypeData> {
+        let typ = self.finder.find(index).unwrap();
+        typ.parse()
+    }
 
-        let typ = match typ.parse() {
-            Ok(t) => t,
-            _ => return 0,
-        };
+    fn get_class_size(&self, typ: &ClassType) -> u32 {
+        if typ.properties.forward_reference() {
+            let name = if let Some(unique) = typ.unique_name {
+                unique
+            } else {
+                typ.name
+            };
+            *self.fwd.get(&name).unwrap()
+        } else {
+            typ.size.into()
+        }
+    }
 
+    fn get_union_size(&self, typ: &UnionType) -> u32 {
+        if typ.properties.forward_reference() {
+            let name = if let Some(unique) = typ.unique_name {
+                unique
+            } else {
+                typ.name
+            };
+            *self.fwd.get(&name).unwrap()
+        } else {
+            typ.size
+        }
+    }
+
+    pub fn get_type_size(&self, index: TypeIndex) -> u32 {
+        let typ = self.find(index);
+        if let Ok(typ) = typ {
+            self.get_data_size(&typ)
+        } else {
+            0
+        }
+    }
+
+    fn get_data_size(&self, typ: &TypeData) -> u32 {
         match typ {
             TypeData::Primitive(t) => {
                 if t.indirection.is_some() {
-                    return ptr;
+                    return self.ptr_size;
                 }
                 match t.kind {
                     PrimitiveKind::NoType | PrimitiveKind::Void => 0,
@@ -133,20 +200,20 @@ impl<'a> TypeDumper<'a> {
                     PrimitiveKind::Complex128 => 32,
                 }
             }
-            TypeData::Class(t) => u32::from(t.size),
-            TypeData::MemberFunction(_) => ptr,
-            TypeData::Procedure(_) => ptr,
-            TypeData::Pointer(_) => ptr,
+            TypeData::Class(t) => self.get_class_size(t),
+            TypeData::MemberFunction(_) => self.ptr_size,
+            TypeData::Procedure(_) => self.ptr_size,
+            TypeData::Pointer(t) => t.attributes.size().into(),
             TypeData::Array(t) => *t.dimensions.last().unwrap(),
-            TypeData::Union(t) => t.size,
-            TypeData::Enumeration(t) => self.get_type_size(t.underlying_type, ptr),
+            TypeData::Union(t) => self.get_union_size(t),
+            TypeData::Enumeration(t) => self.get_type_size(t.underlying_type),
             TypeData::Enumerate(t) => match t.value {
                 Variant::I8(_) | Variant::U8(_) => 1,
                 Variant::I16(_) | Variant::U16(_) => 2,
                 Variant::I32(_) | Variant::U32(_) => 4,
                 Variant::I64(_) | Variant::U64(_) => 8,
             },
-            TypeData::Modifier(t) => self.get_type_size(t.underlying_type, ptr),
+            TypeData::Modifier(t) => self.get_type_size(t.underlying_type),
             _ => 0,
         }
     }
@@ -159,8 +226,7 @@ impl<'a> TypeDumper<'a> {
         } else if index == TypeIndex(0) {
             Ok(Self::demangle(name))
         } else {
-            let typ = self.finder.find(index)?;
-            let typ = typ.parse()?;
+            let typ = self.find(index)?;
             match typ {
                 TypeData::MemberFunction(t) => {
                     let (ztatic, ret, args) = self.dump_method_parts(t)?;
@@ -222,7 +288,7 @@ impl<'a> TypeDumper<'a> {
                 }
             }
             None => {
-                //warn!("Didn't manage to demangle {}", ident);
+                warn!("Didn't manage to demangle {}", ident);
                 FuncName::Undecorated(ident.to_string())
             }
         }
@@ -245,8 +311,7 @@ impl<'a> TypeDumper<'a> {
     }
 
     fn check_this_type(&self, this: TypeIndex, class: TypeIndex) -> Result<bool> {
-        let this = self.finder.find(this)?;
-        let this = this.parse()?;
+        let this = self.find(this)?;
         Ok(if let TypeData::Pointer(this) = this {
             this.underlying_type == class
         } else {
@@ -312,8 +377,7 @@ impl<'a> TypeDumper<'a> {
         attributes.push(ptr.attributes);
         let mut ptr = ptr;
         loop {
-            let typ = self.finder.find(ptr.underlying_type)?;
-            let typ = typ.parse()?;
+            let typ = self.find(ptr.underlying_type)?;
             match typ {
                 TypeData::Pointer(t) => {
                     attributes.push(t.attributes);
@@ -343,10 +407,48 @@ impl<'a> TypeDumper<'a> {
         }
     }
 
-    fn dump_index(&self, index: TypeIndex) -> Result<String> {
-        let typ = self.finder.find(index)?;
-        let typ = typ.parse()?;
+    fn get_array_info(&self, array: ArrayType) -> Result<(Vec<u32>, TypeData)> {
+        // For an array int[12][34] it'll be represented as "int[34] *".
+        // For any reason the 12 is lost...
+        // The internal representation is: Pointer{ base: Array{ base: int, dim: 34 * sizeof(int)} }
+        let mut base = array;
+        let mut dims = Vec::new();
+        dims.push(base.dimensions[0]);
 
+        loop {
+            let typ = self.find(base.element_type)?;
+            match typ {
+                TypeData::Array(a) => {
+                    dims.push(a.dimensions[0]);
+                    base = a;
+                }
+                _ => {
+                    return Ok((dims, typ));
+                }
+            }
+        }
+    }
+
+    fn dump_array(&self, array: ArrayType) -> Result<String> {
+        let (dimensions, base) = self.get_array_info(array)?;
+        let base_size = self.get_data_size(&base);
+        let mut size = base_size;
+        let mut dims = dimensions
+            .iter()
+            .rev()
+            .map(|x| {
+                let s = format!("[{}]", x / size);
+                size = *x;
+                s
+            })
+            .collect::<Vec<String>>();
+        dims.reverse();
+        let base_typ = self.dump_data(base)?;
+        Ok(format!("{}{}", base_typ, dims.join("")))
+    }
+
+    fn dump_index(&self, index: TypeIndex) -> Result<String> {
+        let typ = self.find(index)?;
         self.dump_data(typ)
     }
 
@@ -428,11 +530,7 @@ impl<'a> TypeDumper<'a> {
                 buf
             }
             TypeData::Pointer(t) => self.dump_ptr(t)?,
-            TypeData::Array(t) => {
-                let elmt_typ = self.dump_index(t.element_type)?;
-                let dims = "[]".repeat(t.dimensions.len());
-                format!("{}{}", elmt_typ, dims)
-            }
+            TypeData::Array(t) => self.dump_array(t)?,
             TypeData::Union(t) => format!("union {}", t.name),
             TypeData::Enumeration(t) => format!("enum {}", t.name),
             TypeData::Enumerate(t) => format!("enum class {}", t.name),
