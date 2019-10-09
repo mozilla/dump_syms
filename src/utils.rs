@@ -25,13 +25,13 @@ pub fn read_file<P: AsRef<Path>>(path: P) -> Vec<u8> {
 
     read_cabinet(buf, path.as_ref().to_path_buf()).unwrap_or_else(|| {
         panic!(
-            "Unable to read the file {}",
+            "Unable to read the cabinet file {}",
             path.as_ref().to_str().unwrap()
         )
     })
 }
 
-fn read_cabinet(buf: Vec<u8>, path: PathBuf) -> Option<Vec<u8>> {
+pub fn read_cabinet(buf: Vec<u8>, path: PathBuf) -> Option<Vec<u8>> {
     // try to find a pdb in cabinet archive
     // if not a cabinet just return the buffer
     // else return None on error

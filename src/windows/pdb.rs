@@ -18,6 +18,7 @@ use uuid::Uuid;
 use super::source::{SourceFiles, SourceLineCollector};
 use super::symbol::{BlockInfo, RvaSymbols};
 use super::types::TypeDumper;
+use super::utils::get_pe_debug_id;
 use crate::common;
 
 pub(super) type RvaLabels = FxHashSet<u32>;
@@ -305,12 +306,9 @@ impl PDBInfo<'_> {
         let pi = pdb.pdb_information()?;
         let dbi = pdb.debug_information()?;
         let frame_table = pdb.frame_table()?;
-
         let cpu = Self::get_cpu(&dbi);
         let debug_id = Self::get_debug_id(&dbi, pi);
-
         let source_files = SourceFiles::new(&mut pdb)?;
-
         let mut module = PDBInfo {
             cpu,
             debug_id,
@@ -381,7 +379,8 @@ mod tests {
         }
 
         let pe_buf = crate::utils::read_file(&path);
-        let (pe, pdb_buf, pdb_name) = crate::windows::utils::get_pe_pdb_buf(path, &pe_buf).unwrap();
+        let (pe, pdb_buf, pdb_name) =
+            crate::windows::utils::get_pe_pdb_buf(path, &pe_buf, None).unwrap();
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
         PDBInfo::dump(&pdb_buf, pdb_name, file_name.to_string(), Some(pe), cursor).unwrap();

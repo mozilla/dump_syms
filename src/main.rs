@@ -7,6 +7,7 @@
 extern crate clap;
 #[macro_use]
 extern crate log;
+mod cache;
 mod common;
 mod utils;
 mod windows;
@@ -52,17 +53,25 @@ fn main() {
                 .default_value("-")
                 .takes_value(true),
         )
+        .arg(
+            Arg::with_name("symbol-server")
+                .help("Symbol Server configuration\n(e.g. \"SRV*c:\\symcache\\*https://symbols.mozilla.org/\")\nIt can be in file $HOME/.dump_syms/config too.")
+                .long("symbol-server")
+                .takes_value(true),
+        )
         .get_matches();
 
     let output = matches.value_of("output").unwrap();
     let filename = matches.value_of("filename").unwrap();
+    let symbol_server = matches.value_of("symbol-server");
+
     let path = PathBuf::from(filename);
     let buf = utils::read_file(&path);
     let filename = path.file_name().unwrap().to_str().unwrap().to_string();
 
     if let Err(e) = match path.extension().unwrap().to_str().unwrap() {
         "dll" | "exe" => {
-            let res = windows::utils::get_pe_pdb_buf(path, &buf);
+            let res = windows::utils::get_pe_pdb_buf(path, &buf, symbol_server);
             if let Some((pe, pdb_buf, pdb_name)) = res {
                 let output = get_writer_for_sym(&output);
                 windows::pdb::PDBInfo::dump(&pdb_buf, pdb_name, filename, Some(pe), output)
