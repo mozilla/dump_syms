@@ -88,15 +88,18 @@ pub(super) struct SourceFiles<'a> {
 
 impl<'a> SourceFiles<'a> {
     pub(super) fn new<S: 'a + Source<'a>>(pdb: &mut PDB<'a, S>) -> Result<Self> {
-        let string_table = if let Ok(st) = pdb.string_table() {
-            st
-        } else {
-            return Ok(Self {
-                string_table: None,
-                ref_to_id: RefToIds::default(),
-                id_to_ref: Vec::new(),
-            });
+        // The string table may be empty: not a problem
+        let string_table = match pdb.string_table() {
+            Ok(st) => st,
+            _ => {
+                return Ok(Self {
+                    string_table: None,
+                    ref_to_id: RefToIds::default(),
+                    id_to_ref: Vec::new(),
+                })
+            }
         };
+
         let dbi = pdb.debug_information()?;
         let mut modules = dbi.modules()?;
         let mut ref_to_id = RefToIds::default();
@@ -134,10 +137,6 @@ impl<'a> SourceFiles<'a> {
 
     pub(super) fn get_id(&self, file_ref: StringRef) -> u32 {
         *self.ref_to_id.get(&file_ref).unwrap()
-    }
-
-    pub(super) fn is_empty(&self) -> bool {
-        self.id_to_ref.is_empty()
     }
 
     pub(super) fn dump<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
