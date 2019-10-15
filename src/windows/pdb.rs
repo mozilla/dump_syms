@@ -16,7 +16,7 @@ use uuid::Uuid;
 
 use super::source::{SourceFiles, SourceLineCollector};
 use super::symbol::{BlockInfo, RvaSymbols};
-use super::types::TypeDumper;
+use super::types::{DumperFlags, TypeDumper};
 use super::utils::get_pe_debug_id;
 use crate::common;
 
@@ -351,7 +351,7 @@ impl PDBInfo<'_> {
         let type_info = pdb.type_information()?;
 
         // Demangler or dumper (for type info we've for private symbols)
-        let type_dumper = TypeDumper::new(&type_info, cpu.get_ptr_size())?;
+        let type_dumper = TypeDumper::new(&type_info, cpu.get_ptr_size(), DumperFlags::default())?;
 
         // For stack unwinding info
         let pdb_object = if cpu == CPU::X86_64 {
@@ -472,7 +472,7 @@ mod tests {
         );
 
         if new.name.contains("test_array(") {
-            assert_eq!(new.name, "int test_array(char *, int[34] *, class std::basic_string<char,std::char_traits<char>,std::allocator<char> >[34][56] *, double *[34][56][78] *)");
+            assert_eq!(new.name, "test_array(char*, int[34]*, std::basic_string<char,std::char_traits<char>,std::allocator<char> >[34][56]*, double*[34][56][78]*)");
         }
 
         // TODO: find a way to compare function names
