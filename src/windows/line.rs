@@ -5,7 +5,6 @@
 
 use pdb::{AddressMap, PdbInternalRva};
 use std::fmt::{Display, Formatter};
-use std::io::Write;
 
 #[derive(Clone, Debug)]
 struct Line {
@@ -65,6 +64,11 @@ impl Lines {
         // So we check each time we push an element and we'll sort if it's required
         self.is_sorted = self.is_sorted && self.last_rva <= rva;
         self.last_rva = rva;
+    }
+
+    pub fn finalize(&mut self, sym_len: u32, address_map: &AddressMap) {
+        self.compute_len(sym_len);
+        self.compute_rva(address_map);
     }
 
     fn compute_len(&mut self, sym_len: u32) {
@@ -160,16 +164,5 @@ impl Lines {
         if !is_sorted {
             self.lines.sort_by_key(|x| x.rva);
         }
-    }
-
-    pub fn dump<W: Write>(
-        &mut self,
-        sym_len: u32,
-        address_map: &AddressMap,
-        writer: &mut W,
-    ) -> std::io::Result<()> {
-        self.compute_len(sym_len);
-        self.compute_rva(address_map);
-        write!(writer, "{}", self)
     }
 }

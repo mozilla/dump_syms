@@ -5,7 +5,7 @@
 
 use cab::Cabinet;
 use std::fs::File;
-use std::io::{Cursor, Read};
+use std::io::{self, BufWriter, Cursor, Read, Write};
 use std::path::{Path, PathBuf};
 
 pub fn read_file<P: AsRef<Path>>(path: P) -> Vec<u8> {
@@ -73,4 +73,16 @@ fn get_cabinet_files<'a>(cab: &'a Cabinet<Cursor<&Vec<u8>>>, path: PathBuf) -> O
         }
     }
     None
+}
+
+pub fn get_writer_for_sym(file_name: &str) -> BufWriter<Box<dyn Write>> {
+    let output: Box<dyn Write> = if file_name.is_empty() || file_name == "-" {
+        Box::new(io::stdout())
+    } else {
+        let path = PathBuf::from(file_name);
+        let output = File::create(&path)
+            .unwrap_or_else(|_| panic!("Cannot open file {} for writing", path.to_str().unwrap()));
+        Box::new(output)
+    };
+    BufWriter::new(output)
 }

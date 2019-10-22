@@ -3,12 +3,13 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use fxhash::FxHashMap;
 use pdb::{
     AddressMap, FrameTable, PdbInternalRva, PdbInternalSectionOffset, ProcedureSymbol,
     PublicSymbol, RegisterRelativeSymbol, Result, TypeIndex,
 };
-use std::collections::{btree_map, BTreeMap};
-use std::io::Write;
+use std::collections::{hash_map, BTreeMap};
+use std::fmt::{Display, Formatter};
 
 use super::line::Lines;
 use super::pdb::PDBSections;
@@ -20,6 +21,8 @@ pub(super) struct BlockInfo {
     pub offset: PdbInternalSectionOffset,
     pub len: u32,
 }
+
+pub(super) type PDBSymbols = BTreeMap<u32, PDBSymbol>;
 
 #[derive(Debug)]
 struct EBPInfo {
@@ -40,20 +43,60 @@ struct SelectedSymbol {
     ebp: Vec<EBPInfo>,
 }
 
+#[derive(Debug)]
+pub(super) struct PDBSymbol {
+    pub name: String,
+    pub is_public: bool,
+    pub is_multiple: bool,
+    pub split: Vec<(u32, u32)>,
+    pub parameter_size: u32,
+    pub source: Lines,
+}
+
+impl Display for PDBSymbol {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        if self.is_public {
+            writeln!(
+                f,
+                "PUBLIC {}{:x} {:x} {}",
+                if self.is_multiple { "m" } else { "" },
+                self.split.first().unwrap().0,
+                self.parameter_size,
+                self.name
+            )?;
+        } else {
+            for (start, len) in self.split.iter() {
+                writeln!(
+                    f,
+                    "FUNC {}{:x} {:x} {:x} {}",
+                    if self.is_multiple { "m" } else { "" },
+                    start,
+                    len,
+                    self.parameter_size,
+                    self.name
+                )?;
+            }
+            write!(f, "{}", self.source)?;
+        }
+
+        Ok(())
+    }
+}
+
 impl SelectedSymbol {
     fn split_address(&self, address_map: &AddressMap) -> Vec<(u32, u32)> {
         let start = self.offset.to_internal_rva(&address_map).unwrap();
-        let end = PdbInternalRva(start.0 + self.len);
-        address_map
-            .rva_ranges(start..end)
-            .filter_map(|r| {
-                if r.start != r.end {
-                    Some((r.start.0, r.end.0 - r.start.0))
-                } else {
-                    None
-                }
-            })
-            .collect()
+        if self.len == 0 {
+            let mut v = Vec::with_capacity(1);
+            v.push((start.0, 0));
+            v
+        } else {
+            let end = PdbInternalRva(start.0 + self.len);
+            address_map
+                .rva_ranges(start..end)
+                .map(|r| (r.start.0, r.end.0 - r.start.0))
+                .collect()
+        }
     }
 
     fn get_und(&self, dumper: &TypeDumper) -> FuncName {
@@ -107,14 +150,6 @@ impl SelectedSymbol {
         sps
     }
 
-    fn get_multiple(&self) -> &'static str {
-        if self.is_multiple {
-            "m "
-        } else {
-            ""
-        }
-    }
-
     pub(super) fn update_private(
         &mut self,
         function: ProcedureSymbol,
@@ -158,14 +193,12 @@ impl SelectedSymbol {
         }
     }
 
-    pub(super) fn dump<W: Write>(
-        &mut self,
+    pub(super) fn mv_to_pdb_symbol(
+        mut self,
+        dumper: &TypeDumper,
         address_map: &AddressMap,
         frame_table: &FrameTable,
-        dumper: &TypeDumper,
-        rva: u32,
-        writer: &mut W,
-    ) -> std::io::Result<()> {
+    ) -> PDBSymbol {
         let name = self.get_und(dumper);
         let (name, stack_param_size) = match name {
             FuncName::Undecorated(name) => (
@@ -174,35 +207,23 @@ impl SelectedSymbol {
             ),
             FuncName::Unknown((name, sps)) => (name, sps),
         };
-        if self.is_public {
-            writeln!(
-                writer,
-                "PUBLIC {}{:x} {:x} {}",
-                self.get_multiple(),
-                rva,
-                stack_param_size,
-                name
-            )
-        } else {
-            for (rva, len) in self.split_address(address_map) {
-                writeln!(
-                    writer,
-                    "FUNC {}{:x} {:x} {:x} {}",
-                    self.get_multiple(),
-                    rva,
-                    len,
-                    stack_param_size,
-                    name
-                )?;
-            }
-            self.source.dump(self.len, &address_map, writer)
+
+        self.source.finalize(self.len, address_map);
+
+        PDBSymbol {
+            name,
+            is_public: self.is_public,
+            is_multiple: self.is_multiple,
+            split: self.split_address(address_map),
+            parameter_size: stack_param_size,
+            source: self.source,
         }
     }
 }
 
 #[derive(Default)]
 pub(super) struct RvaSymbols {
-    map: BTreeMap<u32, SelectedSymbol>,
+    map: FxHashMap<u32, SelectedSymbol>,
     rva: u32,
     symbol: Option<SelectedSymbol>,
 }
@@ -253,11 +274,11 @@ impl RvaSymbols {
 
         if symbol.code || symbol.function || pdb_sections.is_code(symbol.offset.section) {
             match self.map.entry(rva.0) {
-                btree_map::Entry::Occupied(selected) => {
+                hash_map::Entry::Occupied(selected) => {
                     let selected = selected.into_mut();
                     selected.update_public(symbol);
                 }
-                btree_map::Entry::Vacant(e) => {
+                hash_map::Entry::Vacant(e) => {
                     let sym_name = symbol.name.to_string().into_owned();
                     let offset = symbol.offset;
                     e.insert(SelectedSymbol {
@@ -291,16 +312,19 @@ impl RvaSymbols {
         }
     }
 
-    pub(super) fn dump<W: Write>(
-        &mut self,
+    pub(super) fn mv_to_pdb_symbols(
+        mut self,
+        dumper: TypeDumper,
         address_map: &AddressMap,
-        frame_table: &FrameTable,
-        dumper: &TypeDumper,
-        writer: &mut W,
-    ) -> std::io::Result<()> {
-        for (rva, sym) in self.map.iter_mut() {
-            sym.dump(&address_map, frame_table, dumper, *rva, writer)?;
+        frame_table: FrameTable,
+    ) -> PDBSymbols {
+        let mut syms = PDBSymbols::default();
+        for (rva, sym) in self.map.drain() {
+            syms.insert(
+                rva,
+                sym.mv_to_pdb_symbol(&dumper, address_map, &frame_table),
+            );
         }
-        Ok(())
+        syms
     }
 }
