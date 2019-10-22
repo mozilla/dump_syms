@@ -5,9 +5,10 @@
 
 use fxhash::FxHashMap;
 use pdb::{
-    ArrayType, ClassKind, ClassType, FallibleIterator, FunctionAttributes, MemberFunctionType,
-    ModifierType, PointerMode, PointerType, PrimitiveKind, PrimitiveType, ProcedureType, RawString,
-    Result, TypeData, TypeFinder, TypeIndex, TypeInformation, UnionType, Variant,
+    ArgumentList, ArrayType, ClassKind, ClassType, FallibleIterator, FunctionAttributes,
+    MemberFunctionType, ModifierType, PointerMode, PointerType, PrimitiveKind, PrimitiveType,
+    ProcedureType, RawString, Result, TypeData, TypeFinder, TypeIndex, TypeInformation, UnionType,
+    Variant,
 };
 use symbolic_common::{Language, Name};
 use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
@@ -54,7 +55,6 @@ bitflags! {
 impl Default for DumperFlags {
     fn default() -> Self {
         Self::NO_FUNCTION_RETURN | Self::SPACE_AFTER_COMMA | Self::NAME_ONLY
-        //Self::NO_FUNCTION_RETURN | Self::SPACE_BEFORE_POINTER | Self::NAME_ONLY
     }
 }
 
@@ -360,13 +360,13 @@ impl<'a> TypeDumper<'a> {
         let is_this = match this {
             TypeData::Pointer(ptr) => {
                 if ptr.underlying_type == class {
-                    ThisKind::new(true, false)
+                    ThisKind::This
                 } else {
                     let underlying_typ = self.find(ptr.underlying_type)?;
                     if let TypeData::Modifier(modifier) = underlying_typ {
                         ThisKind::new(modifier.underlying_type == class, modifier.constant)
                     } else {
-                        ThisKind::new(false, false)
+                        ThisKind::NotThis
                     }
                 }
             }
@@ -375,10 +375,10 @@ impl<'a> TypeDumper<'a> {
                 if let TypeData::Pointer(ptr) = underlying_typ {
                     ThisKind::new(ptr.underlying_type == class, modifier.constant)
                 } else {
-                    ThisKind::new(false, false)
+                    ThisKind::NotThis
                 }
             }
-            _ => ThisKind::new(false, false),
+            _ => ThisKind::NotThis,
         };
         Ok(is_this)
     }
@@ -448,34 +448,50 @@ impl<'a> TypeDumper<'a> {
             .to_string()
     }
 
+    fn dump_member_ptr(
+        &self,
+        fun: MemberFunctionType,
+        attributes: Vec<PtrAttributes>,
+    ) -> Result<String> {
+        let class = self.dump_index(fun.class_type)?;
+        let (_, _, ret, args) = self.dump_method_parts(fun, false)?;
+        let attrs = self.dump_attributes(attributes);
+        Ok(format!(
+            "{}({}{})({})",
+            Self::fix_return(ret),
+            class,
+            attrs,
+            args
+        ))
+    }
+
+    fn dump_proc_ptr(&self, fun: ProcedureType, attributes: Vec<PtrAttributes>) -> Result<String> {
+        let (ret, args) = self.dump_procedure_parts(fun, false)?;
+        let attrs = self.dump_attributes(attributes);
+        Ok(format!("{}({})({})", Self::fix_return(ret), attrs, args))
+    }
+
+    fn dump_other_ptr(&self, typ: TypeData, attributes: Vec<PtrAttributes>) -> Result<String> {
+        let typ = self.dump_data(typ)?;
+        let attrs = self.dump_attributes(attributes);
+        let c = typ.chars().last().unwrap();
+        let space = if !attrs.starts_with('c')
+            && (c == '*' || c == '&' || !self.flags.intersects(DumperFlags::SPACE_BEFORE_POINTER))
+        {
+            ""
+        } else {
+            " "
+        };
+
+        Ok(format!("{}{}{}", typ, space, attrs))
+    }
+
     fn dump_ptr_helper(&self, attributes: Vec<PtrAttributes>, typ: TypeData) -> Result<String> {
-        Ok(match typ {
-            TypeData::MemberFunction(t) => {
-                let class = self.dump_index(t.class_type)?;
-                let (_, _, ret, args) = self.dump_method_parts(t, false)?;
-                let attrs = self.dump_attributes(attributes);
-                format!("{}({}{})({})", Self::fix_return(ret), class, attrs, args)
-            }
-            TypeData::Procedure(t) => {
-                let (ret, args) = self.dump_procedure_parts(t, false)?;
-                let attrs = self.dump_attributes(attributes);
-                format!("{}({})({})", Self::fix_return(ret), attrs, args)
-            }
-            _ => {
-                let typ = self.dump_data(typ)?;
-                let attrs = self.dump_attributes(attributes);
-                let c = typ.chars().last().unwrap();
-                if !attrs.starts_with('c')
-                    && (c == '*'
-                        || c == '&'
-                        || !self.flags.intersects(DumperFlags::SPACE_BEFORE_POINTER))
-                {
-                    format!("{}{}", typ, attrs)
-                } else {
-                    format!("{} {}", typ, attrs)
-                }
-            }
-        })
+        match typ {
+            TypeData::MemberFunction(t) => self.dump_member_ptr(t, attributes),
+            TypeData::Procedure(t) => self.dump_proc_ptr(t, attributes),
+            _ => self.dump_other_ptr(typ, attributes),
+        }
     }
 
     fn dump_ptr(&self, ptr: PointerType, is_const: bool) -> Result<String> {
@@ -575,6 +591,38 @@ impl<'a> TypeDumper<'a> {
         }
     }
 
+    fn dump_class(&self, class: ClassType) -> String {
+        if self.flags.intersects(DumperFlags::NAME_ONLY) {
+            class.name.to_string().into()
+        } else {
+            let name = match class.kind {
+                ClassKind::Class => "class",
+                ClassKind::Interface => "interface",
+                ClassKind::Struct => "struct",
+            };
+            format!("{} {}", name, class.name)
+        }
+    }
+
+    fn dump_arg_list(&self, list: ArgumentList) -> Result<String> {
+        let mut buf = String::new();
+        let comma = if self.flags.intersects(DumperFlags::SPACE_AFTER_COMMA) {
+            ", "
+        } else {
+            ","
+        };
+        if let Some((last, args)) = list.arguments.split_last() {
+            for index in args.iter() {
+                let typ = self.dump_index(*index)?;
+                buf.push_str(&typ);
+                buf.push_str(comma);
+            }
+            let typ = self.dump_index(*last)?;
+            buf.push_str(&typ);
+        }
+        Ok(buf)
+    }
+
     fn dump_primitive(&self, prim: PrimitiveType, is_const: bool) -> String {
         // TODO: check that these names are what we want to see
         let name = match prim.kind {
@@ -633,6 +681,14 @@ impl<'a> TypeDumper<'a> {
         }
     }
 
+    fn dump_named(&self, base: &str, name: RawString) -> String {
+        if self.flags.intersects(DumperFlags::NAME_ONLY) {
+            name.to_string().into()
+        } else {
+            format!("{} {}", base, name)
+        }
+    }
+
     fn dump_index(&self, index: TypeIndex) -> Result<String> {
         let typ = self.find(index)?;
         self.dump_data(typ)
@@ -641,18 +697,7 @@ impl<'a> TypeDumper<'a> {
     fn dump_data(&self, typ: TypeData) -> Result<String> {
         let typ = match typ {
             TypeData::Primitive(t) => self.dump_primitive(t, false),
-            TypeData::Class(t) => {
-                if self.flags.intersects(DumperFlags::NAME_ONLY) {
-                    t.name.to_string().into()
-                } else {
-                    let name = match t.kind {
-                        ClassKind::Class => "class",
-                        ClassKind::Interface => "interface",
-                        ClassKind::Struct => "struct",
-                    };
-                    format!("{} {}", name, t.name)
-                }
-            }
+            TypeData::Class(t) => self.dump_class(t),
             TypeData::MemberFunction(t) => {
                 let (_, _, ret, args) = self
                     .dump_method_parts(t, self.flags.intersects(DumperFlags::NO_FUNCTION_RETURN))?;
@@ -665,47 +710,12 @@ impl<'a> TypeDumper<'a> {
                 )?;
                 format!("{}()({})", Self::fix_return(ret), args)
             }
-            TypeData::ArgumentList(t) => {
-                let mut buf = String::new();
-                let comma = if self.flags.intersects(DumperFlags::SPACE_AFTER_COMMA) {
-                    ", "
-                } else {
-                    ","
-                };
-                if let Some((last, args)) = t.arguments.split_last() {
-                    for index in args.iter() {
-                        let typ = self.dump_index(*index)?;
-                        buf.push_str(&typ);
-                        buf.push_str(comma);
-                    }
-                    let typ = self.dump_index(*last)?;
-                    buf.push_str(&typ);
-                }
-                buf
-            }
+            TypeData::ArgumentList(t) => self.dump_arg_list(t)?,
             TypeData::Pointer(t) => self.dump_ptr(t, false)?,
             TypeData::Array(t) => self.dump_array(t)?,
-            TypeData::Union(t) => {
-                if self.flags.intersects(DumperFlags::NAME_ONLY) {
-                    t.name.to_string().into()
-                } else {
-                    format!("union {}", t.name)
-                }
-            }
-            TypeData::Enumeration(t) => {
-                if self.flags.intersects(DumperFlags::NAME_ONLY) {
-                    t.name.to_string().into()
-                } else {
-                    format!("enum {}", t.name)
-                }
-            }
-            TypeData::Enumerate(t) => {
-                if self.flags.intersects(DumperFlags::NAME_ONLY) {
-                    t.name.to_string().into()
-                } else {
-                    format!("enum class {}", t.name)
-                }
-            }
+            TypeData::Union(t) => self.dump_named("union", t.name),
+            TypeData::Enumeration(t) => self.dump_named("enum", t.name),
+            TypeData::Enumerate(t) => self.dump_named("enum class", t.name),
             TypeData::Modifier(t) => self.dump_modifier(t)?,
             _ => format!("unhandled type /* {:?} */", typ),
         };
