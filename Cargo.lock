@@ -367,6 +367,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "dump_syms"
 version = "0.0.1"
 dependencies = [
+ "bitflags 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "cab 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "dirs 2.0.2 (registry+https://github.com/rust-lang/crates.io-index)",

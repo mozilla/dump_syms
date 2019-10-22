@@ -5,19 +5,64 @@
 
 use fxhash::FxHashMap;
 use pdb::{
-    ArrayType, ClassKind, ClassType, FallibleIterator, MemberFunctionType, PointerAttributes,
-    PointerMode, PointerType, PrimitiveKind, ProcedureType, RawString, Result, TypeData,
-    TypeFinder, TypeIndex, TypeInformation, UnionType, Variant,
+    ArgumentList, ArrayType, ClassKind, ClassType, FallibleIterator, FunctionAttributes,
+    MemberFunctionType, ModifierType, PointerMode, PointerType, PrimitiveKind, PrimitiveType,
+    ProcedureType, RawString, Result, TypeData, TypeFinder, TypeIndex, TypeInformation, UnionType,
+    Variant,
 };
 use symbolic_common::{Language, Name};
 use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
 
 type FwdRefSize<'a> = FxHashMap<RawString<'a>, u32>;
 
+#[derive(Eq, PartialEq)]
+enum ThisKind {
+    This,
+    ConstThis,
+    NotThis,
+}
+
+impl ThisKind {
+    fn new(is_this: bool, is_const: bool) -> Self {
+        if is_this {
+            if is_const {
+                Self::ConstThis
+            } else {
+                Self::This
+            }
+        } else {
+            Self::NotThis
+        }
+    }
+}
+
+#[derive(Debug)]
+struct PtrAttributes {
+    is_pointer_const: bool,
+    is_pointee_const: bool,
+    mode: PointerMode,
+}
+
+bitflags! {
+    pub(super) struct DumperFlags: u32 {
+        const NO_FUNCTION_RETURN = 0b1;
+        const SPACE_AFTER_COMMA = 0b10;
+        const SPACE_BEFORE_POINTER = 0b100;
+        const NAME_ONLY = 0b1000;
+    }
+}
+
+impl Default for DumperFlags {
+    fn default() -> Self {
+        Self::NO_FUNCTION_RETURN | Self::SPACE_AFTER_COMMA | Self::NAME_ONLY
+    }
+}
+
 pub(super) struct TypeDumper<'a> {
     finder: TypeFinder<'a>,
     fwd: FwdRefSize<'a>,
     ptr_size: u32,
+    flags: DumperFlags,
 }
 
 pub enum FuncName {
@@ -73,7 +118,11 @@ impl FuncName {
 
 impl<'a> TypeDumper<'a> {
     /// Collect all the Type and their TypeIndex to be able to search for a TypeIndex
-    pub fn new<'b>(type_info: &'a TypeInformation<'b>, ptr_size: u32) -> Result<Self> {
+    pub fn new<'b>(
+        type_info: &'a TypeInformation<'b>,
+        ptr_size: u32,
+        flags: DumperFlags,
+    ) -> Result<Self> {
         let mut types = type_info.iter();
         let mut finder = type_info.finder();
 
@@ -88,21 +137,13 @@ impl<'a> TypeDumper<'a> {
                 match typ {
                     TypeData::Class(t) => {
                         if !t.properties.forward_reference() {
-                            let name = if let Some(unique) = t.unique_name {
-                                unique
-                            } else {
-                                t.name
-                            };
+                            let name = t.unique_name.unwrap_or(t.name);
                             fwd.insert(name, t.size.into());
                         }
                     }
                     TypeData::Union(t) => {
                         if !t.properties.forward_reference() {
-                            let name = if let Some(unique) = t.unique_name {
-                                unique
-                            } else {
-                                t.name
-                            };
+                            let name = t.unique_name.unwrap_or(t.name);
                             fwd.insert(name, t.size);
                         }
                     }
@@ -115,6 +156,7 @@ impl<'a> TypeDumper<'a> {
             finder,
             fwd,
             ptr_size,
+            flags,
         })
     }
 
@@ -125,11 +167,7 @@ impl<'a> TypeDumper<'a> {
 
     fn get_class_size(&self, typ: &ClassType) -> u32 {
         if typ.properties.forward_reference() {
-            let name = if let Some(unique) = typ.unique_name {
-                unique
-            } else {
-                typ.name
-            };
+            let name = typ.unique_name.unwrap_or(typ.name);
             *self.fwd.get(&name).unwrap()
         } else {
             typ.size.into()
@@ -138,11 +176,7 @@ impl<'a> TypeDumper<'a> {
 
     fn get_union_size(&self, typ: &UnionType) -> u32 {
         if typ.properties.forward_reference() {
-            let name = if let Some(unique) = typ.unique_name {
-                unique
-            } else {
-                typ.name
-            };
+            let name = typ.unique_name.unwrap_or(typ.name);
             *self.fwd.get(&name).unwrap()
         } else {
             typ.size
@@ -151,11 +185,7 @@ impl<'a> TypeDumper<'a> {
 
     pub fn get_type_size(&self, index: TypeIndex) -> u32 {
         let typ = self.find(index);
-        if let Ok(typ) = typ {
-            self.get_data_size(&typ)
-        } else {
-            0
-        }
+        typ.ok().map_or(0, |typ| self.get_data_size(&typ))
     }
 
     fn get_data_size(&self, typ: &TypeData) -> u32 {
@@ -229,18 +259,26 @@ impl<'a> TypeDumper<'a> {
             let typ = self.find(index)?;
             match typ {
                 TypeData::MemberFunction(t) => {
-                    let (ztatic, ret, args) = self.dump_method_parts(t)?;
+                    let (ztatic, const_meth, ret, args) = self.dump_method_parts(
+                        t,
+                        self.flags.intersects(DumperFlags::NO_FUNCTION_RETURN),
+                    )?;
                     let ztatic = if ztatic { "static " } else { "" };
+                    let konst = if const_meth { " const" } else { "" };
                     Ok(FuncName::Undecorated(format!(
-                        "{}{}{}({})",
+                        "{}{}{}({}){}",
                         ztatic,
                         Self::fix_return(ret),
                         name,
-                        args
+                        args,
+                        konst,
                     )))
                 }
                 TypeData::Procedure(t) => {
-                    let (ret, args) = self.dump_procedure_parts(t)?;
+                    let (ret, args) = self.dump_procedure_parts(
+                        t,
+                        self.flags.intersects(DumperFlags::NO_FUNCTION_RETURN),
+                    )?;
                     Ok(FuncName::Undecorated(format!(
                         "{}{}({})",
                         Self::fix_return(ret),
@@ -294,38 +332,63 @@ impl<'a> TypeDumper<'a> {
         }
     }
 
-    fn dump_procedure_parts(&self, typ: ProcedureType) -> Result<(String, String)> {
-        let ret_typ = if let Some(ret_typ) = typ.return_type {
-            let attrs = typ.attributes;
-            if attrs.is_constructor() || attrs.cxx_return_udt() {
-                "".to_string()
-            } else {
-                self.dump_index(ret_typ)?
-            }
-        } else {
-            "".to_string()
-        };
+    fn get_return_type(
+        &self,
+        typ: Option<TypeIndex>,
+        attrs: FunctionAttributes,
+        no_return: bool,
+    ) -> String {
+        typ.filter(|_| !no_return && !attrs.is_constructor())
+            .and_then(|r| self.dump_index(r).ok())
+            .map_or_else(|| "".to_string(), |r| r)
+    }
+
+    fn dump_procedure_parts(
+        &self,
+        typ: ProcedureType,
+        no_return: bool,
+    ) -> Result<(String, String)> {
+        let ret_typ = self.get_return_type(typ.return_type, typ.attributes, no_return);
         let args_typ = self.dump_index(typ.argument_list)?;
 
         Ok((ret_typ, args_typ))
     }
 
-    fn check_this_type(&self, this: TypeIndex, class: TypeIndex) -> Result<bool> {
+    fn check_this_type(&self, this: TypeIndex, class: TypeIndex) -> Result<ThisKind> {
         let this = self.find(this)?;
-        Ok(if let TypeData::Pointer(this) = this {
-            this.underlying_type == class
-        } else {
-            false
-        })
+
+        let is_this = match this {
+            TypeData::Pointer(ptr) => {
+                if ptr.underlying_type == class {
+                    ThisKind::This
+                } else {
+                    let underlying_typ = self.find(ptr.underlying_type)?;
+                    if let TypeData::Modifier(modifier) = underlying_typ {
+                        ThisKind::new(modifier.underlying_type == class, modifier.constant)
+                    } else {
+                        ThisKind::NotThis
+                    }
+                }
+            }
+            TypeData::Modifier(modifier) => {
+                let underlying_typ = self.find(modifier.underlying_type)?;
+                if let TypeData::Pointer(ptr) = underlying_typ {
+                    ThisKind::new(ptr.underlying_type == class, modifier.constant)
+                } else {
+                    ThisKind::NotThis
+                }
+            }
+            _ => ThisKind::NotThis,
+        };
+        Ok(is_this)
     }
 
-    fn dump_method_parts(&self, typ: MemberFunctionType) -> Result<(bool, String, String)> {
-        let attrs = typ.attributes;
-        let ret_typ = if attrs.is_constructor() || attrs.cxx_return_udt() {
-            "".to_string()
-        } else {
-            self.dump_index(typ.return_type)?
-        };
+    fn dump_method_parts(
+        &self,
+        typ: MemberFunctionType,
+        no_return: bool,
+    ) -> Result<(bool, bool, String, String)> {
+        let ret_typ = self.get_return_type(Some(typ.return_type), typ.attributes, no_return);
         let args_typ = self.dump_index(typ.argument_list)?;
         // Note: "this" isn't dumped but there are some cases in rust code where
         // a first argument shouldn't be "this" but in fact it is:
@@ -333,75 +396,140 @@ impl<'a> TypeDumper<'a> {
         // So we dump "this" when the underlying type (modulo pointer) is different from the class type
 
         let ztatic = typ.this_pointer_type.is_none();
-        let args_typ = if !ztatic {
+        let (args_typ, const_meth) = if !ztatic {
             let this_typ = typ.this_pointer_type.unwrap();
-            if !self.check_this_type(this_typ, typ.class_type)? {
+            let this_kind = self.check_this_type(this_typ, typ.class_type)?;
+            if this_kind == ThisKind::NotThis {
                 let this_typ = self.dump_index(this_typ)?;
                 if args_typ.is_empty() {
-                    this_typ
+                    (this_typ, false)
                 } else {
-                    format!("{}, {}", this_typ, args_typ)
+                    (format!("{}, {}", this_typ, args_typ), false)
                 }
             } else {
-                args_typ
+                (args_typ, this_kind == ThisKind::ConstThis)
             }
         } else {
-            args_typ
+            (args_typ, false)
         };
 
-        Ok((ztatic, ret_typ, args_typ))
+        Ok((ztatic, const_meth, ret_typ, args_typ))
     }
 
-    fn dump_attributes(attrs: Vec<PointerAttributes>) -> String {
+    fn dump_attributes(&self, attrs: Vec<PtrAttributes>) -> String {
         attrs
             .iter()
+            .rev()
             .fold(String::new(), |mut buf, attr| {
-                if attr.is_const() {
-                    buf.push_str(" const ");
+                if attr.is_pointee_const {
+                    if self.flags.intersects(DumperFlags::SPACE_BEFORE_POINTER) {
+                        buf.push_str(" const ");
+                    } else {
+                        buf.push_str(" const");
+                    }
                 }
-                match attr.pointer_mode() {
+                match attr.mode {
                     PointerMode::Pointer => buf.push('*'),
                     PointerMode::LValueReference => buf.push('&'),
                     PointerMode::Member => buf.push_str("::*"),
-                    PointerMode::MemberFunction => buf.push_str("::"),
+                    PointerMode::MemberFunction => buf.push_str("::*"),
                     PointerMode::RValueReference => buf.push_str("&&"),
+                }
+                if attr.is_pointer_const {
+                    if self.flags.intersects(DumperFlags::SPACE_BEFORE_POINTER) {
+                        buf.push_str(" const ");
+                    } else {
+                        buf.push_str(" const");
+                    }
                 }
                 buf
             })
-            .trim_start()
+            .trim()
             .to_string()
     }
 
-    fn dump_ptr(&self, ptr: PointerType) -> Result<String> {
+    fn dump_member_ptr(
+        &self,
+        fun: MemberFunctionType,
+        attributes: Vec<PtrAttributes>,
+    ) -> Result<String> {
+        let class = self.dump_index(fun.class_type)?;
+        let (_, _, ret, args) = self.dump_method_parts(fun, false)?;
+        let attrs = self.dump_attributes(attributes);
+        Ok(format!(
+            "{}({}{})({})",
+            Self::fix_return(ret),
+            class,
+            attrs,
+            args
+        ))
+    }
+
+    fn dump_proc_ptr(&self, fun: ProcedureType, attributes: Vec<PtrAttributes>) -> Result<String> {
+        let (ret, args) = self.dump_procedure_parts(fun, false)?;
+        let attrs = self.dump_attributes(attributes);
+        Ok(format!("{}({})({})", Self::fix_return(ret), attrs, args))
+    }
+
+    fn dump_other_ptr(&self, typ: TypeData, attributes: Vec<PtrAttributes>) -> Result<String> {
+        let typ = self.dump_data(typ)?;
+        let attrs = self.dump_attributes(attributes);
+        let c = typ.chars().last().unwrap();
+        let space = if !attrs.starts_with('c')
+            && (c == '*' || c == '&' || !self.flags.intersects(DumperFlags::SPACE_BEFORE_POINTER))
+        {
+            ""
+        } else {
+            " "
+        };
+
+        Ok(format!("{}{}{}", typ, space, attrs))
+    }
+
+    fn dump_ptr_helper(&self, attributes: Vec<PtrAttributes>, typ: TypeData) -> Result<String> {
+        match typ {
+            TypeData::MemberFunction(t) => self.dump_member_ptr(t, attributes),
+            TypeData::Procedure(t) => self.dump_proc_ptr(t, attributes),
+            _ => self.dump_other_ptr(typ, attributes),
+        }
+    }
+
+    fn dump_ptr(&self, ptr: PointerType, is_const: bool) -> Result<String> {
         let mut attributes = Vec::new();
-        attributes.push(ptr.attributes);
+        attributes.push(PtrAttributes {
+            is_pointer_const: ptr.attributes.is_const() || is_const,
+            is_pointee_const: false,
+            mode: ptr.attributes.pointer_mode(),
+        });
         let mut ptr = ptr;
         loop {
             let typ = self.find(ptr.underlying_type)?;
             match typ {
                 TypeData::Pointer(t) => {
-                    attributes.push(t.attributes);
+                    attributes.push(PtrAttributes {
+                        is_pointer_const: t.attributes.is_const(),
+                        is_pointee_const: false,
+                        mode: t.attributes.pointer_mode(),
+                    });
                     ptr = t;
                 }
-                TypeData::MemberFunction(t) => {
-                    let (_, ret, args) = self.dump_method_parts(t)?;
-                    let attrs = Self::dump_attributes(attributes);
-                    return Ok(format!("{}({})({})", Self::fix_return(ret), attrs, args));
-                }
-                TypeData::Procedure(t) => {
-                    let (ret, args) = self.dump_procedure_parts(t)?;
-                    let attrs = Self::dump_attributes(attributes);
-                    return Ok(format!("{}({})({})", Self::fix_return(ret), attrs, args));
+                TypeData::Modifier(t) => {
+                    // the vec cannot be empty since we push something in just before the loop
+                    attributes.last_mut().unwrap().is_pointee_const = t.constant;
+                    let typ = self.find(t.underlying_type)?;
+                    if let TypeData::Pointer(t) = typ {
+                        attributes.push(PtrAttributes {
+                            is_pointer_const: t.attributes.is_const(),
+                            is_pointee_const: false,
+                            mode: t.attributes.pointer_mode(),
+                        });
+                        ptr = t;
+                    } else {
+                        return self.dump_ptr_helper(attributes, typ);
+                    }
                 }
                 _ => {
-                    let typ = self.dump_data(typ)?;
-                    let attrs = Self::dump_attributes(attributes);
-                    let c = typ.chars().last().unwrap();
-                    return Ok(if c == '*' || c == '&' {
-                        format!("{}{}", typ, attrs)
-                    } else {
-                        format!("{} {}", typ, attrs)
-                    });
+                    return self.dump_ptr_helper(attributes, typ);
                 }
             }
         }
@@ -447,6 +575,120 @@ impl<'a> TypeDumper<'a> {
         Ok(format!("{}{}", base_typ, dims.join("")))
     }
 
+    fn dump_modifier(&self, modifier: ModifierType) -> Result<String> {
+        let typ = self.find(modifier.underlying_type)?;
+        match typ {
+            TypeData::Pointer(ptr) => self.dump_ptr(ptr, modifier.constant),
+            TypeData::Primitive(prim) => Ok(self.dump_primitive(prim, modifier.constant)),
+            _ => {
+                let underlying_typ = self.dump_data(typ)?;
+                Ok(if modifier.constant {
+                    format!("const {}", underlying_typ)
+                } else {
+                    underlying_typ
+                })
+            }
+        }
+    }
+
+    fn dump_class(&self, class: ClassType) -> String {
+        if self.flags.intersects(DumperFlags::NAME_ONLY) {
+            class.name.to_string().into()
+        } else {
+            let name = match class.kind {
+                ClassKind::Class => "class",
+                ClassKind::Interface => "interface",
+                ClassKind::Struct => "struct",
+            };
+            format!("{} {}", name, class.name)
+        }
+    }
+
+    fn dump_arg_list(&self, list: ArgumentList) -> Result<String> {
+        let mut buf = String::new();
+        let comma = if self.flags.intersects(DumperFlags::SPACE_AFTER_COMMA) {
+            ", "
+        } else {
+            ","
+        };
+        if let Some((last, args)) = list.arguments.split_last() {
+            for index in args.iter() {
+                let typ = self.dump_index(*index)?;
+                buf.push_str(&typ);
+                buf.push_str(comma);
+            }
+            let typ = self.dump_index(*last)?;
+            buf.push_str(&typ);
+        }
+        Ok(buf)
+    }
+
+    fn dump_primitive(&self, prim: PrimitiveType, is_const: bool) -> String {
+        // TODO: check that these names are what we want to see
+        let name = match prim.kind {
+            PrimitiveKind::NoType => "<NoType>",
+            PrimitiveKind::Void => "void",
+            PrimitiveKind::Char => "signed char",
+            PrimitiveKind::UChar => "unsigned char",
+            PrimitiveKind::RChar => "char",
+            PrimitiveKind::WChar => "wchar_t",
+            PrimitiveKind::RChar16 => "char16_t",
+            PrimitiveKind::RChar32 => "char32_t",
+            PrimitiveKind::I8 => "signed char",
+            PrimitiveKind::U8 => "unsigned char",
+            PrimitiveKind::I16 => "short",
+            PrimitiveKind::U16 => "unsigned short",
+            PrimitiveKind::I32 => "int",
+            PrimitiveKind::U32 => "unsigned int",
+            PrimitiveKind::I64 => "long long",
+            PrimitiveKind::U64 => "unsigned long long",
+            PrimitiveKind::I128 => "int128_t",
+            PrimitiveKind::U128 => "uint128_t",
+            PrimitiveKind::F16 => "float16_t",
+            PrimitiveKind::F32 => "float",
+            PrimitiveKind::F32PP => "float",
+            PrimitiveKind::F48 => "float48_t",
+            PrimitiveKind::F64 => "double",
+            PrimitiveKind::F80 => "long double",
+            PrimitiveKind::F128 => "long double",
+            PrimitiveKind::Complex32 => "complex<float>",
+            PrimitiveKind::Complex64 => "complex<double>",
+            PrimitiveKind::Complex80 => "complex<long double>",
+            PrimitiveKind::Complex128 => "complex<long double>",
+            PrimitiveKind::Bool8 => "bool",
+            PrimitiveKind::Bool16 => "bool16_t",
+            PrimitiveKind::Bool32 => "bool32_t",
+            PrimitiveKind::Bool64 => "bool64_t",
+            PrimitiveKind::HRESULT => "HRESULT",
+        };
+
+        if prim.indirection.is_some() {
+            if self.flags.intersects(DumperFlags::SPACE_BEFORE_POINTER) {
+                if is_const {
+                    format!("{} const *", name)
+                } else {
+                    format!("{} *", name)
+                }
+            } else if is_const {
+                format!("{} const*", name)
+            } else {
+                format!("{}*", name)
+            }
+        } else if is_const {
+            format!("const {}", name)
+        } else {
+            name.to_string()
+        }
+    }
+
+    fn dump_named(&self, base: &str, name: RawString) -> String {
+        if self.flags.intersects(DumperFlags::NAME_ONLY) {
+            name.to_string().into()
+        } else {
+            format!("{} {}", base, name)
+        }
+    }
+
     fn dump_index(&self, index: TypeIndex) -> Result<String> {
         let typ = self.find(index)?;
         self.dump_data(typ)
@@ -454,94 +696,27 @@ impl<'a> TypeDumper<'a> {
 
     fn dump_data(&self, typ: TypeData) -> Result<String> {
         let typ = match typ {
-            TypeData::Primitive(t) => {
-                // TODO: check that these names are what we want to see
-                let name = match t.kind {
-                    PrimitiveKind::NoType => "<NoType>",
-                    PrimitiveKind::Void => "void",
-                    PrimitiveKind::Char => "signed char",
-                    PrimitiveKind::UChar => "unsigned char",
-                    PrimitiveKind::RChar => "char",
-                    PrimitiveKind::WChar => "wchar_t",
-                    PrimitiveKind::RChar16 => "char16_t",
-                    PrimitiveKind::RChar32 => "char32_t",
-                    PrimitiveKind::I8 => "signed char",
-                    PrimitiveKind::U8 => "unsigned char",
-                    PrimitiveKind::I16 => "short",
-                    PrimitiveKind::U16 => "unsigned short",
-                    PrimitiveKind::I32 => "int",
-                    PrimitiveKind::U32 => "unsigned int",
-                    PrimitiveKind::I64 => "long long",
-                    PrimitiveKind::U64 => "unsigned long long",
-                    PrimitiveKind::I128 => "int128_t",
-                    PrimitiveKind::U128 => "uint128_t",
-                    PrimitiveKind::F16 => "float16_t",
-                    PrimitiveKind::F32 => "float",
-                    PrimitiveKind::F32PP => "float",
-                    PrimitiveKind::F48 => "float48_t",
-                    PrimitiveKind::F64 => "double",
-                    PrimitiveKind::F80 => "long double",
-                    PrimitiveKind::F128 => "long double",
-                    PrimitiveKind::Complex32 => "complex<float>",
-                    PrimitiveKind::Complex64 => "complex<double>",
-                    PrimitiveKind::Complex80 => "complex<long double>",
-                    PrimitiveKind::Complex128 => "complex<long double>",
-                    PrimitiveKind::Bool8 => "bool",
-                    PrimitiveKind::Bool16 => "bool16_t",
-                    PrimitiveKind::Bool32 => "bool32_t",
-                    PrimitiveKind::Bool64 => "bool64_t",
-                    PrimitiveKind::HRESULT => "HRESULT",
-                };
-
-                if t.indirection.is_some() {
-                    format!("{} *", name)
-                } else {
-                    name.to_string()
-                }
-            }
-            TypeData::Class(t) => {
-                // TODO: should we really print this ?
-                let name = match t.kind {
-                    ClassKind::Class => "class",
-                    ClassKind::Interface => "interface",
-                    ClassKind::Struct => "struct",
-                };
-                format!("{} {}", name, t.name)
-            }
+            TypeData::Primitive(t) => self.dump_primitive(t, false),
+            TypeData::Class(t) => self.dump_class(t),
             TypeData::MemberFunction(t) => {
-                let (_, ret, args) = self.dump_method_parts(t)?;
+                let (_, _, ret, args) = self
+                    .dump_method_parts(t, self.flags.intersects(DumperFlags::NO_FUNCTION_RETURN))?;
                 format!("{}()({})", Self::fix_return(ret), args)
             }
             TypeData::Procedure(t) => {
-                let (ret, args) = self.dump_procedure_parts(t)?;
+                let (ret, args) = self.dump_procedure_parts(
+                    t,
+                    self.flags.intersects(DumperFlags::NO_FUNCTION_RETURN),
+                )?;
                 format!("{}()({})", Self::fix_return(ret), args)
             }
-            TypeData::ArgumentList(t) => {
-                let mut buf = String::new();
-                if let Some((last, args)) = t.arguments.split_last() {
-                    for index in args.iter() {
-                        let typ = self.dump_index(*index)?;
-                        buf.push_str(&typ);
-                        buf.push_str(", ");
-                    }
-                    let typ = self.dump_index(*last)?;
-                    buf.push_str(&typ);
-                }
-                buf
-            }
-            TypeData::Pointer(t) => self.dump_ptr(t)?,
+            TypeData::ArgumentList(t) => self.dump_arg_list(t)?,
+            TypeData::Pointer(t) => self.dump_ptr(t, false)?,
             TypeData::Array(t) => self.dump_array(t)?,
-            TypeData::Union(t) => format!("union {}", t.name),
-            TypeData::Enumeration(t) => format!("enum {}", t.name),
-            TypeData::Enumerate(t) => format!("enum class {}", t.name),
-            TypeData::Modifier(t) => {
-                let underlying_typ = self.dump_index(t.underlying_type)?;
-                if t.constant {
-                    format!("const {}", underlying_typ)
-                } else {
-                    underlying_typ
-                }
-            }
+            TypeData::Union(t) => self.dump_named("union", t.name),
+            TypeData::Enumeration(t) => self.dump_named("enum", t.name),
+            TypeData::Enumerate(t) => self.dump_named("enum class", t.name),
+            TypeData::Modifier(t) => self.dump_modifier(t)?,
             _ => format!("unhandled type /* {:?} */", typ),
         };
 

@@ -4,6 +4,8 @@
 // copied, modified, or distributed except according to those terms.
 
 #[macro_use]
+extern crate bitflags;
+#[macro_use]
 extern crate clap;
 #[macro_use]
 extern crate log;
