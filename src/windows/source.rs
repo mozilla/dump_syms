@@ -81,14 +81,25 @@ impl<'a, 's> SourceLineCollector<'a, 's> {
 
 #[derive(Debug)]
 pub(super) struct SourceFiles<'a> {
-    string_table: StringTable<'a>,
+    string_table: Option<StringTable<'a>>,
     ref_to_id: RefToIds,
     id_to_ref: Vec<StringRef>,
 }
 
 impl<'a> SourceFiles<'a> {
     pub(super) fn new<S: 'a + Source<'a>>(pdb: &mut PDB<'a, S>) -> Result<Self> {
-        let string_table = pdb.string_table()?;
+        // The string table may be empty: not a problem
+        let string_table = match pdb.string_table() {
+            Ok(st) => st,
+            _ => {
+                return Ok(Self {
+                    string_table: None,
+                    ref_to_id: RefToIds::default(),
+                    id_to_ref: Vec::new(),
+                })
+            }
+        };
+
         let dbi = pdb.debug_information()?;
         let mut modules = dbi.modules()?;
         let mut ref_to_id = RefToIds::default();
@@ -118,7 +129,7 @@ impl<'a> SourceFiles<'a> {
         }
 
         Ok(Self {
-            string_table,
+            string_table: Some(string_table),
             ref_to_id,
             id_to_ref,
         })
@@ -129,8 +140,12 @@ impl<'a> SourceFiles<'a> {
     }
 
     pub(super) fn dump<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        let string_table = match self.string_table.as_ref() {
+            Some(s) => s,
+            _ => return Ok(()),
+        };
         for (n, file_ref) in self.id_to_ref.iter().enumerate() {
-            if let Ok(file_name) = self.string_table.get(*file_ref) {
+            if let Ok(file_name) = string_table.get(*file_ref) {
                 writeln!(writer, "FILE {} {}", n, file_name.to_string())?;
             } else {
                 warn!(

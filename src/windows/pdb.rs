@@ -607,6 +607,11 @@ mod tests {
     }
 
     #[test]
+    fn test_basic32_min() {
+        test_file("basic32-min");
+    }
+
+    #[test]
     fn test_basic64() {
         test_file("basic64");
     }
