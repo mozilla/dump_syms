@@ -3,35 +3,16 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-#[macro_use]
-extern crate bitflags;
-#[macro_use]
-extern crate clap;
-#[macro_use]
-extern crate log;
+mod action;
 mod cache;
 mod common;
 mod utils;
 mod windows;
 
-use clap::{App, Arg};
-
+use clap::{crate_authors, crate_version, App, Arg};
 use simplelog::{Config, LevelFilter, TermLogger, TerminalMode};
-use std::fs::File;
-use std::io::{self, BufWriter, Write};
-use std::path::PathBuf;
 
-fn get_writer_for_sym(file_name: &str) -> BufWriter<Box<dyn Write>> {
-    let output: Box<dyn Write> = if file_name.is_empty() || file_name == "-" {
-        Box::new(io::stdout())
-    } else {
-        let path = PathBuf::from(file_name);
-        let output = File::create(&path)
-            .unwrap_or_else(|_| panic!("Cannot open file {} for writing", path.to_str().unwrap()));
-        Box::new(output)
-    };
-    BufWriter::new(output)
-}
+use crate::action::{Action, Dumper};
 
 fn main() {
     // Init the logger
@@ -67,26 +48,12 @@ fn main() {
     let filename = matches.value_of("filename").unwrap();
     let symbol_server = matches.value_of("symbol-server");
 
-    let path = PathBuf::from(filename);
-    let buf = utils::read_file(&path);
-    let filename = path.file_name().unwrap().to_str().unwrap().to_string();
+    let action = Action::Dump(Dumper {
+        output,
+        symbol_server,
+    });
 
-    if let Err(e) = match path.extension().unwrap().to_str().unwrap() {
-        "dll" | "exe" => {
-            let res = windows::utils::get_pe_pdb_buf(path, &buf, symbol_server);
-            if let Some((pe, pdb_buf, pdb_name)) = res {
-                let output = get_writer_for_sym(&output);
-                windows::pdb::PDBInfo::dump(&pdb_buf, pdb_name, filename, Some(pe), output)
-            } else {
-                Err(From::from("No pdb file found"))
-            }
-        }
-        "pdb" | "pd_" => {
-            let output = get_writer_for_sym(&output);
-            windows::pdb::PDBInfo::dump(&buf, filename, "".to_string(), None, output)
-        }
-        _ => Ok(()),
-    } {
+    if let Err(e) = action.action(&filename) {
         eprintln!("{}", e);
         std::process::exit(1);
     }

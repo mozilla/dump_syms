@@ -3,7 +3,9 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use bitflags::bitflags;
 use fxhash::FxHashMap;
+use log::{error, warn};
 use pdb::{
     ArgumentList, ArrayType, ClassKind, ClassType, FallibleIterator, FunctionAttributes,
     MemberFunctionType, ModifierType, PointerMode, PointerType, PrimitiveKind, PrimitiveType,

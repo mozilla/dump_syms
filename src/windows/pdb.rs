@@ -5,8 +5,9 @@
 
 use failure::Fail;
 use pdb::{
-    AddressMap, BlockSymbol, DebugInformation, FallibleIterator, FrameTable, MachineType,
-    ModuleInfo, PDBInformation, Register, Result, Source, SymbolData, SymbolTable, PDB,
+    AddressMap, BlockSymbol, DebugInformation, FallibleIterator, MachineType, ModuleInfo,
+    PDBInformation, ProcedureSymbol, PublicSymbol, Register, RegisterRelativeSymbol, Result,
+    Source, SymbolData, SymbolTable, PDB,
 };
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
@@ -15,7 +16,7 @@ use symbolic_minidump::cfi::AsciiCfiWriter;
 use uuid::Uuid;
 
 use super::source::{SourceFiles, SourceLineCollector};
-use super::symbol::{BlockInfo, RvaSymbols};
+use super::symbol::{BlockInfo, PDBSymbols, RvaSymbols};
 use super::types::{DumperFlags, TypeDumper};
 use super::utils::get_pe_debug_id;
 use crate::common;
@@ -80,45 +81,132 @@ impl PDBSections {
     }
 }
 
-pub(crate) struct PDBInfo<'s> {
-    cpu: CPU,
-    debug_id: String,
-    pe_name: String,
-    pdb_name: String,
-    source_files: SourceFiles<'s>,
-    pdb_sections: PDBSections,
-    rva_symbols: RvaSymbols,
+struct PDBData<'s> {
     address_map: AddressMap<'s>,
 }
 
-impl PDBInfo<'_> {
-    fn get_cpu(dbi: &DebugInformation) -> CPU {
-        if let Ok(mt) = dbi.machine_type() {
-            match mt {
-                // Currently breakpad code only uses these machine types
-                // but we've more possibilities:
-                // https://docs.rs/pdb/0.5.0/pdb/enum.MachineType.html
-                MachineType::X86 => CPU::X86,
-                MachineType::Amd64 | MachineType::Ia64 => CPU::X86_64,
-                _ => CPU::Unknown,
-            }
-        } else {
-            CPU::Unknown
+struct Collector {
+    cpu: CPU,
+    symbols: RvaSymbols,
+    pdb_sections: PDBSections,
+}
+
+impl Collector {
+    fn add_public_symbol(&mut self, symbol: PublicSymbol, address_map: &AddressMap) {
+        self.symbols
+            .add_public_symbol(symbol, &self.pdb_sections, address_map)
+    }
+
+    fn add_procedure_symbol(
+        &mut self,
+        symbol: ProcedureSymbol,
+        info: BlockInfo,
+        lines: &SourceLineCollector,
+    ) -> Result<()> {
+        self.symbols.add_procedure_symbol(lines, symbol, info)
+    }
+
+    fn add_reg_rel(&mut self, symbol: RegisterRelativeSymbol) {
+        // TODO: check that's the correct way to know if we've a parameter here
+        // 22 comes from https://github.com/microsoft/microsoft-pdb/blob/master/include/cvconst.h#L436
+        if self.cpu == CPU::X86 && symbol.register == Register(22 /* EBP */) && symbol.offset > 0 {
+            self.symbols.add_ebp(symbol);
         }
     }
 
-    fn get_debug_id(dbi: &DebugInformation, pi: PDBInformation) -> String {
-        // Here the guid is treated like a 128-bit uuid (PDB >=7.0)
-        let mut buf = Uuid::encode_buffer();
-        let guid = pi.guid.to_simple().encode_upper(&mut buf);
-        let age = dbi.age().unwrap_or(pi.age);
-        format!("{}{:x}", guid, age)
+    fn close_procedure(&mut self) {
+        self.symbols.close_procedure();
     }
+}
 
+pub(crate) struct PDBInfo {
+    symbols: PDBSymbols,
+    files: Vec<String>,
+    cpu: CPU,
+    debug_id: String,
+    pdb_name: String,
+    pe_name: String,
+    code_id: Option<String>,
+    stack: Option<String>,
+}
+
+impl Display for PDBInfo {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        writeln!(
+            f,
+            "MODULE windows {} {} {}",
+            self.cpu, self.debug_id, self.pdb_name
+        )?;
+
+        if let Some(code_id) = self.code_id.as_ref() {
+            writeln!(f, "INFO CODE_ID {} {}", code_id, self.pe_name)?;
+        }
+
+        for (n, file_name) in self.files.iter().enumerate() {
+            writeln!(f, "FILE {} {}", n, file_name)?;
+        }
+
+        for (_, sym) in self.symbols.iter() {
+            write!(f, "{}", sym)?;
+        }
+
+        if let Some(stack) = self.stack.as_ref() {
+            write!(f, "{}", stack)?;
+        }
+
+        Ok(())
+    }
+}
+
+fn get_cpu(dbi: &DebugInformation) -> CPU {
+    if let Ok(mt) = dbi.machine_type() {
+        match mt {
+            // Currently breakpad code only uses these machine types
+            // but we've more possibilities:
+            // https://docs.rs/pdb/0.5.0/pdb/enum.MachineType.html
+            MachineType::X86 => CPU::X86,
+            MachineType::Amd64 | MachineType::Ia64 => CPU::X86_64,
+            _ => CPU::Unknown,
+        }
+    } else {
+        CPU::Unknown
+    }
+}
+
+fn get_debug_id(dbi: &DebugInformation, pi: PDBInformation) -> String {
+    // Here the guid is treated like a 128-bit uuid (PDB >=7.0)
+    let mut buf = Uuid::encode_buffer();
+    let guid = pi.guid.to_simple().encode_upper(&mut buf);
+    let age = dbi.age().unwrap_or(pi.age);
+    format!("{}{:x}", guid, age)
+}
+
+fn get_stack_info(pdb_buf: &[u8], pe: Option<PeObject>, cpu: CPU) -> String {
+    let mut buf = Vec::new();
+    let writer = Cursor::new(&mut buf);
+
+    let mut cfi_writer = AsciiCfiWriter::new(writer);
+    if cpu == CPU::X86_64 {
+        if let Some(pe) = pe {
+            cfi_writer
+                .process(&Object::Pe(pe))
+                .map_err(|e| e.compat())
+                .unwrap();
+        }
+    } else if let Ok(pdb) = PdbObject::parse(&pdb_buf) {
+        cfi_writer
+            .process(&Object::Pdb(pdb))
+            .map_err(|e| e.compat())
+            .unwrap();
+    }
+    String::from_utf8(buf).unwrap()
+}
+
+impl<'s> PDBData<'s> {
     fn collect_public_symbols(
         &self,
         globals: SymbolTable,
-        rva_symbols: &mut RvaSymbols,
+        collector: &mut Collector,
     ) -> Result<()> {
         let mut symbols = globals.iter();
         while let Some(symbol) = symbols.next()? {
@@ -128,7 +216,7 @@ impl PDBInfo<'_> {
             };
 
             if let SymbolData::Public(symbol) = symbol {
-                rva_symbols.add_public_symbol(symbol, &self.pdb_sections, &self.address_map);
+                collector.add_public_symbol(symbol, &self.address_map);
             }
         }
 
@@ -138,9 +226,9 @@ impl PDBInfo<'_> {
     fn add_block(
         &self,
         module_info: &ModuleInfo,
-        line_collector: &SourceLineCollector,
         block: BlockSymbol,
-        rva_symbols: &mut RvaSymbols,
+        collector: &mut Collector,
+        lines: &SourceLineCollector,
     ) -> Result<()> {
         // When building with PGO, the compiler can split functions into
         // "hot" and "cold" blocks, and move the "cold" blocks out to separate
@@ -176,14 +264,14 @@ impl PDBInfo<'_> {
 
         if block_rva < parent_rva || block_rva > parent_rva + parent.len {
             // So the block is outside of its parent procedure
-            rva_symbols.add_procedure_symbol(
-                &line_collector,
+            collector.add_procedure_symbol(
                 parent,
                 BlockInfo {
                     rva: block_rva.0,
                     offset: block.offset,
                     len: block.len,
                 },
+                lines,
             )?;
         }
 
@@ -193,9 +281,9 @@ impl PDBInfo<'_> {
     fn handle_symbol(
         &self,
         symbol: SymbolData,
-        line_collector: &SourceLineCollector,
+        collector: &mut Collector,
+        lines: &SourceLineCollector,
         module_info: &ModuleInfo,
-        rva_symbols: &mut RvaSymbols,
     ) -> Result<()> {
         match symbol {
             SymbolData::Procedure(procedure) => {
@@ -204,31 +292,24 @@ impl PDBInfo<'_> {
                     _ => return Ok(()),
                 };
 
-                rva_symbols.add_procedure_symbol(
-                    line_collector,
+                collector.add_procedure_symbol(
                     procedure,
                     BlockInfo {
                         rva: rva.0,
                         offset: procedure.offset,
                         len: procedure.len,
                     },
+                    lines,
                 )?;
             }
             SymbolData::Block(block) => {
-                self.add_block(&module_info, line_collector, block, rva_symbols)?;
+                self.add_block(&module_info, block, collector, lines)?;
             }
             SymbolData::RegisterRelative(regrel) => {
-                // TODO: check that's the correct way to know if we've a parameter here
-                // 22 comes from https://github.com/microsoft/microsoft-pdb/blob/master/include/cvconst.h#L436
-                if self.cpu == CPU::X86
-                    && regrel.register == Register(22 /* EBP */)
-                    && regrel.offset > 0
-                {
-                    rva_symbols.add_ebp(regrel);
-                }
+                collector.add_reg_rel(regrel);
             }
             SymbolData::ScopeEnd => {
-                rva_symbols.close_procedure();
+                collector.close_procedure();
             }
             _ => {}
         }
@@ -240,7 +321,8 @@ impl PDBInfo<'_> {
         &self,
         pdb: &mut PDB<'a, S>,
         dbi: &DebugInformation,
-        rva_symbols: &mut RvaSymbols,
+        collector: &mut Collector,
+        source_files: &SourceFiles<'s>,
     ) -> Result<()> {
         let mut modules = dbi.modules()?;
 
@@ -252,9 +334,9 @@ impl PDBInfo<'_> {
                 _ => continue,
             };
 
-            let line_collector = SourceLineCollector::new(
+            let lines = SourceLineCollector::new(
                 &self.address_map,
-                &self.source_files,
+                &source_files,
                 module_info.line_program()?,
             )?;
 
@@ -265,103 +347,82 @@ impl PDBInfo<'_> {
                     _ => continue,
                 };
 
-                self.handle_symbol(symbol, &line_collector, &module_info, rva_symbols)?;
+                self.handle_symbol(symbol, collector, &lines, &module_info)?;
             }
         }
 
         Ok(())
     }
+}
 
-    fn dump_all<W: Write>(
-        &mut self,
-        type_dumper: TypeDumper,
-        pdb: Option<PdbObject>,
-        pe: Option<PeObject>,
-        frame_table: &FrameTable,
-        mut writer: W,
-    ) -> common::Result<()> {
-        writeln!(
-            writer,
-            "MODULE windows {} {} {}",
-            self.cpu, self.debug_id, self.pdb_name
-        )?;
-
-        if let Some(pe) = pe.as_ref() {
-            let code_id = pe.code_id().unwrap().as_str().to_uppercase();
-            writeln!(writer, "INFO CODE_ID {} {}", code_id, self.pe_name)?;
-        }
-
-        self.source_files.dump(&mut writer)?;
-
-        self.rva_symbols
-            .dump(&self.address_map, frame_table, &type_dumper, &mut writer)?;
-
-        let mut cfi_writer = AsciiCfiWriter::new(writer);
-        if self.cpu == CPU::X86_64 {
-            if let Some(pe) = pe {
-                cfi_writer
-                    .process(&Object::Pe(pe))
-                    .map_err(|e| e.compat())?;
-            }
-        } else if let Some(pdb) = pdb {
-            cfi_writer
-                .process(&Object::Pdb(pdb))
-                .map_err(|e| e.compat())?;
-        }
-
-        Ok(())
-    }
-
-    pub fn dump<W: Write>(
+impl PDBInfo {
+    pub fn new(
         buf: &[u8],
         pdb_name: String,
         pe_name: String,
         pe: Option<PeObject>,
-        writer: W,
-    ) -> common::Result<()> {
+        with_stack: bool,
+    ) -> Result<Self> {
         let cursor = Cursor::new(buf);
         let mut pdb = PDB::open(cursor)?;
-        let pi = pdb.pdb_information()?;
         let dbi = pdb.debug_information()?;
+        let pi = pdb.pdb_information()?;
         let frame_table = pdb.frame_table()?;
-        let cpu = Self::get_cpu(&dbi);
-        let debug_id = Self::get_debug_id(&dbi, pi);
-        let source_files = SourceFiles::new(&mut pdb)?;
+        let globals = pdb.global_symbols()?;
         let pdb_sections = PDBSections::new(&mut pdb);
 
-        let mut module = PDBInfo {
-            cpu,
-            debug_id,
-            pe_name,
-            pdb_name,
-            source_files,
-            pdb_sections,
-            rva_symbols: RvaSymbols::default(),
+        let cpu = get_cpu(&dbi);
+        let debug_id = get_debug_id(&dbi, pi);
+        let source_files = SourceFiles::new(&mut pdb)?;
+
+        let pdb_data = PDBData {
             address_map: pdb.address_map()?,
         };
 
-        let mut rva_symbols = RvaSymbols::default();
-        module.collect_functions(&mut pdb, &dbi, &mut rva_symbols)?;
+        let mut collector = Collector {
+            cpu,
+            symbols: RvaSymbols::default(),
+            pdb_sections,
+        };
 
-        let globals = pdb.global_symbols()?;
-        module.collect_public_symbols(globals, &mut rva_symbols)?;
-
-        std::mem::replace(&mut module.rva_symbols, rva_symbols);
+        pdb_data.collect_functions(&mut pdb, &dbi, &mut collector, &source_files)?;
+        pdb_data.collect_public_symbols(globals, &mut collector)?;
 
         let type_info = pdb.type_information()?;
-
         // Demangler or dumper (for type info we've for private symbols)
         let type_dumper = TypeDumper::new(&type_info, cpu.get_ptr_size(), DumperFlags::default())?;
 
-        // For stack unwinding info
-        let pdb_object = if cpu == CPU::X86_64 {
-            // Frame data are in the PE
-            None
+        let code_id = if let Some(pe) = pe.as_ref() {
+            Some(pe.code_id().unwrap().as_str().to_uppercase())
         } else {
-            Some(PdbObject::parse(&buf).unwrap())
+            None
         };
 
-        module.dump_all(type_dumper, pdb_object, pe, &frame_table, writer)
+        let stack = if with_stack {
+            Some(get_stack_info(buf, pe, cpu))
+        } else {
+            None
+        };
+
+        Ok(PDBInfo {
+            symbols: collector.symbols.mv_to_pdb_symbols(
+                type_dumper,
+                &pdb_data.address_map,
+                frame_table,
+            ),
+            files: source_files.get_mapping(),
+            cpu,
+            debug_id,
+            pdb_name,
+            pe_name,
+            code_id,
+            stack,
+        })
+    }
+
+    pub fn dump<W: Write>(&self, mut writer: W) -> common::Result<()> {
+        write!(writer, "{}", self)?;
+        Ok(())
     }
 }
 
@@ -404,7 +465,8 @@ mod tests {
             crate::windows::utils::get_pe_pdb_buf(path, &pe_buf, None).unwrap();
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
-        PDBInfo::dump(&pdb_buf, pdb_name, file_name.to_string(), Some(pe), cursor).unwrap();
+        let pdb = PDBInfo::new(&pdb_buf, pdb_name, file_name.to_string(), Some(pe), false).unwrap();
+        pdb.dump(cursor).unwrap();
 
         output
     }

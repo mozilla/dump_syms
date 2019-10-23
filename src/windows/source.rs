@@ -9,7 +9,6 @@ use pdb::{
     Result, Source, StringRef, StringTable, PDB,
 };
 use std::collections::{hash_map, BTreeMap};
-use std::io::Write;
 use std::ops::Bound::{Excluded, Included};
 
 use super::line::Lines;
@@ -139,22 +138,15 @@ impl<'a> SourceFiles<'a> {
         *self.ref_to_id.get(&file_ref).unwrap()
     }
 
-    pub(super) fn dump<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        let string_table = match self.string_table.as_ref() {
-            Some(s) => s,
-            _ => return Ok(()),
-        };
-        for (n, file_ref) in self.id_to_ref.iter().enumerate() {
-            if let Ok(file_name) = string_table.get(*file_ref) {
-                writeln!(writer, "FILE {} {}", n, file_name.to_string())?;
-            } else {
-                warn!(
-                    "Impossible to get file (id={}) for string ref {}",
-                    n, file_ref
-                );
-                writeln!(writer, "FILE {} <erroneous file name>", n)?;
-            }
+    pub(super) fn get_mapping(&self) -> Vec<String> {
+        if let Some(string_table) = self.string_table.as_ref() {
+            self.id_to_ref
+                .iter()
+                .filter_map(|file_ref| string_table.get(*file_ref).ok())
+                .map(|s| s.to_string().into_owned())
+                .collect()
+        } else {
+            Vec::new()
         }
-        Ok(())
     }
 }
