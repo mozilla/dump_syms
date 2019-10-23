@@ -424,6 +424,14 @@ impl PDBInfo {
         write!(writer, "{}", self)?;
         Ok(())
     }
+
+    pub fn debug_id(&self) -> &str {
+        &self.debug_id
+    }
+
+    pub fn pdb_name(&self) -> &str {
+        &self.pdb_name
+    }
 }
 
 #[cfg(test)]

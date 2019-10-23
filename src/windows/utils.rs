@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use symbolic_debuginfo::pe::PeObject;
 use uuid::Uuid;
 
-use crate::cache;
+use crate::cache::{self, SymbolServer};
 use crate::utils;
 
 #[cfg(unix)]
@@ -65,7 +65,7 @@ fn os_specific_try_to_find_pdb(path: PathBuf, pdb_filename: String) -> (Option<V
 pub fn get_pe_pdb_buf<'a>(
     path: PathBuf,
     buf: &'a [u8],
-    symbol_server: Option<&str>,
+    symbol_server: Option<&Vec<SymbolServer>>,
 ) -> Option<(PeObject<'a>, Vec<u8>, String)> {
     let pe = PeObject::parse(&buf)
         .unwrap_or_else(|_| panic!("Unable to parse the PE file {}", path.to_str().unwrap()));

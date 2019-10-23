@@ -19,7 +19,7 @@ use crate::utils;
 const DEFAULT_STORE: &str = "https://msdl.microsoft.com/download/symbols";
 
 #[derive(Debug)]
-struct SymbolServer {
+pub struct SymbolServer {
     cache: Option<String>,
     server: String,
 }
@@ -114,6 +114,10 @@ fn read_config_from_str(s: &str) -> Option<Vec<SymbolServer>> {
     }
 }
 
+pub fn get_sym_servers(symbol_server: Option<&str>) -> Option<Vec<SymbolServer>> {
+    symbol_server.map_or_else(read_config, read_config_from_str)
+}
+
 fn copy_in_cache(path: Option<PathBuf>, data: &[u8]) -> bool {
     if data.is_empty() || data.starts_with(b"Symbol Not Found") {
         return false;
@@ -145,9 +149,39 @@ fn copy_in_cache(path: Option<PathBuf>, data: &[u8]) -> bool {
     true
 }
 
-fn search_in_cache(servers: &[SymbolServer], debug_id: &str, file_name: &str) -> Option<PathBuf> {
+fn get_base(file_name: &str) -> PathBuf {
+    // The file is stored at cache/xul.pdb/DEBUG_ID/xul.pd_
+    // the xul.pdb represents the base
+    let path = PathBuf::from(file_name);
+    if let Some(e) = path.extension() {
+        let e = e.to_str().unwrap();
+        match e {
+            "pdb" | "pd_" | "exe" | "dll" => path.with_extension("pdb"),
+            _ => path.clone(),
+        }
+    } else {
+        path.clone()
+    }
+}
+
+pub fn get_path_for_sym(file_name: &str, debug_id: &str) -> PathBuf {
+    let base = get_base(file_name);
+    let file_name = PathBuf::from(file_name);
+    let file_name = file_name.with_extension("sym");
+    base.join(debug_id).join(file_name)
+}
+
+fn search_in_cache(
+    servers: &[SymbolServer],
+    debug_id: &str,
+    base: &PathBuf,
+    file_name: &str,
+) -> Option<PathBuf> {
     for cache in servers.iter().filter_map(|x| x.cache.as_ref()) {
-        let path = PathBuf::from(cache).join(debug_id).join(&file_name);
+        let path = PathBuf::from(cache)
+            .join(base)
+            .join(debug_id)
+            .join(&file_name);
         if path.exists() {
             return Some(path);
         }
@@ -155,12 +189,17 @@ fn search_in_cache(servers: &[SymbolServer], debug_id: &str, file_name: &str) ->
     None
 }
 
-fn get_jobs(servers: &[SymbolServer], debug_id: &str, file_name: &str) -> Vec<Job> {
+fn get_jobs(servers: &[SymbolServer], debug_id: &str, base: &PathBuf, file_name: &str) -> Vec<Job> {
     // The query urls are: https://symbols.mozilla.org/xul.pdb/DEBUG_ID/xul.pd_
     let mut jobs = Vec::new();
     for server in servers.iter() {
         let path = if let Some(cache) = server.cache.as_ref() {
-            Some(PathBuf::from(cache).join(debug_id).join(&file_name))
+            Some(
+                PathBuf::from(cache)
+                    .join(base)
+                    .join(debug_id)
+                    .join(&file_name),
+            )
         } else {
             None
         };
@@ -235,25 +274,27 @@ fn retrieve_data(jobs: Vec<Job>) -> Vec<Vec<u8>> {
 pub fn search_symbol_file(
     file_name: String,
     debug_id: &str,
-    symbol_server: Option<&str>,
+    sym_servers: Option<&Vec<SymbolServer>>,
 ) -> (Option<Vec<u8>>, String) {
     if file_name.is_empty() {
         return (None, file_name);
     }
 
-    let servers = match symbol_server.map_or_else(read_config, read_config_from_str) {
+    let servers = match sym_servers {
         Some(s) => s,
         _ => return (None, file_name),
     };
 
+    let base = get_base(&file_name);
+
     // Start with the caches
-    if let Some(path) = search_in_cache(&servers, debug_id, &file_name) {
+    if let Some(path) = search_in_cache(&servers, debug_id, &base, &file_name) {
         return (Some(utils::read_file(path)), file_name);
     }
 
     // Try the symbol servers
     // Each job contains the path where to cache data (if one) and a query url
-    let jobs = get_jobs(&servers, debug_id, &file_name);
+    let jobs = get_jobs(&servers, debug_id, &base, &file_name);
     let mut pdbs = retrieve_data(jobs);
 
     if let Some(buf) = pdbs.pop() {
