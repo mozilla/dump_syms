@@ -59,7 +59,7 @@ impl Display for PDBSymbol {
             writeln!(
                 f,
                 "PUBLIC {}{:x} {:x} {}",
-                if self.is_multiple { "m" } else { "" },
+                if self.is_multiple { "m " } else { "" },
                 self.split.first().unwrap().0,
                 self.parameter_size,
                 self.name
@@ -69,7 +69,7 @@ impl Display for PDBSymbol {
                 writeln!(
                     f,
                     "FUNC {}{:x} {:x} {:x} {}",
-                    if self.is_multiple { "m" } else { "" },
+                    if self.is_multiple { "m " } else { "" },
                     start,
                     len,
                     self.parameter_size,
@@ -85,12 +85,13 @@ impl Display for PDBSymbol {
 
 impl SelectedSymbol {
     fn split_address(&self, address_map: &AddressMap) -> Vec<(u32, u32)> {
-        let start = self.offset.to_internal_rva(&address_map).unwrap();
         if self.len == 0 {
             let mut v = Vec::with_capacity(1);
-            v.push((start.0, 0));
+            let rva = self.offset.to_rva(address_map).unwrap();
+            v.push((rva.0, 0));
             v
         } else {
+            let start = self.offset.to_internal_rva(&address_map).unwrap();
             let end = PdbInternalRva(start.0 + self.len);
             address_map
                 .rva_ranges(start..end)
