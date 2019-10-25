@@ -206,11 +206,15 @@ impl<'a> TypeDumper<'a> {
                     | PrimitiveKind::Bool8 => 1,
                     PrimitiveKind::WChar
                     | PrimitiveKind::RChar16
+                    | PrimitiveKind::Short
+                    | PrimitiveKind::UShort
                     | PrimitiveKind::I16
                     | PrimitiveKind::U16
                     | PrimitiveKind::F16
                     | PrimitiveKind::Bool16 => 2,
                     PrimitiveKind::RChar32
+                    | PrimitiveKind::Long
+                    | PrimitiveKind::ULong
                     | PrimitiveKind::I32
                     | PrimitiveKind::U32
                     | PrimitiveKind::F32
@@ -219,11 +223,15 @@ impl<'a> TypeDumper<'a> {
                     | PrimitiveKind::HRESULT => 4,
                     PrimitiveKind::I64
                     | PrimitiveKind::U64
+                    | PrimitiveKind::Quad
+                    | PrimitiveKind::UQuad
                     | PrimitiveKind::F64
                     | PrimitiveKind::Complex32
                     | PrimitiveKind::Bool64 => 8,
                     PrimitiveKind::I128
                     | PrimitiveKind::U128
+                    | PrimitiveKind::Octa
+                    | PrimitiveKind::UOcta
                     | PrimitiveKind::F128
                     | PrimitiveKind::Complex64 => 16,
                     PrimitiveKind::F48 => 6,
@@ -636,16 +644,22 @@ impl<'a> TypeDumper<'a> {
             PrimitiveKind::WChar => "wchar_t",
             PrimitiveKind::RChar16 => "char16_t",
             PrimitiveKind::RChar32 => "char32_t",
-            PrimitiveKind::I8 => "signed char",
-            PrimitiveKind::U8 => "unsigned char",
-            PrimitiveKind::I16 => "short",
-            PrimitiveKind::U16 => "unsigned short",
+            PrimitiveKind::I8 => "int8_t",
+            PrimitiveKind::U8 => "uint8_t",
+            PrimitiveKind::Short => "short",
+            PrimitiveKind::UShort => "unsigned short",
+            PrimitiveKind::I16 => "int16_t",
+            PrimitiveKind::U16 => "uint16_t",
+            PrimitiveKind::Long => "long",
+            PrimitiveKind::ULong => "unsigned long",
             PrimitiveKind::I32 => "int",
             PrimitiveKind::U32 => "unsigned int",
-            PrimitiveKind::I64 => "long long",
-            PrimitiveKind::U64 => "unsigned long long",
-            PrimitiveKind::I128 => "int128_t",
-            PrimitiveKind::U128 => "uint128_t",
+            PrimitiveKind::Quad => "long long",
+            PrimitiveKind::UQuad => "unsigned long long",
+            PrimitiveKind::I64 => "int64_t",
+            PrimitiveKind::U64 => "uint64_t",
+            PrimitiveKind::I128 | PrimitiveKind::Octa => "int128_t",
+            PrimitiveKind::U128 | PrimitiveKind::UOcta => "uint128_t",
             PrimitiveKind::F16 => "float16_t",
             PrimitiveKind::F32 => "float",
             PrimitiveKind::F32PP => "float",
