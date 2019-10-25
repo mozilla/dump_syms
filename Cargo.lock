@@ -376,7 +376,7 @@ dependencies = [
  "fxhash 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "is_sorted 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "pdb 0.5.0 (git+https://github.com/willglynn/pdb?rev=64757397c4aea7fcb4f045b89c05c25d7a84b42e)",
+ "pdb 0.5.0 (git+https://github.com/calixteman/pdb?branch=dev)",
  "reqwest 0.9.21 (registry+https://github.com/rust-lang/crates.io-index)",
  "simplelog 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "symbolic-common 7.0.0 (git+https://github.com/getsentry/symbolic/?rev=723fb7f558d722f344ba4d847db1052974346f31)",
@@ -988,7 +988,7 @@ dependencies = [
 [[package]]
 name = "pdb"
 version = "0.5.0"
-source = "git+https://github.com/willglynn/pdb?rev=64757397c4aea7fcb4f045b89c05c25d7a84b42e#64757397c4aea7fcb4f045b89c05c25d7a84b42e"
+source = "git+https://github.com/calixteman/pdb?branch=dev#c061601fb6763b6b47419e1ddc8b9b73768e17bf"
 dependencies = [
  "fallible-iterator 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "scroll 0.9.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2124,8 +2124,8 @@ dependencies = [
 "checksum parking_lot 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f842b1982eb6c2fe34036a4fbfb06dd185a3f5c8edfaacdf7d1ea10b07de6252"
 "checksum parking_lot_core 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cb88cb1cb3790baa6776844f968fea3be44956cf184fa1be5a03341f5491278c"
 "checksum parking_lot_core 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "b876b1b9e7ac6e1a74a6da34d25c42e17e8862aa409cbbbdcfc8d86c6f3bc62b"
+"checksum pdb 0.5.0 (git+https://github.com/calixteman/pdb?branch=dev)" = "<none>"
 "checksum pdb 0.5.0 (git+https://github.com/jan-auer/pdb?rev=6518a17aff69ed26375cf3358632abbd32073931)" = "<none>"
-"checksum pdb 0.5.0 (git+https://github.com/willglynn/pdb?rev=64757397c4aea7fcb4f045b89c05c25d7a84b42e)" = "<none>"
 "checksum percent-encoding 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "31010dd2e1ac33d5b46a5b413495239882813e0369f8ed8a5e266f173602f831"
 "checksum percent-encoding 2.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d4fd5641d01c8f18a23da7b6fe29298ff4b55afcccdf78973b24cf3175fee32e"
 "checksum pest 2.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7e4fb201c5c22a55d8b24fef95f78be52738e5e1361129be1b5e862ecdb6894a"

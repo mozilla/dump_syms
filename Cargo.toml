@@ -15,7 +15,8 @@ futures = "0.1"
 fxhash = "0.2"
 is_sorted = "0.1"
 log = "0.4"
-pdb = { git = "https://github.com/willglynn/pdb", rev = "64757397c4aea7fcb4f045b89c05c25d7a84b42e"}
+#pdb = { git = "https://github.com/willglynn/pdb", rev = "64757397c4aea7fcb4f045b89c05c25d7a84b42e"}
+pdb = { git = "https://github.com/calixteman/pdb", branch = "dev"}
 reqwest = "0.9"
 simplelog = "0.7"
 symbolic-common = { git = "https://github.com/getsentry/symbolic/", rev = "723fb7f558d722f344ba4d847db1052974346f31" }
