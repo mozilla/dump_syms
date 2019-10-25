@@ -16,7 +16,7 @@ use crate::action::{Action, Dumper};
 
 fn main() {
     // Init the logger
-    let _ = TermLogger::init(LevelFilter::Warn, Config::default(), TerminalMode::Stderr);
+    let _ = TermLogger::init(LevelFilter::Info, Config::default(), TerminalMode::Stderr);
 
     let matches = App::new("dump_syms")
         .version(crate_version!())
@@ -37,6 +37,13 @@ fn main() {
                 .takes_value(true),
         )
         .arg(
+            Arg::with_name("store")
+                .help("Store output file as FILENAME.pdb/DEBUG_ID/FILENAME.sym in the given directory")
+                .short("s")
+                .long("store")
+                .takes_value(true),
+        )
+        .arg(
             Arg::with_name("symbol-server")
                 .help("Symbol Server configuration\n(e.g. \"SRV*c:\\symcache\\*https://symbols.mozilla.org/\")\nIt can be in file $HOME/.dump_syms/config too.")
                 .long("symbol-server")
@@ -47,10 +54,12 @@ fn main() {
     let output = matches.value_of("output").unwrap();
     let filename = matches.value_of("filename").unwrap();
     let symbol_server = matches.value_of("symbol-server");
+    let store = matches.value_of("store");
 
     let action = Action::Dump(Dumper {
         output,
         symbol_server,
+        store,
     });
 
     if let Err(e) = action.action(&filename) {

@@ -3,15 +3,44 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use log::info;
+use std::fs;
 use std::path::PathBuf;
 
+use crate::cache;
 use crate::common;
 use crate::utils;
-use crate::windows;
+use crate::windows::{self, pdb::PDBInfo};
 
 pub(crate) struct Dumper<'a> {
     pub output: &'a str,
     pub symbol_server: Option<&'a str>,
+    pub store: Option<&'a str>,
+}
+
+impl Dumper<'_> {
+    fn store_pdb(&self, pdb: &PDBInfo) -> common::Result<()> {
+        let store = self.store.filter(|p| !p.is_empty()).map(|p| {
+            PathBuf::from(p).join(cache::get_path_for_sym(&pdb.pdb_name(), pdb.debug_id()))
+        });
+
+        if let Some(store) = store.as_ref() {
+            fs::create_dir_all(store.parent().unwrap())?;
+            let store = store.to_str().unwrap();
+            let output = utils::get_writer_for_sym(store);
+            if let Err(e) = pdb.dump(output) {
+                return Err(e);
+            }
+            info!("Write symbols at {}", store);
+        }
+
+        if self.output != "-" || store.is_none() {
+            let output = utils::get_writer_for_sym(self.output);
+            pdb.dump(output)?;
+            info!("Write symbols at {}", self.output);
+        }
+        Ok(())
+    }
 }
 
 pub(crate) enum Action<'a> {
@@ -27,7 +56,8 @@ impl Action<'_> {
         match self {
             Self::Dump(dumper) => match path.extension().unwrap().to_str().unwrap() {
                 "dll" | "exe" => {
-                    let res = windows::utils::get_pe_pdb_buf(path, &buf, dumper.symbol_server);
+                    let symbol_server = cache::get_sym_servers(dumper.symbol_server);
+                    let res = windows::utils::get_pe_pdb_buf(path, &buf, symbol_server.as_ref());
                     if let Some((pe, pdb_buf, pdb_name)) = res {
                         match windows::pdb::PDBInfo::new(
                             &pdb_buf,
@@ -36,10 +66,7 @@ impl Action<'_> {
                             Some(pe),
                             true,
                         ) {
-                            Ok(pdb) => {
-                                let output = utils::get_writer_for_sym(dumper.output);
-                                pdb.dump(output)
-                            }
+                            Ok(pdb) => dumper.store_pdb(&pdb),
                             Err(e) => Err(e.into()),
                         }
                     } else {
@@ -48,10 +75,7 @@ impl Action<'_> {
                 }
                 "pdb" | "pd_" => {
                     match windows::pdb::PDBInfo::new(&buf, filename, "".to_string(), None, true) {
-                        Ok(pdb) => {
-                            let output = utils::get_writer_for_sym(&dumper.output);
-                            pdb.dump(output)
-                        }
+                        Ok(pdb) => dumper.store_pdb(&pdb),
                         Err(e) => Err(e.into()),
                     }
                 }
