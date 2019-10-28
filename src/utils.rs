@@ -60,9 +60,22 @@ pub fn read_cabinet(buf: Vec<u8>, path: PathBuf) -> Option<Vec<u8>> {
     }
 }
 
+fn get_corrected_path(path: PathBuf) -> PathBuf {
+    let e = path.extension().unwrap().to_str().unwrap();
+    if e.starts_with("pd") {
+        path.with_extension("pdb")
+    } else if e.starts_with("dl") {
+        path.with_extension("dll")
+    } else if e.starts_with("ex") {
+        path.with_extension("exe")
+    } else {
+        path
+    }
+}
+
 fn get_cabinet_files<'a>(cab: &'a Cabinet<Cursor<&Vec<u8>>>, path: PathBuf) -> Option<String> {
     // Try to find in the cabinet the same path with pdb extension
-    let path = path.with_extension("pdb");
+    let path = get_corrected_path(path);
     let file_name = path.file_name().unwrap();
     for folder in cab.folder_entries() {
         for file in folder.file_entries() {
