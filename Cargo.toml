@@ -19,10 +19,10 @@ log = "0.4"
 pdb = { git = "https://github.com/calixteman/pdb", branch = "dev"}
 reqwest = "0.9"
 simplelog = "0.7"
-symbolic-common = { git = "https://github.com/getsentry/symbolic/", rev = "723fb7f558d722f344ba4d847db1052974346f31" }
-symbolic-debuginfo = { git = "https://github.com/getsentry/symbolic/", rev = "723fb7f558d722f344ba4d847db1052974346f31" }
-symbolic-demangle = { git = "https://github.com/getsentry/symbolic/", rev = "723fb7f558d722f344ba4d847db1052974346f31" }
-symbolic-minidump = { git = "https://github.com/getsentry/symbolic/", rev = "723fb7f558d722f344ba4d847db1052974346f31" }
+symbolic-common = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
+symbolic-debuginfo = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
+symbolic-demangle = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
+symbolic-minidump = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
 tokio = "0.1"
 url = "2.1"
 uuid = "0.7"
