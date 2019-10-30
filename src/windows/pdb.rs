@@ -560,6 +560,7 @@ impl PDBInfo {
 #[cfg(test)]
 mod tests {
 
+    use bitflags::bitflags;
     use std::fs::File;
     use std::io::Read;
     use std::path::PathBuf;
@@ -568,6 +569,13 @@ mod tests {
     };
 
     use super::*;
+
+    bitflags! {
+        struct TestFlags: u32 {
+            const NONE = 0;
+            const MULTIPLICITY = 0b1;
+        }
+    }
 
     #[derive(Debug, PartialEq)]
     struct StackWin {
@@ -673,7 +681,7 @@ mod tests {
         old: &BreakpadFuncRecord,
         file_map_new: &BreakpadFileMap,
         file_map_old: &BreakpadFileMap,
-        check_multiplicity: bool,
+        flags: TestFlags,
     ) {
         assert_eq!(
             new.address,
@@ -681,7 +689,7 @@ mod tests {
             "Not the same address for FUNC at position {}",
             pos + 1
         );
-        if check_multiplicity {
+        if flags.intersects(TestFlags::MULTIPLICITY) {
             assert_eq!(
                 new.multiple, old.multiple,
                 "Not the same multiplicity for FUNC at rva {:x}",
@@ -757,7 +765,7 @@ mod tests {
         }
     }
 
-    fn test_file(name: &str, check_multiplicity: bool) {
+    fn test_file(name: &str, flags: TestFlags) {
         let (out, name) = if name.starts_with("https://") {
             get_data_from_server(name)
         } else {
@@ -794,14 +802,7 @@ mod tests {
             let func_n = func_n.as_ref().unwrap();
             let func_o = func_o.as_ref().unwrap();
 
-            check_func(
-                i,
-                func_n,
-                func_o,
-                &file_map_new,
-                &file_map_old,
-                check_multiplicity,
-            );
+            check_func(i, func_n, func_o, &file_map_new, &file_map_old, flags);
         }
 
         let public_old = old.public_records();
@@ -824,7 +825,7 @@ mod tests {
                 i + 1,
                 public_n.name
             );
-            if check_multiplicity {
+            if flags.intersects(TestFlags::MULTIPLICITY) {
                 assert_eq!(
                     public_n.multiple, public_o.multiple,
                     "Not the same multiplicity for PUBLIC at rva {:x}",
@@ -846,36 +847,39 @@ mod tests {
 
     #[test]
     fn test_basic32() {
-        test_file("basic32", true);
+        test_file("basic32", TestFlags::MULTIPLICITY);
     }
 
     #[test]
     fn test_basic32_min() {
-        test_file("basic32-min", true);
+        test_file("basic32-min", TestFlags::MULTIPLICITY);
     }
 
     #[test]
     fn test_basic64() {
-        test_file("basic64", true);
+        test_file("basic64", TestFlags::MULTIPLICITY);
     }
 
     #[test]
     fn test_basic_opt32() {
-        test_file("basic-opt32", true);
+        test_file("basic-opt32", TestFlags::MULTIPLICITY);
     }
 
     #[test]
     fn test_basic_opt64() {
-        test_file("basic-opt64", true);
+        test_file("basic-opt64", TestFlags::MULTIPLICITY);
     }
 
     #[test]
     fn test_dump_syms_regtest64() {
-        test_file("dump_syms_regtest64", true);
+        test_file("dump_syms_regtest64", TestFlags::MULTIPLICITY);
     }
 
     #[test]
     fn test_ntdll() {
-        test_file(&format!("{}/ntdll.dll/5D6AA5581AD000/ntdll.dll", MS), false);
+        test_file(
+            &format!("{}/ntdll.dll/5D6AA5581AD000/ntdll.dll", MS),
+            TestFlags::NONE,
+        );
     }
 }
