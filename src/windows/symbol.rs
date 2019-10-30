@@ -266,18 +266,22 @@ impl RvaSymbols {
         Ok(())
     }
 
-    #[allow(dead_code)]
-    fn filter_public(name: &str) -> bool {
-        if name.starts_with("??_C") {
-            // we've a constant string
-            true
-        } else if name.starts_with("__") {
+    fn is_constant_string(name: &str) -> bool {
+        name.starts_with("??_C")
+    }
+
+    fn is_constant_number(name: &str) -> bool {
+        if name.starts_with("__") {
             let name = &name[2..];
-            // we've a constant number
             name.starts_with("real@") || name.starts_with("xmm@") || name.starts_with("ymm@")
         } else {
             false
         }
+    }
+
+    #[allow(dead_code)]
+    fn filter_public(name: &str) -> bool {
+        Self::is_constant_string(name) || Self::is_constant_number(name)
     }
 
     pub(super) fn add_public_symbol(
