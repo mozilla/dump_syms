@@ -306,6 +306,7 @@ impl RvaSymbols {
             // TODO: For any reasons we can have public symbols which are in executable section and are constants.
             // It's the case in ntdll.dll
             // For compatibility reasons, just let them for now...
+            // For reference https://github.com/mozilla/dump_syms/issues/26
             /*if Self::filter_public(&sym_name) {
                 return;
             }*/
