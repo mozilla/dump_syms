@@ -4,22 +4,32 @@
 // copied, modified, or distributed except according to those terms.
 
 use pdb::{AddressMap, PdbInternalRva};
-use std::fmt::{Display, Formatter};
+use std::fmt::{self, Debug, Display, Formatter};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Default)]
 struct Line {
     // rva stands for relative virtual address
     rva: u32,
-    // line number
-    num: u32,
     // line length in the binary
     // this data isn't in the pdb so we need to infer it before dumping
     len: u32,
+    // line number
+    num: u32,
     // file identifier where this line is
     file_id: u32,
 }
 
-#[derive(Debug)]
+impl Debug for Line {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "Line {{ rva: {:x}, len: {:x}, line: {}, file_id: {} }}",
+            self.rva, self.len, self.num, self.file_id
+        )
+    }
+}
+
+#[derive(Clone, Debug, Default)]
 pub struct Lines {
     // The lines
     lines: Vec<Line>,
@@ -66,12 +76,12 @@ impl Lines {
         self.last_rva = rva;
     }
 
-    pub fn finalize(&mut self, sym_len: u32, address_map: &AddressMap) {
-        self.compute_len(sym_len);
+    pub fn finalize(&mut self, sym_rva: u32, sym_len: u32, address_map: &AddressMap) {
+        self.compute_len(sym_rva, sym_len);
         self.compute_rva(address_map);
     }
 
-    fn compute_len(&mut self, sym_len: u32) {
+    fn compute_len(&mut self, sym_rva: u32, sym_len: u32) {
         // The length (in the binary) of the line is not in the pdb but we can infer it:
         // RVA     LINE NUMBER
         // 0x0001  10  <= the size of line 10 is 0x000B - 0x0001
@@ -88,7 +98,6 @@ impl Lines {
             self.lines.sort_by_key(|x| x.rva);
         }
 
-        let first_rva = self.lines[0].rva;
         let lens: Vec<u32> = self.lines.windows(2).map(|w| w[1].rva - w[0].rva).collect();
 
         // Cannot fail since self.lines isn't empty
@@ -99,7 +108,7 @@ impl Lines {
             .zip(lens.iter())
             .for_each(|(line, len)| line.len = *len);
 
-        last.len = sym_len - (last.rva - first_rva);
+        last.len = sym_len - (last.rva - sym_rva);
     }
 
     fn compute_rva(&mut self, address_map: &AddressMap) {
@@ -128,8 +137,8 @@ impl Lines {
                     // The range has been splitted so need to insert the new mapping
                     new_line.push(Line {
                         rva: rg.start.0,
-                        num: line.num,
                         len: rg.end - rg.start,
+                        num: line.num,
                         file_id: line.file_id,
                     });
 
@@ -164,5 +173,34 @@ impl Lines {
         if !is_sorted {
             self.lines.sort_by_key(|x| x.rva);
         }
+    }
+
+    pub(super) fn retain(&self, rva: u32, len: u32) -> Option<Lines> {
+        // A symbol space can be splited in several chunks
+        // so we need to retain the lines which are in the different chunks
+        if self.lines.is_empty() {
+            return None;
+        }
+        if rva == self.lines.first().unwrap().rva {
+            let last = self.lines.last().unwrap();
+            if last.rva + last.len == rva + len {
+                return None;
+            }
+        }
+        Some(Lines {
+            lines: self
+                .lines
+                .iter()
+                .filter_map(|line| {
+                    if rva <= line.rva && line.rva + line.len <= rva + len {
+                        Some(line.clone())
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
+            is_sorted: true,
+            last_rva: 0,
+        })
     }
 }
