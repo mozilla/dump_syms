@@ -12,7 +12,7 @@ use std::collections::{hash_map, BTreeMap};
 use std::fmt::{Display, Formatter};
 
 use super::line::Lines;
-use super::pdb::PDBSections;
+use super::pdb::{PDBContributions, PDBSections};
 use super::source::SourceLineCollector;
 use super::types::{FuncName, TypeDumper};
 
@@ -24,23 +24,23 @@ pub(super) struct BlockInfo {
 
 pub(super) type PDBSymbols = BTreeMap<u32, PDBSymbol>;
 
-#[derive(Debug)]
-struct EBPInfo {
+#[derive(Clone, Debug)]
+pub(super) struct EBPInfo {
     type_index: TypeIndex,
     offset: u32,
 }
 
 #[derive(Debug)]
-struct SelectedSymbol {
-    name: String,
-    type_index: TypeIndex,
-    is_public: bool,
-    is_multiple: bool,
-    offset: PdbInternalSectionOffset,
-    len: u32,
-    parameter_size: u32,
-    source: Lines,
-    ebp: Vec<EBPInfo>,
+pub(super) struct SelectedSymbol {
+    pub name: String,
+    pub type_index: TypeIndex,
+    pub is_public: bool,
+    pub is_multiple: bool,
+    pub offset: PdbInternalSectionOffset,
+    pub len: u32,
+    pub parameter_size: u32,
+    pub source: Lines,
+    pub ebp: Vec<EBPInfo>,
 }
 
 #[derive(Debug)]
@@ -230,6 +230,10 @@ pub(super) struct RvaSymbols {
 }
 
 impl RvaSymbols {
+    pub(super) fn get_symbol_at(&self, rva: u32) -> Option<&SelectedSymbol> {
+        self.map.get(&rva)
+    }
+
     pub(super) fn add_procedure_symbol(
         &mut self,
         line_collector: &SourceLineCollector,
@@ -262,10 +266,29 @@ impl RvaSymbols {
         Ok(())
     }
 
+    fn is_constant_string(name: &str) -> bool {
+        name.starts_with("??_C")
+    }
+
+    fn is_constant_number(name: &str) -> bool {
+        if name.starts_with("__") {
+            let name = &name[2..];
+            name.starts_with("real@") || name.starts_with("xmm@") || name.starts_with("ymm@")
+        } else {
+            false
+        }
+    }
+
+    #[allow(dead_code)]
+    fn filter_public(name: &str) -> bool {
+        Self::is_constant_string(name) || Self::is_constant_number(name)
+    }
+
     pub(super) fn add_public_symbol(
         &mut self,
         symbol: PublicSymbol,
         pdb_sections: &PDBSections,
+        pdb_contributions: &PDBContributions,
         address_map: &AddressMap,
     ) {
         let rva = match symbol.offset.to_rva(address_map) {
@@ -273,14 +296,27 @@ impl RvaSymbols {
             _ => return,
         };
 
-        if symbol.code || symbol.function || pdb_sections.is_code(symbol.offset.section) {
+        if symbol.code
+            || symbol.function
+            || (pdb_sections.is_code(symbol.offset.section)
+                && pdb_contributions.is_code(symbol.offset.section, symbol.offset.offset))
+        {
+            let sym_name = symbol.name.to_string().into_owned();
+
+            // TODO: For any reasons we can have public symbols which are in executable section and are constants.
+            // It's the case in ntdll.dll
+            // For compatibility reasons, just let them for now...
+            // For reference https://github.com/mozilla/dump_syms/issues/26
+            /*if Self::filter_public(&sym_name) {
+                return;
+            }*/
+
             match self.map.entry(rva.0) {
                 hash_map::Entry::Occupied(selected) => {
                     let selected = selected.into_mut();
                     selected.update_public(symbol);
                 }
                 hash_map::Entry::Vacant(e) => {
-                    let sym_name = symbol.name.to_string().into_owned();
                     let offset = symbol.offset;
                     e.insert(SelectedSymbol {
                         name: sym_name,
@@ -296,6 +332,24 @@ impl RvaSymbols {
                 }
             }
         }
+    }
+
+    pub(super) fn add_symbol(
+        &mut self,
+        function: SelectedSymbol,
+        block_info: BlockInfo,
+    ) -> Result<()> {
+        match self.map.entry(block_info.rva) {
+            hash_map::Entry::Occupied(selected) => {
+                let selected = selected.into_mut();
+                selected.is_multiple = true;
+            }
+            hash_map::Entry::Vacant(e) => {
+                e.insert(function);
+            }
+        }
+
+        Ok(())
     }
 
     pub(super) fn add_ebp(&mut self, ebp: RegisterRelativeSymbol) {

@@ -4,10 +4,11 @@
 // copied, modified, or distributed except according to those terms.
 
 use failure::Fail;
+use fxhash::FxHashSet;
 use pdb::{
     AddressMap, BlockSymbol, DebugInformation, FallibleIterator, MachineType, ModuleInfo,
     PDBInformation, ProcedureSymbol, PublicSymbol, Register, RegisterRelativeSymbol, Result,
-    Source, SymbolData, SymbolTable, PDB,
+    SeparatedCodeSymbol, Source, SymbolData, SymbolTable, PDB,
 };
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
@@ -16,7 +17,7 @@ use symbolic_minidump::cfi::AsciiCfiWriter;
 use uuid::Uuid;
 
 use super::source::{SourceFiles, SourceLineCollector};
-use super::symbol::{BlockInfo, PDBSymbols, RvaSymbols};
+use super::symbol::{BlockInfo, PDBSymbols, RvaSymbols, SelectedSymbol};
 use super::types::{DumperFlags, TypeDumper};
 use super::utils::get_pe_debug_id;
 use crate::common;
@@ -65,9 +66,7 @@ impl PDBSections {
             sections: pdb.sections().ok().and_then(|s| s).map(|sections| {
                 sections
                     .iter()
-                    .map(|section| {
-                        section.characteristics & (IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE) != 0
-                    })
+                    .map(|section| Self::has_code(section.characteristics))
                     .collect()
             }),
         }
@@ -79,6 +78,63 @@ impl PDBSections {
             .as_ref()
             .map_or(false, |v| *v.get(section).unwrap_or(&false))
     }
+
+    pub(super) fn has_code(characteristics: u32) -> bool {
+        characteristics & (IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE) != 0
+    }
+
+    pub(super) fn len(&self) -> usize {
+        self.sections.as_ref().map_or(0, |s| s.len())
+    }
+}
+
+#[derive(Debug)]
+pub(super) struct PDBContributions {
+    contributions: Option<Vec<FxHashSet<u32>>>,
+}
+
+// Some executable sections may contain symbols which are not executable (e.g. string constants)
+// So here we collect all the symbols which are in an exec section and which aren't exec
+impl PDBContributions {
+    fn new(dbi: &DebugInformation, pdb_sections: &PDBSections) -> Self {
+        PDBContributions {
+            contributions: dbi
+                .section_contributions()
+                .ok()
+                .and_then(|mut contributions| {
+                    let mut contribs: Vec<FxHashSet<u32>> =
+                        vec![FxHashSet::default(); pdb_sections.len()];
+                    loop {
+                        if let Ok(c) = contributions.next() {
+                            if let Some(contribution) = c {
+                                if pdb_sections.is_code(contribution.section)
+                                    && !PDBSections::has_code(contribution.characteristics)
+                                {
+                                    let section = (contribution.section - 1) as usize;
+                                    contribs[section].insert(contribution.offset);
+                                }
+                            } else {
+                                break;
+                            }
+                        } else {
+                            return None;
+                        }
+                    }
+                    if contribs.is_empty() {
+                        None
+                    } else {
+                        Some(contribs)
+                    }
+                }),
+        }
+    }
+
+    pub(super) fn is_code(&self, section: u16, offset: u32) -> bool {
+        let section = (section - 1) as usize;
+        self.contributions.as_ref().map_or(true, |v| {
+            v.get(section).map_or(true, |o| !o.contains(&offset))
+        })
+    }
 }
 
 struct PDBData<'s> {
@@ -89,12 +145,17 @@ struct Collector {
     cpu: CPU,
     symbols: RvaSymbols,
     pdb_sections: PDBSections,
+    pdb_contributions: PDBContributions,
 }
 
 impl Collector {
     fn add_public_symbol(&mut self, symbol: PublicSymbol, address_map: &AddressMap) {
-        self.symbols
-            .add_public_symbol(symbol, &self.pdb_sections, address_map)
+        self.symbols.add_public_symbol(
+            symbol,
+            &self.pdb_sections,
+            &self.pdb_contributions,
+            address_map,
+        )
     }
 
     fn add_procedure_symbol(
@@ -104,6 +165,10 @@ impl Collector {
         lines: &SourceLineCollector,
     ) -> Result<()> {
         self.symbols.add_procedure_symbol(lines, symbol, info)
+    }
+
+    fn add_symbol(&mut self, symbol: SelectedSymbol, info: BlockInfo) -> Result<()> {
+        self.symbols.add_symbol(symbol, info)
     }
 
     fn add_reg_rel(&mut self, symbol: RegisterRelativeSymbol) {
@@ -116,6 +181,10 @@ impl Collector {
 
     fn close_procedure(&mut self) {
         self.symbols.close_procedure();
+    }
+
+    fn get_symbol_at(&self, rva: u32) -> Option<&SelectedSymbol> {
+        self.symbols.get_symbol_at(rva)
     }
 }
 
@@ -278,6 +347,55 @@ impl<'s> PDBData<'s> {
         Ok(())
     }
 
+    fn add_sepcode(
+        &self,
+        block: SeparatedCodeSymbol,
+        collector: &mut Collector,
+        lines: &SourceLineCollector,
+    ) -> Result<()> {
+        // We can see some sepcode syms in ntdll.dll
+        // As far as I understand, they're pieces of code moved at compilation time.
+        // According to some functions signatures these piece of code can be just
+        // exception filter and exception handling
+        let block_rva = match block.offset.to_rva(&self.address_map) {
+            Some(rva) => rva,
+            _ => return Ok(()),
+        };
+
+        let parent_rva = match block.parent_offset.to_rva(&self.address_map) {
+            Some(rva) => rva,
+            _ => return Ok(()),
+        };
+
+        if let Some(parent) = collector.get_symbol_at(parent_rva.0) {
+            if block_rva < parent_rva || block_rva > parent_rva + parent.len {
+                // So the block is outside of its parent procedure
+                let source = lines.collect_source_lines(block.offset, block.len)?;
+                let sym = SelectedSymbol {
+                    name: parent.name.clone(),
+                    type_index: parent.type_index,
+                    is_public: parent.is_public,
+                    is_multiple: false,
+                    offset: block.offset,
+                    len: block.len,
+                    parameter_size: parent.parameter_size,
+                    source,
+                    ebp: parent.ebp.clone(),
+                };
+                collector.add_symbol(
+                    sym,
+                    BlockInfo {
+                        rva: block_rva.0,
+                        offset: block.offset,
+                        len: block.len,
+                    },
+                )?;
+            }
+        }
+
+        Ok(())
+    }
+
     fn handle_symbol(
         &self,
         symbol: SymbolData,
@@ -304,6 +422,9 @@ impl<'s> PDBData<'s> {
             }
             SymbolData::Block(block) => {
                 self.add_block(&module_info, block, collector, lines)?;
+            }
+            SymbolData::SeparatedCode(block) => {
+                self.add_sepcode(block, collector, lines)?;
             }
             SymbolData::RegisterRelative(regrel) => {
                 collector.add_reg_rel(regrel);
@@ -370,6 +491,7 @@ impl PDBInfo {
         let frame_table = pdb.frame_table()?;
         let globals = pdb.global_symbols()?;
         let pdb_sections = PDBSections::new(&mut pdb);
+        let pdb_contributions = PDBContributions::new(&dbi, &pdb_sections);
 
         let cpu = get_cpu(&dbi);
         let debug_id = get_debug_id(&dbi, pi);
@@ -383,6 +505,7 @@ impl PDBInfo {
             cpu,
             symbols: RvaSymbols::default(),
             pdb_sections,
+            pdb_contributions,
         };
 
         pdb_data.collect_functions(&mut pdb, &dbi, &mut collector, &source_files)?;
@@ -437,6 +560,7 @@ impl PDBInfo {
 #[cfg(test)]
 mod tests {
 
+    use bitflags::bitflags;
     use std::fs::File;
     use std::io::Read;
     use std::path::PathBuf;
@@ -445,6 +569,13 @@ mod tests {
     };
 
     use super::*;
+
+    bitflags! {
+        struct TestFlags: u32 {
+            const NONE = 0;
+            const MULTIPLICITY = 0b1;
+        }
+    }
 
     #[derive(Debug, PartialEq)]
     struct StackWin {
@@ -458,6 +589,37 @@ mod tests {
         locals_size: u32,
         max_stack_size: u32,
         extra: String,
+    }
+
+    const MS: &str = "https://msdl.microsoft.com/download/symbols";
+
+    fn dl_from_server(url: &str) -> Vec<u8> {
+        let mut response = reqwest::get(url).expect("GET request");
+        let mut buf = Vec::new();
+        response.copy_to(&mut buf).expect("Data from server");
+        buf
+    }
+
+    fn get_data_from_server(url: &str) -> (Vec<u8>, &str) {
+        let toks: Vec<_> = url.rsplitn(4, '/').collect();
+        let name = toks[2];
+        let pe_buf = dl_from_server(url);
+        let pe_buf = crate::utils::read_cabinet(pe_buf, PathBuf::from(name)).unwrap();
+        let (pe, pdb_buf, pdb_name) = crate::windows::utils::get_pe_pdb_buf(
+            PathBuf::from("."),
+            &pe_buf,
+            crate::cache::get_sym_servers(Some(&format!("SRV*{}", MS))).as_ref(),
+        )
+        .unwrap();
+
+        let mut output = Vec::new();
+        let cursor = Cursor::new(&mut output);
+        let pdb = PDBInfo::new(&pdb_buf, pdb_name, name.to_string(), Some(pe), false).unwrap();
+        pdb.dump(cursor).unwrap();
+
+        let toks: Vec<_> = name.rsplitn(2, '.').collect();
+
+        (output, toks[1])
     }
 
     fn get_new_bp(file_name: &str) -> Vec<u8> {
@@ -480,6 +642,7 @@ mod tests {
     }
 
     fn get_data(file_name: &str) -> Vec<u8> {
+        eprintln!("FN {}", file_name);
         let path = PathBuf::from("./test_data");
         let path = path.join(file_name);
 
@@ -514,10 +677,11 @@ mod tests {
 
     fn check_func(
         pos: usize,
-        new: BreakpadFuncRecord,
-        old: BreakpadFuncRecord,
+        new: &BreakpadFuncRecord,
+        old: &BreakpadFuncRecord,
         file_map_new: &BreakpadFileMap,
         file_map_old: &BreakpadFileMap,
+        flags: TestFlags,
     ) {
         assert_eq!(
             new.address,
@@ -525,11 +689,13 @@ mod tests {
             "Not the same address for FUNC at position {}",
             pos + 1
         );
-        assert_eq!(
-            new.multiple, old.multiple,
-            "Not the same multiplicity for FUNC at rva {:x}",
-            new.address
-        );
+        if flags.intersects(TestFlags::MULTIPLICITY) {
+            assert_eq!(
+                new.multiple, old.multiple,
+                "Not the same multiplicity for FUNC at rva {:x}",
+                new.address
+            );
+        }
         assert_eq!(
             new.size, old.size,
             "Not the same size for FUNC at rva {:x}",
@@ -599,9 +765,13 @@ mod tests {
         }
     }
 
-    fn test_file(name: &str) {
-        let dll = name.to_string() + ".dll";
-        let out = get_new_bp(&dll);
+    fn test_file(name: &str, flags: TestFlags) {
+        let (out, name) = if name.starts_with("https://") {
+            get_data_from_server(name)
+        } else {
+            let dll = name.to_string() + ".dll";
+            (get_new_bp(&dll), name)
+        };
         let new = BreakpadObject::parse(&out).unwrap();
 
         let sym = name.to_string() + ".old.sym";
@@ -617,20 +787,22 @@ mod tests {
 
         assert_eq!(files_new, files_old, "Not the same files");
 
-        let func_old = old.func_records();
-        let func_new = new.func_records();
+        let mut func_old: Vec<_> = old.func_records().collect();
+        let mut func_new: Vec<_> = new.func_records().collect();
+        func_old.sort_by_key(|f| f.as_ref().unwrap().address);
+        func_new.sort_by_key(|f| f.as_ref().unwrap().address);
 
         assert_eq!(
-            func_new.clone().count(),
-            func_old.clone().count(),
+            func_new.len(),
+            func_old.len(),
             "Not the same number of FUNC"
         );
 
-        for (i, (func_n, func_o)) in func_new.zip(func_old).enumerate() {
-            let func_n = func_n.unwrap();
-            let func_o = func_o.unwrap();
+        for (i, (func_n, func_o)) in func_new.iter().zip(func_old.iter()).enumerate() {
+            let func_n = func_n.as_ref().unwrap();
+            let func_o = func_o.as_ref().unwrap();
 
-            check_func(i, func_n, func_o, &file_map_new, &file_map_old);
+            check_func(i, func_n, func_o, &file_map_new, &file_map_old, flags);
         }
 
         let public_old = old.public_records();
@@ -653,11 +825,13 @@ mod tests {
                 i + 1,
                 public_n.name
             );
-            assert_eq!(
-                public_n.multiple, public_o.multiple,
-                "Not the same multiplicity for PUBLIC at rva {:x}",
-                public_n.address
-            );
+            if flags.intersects(TestFlags::MULTIPLICITY) {
+                assert_eq!(
+                    public_n.multiple, public_o.multiple,
+                    "Not the same multiplicity for PUBLIC at rva {:x}",
+                    public_n.address
+                );
+            }
             assert_eq!(
                 public_n.parameter_size, public_o.parameter_size,
                 "Not the same parameter size for PUBLIC at rva {:x}",
@@ -673,31 +847,39 @@ mod tests {
 
     #[test]
     fn test_basic32() {
-        test_file("basic32");
+        test_file("basic32", TestFlags::MULTIPLICITY);
     }
 
     #[test]
     fn test_basic32_min() {
-        test_file("basic32-min");
+        test_file("basic32-min", TestFlags::MULTIPLICITY);
     }
 
     #[test]
     fn test_basic64() {
-        test_file("basic64");
+        test_file("basic64", TestFlags::MULTIPLICITY);
     }
 
     #[test]
     fn test_basic_opt32() {
-        test_file("basic-opt32");
+        test_file("basic-opt32", TestFlags::MULTIPLICITY);
     }
 
     #[test]
     fn test_basic_opt64() {
-        test_file("basic-opt64");
+        test_file("basic-opt64", TestFlags::MULTIPLICITY);
     }
 
     #[test]
     fn test_dump_syms_regtest64() {
-        test_file("dump_syms_regtest64");
+        test_file("dump_syms_regtest64", TestFlags::MULTIPLICITY);
+    }
+
+    #[test]
+    fn test_ntdll() {
+        test_file(
+            &format!("{}/ntdll.dll/5D6AA5581AD000/ntdll.dll", MS),
+            TestFlags::NONE,
+        );
     }
 }
