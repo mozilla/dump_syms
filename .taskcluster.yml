@@ -39,7 +39,8 @@ tasks:
           command:
             - "/bin/bash"
             - "-cx"
-            - "rustup toolchain install stable &&
+            - "rustup set profile minimal &&
+               rustup toolchain install stable &&
                rustup default stable &&
                rustup component add clippy &&
                rustup component add rustfmt &&
@@ -70,6 +71,7 @@ tasks:
             - "-cx"
             - "apt-get -qq update &&
                apt-get -qq install -y zip &&
+               rustup set profile minimal &&
                rustup toolchain install nightly &&
                rustup default nightly &&
                curl -L https://github.com/mozilla/grcov/releases/latest/download/grcov-linux-x86_64.tar.bz2 | tar jxf - &&
