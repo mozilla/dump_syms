@@ -5,7 +5,7 @@
 
 use dirs::home_dir;
 use futures::{stream, Future, Stream};
-use reqwest::r#async::{Client, Decoder};
+use reqwest::{self, header::USER_AGENT, r#async::Client};
 use std::fs::{self, File};
 use std::io::{BufWriter, Read, Write};
 use std::path::PathBuf;
@@ -17,6 +17,7 @@ use crate::common;
 use crate::utils;
 
 const DEFAULT_STORE: &str = "https://msdl.microsoft.com/download/symbols";
+const DEFAULT_USER_AGENT: &str = "Microsoft-Symbol-Server/6.3.0.0";
 
 #[derive(Debug)]
 pub struct SymbolServer {
@@ -24,7 +25,7 @@ pub struct SymbolServer {
     server: String,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct Job {
     cache: Option<PathBuf>,
     url: String,
@@ -228,7 +229,7 @@ fn get_jobs(servers: &[SymbolServer], debug_id: &str, base: &PathBuf, file_name:
     jobs
 }
 
-fn retrieve_data(jobs: Vec<Job>) -> Vec<Vec<u8>> {
+fn check_data(jobs: Vec<Job>) -> Option<Job> {
     let client = Client::new();
     let n_queries = jobs.len();
     let results = Arc::new(Mutex::new(Vec::new()));
@@ -237,30 +238,21 @@ fn retrieve_data(jobs: Vec<Job>) -> Vec<Vec<u8>> {
         .map({
             move |job| {
                 client
-                    .get(&job.url)
+                    .head(&job.url)
+                    .header(USER_AGENT, DEFAULT_USER_AGENT)
                     .send()
-                    .and_then(|mut res| {
-                        let body = std::mem::replace(res.body_mut(), Decoder::empty());
-                        body.concat2().map_err(Into::into)
-                    })
-                    .and_then(move |body| {
-                        Ok(if copy_in_cache(job.cache, &body) {
-                            Some(body.to_vec())
-                        } else {
-                            None
-                        })
-                    })
+                    .and_then(|res| Ok(if res.status() == 200 { Some(job) } else { None }))
             }
         })
         .buffer_unordered(n_queries);
 
     let work = pdbs
-        .filter_map(|d| d)
+        .filter_map(|job| job)
         .for_each({
             let results = Arc::clone(&results);
-            move |d| {
+            move |job| {
                 let mut results = results.lock().unwrap();
-                results.push(d);
+                results.push(job);
                 Ok(())
             }
         })
@@ -268,7 +260,32 @@ fn retrieve_data(jobs: Vec<Job>) -> Vec<Vec<u8>> {
 
     tokio::run(work);
 
-    Arc::try_unwrap(results).unwrap().into_inner().unwrap()
+    let results = Arc::try_unwrap(results).unwrap().into_inner().unwrap();
+    results.first().cloned()
+}
+
+fn fetch_data(jobs: Vec<Job>) -> Option<Vec<u8>> {
+    if let Some(job) = check_data(jobs) {
+        let mut buf = Vec::new();
+        let client = reqwest::Client::new();
+        let resp = client
+            .get(&job.url)
+            .header(USER_AGENT, DEFAULT_USER_AGENT)
+            .send();
+        if let Ok(mut resp) = resp {
+            if resp.copy_to(&mut buf).is_err() {
+                None
+            } else if copy_in_cache(job.cache, &buf) {
+                Some(buf)
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    } else {
+        None
+    }
 }
 
 pub fn search_symbol_file(
@@ -295,9 +312,9 @@ pub fn search_symbol_file(
     // Try the symbol servers
     // Each job contains the path where to cache data (if one) and a query url
     let jobs = get_jobs(&servers, debug_id, &base, &file_name);
-    let mut pdbs = retrieve_data(jobs);
+    let pdb = fetch_data(jobs);
 
-    if let Some(buf) = pdbs.pop() {
+    if let Some(buf) = pdb {
         let path = PathBuf::from(&file_name);
         let buf = utils::read_cabinet(buf, path)
             .unwrap_or_else(|| panic!("Unable to read the file {} from the server", file_name));
