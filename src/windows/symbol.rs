@@ -384,21 +384,16 @@ impl RvaSymbols {
         }
     }
 
-    pub(super) fn mv_to_pdb_symbols(
+    fn split_and_collect(
         mut self,
         dumper: TypeDumper,
         address_map: &AddressMap,
         frame_table: FrameTable,
-    ) -> PDBSymbols {
-        let mut syms = PDBSymbols::default();
-        if self.map.is_empty() {
-            return syms;
-        }
-
+    ) -> (Vec<PDBSymbol>, BTreeMap<(u32, u32), usize>) {
+        // The value in ranges is the index in all_syms
         let mut ranges: BTreeMap<(u32, u32), usize> = BTreeMap::default();
         let mut all_syms = Vec::with_capacity(self.map.len());
 
-        // First, we get all the ranges after splitting them
         for (rva, sym) in self.map.drain() {
             let (sym, offset) = sym.mv_to_pdb_symbol(&dumper, rva, address_map, &frame_table);
             let last = all_syms.len();
@@ -417,7 +412,13 @@ impl RvaSymbols {
             all_syms.push(sym);
         }
 
-        // Second, we initialize for first symbol
+        (all_syms, ranges)
+    }
+
+    fn fill_the_gaps(all_syms: Vec<PDBSymbol>, ranges: BTreeMap<(u32, u32), usize>) -> PDBSymbols {
+        let mut syms = PDBSymbols::default();
+
+        // We initialize for first symbol
         let mut iterator = ranges.iter();
         let ((rva, len), sym_pos) = iterator.next().unwrap();
 
@@ -426,7 +427,7 @@ impl RvaSymbols {
         let mut last_sym = &all_syms[*sym_pos];
         let mut last_id = last_sym.id;
 
-        // Third, we merge ranges ([a; b] + [c; d] = [a; d]) which consecutively have the same function id
+        // We merge ranges ([a; b] + [c; d] = [a; d]) which consecutively have the same function id
         // So the hole between [a; b] and [c; d] will become a part of the range for the function
         for ((rva, len), sym_pos) in iterator {
             let sym = &all_syms[*sym_pos];
@@ -444,5 +445,19 @@ impl RvaSymbols {
         syms.insert(last_rva, last_sym.get_from(last_rva, last_len));
 
         syms
+    }
+
+    pub(super) fn mv_to_pdb_symbols(
+        self,
+        dumper: TypeDumper,
+        address_map: &AddressMap,
+        frame_table: FrameTable,
+    ) -> PDBSymbols {
+        if self.map.is_empty() {
+            return PDBSymbols::default();
+        }
+
+        let (all_syms, ranges) = self.split_and_collect(dumper, address_map, frame_table);
+        Self::fill_the_gaps(all_syms, ranges)
     }
 }

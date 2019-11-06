@@ -175,19 +175,8 @@ impl Lines {
         }
     }
 
-    pub(super) fn retain(&self, rva: u32, len: u32) -> Option<Lines> {
-        // A symbol space can be splited in several chunks
-        // so we need to retain the lines which are in the different chunks
-        if self.lines.is_empty() {
-            return None;
-        }
-        if rva == self.lines.first().unwrap().rva {
-            let last = self.lines.last().unwrap();
-            if last.rva + last.len == rva + len {
-                return None;
-            }
-        }
-        Some(Lines {
+    fn find_lines_for_range(&self, rva: u32, len: u32) -> Lines {
+        Lines {
             lines: self
                 .lines
                 .iter()
@@ -201,6 +190,22 @@ impl Lines {
                 .collect(),
             is_sorted: true,
             last_rva: 0,
-        })
+        }
+    }
+
+    pub(super) fn retain(&self, rva: u32, len: u32) -> Option<Lines> {
+        // A symbol space can be split in several chunks
+        // so we need to retain the lines which are in the different chunks
+        if self.lines.is_empty() {
+            return None;
+        }
+        if rva == self.lines.first().unwrap().rva {
+            let last = self.lines.last().unwrap();
+            if last.rva + last.len == rva + len {
+                return None;
+            }
+        }
+
+        Some(self.find_lines_for_range(rva, len))
     }
 }
