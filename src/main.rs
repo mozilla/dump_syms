@@ -44,6 +44,12 @@ fn main() {
                 .takes_value(true),
         )
         .arg(
+            Arg::with_name("debug_id")
+                .help("Get the pdb file passed as argument from the cache or from symbol server using the debug id")
+                .long("debug-id")
+                .takes_value(true),
+        )
+        .arg(
             Arg::with_name("symbol-server")
                 .help("Symbol Server configuration\n(e.g. \"SRV*c:\\symcache\\*https://symbols.mozilla.org/\")\nIt can be in file $HOME/.dump_syms/config too.")
                 .long("symbol-server")
@@ -55,11 +61,13 @@ fn main() {
     let filename = matches.value_of("filename").unwrap();
     let symbol_server = matches.value_of("symbol-server");
     let store = matches.value_of("store");
+    let debug_id = matches.value_of("debug_id");
 
     let action = Action::Dump(Dumper {
         output,
         symbol_server,
         store,
+        debug_id,
     });
 
     if let Err(e) = action.action(&filename) {
