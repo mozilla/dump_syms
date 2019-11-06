@@ -381,6 +381,7 @@ impl<'s> PDBData<'s> {
                     parameter_size: parent.parameter_size,
                     source,
                     ebp: parent.ebp.clone(),
+                    id: parent.id,
                 };
                 collector.add_symbol(
                     sym,
@@ -561,6 +562,7 @@ impl PDBInfo {
 mod tests {
 
     use bitflags::bitflags;
+    use fxhash::{FxHashMap, FxHashSet};
     use std::fs::File;
     use std::io::Read;
     use std::path::PathBuf;
@@ -572,8 +574,10 @@ mod tests {
 
     bitflags! {
         struct TestFlags: u32 {
-            const NONE = 0;
-            const MULTIPLICITY = 0b1;
+            const ALL = 0;
+            const NO_MULTIPLICITY = 0b1;
+            const NO_FILE_LINE = 0b10;
+            const NO_FUNCS_LENGTH = 0b100;
         }
     }
 
@@ -608,7 +612,7 @@ mod tests {
         let (pe, pdb_buf, pdb_name) = crate::windows::utils::get_pe_pdb_buf(
             PathBuf::from("."),
             &pe_buf,
-            crate::cache::get_sym_servers(Some(&format!("SRV*{}", MS))).as_ref(),
+            crate::cache::get_sym_servers(Some(&format!("SRV*~/symcache*{}", MS))).as_ref(),
         )
         .unwrap();
 
@@ -631,8 +635,12 @@ mod tests {
         }
 
         let pe_buf = crate::utils::read_file(&path);
-        let (pe, pdb_buf, pdb_name) =
-            crate::windows::utils::get_pe_pdb_buf(path, &pe_buf, None).unwrap();
+        let (pe, pdb_buf, pdb_name) = crate::windows::utils::get_pe_pdb_buf(
+            path,
+            &pe_buf,
+            crate::cache::get_sym_servers(Some(&format!("SRV*~/symcache*{}", MS))).as_ref(),
+        )
+        .unwrap();
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
         let pdb = PDBInfo::new(&pdb_buf, pdb_name, file_name.to_string(), Some(pe), false).unwrap();
@@ -642,7 +650,6 @@ mod tests {
     }
 
     fn get_data(file_name: &str) -> Vec<u8> {
-        eprintln!("FN {}", file_name);
         let path = PathBuf::from("./test_data");
         let path = path.join(file_name);
 
@@ -675,6 +682,61 @@ mod tests {
         assert_eq!(new.kind(), old.kind(), "Bad kind");
     }
 
+    fn check_func_len(
+        func_new: &[std::result::Result<
+            symbolic_debuginfo::breakpad::BreakpadFuncRecord<'_>,
+            symbolic_debuginfo::breakpad::BreakpadError,
+        >],
+        func_old: &[std::result::Result<
+            symbolic_debuginfo::breakpad::BreakpadFuncRecord<'_>,
+            symbolic_debuginfo::breakpad::BreakpadError,
+        >],
+    ) {
+        if func_new.len() != func_old.len() {
+            // Try to find the diff in the addresses
+            let mut old_addresses = FxHashMap::default();
+            let mut old_keys = FxHashSet::default();
+            for addr in func_old.iter().map(|f| f.as_ref().unwrap().address) {
+                *old_addresses.entry(addr).or_insert(0) += 1;
+                old_keys.insert(addr);
+            }
+            let mut new_addresses = FxHashMap::default();
+            let mut new_keys = FxHashSet::default();
+            for addr in func_new.iter().map(|f| f.as_ref().unwrap().address) {
+                *new_addresses.entry(addr).or_insert(0) += 1;
+                new_keys.insert(addr);
+            }
+            let diff: Vec<_> = old_keys.symmetric_difference(&new_keys).collect();
+            for addr in diff.iter() {
+                old_addresses.remove(addr);
+                new_addresses.remove(addr);
+            }
+
+            let mut diff_value = Vec::new();
+            for (addr, value) in old_addresses.iter() {
+                let new_value = new_addresses.get(addr).unwrap();
+                if new_value != value {
+                    diff_value.push((addr, new_value, value));
+                }
+            }
+
+            let diff: Vec<_> = diff.iter().map(|x| format!("0x{:x}", x)).collect();
+            let values: Vec<_> = diff_value
+                .iter()
+                .map(|(a, n, o)| format!("At 0x{:x}: new {}, old: {}", a, n, o))
+                .collect();
+            panic!(
+                format!(
+                    "Not the same number of FUNC (new: {}, old: {}):\n - Diff keys: {:?}\n - Diff values: {:?}",
+                    func_new.len(),
+                    func_old.len(),
+                    diff,
+                    values,
+                )
+            );
+        }
+    }
+
     fn check_func(
         pos: usize,
         new: &BreakpadFuncRecord,
@@ -689,7 +751,7 @@ mod tests {
             "Not the same address for FUNC at position {}",
             pos + 1
         );
-        if flags.intersects(TestFlags::MULTIPLICITY) {
+        if !flags.intersects(TestFlags::NO_MULTIPLICITY) {
             assert_eq!(
                 new.multiple, old.multiple,
                 "Not the same multiplicity for FUNC at rva {:x}",
@@ -732,6 +794,10 @@ mod tests {
                 i + 1,
                 new.address
             );
+
+            if flags.intersects(TestFlags::NO_FILE_LINE) {
+                continue;
+            }
 
             if i < line_old.len() - 1 {
                 // Sometimes the last line is different
@@ -792,11 +858,9 @@ mod tests {
         func_old.sort_by_key(|f| f.as_ref().unwrap().address);
         func_new.sort_by_key(|f| f.as_ref().unwrap().address);
 
-        assert_eq!(
-            func_new.len(),
-            func_old.len(),
-            "Not the same number of FUNC"
-        );
+        if !flags.intersects(TestFlags::NO_FUNCS_LENGTH) {
+            check_func_len(&func_new, &func_old);
+        }
 
         for (i, (func_n, func_o)) in func_new.iter().zip(func_old.iter()).enumerate() {
             let func_n = func_n.as_ref().unwrap();
@@ -825,7 +889,7 @@ mod tests {
                 i + 1,
                 public_n.name
             );
-            if flags.intersects(TestFlags::MULTIPLICITY) {
+            if !flags.intersects(TestFlags::NO_MULTIPLICITY) {
                 assert_eq!(
                     public_n.multiple, public_o.multiple,
                     "Not the same multiplicity for PUBLIC at rva {:x}",
@@ -847,39 +911,39 @@ mod tests {
 
     #[test]
     fn test_basic32() {
-        test_file("basic32", TestFlags::MULTIPLICITY);
+        test_file("basic32", TestFlags::ALL);
     }
 
     #[test]
     fn test_basic32_min() {
-        test_file("basic32-min", TestFlags::MULTIPLICITY);
+        test_file("basic32-min", TestFlags::ALL);
     }
 
     #[test]
     fn test_basic64() {
-        test_file("basic64", TestFlags::MULTIPLICITY);
+        test_file("basic64", TestFlags::ALL);
     }
 
     #[test]
     fn test_basic_opt32() {
-        test_file("basic-opt32", TestFlags::MULTIPLICITY);
+        test_file("basic-opt32", TestFlags::ALL);
     }
 
     #[test]
     fn test_basic_opt64() {
-        test_file("basic-opt64", TestFlags::MULTIPLICITY);
+        test_file("basic-opt64", TestFlags::ALL);
     }
 
     #[test]
     fn test_dump_syms_regtest64() {
-        test_file("dump_syms_regtest64", TestFlags::MULTIPLICITY);
+        test_file("dump_syms_regtest64", TestFlags::ALL);
     }
 
     #[test]
     fn test_ntdll() {
         test_file(
             &format!("{}/ntdll.dll/5D6AA5581AD000/ntdll.dll", MS),
-            TestFlags::NONE,
+            TestFlags::NO_MULTIPLICITY,
         );
     }
 }

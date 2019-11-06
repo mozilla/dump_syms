@@ -10,6 +10,7 @@ use pdb::{
 };
 use std::collections::{hash_map, BTreeMap};
 use std::fmt::{Display, Formatter};
+use std::rc::Rc;
 
 use super::line::Lines;
 use super::pdb::{PDBContributions, PDBSections};
@@ -41,16 +42,38 @@ pub(super) struct SelectedSymbol {
     pub parameter_size: u32,
     pub source: Lines,
     pub ebp: Vec<EBPInfo>,
+    pub id: usize,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, Default)]
 pub(super) struct PDBSymbol {
     pub name: String,
     pub is_public: bool,
     pub is_multiple: bool,
-    pub split: Vec<(u32, u32)>,
+    pub rva: u32,
+    pub len: u32,
     pub parameter_size: u32,
-    pub source: Lines,
+    pub source: Rc<Lines>,
+    pub id: usize,
+}
+
+impl PDBSymbol {
+    fn get_from(&self, rva: u32, len: u32) -> PDBSymbol {
+        PDBSymbol {
+            name: self.name.clone(),
+            is_public: self.is_public,
+            is_multiple: self.is_multiple,
+            rva,
+            len,
+            parameter_size: self.parameter_size,
+            source: if let Some(source) = self.source.retain(rva, len) {
+                Rc::new(source)
+            } else {
+                Rc::clone(&self.source)
+            },
+            id: self.id,
+        }
+    }
 }
 
 impl Display for PDBSymbol {
@@ -60,22 +83,21 @@ impl Display for PDBSymbol {
                 f,
                 "PUBLIC {}{:x} {:x} {}",
                 if self.is_multiple { "m " } else { "" },
-                self.split.first().unwrap().0,
+                self.rva,
                 self.parameter_size,
-                self.name
+                self.name,
             )?;
         } else {
-            for (start, len) in self.split.iter() {
-                writeln!(
-                    f,
-                    "FUNC {}{:x} {:x} {:x} {}",
-                    if self.is_multiple { "m " } else { "" },
-                    start,
-                    len,
-                    self.parameter_size,
-                    self.name
-                )?;
-            }
+            writeln!(
+                f,
+                "FUNC {}{:x} {:x} {:x} {}",
+                if self.is_multiple { "m " } else { "" },
+                self.rva,
+                self.len,
+                self.parameter_size,
+                self.name,
+            )?;
+
             write!(f, "{}", self.source)?;
         }
 
@@ -84,22 +106,6 @@ impl Display for PDBSymbol {
 }
 
 impl SelectedSymbol {
-    fn split_address(&self, address_map: &AddressMap) -> Vec<(u32, u32)> {
-        if self.len == 0 {
-            let mut v = Vec::with_capacity(1);
-            let rva = self.offset.to_rva(address_map).unwrap();
-            v.push((rva.0, 0));
-            v
-        } else {
-            let start = self.offset.to_internal_rva(&address_map).unwrap();
-            let end = PdbInternalRva(start.0 + self.len);
-            address_map
-                .rva_ranges(start..end)
-                .map(|r| (r.start.0, r.end.0 - r.start.0))
-                .collect()
-        }
-    }
-
     fn get_und(&self, dumper: &TypeDumper) -> FuncName {
         dumper
             .dump_function(&self.name, self.type_index)
@@ -197,9 +203,10 @@ impl SelectedSymbol {
     pub(super) fn mv_to_pdb_symbol(
         mut self,
         dumper: &TypeDumper,
+        rva: u32,
         address_map: &AddressMap,
         frame_table: &FrameTable,
-    ) -> PDBSymbol {
+    ) -> (PDBSymbol, PdbInternalSectionOffset) {
         let name = self.get_und(dumper);
         let (name, stack_param_size) = match name {
             FuncName::Undecorated(name) => (
@@ -209,16 +216,21 @@ impl SelectedSymbol {
             FuncName::Unknown((name, sps)) => (name, sps),
         };
 
-        self.source.finalize(self.len, address_map);
+        self.source.finalize(rva, self.len, address_map);
 
-        PDBSymbol {
-            name,
-            is_public: self.is_public,
-            is_multiple: self.is_multiple,
-            split: self.split_address(address_map),
-            parameter_size: stack_param_size,
-            source: self.source,
-        }
+        (
+            PDBSymbol {
+                name,
+                is_public: self.is_public,
+                is_multiple: self.is_multiple,
+                rva: 0,
+                len: self.len,
+                parameter_size: stack_param_size,
+                source: Rc::new(self.source),
+                id: self.id,
+            },
+            self.offset,
+        )
     }
 }
 
@@ -227,6 +239,7 @@ pub(super) struct RvaSymbols {
     map: FxHashMap<u32, SelectedSymbol>,
     rva: u32,
     symbol: Option<SelectedSymbol>,
+    last_id: usize,
 }
 
 impl RvaSymbols {
@@ -260,7 +273,9 @@ impl RvaSymbols {
                 parameter_size: 0,
                 source,
                 ebp: Vec::new(),
+                id: self.last_id,
             });
+            self.last_id += 1;
         }
 
         Ok(())
@@ -328,7 +343,9 @@ impl RvaSymbols {
                         parameter_size: 0,
                         source: Lines::new(),
                         ebp: Vec::new(),
+                        id: self.last_id,
                     });
+                    self.last_id += 1;
                 }
             }
         }
@@ -367,19 +384,80 @@ impl RvaSymbols {
         }
     }
 
-    pub(super) fn mv_to_pdb_symbols(
+    fn split_and_collect(
         mut self,
         dumper: TypeDumper,
         address_map: &AddressMap,
         frame_table: FrameTable,
-    ) -> PDBSymbols {
-        let mut syms = PDBSymbols::default();
+    ) -> (Vec<PDBSymbol>, BTreeMap<(u32, u32), usize>) {
+        // The value in ranges is the index in all_syms
+        let mut ranges: BTreeMap<(u32, u32), usize> = BTreeMap::default();
+        let mut all_syms = Vec::with_capacity(self.map.len());
+
         for (rva, sym) in self.map.drain() {
-            syms.insert(
-                rva,
-                sym.mv_to_pdb_symbol(&dumper, address_map, &frame_table),
-            );
+            let (sym, offset) = sym.mv_to_pdb_symbol(&dumper, rva, address_map, &frame_table);
+            let last = all_syms.len();
+            if sym.len == 0 {
+                ranges.insert((rva, 0), last);
+            } else {
+                let start = offset.to_internal_rva(&address_map).unwrap();
+                let end = PdbInternalRva(start.0 + sym.len);
+                for (rva, len) in address_map
+                    .rva_ranges(start..end)
+                    .map(|r| (r.start.0, r.end.0 - r.start.0))
+                {
+                    ranges.insert((rva, len), last);
+                }
+            }
+            all_syms.push(sym);
         }
+
+        (all_syms, ranges)
+    }
+
+    fn fill_the_gaps(all_syms: Vec<PDBSymbol>, ranges: BTreeMap<(u32, u32), usize>) -> PDBSymbols {
+        let mut syms = PDBSymbols::default();
+
+        // We initialize for first symbol
+        let mut iterator = ranges.iter();
+        let ((rva, len), sym_pos) = iterator.next().unwrap();
+
+        let mut last_rva = *rva;
+        let mut last_len = *len;
+        let mut last_sym = &all_syms[*sym_pos];
+        let mut last_id = last_sym.id;
+
+        // We merge ranges ([a; b] + [c; d] = [a; d]) which consecutively have the same function id
+        // So the hole between [a; b] and [c; d] will become a part of the range for the function
+        for ((rva, len), sym_pos) in iterator {
+            let sym = &all_syms[*sym_pos];
+            if last_id == sym.id {
+                last_len = rva - last_rva + len;
+            } else {
+                syms.insert(last_rva, last_sym.get_from(last_rva, last_len));
+                last_sym = sym;
+                last_id = sym.id;
+                last_rva = *rva;
+                last_len = *len;
+            }
+        }
+
+        syms.insert(last_rva, last_sym.get_from(last_rva, last_len));
+
         syms
+    }
+
+    pub(super) fn mv_to_pdb_symbols(
+        self,
+        dumper: TypeDumper,
+        address_map: &AddressMap,
+        frame_table: FrameTable,
+    ) -> PDBSymbols {
+        if self.map.is_empty() {
+            return PDBSymbols::default();
+        }
+
+        let (all_syms, ranges) = self.split_and_collect(dumper, address_map, frame_table);
+        Self::fill_the_gaps(all_syms, ranges)
     }
 }
