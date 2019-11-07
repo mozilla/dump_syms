@@ -155,8 +155,8 @@ fn get_base(file_name: &str) -> PathBuf {
     // the xul.pdb represents the base
     let path = PathBuf::from(file_name);
     if let Some(e) = path.extension() {
-        let e = e.to_str().unwrap();
-        match e {
+        let e = e.to_str().unwrap().to_lowercase();
+        match e.as_str() {
             "pd_" => path.with_extension("pdb"),
             "ex_" => path.with_extension("exe"),
             "dl_" => path.with_extension("dll"),

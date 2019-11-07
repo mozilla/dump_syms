@@ -72,9 +72,10 @@ impl Action<'_> {
     pub(super) fn action(&self, filename: &str) -> common::Result<()> {
         let path = PathBuf::from(filename);
         let filename = path.file_name().unwrap().to_str().unwrap().to_string();
+        let extension = path.extension().unwrap().to_str().unwrap().to_lowercase();
 
         match self {
-            Self::Dump(dumper) => match path.extension().unwrap().to_str().unwrap() {
+            Self::Dump(dumper) => match extension.as_str() {
                 "dll" | "dl_" | "exe" | "ex_" => {
                     let (buf, filename) = dumper.get_from_id(&path, filename, dumper.code_id)?;
                     let symbol_server = cache::get_sym_servers(dumper.symbol_server);
