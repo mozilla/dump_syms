@@ -15,9 +15,6 @@ use simplelog::{Config, LevelFilter, TermLogger, TerminalMode};
 use crate::action::{Action, Dumper};
 
 fn main() {
-    // Init the logger
-    let _ = TermLogger::init(LevelFilter::Info, Config::default(), TerminalMode::Stderr);
-
     let matches = App::new("dump_syms")
         .version(crate_version!())
         .author(crate_authors!("\n"))
@@ -61,7 +58,26 @@ fn main() {
                 .long("symbol-server")
                 .takes_value(true),
         )
+        .arg(
+            Arg::with_name("verbose")
+                .help("Set the level of verbosity (off (default), error, warn, info, debug, trace)")
+                .long("verbose")
+                .default_value("off")
+                .takes_value(true),
+        )
         .get_matches();
+
+    let verbosity = match matches.value_of("verbose").unwrap() {
+        "error" => LevelFilter::Error,
+        "warn" => LevelFilter::Warn,
+        "info" => LevelFilter::Info,
+        "debug" => LevelFilter::Debug,
+        "trace" => LevelFilter::Trace,
+        _ => LevelFilter::Off,
+    };
+
+    // Init the logger
+    let _ = TermLogger::init(verbosity, Config::default(), TerminalMode::Stderr);
 
     let output = matches.value_of("output").unwrap();
     let filename = matches.value_of("filename").unwrap();
