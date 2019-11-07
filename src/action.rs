@@ -17,6 +17,7 @@ pub(crate) struct Dumper<'a> {
     pub symbol_server: Option<&'a str>,
     pub store: Option<&'a str>,
     pub debug_id: Option<&'a str>,
+    pub code_id: Option<&'a str>,
 }
 
 impl Dumper<'_> {
@@ -42,6 +43,25 @@ impl Dumper<'_> {
         }
         Ok(())
     }
+
+    fn get_from_id(
+        &self,
+        path: &PathBuf,
+        filename: String,
+        id: Option<&str>,
+    ) -> common::Result<(Vec<u8>, String)> {
+        if let Some(id) = id {
+            let symbol_server = cache::get_sym_servers(self.symbol_server);
+            let (buf, filename) = cache::search_file(filename, id, symbol_server.as_ref());
+            if let Some(buf) = buf {
+                Ok((buf, filename))
+            } else {
+                Err(format!("Impossible to get file {} with id {}", filename, id).into())
+            }
+        } else {
+            Ok((utils::read_file(&path), filename))
+        }
+    }
 }
 
 pub(crate) enum Action<'a> {
@@ -55,8 +75,8 @@ impl Action<'_> {
 
         match self {
             Self::Dump(dumper) => match path.extension().unwrap().to_str().unwrap() {
-                "dll" | "exe" => {
-                    let buf = utils::read_file(&path);
+                "dll" | "dl_" | "exe" | "ex_" => {
+                    let (buf, filename) = dumper.get_from_id(&path, filename, dumper.code_id)?;
                     let symbol_server = cache::get_sym_servers(dumper.symbol_server);
                     let res = windows::utils::get_pe_pdb_buf(path, &buf, symbol_server.as_ref());
                     if let Some((pe, pdb_buf, pdb_name)) = res {
@@ -75,23 +95,7 @@ impl Action<'_> {
                     }
                 }
                 "pdb" | "pd_" => {
-                    let (buf, filename) = if let Some(debug_id) = dumper.debug_id {
-                        let symbol_server = cache::get_sym_servers(dumper.symbol_server);
-                        let (buf, filename) =
-                            cache::search_symbol_file(filename, debug_id, symbol_server.as_ref());
-                        if let Some(buf) = buf {
-                            (buf, filename)
-                        } else {
-                            return Err(format!(
-                                "Impossible to get file {} with debug id {}",
-                                filename, debug_id
-                            )
-                            .into());
-                        }
-                    } else {
-                        (utils::read_file(&path), filename)
-                    };
-
+                    let (buf, filename) = dumper.get_from_id(&path, filename, dumper.debug_id)?;
                     match windows::pdb::PDBInfo::new(&buf, filename, "".to_string(), None, true) {
                         Ok(pdb) => dumper.store_pdb(&pdb),
                         Err(e) => Err(e.into()),

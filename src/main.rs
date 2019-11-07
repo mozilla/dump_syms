@@ -50,6 +50,12 @@ fn main() {
                 .takes_value(true),
         )
         .arg(
+            Arg::with_name("code_id")
+                .help("Get the dll/exe file passed as argument from the cache or from symbol server using the code id")
+                .long("code-id")
+                .takes_value(true),
+        )
+        .arg(
             Arg::with_name("symbol-server")
                 .help("Symbol Server configuration\n(e.g. \"SRV*c:\\symcache\\*https://symbols.mozilla.org/\")\nIt can be in file $HOME/.dump_syms/config too.")
                 .long("symbol-server")
@@ -62,12 +68,14 @@ fn main() {
     let symbol_server = matches.value_of("symbol-server");
     let store = matches.value_of("store");
     let debug_id = matches.value_of("debug_id");
+    let code_id = matches.value_of("code_id");
 
     let action = Action::Dump(Dumper {
         output,
         symbol_server,
         store,
         debug_id,
+        code_id,
     });
 
     if let Err(e) = action.action(&filename) {
