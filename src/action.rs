@@ -76,7 +76,14 @@ impl Action<'_> {
 
         match self {
             Self::Dump(dumper) => match extension.as_str() {
-                "dll" | "dl_" | "exe" | "ex_" => {
+                "pdb" | "pd_" => {
+                    let (buf, filename) = dumper.get_from_id(&path, filename, dumper.debug_id)?;
+                    match windows::pdb::PDBInfo::new(&buf, filename, "".to_string(), None, true) {
+                        Ok(pdb) => dumper.store_pdb(&pdb),
+                        Err(e) => Err(e.into()),
+                    }
+                }
+                _ => {
                     let (buf, filename) = dumper.get_from_id(&path, filename, dumper.code_id)?;
                     let symbol_server = cache::get_sym_servers(dumper.symbol_server);
                     let res = windows::utils::get_pe_pdb_buf(path, &buf, symbol_server.as_ref());
@@ -95,14 +102,6 @@ impl Action<'_> {
                         Err("No pdb file found".into())
                     }
                 }
-                "pdb" | "pd_" => {
-                    let (buf, filename) = dumper.get_from_id(&path, filename, dumper.debug_id)?;
-                    match windows::pdb::PDBInfo::new(&buf, filename, "".to_string(), None, true) {
-                        Ok(pdb) => dumper.store_pdb(&pdb),
-                        Err(e) => Err(e.into()),
-                    }
-                }
-                _ => Err(format!("Invalid file {}", filename).into()),
             },
         }
     }
