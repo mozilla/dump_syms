@@ -78,7 +78,7 @@ pub fn get_pe_pdb_buf<'a>(
         } else {
             // Not here so try symbol server (or cache)
             let debug_id = get_pe_debug_id(Some(&pe)).unwrap();
-            let (pdb, pdb_name) = cache::search_symbol_file(pdb_name, &debug_id, symbol_server);
+            let (pdb, pdb_name) = cache::search_file(pdb_name, &debug_id, symbol_server);
             if let Some(pdb_buf) = pdb {
                 Some((pe, pdb_buf, pdb_name))
             } else {

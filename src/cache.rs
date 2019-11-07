@@ -157,7 +157,9 @@ fn get_base(file_name: &str) -> PathBuf {
     if let Some(e) = path.extension() {
         let e = e.to_str().unwrap();
         match e {
-            "pdb" | "pd_" | "exe" | "dll" => path.with_extension("pdb"),
+            "pd_" => path.with_extension("pdb"),
+            "ex_" => path.with_extension("exe"),
+            "dl_" => path.with_extension("dll"),
             _ => path.clone(),
         }
     } else {
@@ -165,24 +167,21 @@ fn get_base(file_name: &str) -> PathBuf {
     }
 }
 
-pub fn get_path_for_sym(file_name: &str, debug_id: &str) -> PathBuf {
+pub fn get_path_for_sym(file_name: &str, id: &str) -> PathBuf {
     let base = get_base(file_name);
     let file_name = PathBuf::from(file_name);
     let file_name = file_name.with_extension("sym");
-    base.join(debug_id).join(file_name)
+    base.join(id).join(file_name)
 }
 
 fn search_in_cache(
     servers: &[SymbolServer],
-    debug_id: &str,
+    id: &str,
     base: &PathBuf,
     file_name: &str,
 ) -> Option<PathBuf> {
     for cache in servers.iter().filter_map(|x| x.cache.as_ref()) {
-        let path = PathBuf::from(cache)
-            .join(base)
-            .join(debug_id)
-            .join(&file_name);
+        let path = PathBuf::from(cache).join(base).join(id).join(&file_name);
         if path.exists() {
             return Some(path);
         }
@@ -190,34 +189,29 @@ fn search_in_cache(
     None
 }
 
-fn get_jobs(servers: &[SymbolServer], debug_id: &str, base: &PathBuf, file_name: &str) -> Vec<Job> {
+fn get_jobs(servers: &[SymbolServer], id: &str, base: &PathBuf, file_name: &str) -> Vec<Job> {
     // The query urls are: https://symbols.mozilla.org/xul.pdb/DEBUG_ID/xul.pd_
     let mut jobs = Vec::new();
     for server in servers.iter() {
         let path = if let Some(cache) = server.cache.as_ref() {
-            Some(
-                PathBuf::from(cache)
-                    .join(base)
-                    .join(debug_id)
-                    .join(&file_name),
-            )
+            Some(PathBuf::from(cache).join(base).join(id).join(&file_name))
         } else {
             None
         };
         let job = Job::new(
             path.clone(),
-            format!("{}/{}/{}/{}", server.server, file_name, debug_id, file_name),
+            format!("{}/{}/{}/{}", server.server, file_name, id, file_name),
         )
         .unwrap_or_else(|e| panic!("{}", e));
         jobs.push(job);
-        if file_name.ends_with(".pdb") {
+        if !file_name.ends_with('_') {
             let job = Job::new(
                 path,
                 format!(
                     "{}/{}/{}/{}_",
                     server.server,
                     file_name,
-                    debug_id,
+                    id,
                     &file_name[..file_name.len() - 1]
                 ),
             )
@@ -288,9 +282,9 @@ fn fetch_data(jobs: Vec<Job>) -> Option<Vec<u8>> {
     }
 }
 
-pub fn search_symbol_file(
+pub fn search_file(
     file_name: String,
-    debug_id: &str,
+    id: &str,
     sym_servers: Option<&Vec<SymbolServer>>,
 ) -> (Option<Vec<u8>>, String) {
     if file_name.is_empty() {
@@ -305,16 +299,16 @@ pub fn search_symbol_file(
     let base = get_base(&file_name);
 
     // Start with the caches
-    if let Some(path) = search_in_cache(&servers, debug_id, &base, &file_name) {
+    if let Some(path) = search_in_cache(&servers, id, &base, &file_name) {
         return (Some(utils::read_file(path)), file_name);
     }
 
     // Try the symbol servers
     // Each job contains the path where to cache data (if one) and a query url
-    let jobs = get_jobs(&servers, debug_id, &base, &file_name);
-    let pdb = fetch_data(jobs);
+    let jobs = get_jobs(&servers, id, &base, &file_name);
+    let buf = fetch_data(jobs);
 
-    if let Some(buf) = pdb {
+    if let Some(buf) = buf {
         let path = PathBuf::from(&file_name);
         let buf = utils::read_cabinet(buf, path)
             .unwrap_or_else(|| panic!("Unable to read the file {} from the server", file_name));
