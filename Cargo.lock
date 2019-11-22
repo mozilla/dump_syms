@@ -376,7 +376,7 @@ checksum = "751dad1347b163aa77262232129c7ac46e2810485c9b095ac9f7caf200e97df4"
 dependencies = [
  "lazy_static",
  "regex",
- "uuid",
+ "uuid 0.7.4",
 ]
 
 [[package]]
@@ -444,7 +444,7 @@ dependencies = [
  "symbolic-minidump",
  "tokio",
  "url 2.1.0",
- "uuid",
+ "uuid 0.8.1",
 ]
 
 [[package]]
@@ -1136,7 +1136,7 @@ source = "git+https://github.com/jan-auer/pdb?rev=6518a17aff69ed26375cf3358632ab
 dependencies = [
  "fallible-iterator 0.1.6",
  "scroll",
- "uuid",
+ "uuid 0.7.4",
 ]
 
 [[package]]
@@ -1146,7 +1146,7 @@ source = "git+https://github.com/calixteman/pdb?rev=6a1b75e1d0de86ef827feaca42fc
 dependencies = [
  "fallible-iterator 0.1.6",
  "scroll",
- "uuid",
+ "uuid 0.7.4",
 ]
 
 [[package]]
@@ -1508,7 +1508,7 @@ dependencies = [
  "tokio-threadpool",
  "tokio-timer",
  "url 1.7.2",
- "uuid",
+ "uuid 0.7.4",
  "winreg",
 ]
 
@@ -1734,7 +1734,7 @@ dependencies = [
  "failure",
  "memmap",
  "stable_deref_trait",
- "uuid",
+ "uuid 0.7.4",
 ]
 
 [[package]]
@@ -2169,6 +2169,12 @@ checksum = "90dbc611eb48397705a6b0f6e917da23ae517e4d127123d2cf7674206627d32a"
 dependencies = [
  "rand 0.6.5",
 ]
+
+[[package]]
+name = "uuid"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9fde2f6a4bea1d6e007c4ad38c6839fa71cbb63b6dbf5b595aa38dc9b1093c11"
 
 [[package]]
 name = "vcpkg"
