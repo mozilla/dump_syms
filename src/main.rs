@@ -65,7 +65,7 @@ fn main() {
             Arg::with_name("verbose")
                 .help("Set the level of verbosity (off, error (default), warn, info, debug, trace)")
                 .long("verbose")
-                .default_value("off")
+                .default_value("error")
                 .takes_value(true),
         )
         .get_matches();
