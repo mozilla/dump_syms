@@ -10,7 +10,10 @@ mod utils;
 mod windows;
 
 use clap::{crate_authors, crate_version, App, Arg};
+use log::error;
 use simplelog::{Config, LevelFilter, TermLogger, TerminalMode};
+use std::ops::Deref;
+use std::panic;
 
 use crate::action::{Action, Dumper};
 
@@ -60,7 +63,7 @@ fn main() {
         )
         .arg(
             Arg::with_name("verbose")
-                .help("Set the level of verbosity (off (default), error, warn, info, debug, trace)")
+                .help("Set the level of verbosity (off, error (default), warn, info, debug, trace)")
                 .long("verbose")
                 .default_value("off")
                 .takes_value(true),
@@ -68,16 +71,36 @@ fn main() {
         .get_matches();
 
     let verbosity = match matches.value_of("verbose").unwrap() {
-        "error" => LevelFilter::Error,
+        "off" => LevelFilter::Off,
         "warn" => LevelFilter::Warn,
         "info" => LevelFilter::Info,
         "debug" => LevelFilter::Debug,
         "trace" => LevelFilter::Trace,
-        _ => LevelFilter::Off,
+        _ => LevelFilter::Error,
     };
 
     // Init the logger
     let _ = TermLogger::init(verbosity, Config::default(), TerminalMode::Stderr);
+
+    // Set a panic hook to redirect to the logger
+    panic::set_hook(Box::new(|panic_info| {
+        let (filename, line) = panic_info
+            .location()
+            .map(|loc| (loc.file(), loc.line()))
+            .unwrap_or(("<unknown>", 0));
+        let cause = panic_info
+            .payload()
+            .downcast_ref::<String>()
+            .map(String::deref)
+            .unwrap_or_else(|| {
+                panic_info
+                    .payload()
+                    .downcast_ref::<&str>()
+                    .map(|s| *s)
+                    .unwrap_or("<cause unknown>")
+            });
+        error!("A panic occurred at {}:{}: {}", filename, line, cause);
+    }));
 
     let output = matches.value_of("output").unwrap();
     let filename = matches.value_of("filename").unwrap();
