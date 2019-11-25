@@ -574,9 +574,15 @@ impl<'a> TypeDumper<'a> {
         let mut dims = dimensions
             .iter()
             .rev()
-            .map(|x| {
-                let s = format!("[{}]", x / size);
-                size = *x;
+            .map(|dim| {
+                let s = if size != 0 {
+                    format!("[{}]", dim / size)
+                } else {
+                    // The base size can be zero: struct A{}; void foo(A x[10])
+                    // No way to get the array dimension in such a case
+                    "[]".to_string()
+                };
+                size = *dim;
                 s
             })
             .collect::<Vec<String>>();
