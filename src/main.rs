@@ -96,7 +96,7 @@ fn main() {
                 panic_info
                     .payload()
                     .downcast_ref::<&str>()
-                    .map(|s| *s)
+                    .copied()
                     .unwrap_or("<cause unknown>")
             });
         error!("A panic occurred at {}:{}: {}", filename, line, cause);
