@@ -23,6 +23,6 @@ symbolic-common = { git = "https://github.com/getsentry/symbolic/", rev = "9e05c
 symbolic-debuginfo = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
 symbolic-demangle = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
 symbolic-minidump = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
-tokio = "0.1"
+tokio = "0.2"
 url = "2.1"
 uuid = "0.8"
