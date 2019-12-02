@@ -50,6 +50,12 @@ int test_array(char a[12], int b[12][34], std::string c[12][34][56], double* d[1
 	return 0;
 }
 
+struct Empty {};
+
+int test_array_empty_struct(Empty a[12], Empty b[12][34], Empty c[12][34][56], Empty d[12][34][56][78]) {
+	return 0;
+}
+
 class DllExport A {
 public:
 	A() {}

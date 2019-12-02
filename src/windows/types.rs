@@ -170,7 +170,10 @@ impl<'a> TypeDumper<'a> {
     fn get_class_size(&self, typ: &ClassType) -> u32 {
         if typ.properties.forward_reference() {
             let name = typ.unique_name.unwrap_or(typ.name);
-            *self.fwd.get(&name).unwrap()
+
+            // The name can not be in self.fwd because the type can be a forward reference to itself !!
+            // (it's possible with an empty struct)
+            *self.fwd.get(&name).unwrap_or(&typ.size.into())
         } else {
             typ.size.into()
         }
@@ -179,7 +182,7 @@ impl<'a> TypeDumper<'a> {
     fn get_union_size(&self, typ: &UnionType) -> u32 {
         if typ.properties.forward_reference() {
             let name = typ.unique_name.unwrap_or(typ.name);
-            *self.fwd.get(&name).unwrap()
+            *self.fwd.get(&name).unwrap_or(&typ.size)
         } else {
             typ.size
         }
