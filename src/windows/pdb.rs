@@ -773,6 +773,13 @@ mod tests {
             assert_eq!(new.name, "test_array(char*, int[34]*, std::basic_string<char,std::char_traits<char>,std::allocator<char> >[34][56]*, double*[34][56][78]*)");
         }
 
+        if new.name.contains("test_array_empty_struct(") {
+            assert_eq!(
+                new.name,
+                "test_array_empty_struct(Empty*, Empty[]*, Empty[][]*, Empty[][][]*)"
+            );
+        }
+
         // TODO: find a way to compare function names
 
         let line_old = clean_old_lines(&old);
