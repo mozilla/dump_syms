@@ -25,7 +25,7 @@ def get_github_token(name):
     r.raise_for_status()
     data = r.json()
 
-    return data["github"]["token"]
+    return data["secret"]["github"]["token"]
 
 
 def upload(name):
