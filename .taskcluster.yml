@@ -85,3 +85,40 @@ tasks:
           description: dump_syms test
           owner: cdenizet@mozilla.com
           source: ${repository}/raw/${head_rev}/.taskcluster.yml
+      - $if: 'tasks_for == "github-push" && head_branch[:10] == "refs/tags/"'
+        then:
+          dependencies:
+            - {$eval: as_slugid("lint_task")}
+            - {$eval: as_slugid("test_task")}
+          scopes:
+            - secrets:get:project/relman/dump_syms/deploy
+          created: {$fromNow: ''}
+          deadline: {$fromNow: '2 hour'}
+          provisionerId: proj-relman
+          workerType: ci
+          payload:
+            features:
+              taskclusterProxy:
+                true
+            maxRunTime: 3600
+            image: "rust:buster"
+            env:
+              PROJECT_NAME: dump_syms
+            command:
+              - "/bin/bash"
+              - "-cx"
+              - "curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py &&
+                 python3 get-pip.py &&
+                 rustup toolchain install stable &&
+                 rustup default stable &&
+                 git clone --recursive --quiet ${repository} &&
+                 cd dump_syms &&
+                 git -c advice.detachedHead=false checkout ${head_rev} &&
+                 cargo build --release &&
+                 pip3 install -r infra/requirements.txt &&
+                 python3 infra/release.py"
+          metadata:
+            name: dump_syms Github release
+            description: dump_syms Github release
+            owner: cdenizet@mozilla.com
+            source: ${repository}/raw/${head_rev}/.taskcluster.yml
