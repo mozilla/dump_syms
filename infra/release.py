@@ -32,9 +32,15 @@ def upload(name):
     token = get_github_token(name)
     g = Github(token)
     repo = g.get_repo(f"mozilla/{name}")
-    release = repo.get_latest_release()
-    path = mk_archive(name)
+    tags = repo.get_tags()
+    last_tag = tags[0].name
 
+    try:
+        release = repo.create_git_release(last_tag, "", "")
+    except:
+        release = repo.get_latest_release()
+
+    path = mk_archive(name)
     release.upload_asset(path=path, content_type="application/octet-stream")
 
 
