@@ -377,6 +377,7 @@ impl<'s> PDBData<'s> {
                     is_public: parent.is_public,
                     is_multiple: false,
                     offset: block.offset,
+                    sym_offset: parent.sym_offset,
                     len: block.len,
                     parameter_size: parent.parameter_size,
                     source,
@@ -780,6 +781,16 @@ mod tests {
             );
         }
 
+        if new
+            .name
+            .contains("RefCountMap<unsigned short *>::Increment")
+        {
+            assert_eq!(
+                new.name,
+                "long RefCountMap<unsigned short *>::Increment(unsigned short *)"
+            );
+        }
+
         // TODO: find a way to compare function names
 
         let line_old = clean_old_lines(&old);
@@ -950,6 +961,14 @@ mod tests {
     fn test_ntdll() {
         test_file(
             &format!("{}/ntdll.dll/5D6AA5581AD000/ntdll.dll", MS),
+            TestFlags::NO_MULTIPLICITY,
+        );
+    }
+
+    #[test]
+    fn test_oleaut32() {
+        test_file(
+            &format!("{}/oleaut32.dll/BCDE805BC4000/oleaut32.dll", MS),
             TestFlags::NO_MULTIPLICITY,
         );
     }

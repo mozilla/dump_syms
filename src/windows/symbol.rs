@@ -38,6 +38,7 @@ pub(super) struct SelectedSymbol {
     pub is_public: bool,
     pub is_multiple: bool,
     pub offset: PdbInternalSectionOffset,
+    pub sym_offset: Option<PdbInternalSectionOffset>,
     pub len: u32,
     pub parameter_size: u32,
     pub source: Lines,
@@ -189,8 +190,16 @@ impl SelectedSymbol {
                 self.offset = symbol.offset;
             }
         } else {
-            // The public name may contain parameter_size info so get it
             let fun_name = symbol.name.to_string().into_owned();
+            if self.type_index == TypeIndex(0x0) {
+                // The symbol doesn't have any type info so use the (mangled) name from the public
+                if let Some(sym_offset) = self.sym_offset {
+                    if sym_offset == symbol.offset {
+                        self.name = fun_name.clone();
+                    }
+                }
+            }
+            // The public name may contain parameter_size info so get it
             if let FuncName::Unknown((name, sps)) = FuncName::get_unknown(fun_name.clone()) {
                 if name == self.name || fun_name == self.name {
                     self.name = name;
@@ -269,6 +278,7 @@ impl RvaSymbols {
                 is_public: false,
                 is_multiple: false,
                 offset: block_info.offset,
+                sym_offset: Some(function.offset),
                 len: block_info.len,
                 parameter_size: 0,
                 source,
@@ -339,6 +349,7 @@ impl RvaSymbols {
                         is_public: true,
                         is_multiple: false,
                         offset,
+                        sym_offset: None,
                         len: 0,
                         parameter_size: 0,
                         source: Lines::new(),
