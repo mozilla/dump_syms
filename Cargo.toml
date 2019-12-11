@@ -1,6 +1,6 @@
 [package]
 name = "dump_syms"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["Calixte Denizet <cdenizet@mozilla.com>"]
 edition = "2018"
 license = "MIT/Apache-2.0"
