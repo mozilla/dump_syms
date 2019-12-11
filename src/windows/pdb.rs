@@ -888,6 +888,12 @@ mod tests {
         }
 
         let public_old = old.public_records();
+        // Remove public constants
+        let public_old = public_old.filter(|x| {
+            let x = x.as_ref().unwrap();
+            !x.name.contains("::FNODOBFM::`string'")
+        });
+
         let public_new = new.public_records();
 
         assert_eq!(
