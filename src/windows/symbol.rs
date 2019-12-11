@@ -304,7 +304,6 @@ impl RvaSymbols {
         }
     }
 
-    #[allow(dead_code)]
     fn filter_public(name: &str) -> bool {
         Self::is_constant_string(name) || Self::is_constant_number(name)
     }
@@ -328,13 +327,11 @@ impl RvaSymbols {
         {
             let sym_name = symbol.name.to_string().into_owned();
 
-            // TODO: For any reasons we can have public symbols which are in executable section and are constants.
+            // For any reasons we can have public symbols which are in executable section and are constants (strings, numbers, ...).
             // It's the case in ntdll.dll
-            // For compatibility reasons, just let them for now...
-            // For reference https://github.com/mozilla/dump_syms/issues/26
-            /*if Self::filter_public(&sym_name) {
+            if Self::filter_public(&sym_name) {
                 return;
-            }*/
+            }
 
             match self.map.entry(rva.0) {
                 hash_map::Entry::Occupied(selected) => {
