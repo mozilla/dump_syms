@@ -315,6 +315,16 @@ impl<'a> TypeDumper<'a> {
         name
     }
 
+    #[inline(always)]
+    fn fix_mangled_name(name: String) -> String {
+        name.replace("__cdecl", "")
+            .replace("public: ", "")
+            .replace("protected: ", "")
+            .replace("private: ", "")
+            .replace("(void)", "")
+            .replace("  ", " ")
+    }
+
     fn demangle(ident: &str) -> FuncName {
         // If the name is not mangled maybe we can guess stacksize in using it.
         // So the boolean flag in the returned value is here for that (true == known language)
@@ -335,6 +345,7 @@ impl<'a> TypeDumper<'a> {
                     // Maybe the langage detection was finally wrong
                     FuncName::get_unknown(demangled)
                 } else {
+                    let demangled = Self::fix_mangled_name(demangled);
                     FuncName::Undecorated(demangled)
                 }
             }
