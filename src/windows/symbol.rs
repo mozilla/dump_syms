@@ -3,12 +3,12 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use fxhash::FxHashMap;
+use hashbrown::{hash_map, HashMap};
 use pdb::{
     AddressMap, FrameTable, PdbInternalRva, PdbInternalSectionOffset, ProcedureSymbol,
     PublicSymbol, RegisterRelativeSymbol, Result, TypeIndex,
 };
-use std::collections::{hash_map, BTreeMap};
+use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
 
@@ -245,7 +245,7 @@ impl SelectedSymbol {
 
 #[derive(Default)]
 pub(super) struct RvaSymbols {
-    map: FxHashMap<u32, SelectedSymbol>,
+    map: HashMap<u32, SelectedSymbol>,
     rva: u32,
     symbol: Option<SelectedSymbol>,
     last_id: usize,

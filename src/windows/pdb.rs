@@ -4,7 +4,7 @@
 // copied, modified, or distributed except according to those terms.
 
 use failure::Fail;
-use fxhash::FxHashSet;
+use hashbrown::HashSet;
 use pdb::{
     AddressMap, BlockSymbol, DebugInformation, FallibleIterator, MachineType, ModuleInfo,
     PDBInformation, ProcedureSymbol, PublicSymbol, Register, RegisterRelativeSymbol, Result,
@@ -90,7 +90,7 @@ impl PDBSections {
 
 #[derive(Debug)]
 pub(super) struct PDBContributions {
-    contributions: Option<Vec<FxHashSet<u32>>>,
+    contributions: Option<Vec<HashSet<u32>>>,
 }
 
 // Some executable sections may contain symbols which are not executable (e.g. string constants)
@@ -102,8 +102,8 @@ impl PDBContributions {
                 .section_contributions()
                 .ok()
                 .and_then(|mut contributions| {
-                    let mut contribs: Vec<FxHashSet<u32>> =
-                        vec![FxHashSet::default(); pdb_sections.len()];
+                    let mut contribs: Vec<HashSet<u32>> =
+                        vec![HashSet::default(); pdb_sections.len()];
                     loop {
                         if let Ok(c) = contributions.next() {
                             if let Some(contribution) = c {

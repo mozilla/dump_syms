@@ -12,7 +12,7 @@ clap = "2.33"
 dirs = "2.0"
 failure = "0.1"
 futures = "0.1"
-fxhash = "0.2"
+hashbrown = "0.6"
 is_sorted = "0.1"
 log = "0.4"
 #pdb = { git = "https://github.com/willglynn/pdb", rev = "64757397c4aea7fcb4f045b89c05c25d7a84b42e"}
@@ -26,3 +26,6 @@ symbolic-minidump = { git = "https://github.com/getsentry/symbolic/", rev = "9e0
 tokio = "0.1"
 url = "2.1"
 uuid = "0.8"
+
+[dev-dependencies]
+fxhash = "0.2"

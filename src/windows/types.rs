@@ -4,7 +4,7 @@
 // copied, modified, or distributed except according to those terms.
 
 use bitflags::bitflags;
-use fxhash::FxHashMap;
+use hashbrown::HashMap;
 use log::{error, warn};
 use pdb::{
     ArgumentList, ArrayType, ClassKind, ClassType, FallibleIterator, FunctionAttributes,
@@ -15,7 +15,7 @@ use pdb::{
 use symbolic_common::{Language, Name};
 use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
 
-type FwdRefSize<'a> = FxHashMap<RawString<'a>, u32>;
+type FwdRefSize<'a> = HashMap<RawString<'a>, u32>;
 
 #[derive(Eq, PartialEq)]
 enum ThisKind {

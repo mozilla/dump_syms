@@ -3,17 +3,17 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use fxhash::FxHashMap;
+use hashbrown::{hash_map, HashMap};
 use pdb::{
     AddressMap, FallibleIterator, FileIndex, LineInfo, LineProgram, PdbInternalSectionOffset,
     Result, Source, StringRef, StringTable, PDB,
 };
-use std::collections::{hash_map, BTreeMap};
+use std::collections::BTreeMap;
 use std::ops::Bound::{Excluded, Included};
 
 use super::line::Lines;
 
-type RefToIds = FxHashMap<StringRef, u32>;
+type RefToIds = HashMap<StringRef, u32>;
 
 pub(super) struct SourceLineCollector<'a, 's> {
     address_map: &'a AddressMap<'s>,
