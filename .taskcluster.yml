@@ -103,15 +103,13 @@ tasks:
             command:
               - "/bin/bash"
               - "-cx"
-              - "rustup toolchain install stable &&
-                 rustup default stable &&
-                 git clone --recursive --quiet ${repository} &&
+              - "git clone --recursive --quiet ${repository} &&
                  cd dump_syms && mkdir -p /build &&
                  git -c advice.detachedHead=false checkout ${head_rev} &&
                  cargo build --release --target-dir=/build &&
-                 cd /build && tar -zvcf /build.tar.gz ."
+                 cd /build/release && tar -zvcf /build.tar.gz build_syms"
             artifacts:
-              public/release.tar.gz:
+              public/dump_syms-linux-x86_64.tar.gz:
                 expires: {$fromNow: '2 weeks'}
                 path: /build.tar.gz
                 type: file
@@ -145,7 +143,7 @@ tasks:
                 - github-release
                 - mozilla/dump_syms
                 - "${version}"
-                - "--asset=dump_syms_${version}.tar.gz:public/release.tar.gz"
+                - "--asset=dump_syms-linux-x86_64.tar.gz:public/dump_syms-linux-x86_64.tar.gz"
             metadata:
               name: "dump_syms release publication ${version}"
               description: dump_syms release publication on Github
