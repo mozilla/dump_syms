@@ -107,7 +107,7 @@ tasks:
                  cd dump_syms && mkdir -p /build &&
                  git -c advice.detachedHead=false checkout ${head_rev} &&
                  cargo build --release --target-dir=/build &&
-                 cd /build/release && tar -zvcf /build.tar.gz build_syms"
+                 cd /build/release && tar -zvcf /build.tar.gz dump_syms"
             artifacts:
               public/dump_syms-linux-x86_64.tar.gz:
                 expires: {$fromNow: '2 weeks'}
