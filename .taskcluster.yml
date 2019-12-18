@@ -134,6 +134,8 @@ tasks:
             scopes:
               - secrets:get:project/relman/dump_syms/deploy
             payload:
+              features:
+                taskclusterProxy: true
               maxRunTime: 3600
               image: "mozilla/taskboot:0.2.0"
               env:
