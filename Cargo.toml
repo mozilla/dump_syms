@@ -17,7 +17,7 @@ is_sorted = "0.1"
 log = "0.4"
 #pdb = { git = "https://github.com/willglynn/pdb", rev = "64757397c4aea7fcb4f045b89c05c25d7a84b42e"}
 pdb = { git = "https://github.com/calixteman/pdb", rev = "6a1b75e1d0de86ef827feaca42fc459c4d9cc020"}
-reqwest = "0.9"
+reqwest = "0.10"
 simplelog = "0.7"
 symbolic-common = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
 symbolic-debuginfo = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
