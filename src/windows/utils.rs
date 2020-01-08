@@ -9,6 +9,7 @@ use uuid::Uuid;
 
 use crate::cache::{self, SymbolServer};
 use crate::utils;
+use crate::windows::pdb::PDBInfo;
 
 #[cfg(unix)]
 pub fn get_win_path(path: &str) -> PathBuf {
@@ -99,5 +100,33 @@ pub fn get_pe_debug_id(pe: Option<&PeObject>) -> Option<String> {
         Some(format!("{}{:x}", uuid, appendix))
     } else {
         None
+    }
+}
+
+fn fix_extension(ext: &str) -> &str {
+    match ext {
+        "dl_" => "dll",
+        "ex_" => "exe",
+        _ => ext,
+    }
+}
+
+pub(crate) fn try_to_set_pe(path: &PathBuf, pdb_info: &mut PDBInfo, pdb_buf: &[u8]) {
+    // Just check that the file is in the same directory as the PDB one
+    let mut path = path.clone();
+    for ext in vec!["dll", "dl_", "exe", "ex_"].drain(..) {
+        path.set_extension(ext);
+        if path.is_file() {
+            let buf = utils::read_file(&path);
+            if let Ok(pe) = PeObject::parse(&buf) {
+                if ext.ends_with('_') {
+                    path.set_extension(fix_extension(ext));
+                }
+                let filename = path.file_name().unwrap().to_str().unwrap().to_string();
+                if pdb_info.set_pe(filename, pe, pdb_buf) {
+                    break;
+                }
+            }
+        }
     }
 }
