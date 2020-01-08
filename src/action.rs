@@ -79,7 +79,10 @@ impl Action<'_> {
                 "pdb" | "pd_" => {
                     let (buf, filename) = dumper.get_from_id(&path, filename, dumper.debug_id)?;
                     match windows::pdb::PDBInfo::new(&buf, filename, "".to_string(), None, true) {
-                        Ok(pdb) => dumper.store_pdb(&pdb),
+                        Ok(mut pdb) => {
+                            windows::utils::try_to_set_pe(&path, &mut pdb, &buf);
+                            dumper.store_pdb(&pdb)
+                        }
                         Err(e) => Err(e.into()),
                     }
                 }
@@ -104,5 +107,69 @@ impl Action<'_> {
                 }
             },
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use std::fs::{copy, read};
+    use tempdir::TempDir;
+
+    use super::*;
+
+    #[test]
+    fn test_missing_pe() {
+        let tmp_dir = TempDir::new("no_pe").unwrap();
+        let basic64 = PathBuf::from("./test_data/basic64.pdb");
+        let tmp_file = tmp_dir.path().join("basic64.pdb");
+        let tmp_out = tmp_dir.path().join("output.sym");
+
+        copy(basic64, &tmp_file).unwrap();
+
+        let action = Action::Dump(Dumper {
+            output: tmp_out.to_str().unwrap(),
+            symbol_server: None,
+            store: None,
+            debug_id: None,
+            code_id: None,
+        });
+
+        action.action(tmp_file.to_str().unwrap()).unwrap();
+
+        let data = read(tmp_out).unwrap();
+        let data = String::from_utf8(data).unwrap();
+
+        assert!(!data.contains("CODE_ID"));
+        assert!(!data.contains("STACK CFI"));
+    }
+
+    #[test]
+    fn test_missing_pe_but_in_dir() {
+        let tmp_dir = TempDir::new("no_pe").unwrap();
+        let basic64_pdb = PathBuf::from("./test_data/basic64.pdb");
+        let tmp_pdb = tmp_dir.path().join("basic64.pdb");
+        let basic64_dll = PathBuf::from("./test_data/basic64.dll");
+        let tmp_dll = tmp_dir.path().join("basic64.dll");
+        let tmp_out = tmp_dir.path().join("output.sym");
+
+        copy(basic64_pdb, &tmp_pdb).unwrap();
+        copy(basic64_dll, &tmp_dll).unwrap();
+
+        let action = Action::Dump(Dumper {
+            output: tmp_out.to_str().unwrap(),
+            symbol_server: None,
+            store: None,
+            debug_id: None,
+            code_id: None,
+        });
+
+        action.action(tmp_pdb.to_str().unwrap()).unwrap();
+
+        let data = read(tmp_out).unwrap();
+        let data = String::from_utf8(data).unwrap();
+
+        assert!(data.contains("CODE_ID"));
+        assert!(data.contains("STACK CFI"));
     }
 }

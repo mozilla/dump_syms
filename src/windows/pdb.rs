@@ -545,6 +545,19 @@ impl PDBInfo {
         })
     }
 
+    pub fn set_pe(&mut self, pe_name: String, pe: PeObject, pdb_buf: &[u8]) -> bool {
+        if get_pe_debug_id(Some(&pe)).unwrap() == self.debug_id {
+            self.code_id = Some(pe.code_id().unwrap().as_str().to_uppercase());
+            self.pe_name = pe_name;
+            if self.stack.as_ref().map_or(false, |s| s.is_empty()) {
+                self.stack = Some(get_stack_info(pdb_buf, Some(pe), self.cpu));
+            }
+            true
+        } else {
+            false
+        }
+    }
+
     pub fn dump<W: Write>(&self, mut writer: W) -> common::Result<()> {
         write!(writer, "{}", self)?;
         Ok(())

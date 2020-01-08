@@ -29,3 +29,4 @@ uuid = "0.8"
 
 [dev-dependencies]
 fxhash = "0.2"
+tempdir = "0.3"
