@@ -11,19 +11,19 @@ cab = "0.2"
 clap = "2.33"
 dirs = "2.0"
 failure = "0.1"
-futures = "0.1"
+futures = "0.3"
 hashbrown = "0.6"
 is_sorted = "0.1"
 log = "0.4"
 #pdb = { git = "https://github.com/willglynn/pdb", rev = "64757397c4aea7fcb4f045b89c05c25d7a84b42e"}
 pdb = { git = "https://github.com/calixteman/pdb", rev = "6a1b75e1d0de86ef827feaca42fc459c4d9cc020"}
-reqwest = "0.9"
+reqwest = { version = "0.10", features = ["blocking"] }
 simplelog = "0.7"
 symbolic-common = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
 symbolic-debuginfo = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
 symbolic-demangle = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
 symbolic-minidump = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
-tokio = "0.1"
+tokio = "0.2"
 url = "2.1"
 uuid = "0.8"
 

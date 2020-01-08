@@ -599,7 +599,7 @@ mod tests {
     const MS: &str = "https://msdl.microsoft.com/download/symbols";
 
     fn dl_from_server(url: &str) -> Vec<u8> {
-        let mut response = reqwest::get(url).expect("GET request");
+        let mut response = reqwest::blocking::get(url).expect("GET request");
         let mut buf = Vec::new();
         response.copy_to(&mut buf).expect("Data from server");
         buf

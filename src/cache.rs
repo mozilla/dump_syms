@@ -4,13 +4,13 @@
 // copied, modified, or distributed except according to those terms.
 
 use dirs::home_dir;
-use futures::{stream, Future, Stream};
-use reqwest::{self, header::USER_AGENT, r#async::Client};
+use futures::{stream, StreamExt};
+use reqwest::{self, blocking, header::USER_AGENT, Client};
 use std::fs::{self, File};
 use std::io::{BufWriter, Read, Write};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-use tokio;
+use tokio::{self, runtime::Runtime};
 use url::Url;
 
 use crate::common;
@@ -223,36 +223,37 @@ fn get_jobs(servers: &[SymbolServer], id: &str, base: &PathBuf, file_name: &str)
     jobs
 }
 
+async fn check_if_file_exists(results: Arc<Mutex<Vec<Job>>>, client: &Client, job: Job) {
+    if let Ok(res) = client
+        .head(&job.url)
+        .header(USER_AGENT, DEFAULT_USER_AGENT)
+        .send()
+        .await
+    {
+        if res.status() == 200 {
+            let mut results = results.lock().unwrap();
+            results.push(job);
+        }
+    }
+}
+
 fn check_data(jobs: Vec<Job>) -> Option<Job> {
     let client = Client::new();
     let n_queries = jobs.len();
     let results = Arc::new(Mutex::new(Vec::new()));
+    let mut rt = Runtime::new().unwrap();
 
-    let pdbs = stream::iter_ok(jobs)
-        .map({
-            move |job| {
-                client
-                    .head(&job.url)
-                    .header(USER_AGENT, DEFAULT_USER_AGENT)
-                    .send()
-                    .and_then(|res| Ok(if res.status() == 200 { Some(job) } else { None }))
-            }
-        })
-        .buffer_unordered(n_queries);
-
-    let work = pdbs
-        .filter_map(|job| job)
-        .for_each({
-            let results = Arc::clone(&results);
-            move |job| {
-                let mut results = results.lock().unwrap();
-                results.push(job);
-                Ok(())
-            }
-        })
-        .map_err(|e| panic!("Error while processing: {}", e));
-
-    tokio::run(work);
+    rt.block_on(async {
+        stream::iter(jobs)
+            .map({
+                let results = &results;
+                let client = &client;
+                move |job| check_if_file_exists(Arc::clone(results), client, job)
+            })
+            .buffer_unordered(n_queries)
+            .collect::<Vec<()>>()
+            .await
+    });
 
     let results = Arc::try_unwrap(results).unwrap().into_inner().unwrap();
     results.first().cloned()
@@ -261,7 +262,7 @@ fn check_data(jobs: Vec<Job>) -> Option<Job> {
 fn fetch_data(jobs: Vec<Job>) -> Option<Vec<u8>> {
     if let Some(job) = check_data(jobs) {
         let mut buf = Vec::new();
-        let client = reqwest::Client::new();
+        let client = blocking::Client::new();
         let resp = client
             .get(&job.url)
             .header(USER_AGENT, DEFAULT_USER_AGENT)
