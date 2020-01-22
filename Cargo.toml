@@ -22,10 +22,10 @@ log = "0.4"
 pdb = { git = "https://github.com/calixteman/pdb", rev = "6a1b75e1d0de86ef827feaca42fc459c4d9cc020"}
 reqwest = { version = "0.10", features = ["blocking"] }
 simplelog = "0.7"
-symbolic-common = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
-symbolic-debuginfo = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
-symbolic-demangle = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
-symbolic-minidump = { git = "https://github.com/getsentry/symbolic/", rev = "9e05cf31528ee1b2fa7d411ff4d456cbe0a56104" }
+symbolic-common = { git = "https://github.com/getsentry/symbolic/", rev = "d951dd683a62d32595cc232e93843bffe5bd6a17" }
+symbolic-debuginfo = { git = "https://github.com/getsentry/symbolic/", rev = "d951dd683a62d32595cc232e93843bffe5bd6a17" }
+symbolic-demangle = { git = "https://github.com/getsentry/symbolic/", rev = "d951dd683a62d32595cc232e93843bffe5bd6a17" }
+symbolic-minidump = { git = "https://github.com/getsentry/symbolic/", rev = "d951dd683a62d32595cc232e93843bffe5bd6a17" }
 tokio = "0.2"
 url = "2.1"
 uuid = "0.8"
