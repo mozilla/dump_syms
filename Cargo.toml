@@ -18,14 +18,13 @@ futures = "0.3"
 hashbrown = "0.7"
 is_sorted = "0.1"
 log = "0.4"
-#pdb = { git = "https://github.com/willglynn/pdb", rev = "64757397c4aea7fcb4f045b89c05c25d7a84b42e"}
-pdb = { git = "https://github.com/calixteman/pdb", rev = "6a1b75e1d0de86ef827feaca42fc459c4d9cc020"}
+pdb = "0.6"
 reqwest = { version = "0.10", features = ["blocking"] }
 simplelog = "0.7"
-symbolic-common = { git = "https://github.com/getsentry/symbolic/", rev = "d951dd683a62d32595cc232e93843bffe5bd6a17" }
-symbolic-debuginfo = { git = "https://github.com/getsentry/symbolic/", rev = "d951dd683a62d32595cc232e93843bffe5bd6a17" }
-symbolic-demangle = { git = "https://github.com/getsentry/symbolic/", rev = "d951dd683a62d32595cc232e93843bffe5bd6a17" }
-symbolic-minidump = { git = "https://github.com/getsentry/symbolic/", rev = "d951dd683a62d32595cc232e93843bffe5bd6a17" }
+symbolic-common = "7.2"
+symbolic-debuginfo = "7.2"
+symbolic-demangle = "7.2"
+symbolic-minidump = "7.2"
 tokio = "0.2"
 url = "2.1"
 uuid = "0.8"

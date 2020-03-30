@@ -107,11 +107,11 @@ impl PDBContributions {
                     loop {
                         if let Ok(c) = contributions.next() {
                             if let Some(contribution) = c {
-                                if pdb_sections.is_code(contribution.section)
+                                if pdb_sections.is_code(contribution.offset.section)
                                     && !PDBSections::has_code(contribution.characteristics)
                                 {
-                                    let section = (contribution.section - 1) as usize;
-                                    contribs[section].insert(contribution.offset);
+                                    let section = (contribution.offset.section - 1) as usize;
+                                    contribs[section].insert(contribution.offset.offset);
                                 }
                             } else {
                                 break;
