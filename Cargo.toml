@@ -16,7 +16,6 @@ dirs = "2.0"
 failure = "0.1"
 futures = "0.3"
 hashbrown = "0.7"
-is_sorted = "0.1"
 log = "0.4"
 pdb = "0.6"
 reqwest = { version = "0.10", features = ["blocking"] }
