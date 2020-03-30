@@ -64,7 +64,7 @@ tasks:
           env:
             CODECOV_TOKEN: 0951320b-00b4-481a-b38e-2248fe45256b
             CARGO_INCREMENTAL: 0
-            RUSTFLAGS: -Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads
+            RUSTFLAGS: -Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads
           command:
             - "/bin/bash"
             - "-cx"
