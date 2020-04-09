@@ -114,13 +114,13 @@ impl Action<'_> {
 mod tests {
 
     use std::fs::{copy, read};
-    use tempdir::TempDir;
+    use tempfile::Builder;
 
     use super::*;
 
     #[test]
     fn test_missing_pe() {
-        let tmp_dir = TempDir::new("no_pe").unwrap();
+        let tmp_dir = Builder::new().prefix("no_pe").tempdir().unwrap();
         let basic64 = PathBuf::from("./test_data/basic64.pdb");
         let tmp_file = tmp_dir.path().join("basic64.pdb");
         let tmp_out = tmp_dir.path().join("output.sym");
@@ -146,7 +146,7 @@ mod tests {
 
     #[test]
     fn test_missing_pe_but_in_dir() {
-        let tmp_dir = TempDir::new("no_pe").unwrap();
+        let tmp_dir = Builder::new().prefix("no_pe").tempdir().unwrap();
         let basic64_pdb = PathBuf::from("./test_data/basic64.pdb");
         let tmp_pdb = tmp_dir.path().join("basic64.pdb");
         let basic64_dll = PathBuf::from("./test_data/basic64.dll");
