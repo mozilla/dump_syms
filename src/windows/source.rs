@@ -11,7 +11,7 @@ use pdb::{
 use std::collections::BTreeMap;
 use std::ops::Bound::{Excluded, Included};
 
-use super::line::Lines;
+use crate::line::Lines;
 
 type RefToIds = HashMap<StringRef, u32>;
 

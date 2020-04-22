@@ -7,7 +7,7 @@ use pdb::{AddressMap, PdbInternalRva};
 use std::fmt::{self, Debug, Display, Formatter};
 
 #[derive(Clone, Default)]
-struct Line {
+pub(crate) struct Line {
     // rva stands for relative virtual address
     rva: u32,
     // line length in the binary
@@ -54,7 +54,7 @@ impl Display for Lines {
 }
 
 impl Lines {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             lines: Vec::new(),
             is_sorted: true,
@@ -62,7 +62,7 @@ impl Lines {
         }
     }
 
-    pub fn add_line(&mut self, rva: u32, num: u32, file_id: u32) {
+    pub(crate) fn add_line(&mut self, rva: u32, num: u32, file_id: u32) {
         self.lines.push(Line {
             rva,
             num,
@@ -76,12 +76,7 @@ impl Lines {
         self.last_rva = rva;
     }
 
-    pub fn finalize(&mut self, sym_rva: u32, sym_len: u32, address_map: &AddressMap) {
-        self.compute_len(sym_rva, sym_len);
-        self.compute_rva(address_map);
-    }
-
-    fn compute_len(&mut self, sym_rva: u32, sym_len: u32) {
+    pub(crate) fn compute_len(&mut self, sym_rva: u32, sym_len: u32) {
         // The length (in the binary) of the line is not in the pdb but we can infer it:
         // RVA     LINE NUMBER
         // 0x0001  10  <= the size of line 10 is 0x000B - 0x0001
@@ -109,6 +104,15 @@ impl Lines {
             .for_each(|(line, len)| line.len = *len);
 
         last.len = sym_len - (last.rva - sym_rva);
+    }
+
+    pub(crate) fn pdb_finalize(&mut self, sym_rva: u32, sym_len: u32, address_map: &AddressMap) {
+        self.compute_len(sym_rva, sym_len);
+        self.compute_rva(address_map);
+    }
+
+    pub(crate) fn elf_finalize(&mut self, sym_rva: u32, sym_len: u32) {
+        self.compute_len(sym_rva, sym_len);
     }
 
     fn compute_rva(&mut self, address_map: &AddressMap) {
@@ -193,7 +197,7 @@ impl Lines {
         }
     }
 
-    pub(super) fn retain(&self, rva: u32, len: u32) -> Option<Lines> {
+    pub(crate) fn retain(&self, rva: u32, len: u32) -> Option<Lines> {
         // A symbol space can be split in several chunks
         // so we need to retain the lines which are in the different chunks
         if self.lines.is_empty() {

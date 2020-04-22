@@ -8,9 +8,10 @@ use std::fs;
 use std::path::PathBuf;
 
 use crate::cache;
-use crate::common;
+use crate::common::{self, Dumpable};
+use crate::linux;
 use crate::utils;
-use crate::windows::{self, pdb::PDBInfo};
+use crate::windows;
 
 pub(crate) struct Dumper<'a> {
     pub output: &'a str,
@@ -21,16 +22,19 @@ pub(crate) struct Dumper<'a> {
 }
 
 impl Dumper<'_> {
-    fn store_pdb(&self, pdb: &PDBInfo) -> common::Result<()> {
+    fn store<D: Dumpable>(&self, dumpable: &D) -> common::Result<()> {
         let store = self.store.filter(|p| !p.is_empty()).map(|p| {
-            PathBuf::from(p).join(cache::get_path_for_sym(&pdb.pdb_name(), pdb.debug_id()))
+            PathBuf::from(p).join(cache::get_path_for_sym(
+                &dumpable.get_name(),
+                dumpable.get_debug_id(),
+            ))
         });
 
         if let Some(store) = store.as_ref() {
             fs::create_dir_all(store.parent().unwrap())?;
             let store = store.to_str().unwrap();
             let output = utils::get_writer_for_sym(store);
-            if let Err(e) = pdb.dump(output) {
+            if let Err(e) = dumpable.dump(output) {
                 return Err(e);
             }
             info!("Write symbols at {}", store);
@@ -38,7 +42,7 @@ impl Dumper<'_> {
 
         if self.output != "-" || store.is_none() {
             let output = utils::get_writer_for_sym(self.output);
-            pdb.dump(output)?;
+            dumpable.dump(output)?;
             info!("Write symbols at {}", self.output);
         }
         Ok(())
@@ -78,13 +82,25 @@ impl Action<'_> {
             Self::Dump(dumper) => match extension.as_str() {
                 "pdb" | "pd_" => {
                     let (buf, filename) = dumper.get_from_id(&path, filename, dumper.debug_id)?;
-                    match windows::pdb::PDBInfo::new(&buf, filename, "".to_string(), None, true) {
+                    match windows::pdb::PDBInfo::new(
+                        &buf,
+                        filename,
+                        "".to_string(),
+                        None,
+                        true, /* with_stack */
+                    ) {
                         Ok(mut pdb) => {
                             windows::utils::try_to_set_pe(&path, &mut pdb, &buf);
-                            dumper.store_pdb(&pdb)
+                            dumper.store(&pdb)
                         }
                         Err(e) => Err(e.into()),
                     }
+                }
+                "dbg" | "so" => {
+                    let (buf, filename) = dumper.get_from_id(&path, filename, dumper.debug_id)?;
+                    let elf = linux::elf::ElfInfo::new(&buf, filename, true /* with_stack */)?;
+
+                    dumper.store(&elf)
                 }
                 _ => {
                     let (buf, filename) = dumper.get_from_id(&path, filename, dumper.code_id)?;
@@ -98,7 +114,7 @@ impl Action<'_> {
                             Some(pe),
                             true,
                         ) {
-                            Ok(pdb) => dumper.store_pdb(&pdb),
+                            Ok(pdb) => dumper.store(&pdb),
                             Err(e) => Err(e.into()),
                         }
                     } else {

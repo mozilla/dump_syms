@@ -6,7 +6,7 @@
 use cab::Cabinet;
 use std::fs::File;
 use std::io::{self, BufWriter, Cursor, Read, Write};
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 pub fn read_file<P: AsRef<Path>>(path: P) -> Vec<u8> {
     let mut file = File::open(&path).unwrap_or_else(|_| {
@@ -68,6 +68,8 @@ fn get_corrected_path(path: PathBuf) -> PathBuf {
         path.with_extension("dll")
     } else if e.starts_with("ex") {
         path.with_extension("exe")
+    } else if e.starts_with("db") {
+        path.with_extension("dbg")
     } else {
         path
     }
@@ -98,4 +100,32 @@ pub fn get_writer_for_sym(file_name: &str) -> BufWriter<Box<dyn Write>> {
         Box::new(output)
     };
     BufWriter::new(output)
+}
+
+pub fn normalize_path<P: AsRef<Path>>(path: P) -> PathBuf {
+    // Copied from Cargo sources: https://github.com/rust-lang/cargo/blob/master/src/cargo/util/paths.rs#L65
+    let mut components = path.as_ref().components().peekable();
+    let mut ret = if let Some(c @ Component::Prefix(..)) = components.peek().cloned() {
+        components.next();
+        PathBuf::from(c.as_os_str())
+    } else {
+        PathBuf::new()
+    };
+
+    for component in components {
+        match component {
+            Component::Prefix(..) => unreachable!(),
+            Component::RootDir => {
+                ret.push(component.as_os_str());
+            }
+            Component::CurDir => {}
+            Component::ParentDir => {
+                ret.pop();
+            }
+            Component::Normal(c) => {
+                ret.push(c);
+            }
+        }
+    }
+    ret
 }

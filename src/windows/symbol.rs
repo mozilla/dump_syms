@@ -12,10 +12,10 @@ use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
 
-use super::line::Lines;
 use super::pdb::{PDBContributions, PDBSections};
 use super::source::SourceLineCollector;
 use super::types::{FuncName, TypeDumper};
+use crate::line::Lines;
 
 pub(super) struct BlockInfo {
     pub rva: u32,
@@ -225,7 +225,7 @@ impl SelectedSymbol {
             FuncName::Unknown((name, sps)) => (name, sps),
         };
 
-        self.source.finalize(rva, self.len, address_map);
+        self.source.pdb_finalize(rva, self.len, address_map);
 
         (
             PDBSymbol {

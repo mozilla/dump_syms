@@ -20,7 +20,7 @@ use super::source::{SourceFiles, SourceLineCollector};
 use super::symbol::{BlockInfo, PDBSymbols, RvaSymbols, SelectedSymbol};
 use super::types::{DumperFlags, TypeDumper};
 use super::utils::get_pe_debug_id;
-use crate::common;
+use crate::common::{self, Dumpable};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum CPU {
@@ -557,17 +557,19 @@ impl PDBInfo {
             false
         }
     }
+}
 
-    pub fn dump<W: Write>(&self, mut writer: W) -> common::Result<()> {
+impl Dumpable for PDBInfo {
+    fn dump<W: Write>(&self, mut writer: W) -> common::Result<()> {
         write!(writer, "{}", self)?;
         Ok(())
     }
 
-    pub fn debug_id(&self) -> &str {
+    fn get_debug_id(&self) -> &str {
         &self.debug_id
     }
 
-    pub fn pdb_name(&self) -> &str {
+    fn get_name(&self) -> &str {
         &self.pdb_name
     }
 }
