@@ -1494,9 +1494,9 @@ checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 
 [[package]]
 name = "symbolic-common"
-version = "7.2.0"
+version = "7.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aceda41e30fa7ae5a036fdad6abe76566695557c9cc54c040897da5b4b536b35"
+checksum = "009da45620abd4e1366dd2e08a31af1fb15a43aa9dd13318f1f478ae670e30b4"
 dependencies = [
  "debugid",
  "failure",
