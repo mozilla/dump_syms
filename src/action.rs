@@ -66,6 +66,38 @@ impl Dumper<'_> {
             Ok((utils::read_file(&path), filename))
         }
     }
+
+    fn pdb(&self, path: PathBuf, filename: String) -> common::Result<()> {
+        let (buf, filename) = self.get_from_id(&path, filename, self.debug_id)?;
+        let mut pdb = windows::pdb::PDBInfo::new(
+            &buf,
+            filename,
+            "".to_string(),
+            None,
+            true, /* with_stack */
+        )?;
+        windows::utils::try_to_set_pe(&path, &mut pdb, &buf);
+        self.store(&pdb)
+    }
+
+    fn elf(&self, path: PathBuf, filename: String) -> common::Result<()> {
+        let (buf, filename) = self.get_from_id(&path, filename, self.debug_id)?;
+        let elf = linux::elf::ElfInfo::new(&buf, filename, true /* with_stack */)?;
+        self.store(&elf)
+    }
+
+    fn guess(&self, path: PathBuf, filename: String) -> common::Result<()> {
+        let (buf, filename) = self.get_from_id(&path, filename, self.code_id)?;
+        let symbol_server = cache::get_sym_servers(self.symbol_server);
+        let res = windows::utils::get_pe_pdb_buf(path, &buf, symbol_server.as_ref());
+
+        if let Some((pe, pdb_buf, pdb_name)) = res {
+            let pdb = windows::pdb::PDBInfo::new(&pdb_buf, pdb_name, filename, Some(pe), true)?;
+            self.store(&pdb)
+        } else {
+            Err("No pdb file found".into())
+        }
+    }
 }
 
 pub(crate) enum Action<'a> {
@@ -80,47 +112,9 @@ impl Action<'_> {
 
         match self {
             Self::Dump(dumper) => match extension.as_str() {
-                "pdb" | "pd_" => {
-                    let (buf, filename) = dumper.get_from_id(&path, filename, dumper.debug_id)?;
-                    match windows::pdb::PDBInfo::new(
-                        &buf,
-                        filename,
-                        "".to_string(),
-                        None,
-                        true, /* with_stack */
-                    ) {
-                        Ok(mut pdb) => {
-                            windows::utils::try_to_set_pe(&path, &mut pdb, &buf);
-                            dumper.store(&pdb)
-                        }
-                        Err(e) => Err(e.into()),
-                    }
-                }
-                "dbg" | "so" => {
-                    let (buf, filename) = dumper.get_from_id(&path, filename, dumper.debug_id)?;
-                    let elf = linux::elf::ElfInfo::new(&buf, filename, true /* with_stack */)?;
-
-                    dumper.store(&elf)
-                }
-                _ => {
-                    let (buf, filename) = dumper.get_from_id(&path, filename, dumper.code_id)?;
-                    let symbol_server = cache::get_sym_servers(dumper.symbol_server);
-                    let res = windows::utils::get_pe_pdb_buf(path, &buf, symbol_server.as_ref());
-                    if let Some((pe, pdb_buf, pdb_name)) = res {
-                        match windows::pdb::PDBInfo::new(
-                            &pdb_buf,
-                            pdb_name,
-                            filename,
-                            Some(pe),
-                            true,
-                        ) {
-                            Ok(pdb) => dumper.store(&pdb),
-                            Err(e) => Err(e.into()),
-                        }
-                    } else {
-                        Err("No pdb file found".into())
-                    }
-                }
+                "pdb" | "pd_" => dumper.pdb(path, filename),
+                "dbg" | "so" => dumper.elf(path, filename),
+                _ => dumper.guess(path, filename),
             },
         }
     }

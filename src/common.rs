@@ -15,3 +15,7 @@ pub(crate) trait Dumpable {
     fn get_name(&self) -> &str;
     fn get_debug_id(&self) -> &str;
 }
+
+pub(crate) trait LineFinalizer<M> {
+    fn finalize(&mut self, sym_rva: u32, sym_len: u32, map: &M);
+}

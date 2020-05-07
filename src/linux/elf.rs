@@ -20,7 +20,7 @@ use symbolic_minidump::cfi::AsciiCfiWriter;
 use super::source::SourceFiles;
 use super::symbol::{ElfSymbol, ElfSymbols};
 
-use crate::common::{self, Dumpable};
+use crate::common::{self, Dumpable, LineFinalizer};
 use crate::line::Lines;
 
 #[derive(Debug, Default)]
@@ -291,7 +291,7 @@ impl Collector {
         }
 
         // compute line length
-        lines.elf_finalize(fun.address as u32, fun.size as u32);
+        lines.finalize(fun.address as u32, fun.size as u32, &());
 
         self.syms.insert(
             fun.address as u32,

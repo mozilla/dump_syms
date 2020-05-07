@@ -9,7 +9,7 @@ use std::fs;
 use std::path::PathBuf;
 use symbolic_debuginfo::FileInfo;
 
-type SliceRef = (usize, usize);
+type SliceRef = (*const u8, usize);
 
 #[derive(Debug, Default)]
 pub(super) struct SourceFiles {
@@ -22,7 +22,7 @@ pub(super) struct SourceFiles {
 impl SourceFiles {
     #[inline(always)]
     fn cast_ptr(name: &[u8]) -> SliceRef {
-        unsafe { std::mem::transmute::<&[u8], SliceRef>(name) }
+        (name.as_ptr(), name.len())
     }
 
     #[inline(always)]

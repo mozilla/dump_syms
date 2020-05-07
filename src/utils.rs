@@ -103,7 +103,8 @@ pub fn get_writer_for_sym(file_name: &str) -> BufWriter<Box<dyn Write>> {
 }
 
 pub fn normalize_path<P: AsRef<Path>>(path: P) -> PathBuf {
-    // Copied from Cargo sources: https://github.com/rust-lang/cargo/blob/master/src/cargo/util/paths.rs#L65
+    // Copied from Cargo sources
+    // https://github.com/rust-lang/cargo/blob/f534844c25cacc5e004404cea835ac85e35ca3fd/src/cargo/util/paths.rs#L60
     let mut components = path.as_ref().components().peekable();
     let mut ret = if let Some(c @ Component::Prefix(..)) = components.peek().cloned() {
         components.next();

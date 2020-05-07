@@ -15,6 +15,7 @@ use std::rc::Rc;
 use super::pdb::{PDBContributions, PDBSections};
 use super::source::SourceLineCollector;
 use super::types::{FuncName, TypeDumper};
+use crate::common::LineFinalizer;
 use crate::line::Lines;
 
 pub(super) struct BlockInfo {
@@ -225,7 +226,7 @@ impl SelectedSymbol {
             FuncName::Unknown((name, sps)) => (name, sps),
         };
 
-        self.source.pdb_finalize(rva, self.len, address_map);
+        self.source.finalize(rva, self.len, address_map);
 
         (
             PDBSymbol {

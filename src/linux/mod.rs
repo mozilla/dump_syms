@@ -5,5 +5,6 @@
 
 pub mod elf;
 
+mod lines;
 mod source;
 mod symbol;

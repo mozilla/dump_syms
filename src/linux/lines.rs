@@ -3,9 +3,11 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-mod lines;
-pub mod pdb;
-mod source;
-mod symbol;
-mod types;
-pub mod utils;
+use crate::common::LineFinalizer;
+use crate::line::Lines;
+
+impl LineFinalizer<()> for Lines {
+    fn finalize(&mut self, sym_rva: u32, sym_len: u32, _map: &()) {
+        self.compute_len(sym_rva, sym_len);
+    }
+}
