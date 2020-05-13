@@ -580,7 +580,8 @@ dependencies = [
 [[package]]
 name = "gimli"
 version = "0.20.0"
-source = "git+https://github.com/gimli-rs/gimli/?rev=53c802a69066b211984ef06fd96ba20946d47ca3#53c802a69066b211984ef06fd96ba20946d47ca3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "81dd6190aad0f05ddbbf3245c54ed14ca4aa6dd32f22312b70d8f168c3e3e633"
 dependencies = [
  "arrayvec",
  "byteorder",
@@ -1491,8 +1492,7 @@ checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 [[package]]
 name = "symbolic-common"
 version = "7.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "009da45620abd4e1366dd2e08a31af1fb15a43aa9dd13318f1f478ae670e30b4"
+source = "git+https://github.com/calixteman/symbolic/?rev=3822558a9d11af28fbbfdd26b33d6d6df1228bdd#3822558a9d11af28fbbfdd26b33d6d6df1228bdd"
 dependencies = [
  "debugid",
  "failure",
@@ -1504,8 +1504,7 @@ dependencies = [
 [[package]]
 name = "symbolic-debuginfo"
 version = "7.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c42b3d71d80a1319a8f620e6f6a169ac092d22f86e520ea6150b9b8d55344580"
+source = "git+https://github.com/calixteman/symbolic/?rev=3822558a9d11af28fbbfdd26b33d6d6df1228bdd#3822558a9d11af28fbbfdd26b33d6d6df1228bdd"
 dependencies = [
  "dmsort",
  "failure",
@@ -1530,8 +1529,7 @@ dependencies = [
 [[package]]
 name = "symbolic-demangle"
 version = "7.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ca48a4bc52647384d8fa9a11a670bb57ee96e765537cdaa66ed44ff1d7f3160"
+source = "git+https://github.com/calixteman/symbolic/?rev=3822558a9d11af28fbbfdd26b33d6d6df1228bdd#3822558a9d11af28fbbfdd26b33d6d6df1228bdd"
 dependencies = [
  "cc",
  "cpp_demangle",
@@ -1543,8 +1541,7 @@ dependencies = [
 [[package]]
 name = "symbolic-minidump"
 version = "7.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2960d794fdabca0b9648f97467f977b26836add39ec0e481811fe4a59e897ec7"
+source = "git+https://github.com/calixteman/symbolic/?rev=3822558a9d11af28fbbfdd26b33d6d6df1228bdd#3822558a9d11af28fbbfdd26b33d6d6df1228bdd"
 dependencies = [
  "cc",
  "failure",
@@ -1928,23 +1925,3 @@ dependencies = [
  "podio",
  "time",
 ]
-
-[[patch.unused]]
-name = "symbolic-common"
-version = "7.2.0"
-source = "git+https://github.com/calixteman/symbolic/?rev=79138982daebf3654c18f6b37ea554636f4f7ca8#79138982daebf3654c18f6b37ea554636f4f7ca8"
-
-[[patch.unused]]
-name = "symbolic-debuginfo"
-version = "7.2.0"
-source = "git+https://github.com/calixteman/symbolic/?rev=79138982daebf3654c18f6b37ea554636f4f7ca8#79138982daebf3654c18f6b37ea554636f4f7ca8"
-
-[[patch.unused]]
-name = "symbolic-demangle"
-version = "7.2.0"
-source = "git+https://github.com/calixteman/symbolic/?rev=79138982daebf3654c18f6b37ea554636f4f7ca8#79138982daebf3654c18f6b37ea554636f4f7ca8"
-
-[[patch.unused]]
-name = "symbolic-minidump"
-version = "7.2.0"
-source = "git+https://github.com/calixteman/symbolic/?rev=79138982daebf3654c18f6b37ea554636f4f7ca8#79138982daebf3654c18f6b37ea554636f4f7ca8"
