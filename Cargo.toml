@@ -40,7 +40,9 @@ version = "0.10"
 optional = true
 
 [patch.crates-io]
+# in waiting for a gimli update in symbolic
+gimli = { git = "https://github.com/gimli-rs/gimli", rev = "73c43d41249d24b05b6eb33863efd1fff6968d05" }
+
+# in waiting for a solution to avoid line collapsing in inlinees
 symbolic-common = { git = "https://github.com/calixteman/symbolic/", rev = "3822558a9d11af28fbbfdd26b33d6d6df1228bdd" }
 symbolic-debuginfo = { git = "https://github.com/calixteman/symbolic/", rev = "3822558a9d11af28fbbfdd26b33d6d6df1228bdd" }
-symbolic-demangle = { git = "https://github.com/calixteman/symbolic/", rev = "3822558a9d11af28fbbfdd26b33d6d6df1228bdd" }
-symbolic-minidump = { git = "https://github.com/calixteman/symbolic/", rev = "3822558a9d11af28fbbfdd26b33d6d6df1228bdd" }

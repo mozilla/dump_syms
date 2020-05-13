@@ -593,8 +593,7 @@ dependencies = [
 [[package]]
 name = "gimli"
 version = "0.21.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bcc8e0c9bce37868955864dbecd2b1ab2bdf967e6f28066d65aaac620444b65c"
+source = "git+https://github.com/gimli-rs/gimli?rev=73c43d41249d24b05b6eb33863efd1fff6968d05#73c43d41249d24b05b6eb33863efd1fff6968d05"
 
 [[package]]
 name = "glob"
@@ -1529,7 +1528,8 @@ dependencies = [
 [[package]]
 name = "symbolic-demangle"
 version = "7.3.0"
-source = "git+https://github.com/calixteman/symbolic/?rev=3822558a9d11af28fbbfdd26b33d6d6df1228bdd#3822558a9d11af28fbbfdd26b33d6d6df1228bdd"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7ca48a4bc52647384d8fa9a11a670bb57ee96e765537cdaa66ed44ff1d7f3160"
 dependencies = [
  "cc",
  "cpp_demangle",
@@ -1541,7 +1541,8 @@ dependencies = [
 [[package]]
 name = "symbolic-minidump"
 version = "7.3.0"
-source = "git+https://github.com/calixteman/symbolic/?rev=3822558a9d11af28fbbfdd26b33d6d6df1228bdd#3822558a9d11af28fbbfdd26b33d6d6df1228bdd"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2960d794fdabca0b9648f97467f977b26836add39ec0e481811fe4a59e897ec7"
 dependencies = [
  "cc",
  "failure",
