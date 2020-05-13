@@ -3,9 +3,8 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+pub mod elf;
+
 mod lines;
-pub mod pdb;
 mod source;
 mod symbol;
-mod types;
-pub mod utils;

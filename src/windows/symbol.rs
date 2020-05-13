@@ -12,10 +12,11 @@ use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
 
-use super::line::Lines;
 use super::pdb::{PDBContributions, PDBSections};
 use super::source::SourceLineCollector;
 use super::types::{FuncName, TypeDumper};
+use crate::common::LineFinalizer;
+use crate::line::Lines;
 
 pub(super) struct BlockInfo {
     pub rva: u32,

@@ -20,10 +20,10 @@ log = "0.4"
 pdb = "0.6"
 reqwest = { version = "0.10", features = ["blocking"] }
 simplelog = "0.7"
-symbolic-common = "7.2"
-symbolic-debuginfo = "7.2"
-symbolic-demangle = "7.2"
-symbolic-minidump = "7.2"
+symbolic-common = "7.3"
+symbolic-debuginfo = "7.3"
+symbolic-demangle = "7.3"
+symbolic-minidump = "7.3"
 tokio = "0.2"
 url = "2.1"
 uuid = "0.8"
@@ -38,3 +38,9 @@ vendored-openssl = ["openssl/vendored"]
 [dependencies.openssl]
 version = "0.10"
 optional = true
+
+[patch.crates-io]
+symbolic-common = { git = "https://github.com/calixteman/symbolic/", rev = "3822558a9d11af28fbbfdd26b33d6d6df1228bdd" }
+symbolic-debuginfo = { git = "https://github.com/calixteman/symbolic/", rev = "3822558a9d11af28fbbfdd26b33d6d6df1228bdd" }
+symbolic-demangle = { git = "https://github.com/calixteman/symbolic/", rev = "3822558a9d11af28fbbfdd26b33d6d6df1228bdd" }
+symbolic-minidump = { git = "https://github.com/calixteman/symbolic/", rev = "3822558a9d11af28fbbfdd26b33d6d6df1228bdd" }

@@ -4,7 +4,18 @@
 // copied, modified, or distributed except according to those terms.
 
 use std::error;
+use std::io::Write;
 use std::result;
 
 type Error = Box<dyn error::Error>;
 pub type Result<T> = result::Result<T, Error>;
+
+pub(crate) trait Dumpable {
+    fn dump<W: Write>(&self, writer: W) -> Result<()>;
+    fn get_name(&self) -> &str;
+    fn get_debug_id(&self) -> &str;
+}
+
+pub(crate) trait LineFinalizer<M> {
+    fn finalize(&mut self, sym_rva: u32, sym_len: u32, map: &M);
+}
