@@ -19,7 +19,7 @@ hashbrown = "0.7"
 log = "0.4"
 pdb = "0.6"
 reqwest = { version = "0.10", features = ["blocking"] }
-simplelog = "0.7"
+simplelog = "0.8"
 symbolic-common = "7.3"
 symbolic-debuginfo = "7.3"
 symbolic-demangle = "7.3"
