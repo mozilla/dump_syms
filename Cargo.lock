@@ -254,9 +254,9 @@ checksum = "b3a71ab494c0b5b860bdc8407ae08978052417070c2ced38573a9157ad75b8ac"
 
 [[package]]
 name = "cpp_demangle"
-version = "0.2.15"
+version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e69147adfe3ce87fc3c0c9b867b4dd8a73cef415abd8f1095ed9629adac3f97"
+checksum = "13c924384107361ca729c7d46b9134151b9a955ce99a773784f2777498e8552d"
 dependencies = [
  "cfg-if",
  "glob",
@@ -351,7 +351,7 @@ dependencies = [
  "pdb",
  "reqwest",
  "simplelog",
- "symbolic-common",
+ "symbolic-common 7.3.2",
  "symbolic-debuginfo",
  "symbolic-demangle",
  "symbolic-minidump",
@@ -1501,6 +1501,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "symbolic-common"
+version = "7.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "58b4a469c3cfae500c30dfb6ba7b378e52911d3110b87e57cb297545c5b0c74e"
+dependencies = [
+ "debugid",
+ "failure",
+ "memmap",
+ "stable_deref_trait",
+ "uuid",
+]
+
+[[package]]
 name = "symbolic-debuginfo"
 version = "7.3.0"
 source = "git+https://github.com/calixteman/symbolic/?rev=3822558a9d11af28fbbfdd26b33d6d6df1228bdd#3822558a9d11af28fbbfdd26b33d6d6df1228bdd"
@@ -1521,21 +1534,21 @@ dependencies = [
  "serde",
  "serde_json",
  "smallvec",
- "symbolic-common",
+ "symbolic-common 7.3.0",
  "zip",
 ]
 
 [[package]]
 name = "symbolic-demangle"
-version = "7.3.0"
+version = "7.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ca48a4bc52647384d8fa9a11a670bb57ee96e765537cdaa66ed44ff1d7f3160"
+checksum = "ac87800518bbe29728122004cecc14d502e441b7e79fcdfd238183f0931ec704"
 dependencies = [
  "cc",
  "cpp_demangle",
  "msvc-demangler",
  "rustc-demangle",
- "symbolic-common",
+ "symbolic-common 7.3.2",
 ]
 
 [[package]]
@@ -1548,7 +1561,7 @@ dependencies = [
  "failure",
  "lazy_static",
  "regex",
- "symbolic-common",
+ "symbolic-common 7.3.0",
  "symbolic-debuginfo",
 ]
 
