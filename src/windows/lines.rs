@@ -66,7 +66,7 @@ impl LineFinalizer<AddressMap<'_>> for Lines {
             if last < self.lines.len() {
                 new_lines.extend_from_slice(&self.lines[last..]);
             }
-            std::mem::replace(&mut self.lines, new_lines);
+            let _ = std::mem::replace(&mut self.lines, new_lines);
         }
 
         if !is_sorted {

@@ -19,6 +19,12 @@ pub(super) struct SourceFiles {
     cache: HashMap<(SliceRef, SliceRef, SliceRef), u32>,
 }
 
+#[derive(Debug, Default)]
+pub(super) struct SourceMap {
+    ref_to_id: HashMap<PathBuf, u32>,
+    id_to_ref: Vec<String>,
+}
+
 impl SourceFiles {
     #[inline(always)]
     fn cast_ptr(name: &[u8]) -> SliceRef {
@@ -100,7 +106,49 @@ impl SourceFiles {
         }
     }
 
-    pub(super) fn get_mapping(self) -> Vec<String> {
-        self.id_to_ref
+    pub(super) fn get_mapping(self) -> SourceMap {
+        SourceMap {
+            ref_to_id: self.ref_to_id,
+            id_to_ref: self.id_to_ref,
+        }
+    }
+}
+
+impl SourceMap {
+    pub(super) fn get_mapping(&self) -> &[String] {
+        &self.id_to_ref
+    }
+
+    pub(super) fn merge(&mut self, other: &mut SourceMap) -> Option<Vec<u32>> {
+        // No FUNC so nothing to do
+        if other.id_to_ref.is_empty() {
+            return None;
+        }
+
+        // This one has no FUNC
+        if self.id_to_ref.is_empty() {
+            // Just steal the data from the other
+            std::mem::swap(&mut self.ref_to_id, &mut other.ref_to_id);
+            std::mem::swap(&mut self.id_to_ref, &mut other.id_to_ref);
+            return None;
+        }
+
+        // will contain the new ids
+        let mut remapping = vec![0; other.id_to_ref.len()];
+        self.id_to_ref.reserve(other.id_to_ref.len());
+
+        for (path, id) in other.ref_to_id.iter() {
+            let id = *id as usize;
+            if let Some(an_id) = self.ref_to_id.get(path) {
+                // self has already this path so map the id to the existing one
+                remapping[id] = *an_id;
+            } else {
+                let new_id = self.id_to_ref.len() as u32;
+                remapping[id] = new_id;
+                self.id_to_ref.push(other.id_to_ref[id].clone());
+            }
+        }
+
+        Some(remapping)
     }
 }

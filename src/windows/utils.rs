@@ -78,6 +78,11 @@ pub fn get_pe_pdb_buf<'a>(
     }
 }
 
+pub fn get_pe(path: PathBuf, buf: &[u8]) -> PeObject {
+    PeObject::parse(&buf)
+        .unwrap_or_else(|_| panic!("Unable to parse the PE file {}", path.to_str().unwrap()))
+}
+
 pub fn get_pe_debug_id(pe: Option<&PeObject>) -> Option<String> {
     if let Some(pe) = pe {
         let mut buf = Uuid::encode_buffer();
@@ -109,7 +114,7 @@ pub(crate) fn try_to_set_pe(path: &PathBuf, pdb_info: &mut PDBInfo, pdb_buf: &[u
                 if ext.ends_with('_') {
                     path.set_extension(fix_extension(ext));
                 }
-                let filename = path.file_name().unwrap().to_str().unwrap().to_string();
+                let filename = utils::get_filename(&path);
                 if pdb_info.set_pe(filename, pe, pdb_buf) {
                     break;
                 }

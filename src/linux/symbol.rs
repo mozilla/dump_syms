@@ -49,3 +49,13 @@ impl Display for ElfSymbol {
         Ok(())
     }
 }
+
+impl ElfSymbol {
+    pub(super) fn fix_lines(&mut self, remapping: Option<&Vec<u32>>) {
+        if let Some(remapping) = remapping {
+            for line in self.source.lines.iter_mut() {
+                line.file_id = remapping[line.file_id as usize];
+            }
+        }
+    }
+}

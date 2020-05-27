@@ -9,15 +9,13 @@ use log::{error, warn};
 use std::collections::btree_map;
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
-use symbolic_debuginfo::{
-    dwarf::DwarfFunctionIteratorOption, Function, LineInfo, Object, ObjectDebugSession,
-};
+use symbolic_debuginfo::{Function, Object, ObjectDebugSession};
 
 use symbolic_common::{Language, Name};
 use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
 use symbolic_minidump::cfi::AsciiCfiWriter;
 
-use super::source::SourceFiles;
+use super::source::{SourceFiles, SourceMap};
 use super::symbol::{ElfSymbol, ElfSymbols};
 
 use crate::common::{self, Dumpable, LineFinalizer};
@@ -26,12 +24,12 @@ use crate::line::Lines;
 #[derive(Debug, Default)]
 pub struct ElfInfo {
     symbols: ElfSymbols,
-    files: Vec<String>,
+    files: SourceMap,
     file_name: String,
     cpu: &'static str,
     debug_id: String,
     code_id: Option<String>,
-    stack: Option<String>,
+    stack: String,
 }
 
 impl Display for ElfInfo {
@@ -46,7 +44,7 @@ impl Display for ElfInfo {
             writeln!(f, "INFO CODE_ID {}", code_id)?;
         }
 
-        for (n, file_name) in self.files.iter().enumerate() {
+        for (n, file_name) in self.files.get_mapping().iter().enumerate() {
             writeln!(f, "FILE {} {}", n, file_name)?;
         }
 
@@ -54,9 +52,7 @@ impl Display for ElfInfo {
             write!(f, "{}", sym)?;
         }
 
-        if let Some(stack) = self.stack.as_ref() {
-            write!(f, "{}", stack)?;
-        }
+        write!(f, "{}", self.stack)?;
 
         Ok(())
     }
@@ -66,7 +62,7 @@ impl Display for ElfInfo {
 // Each function has an address, a size, a list of lines and a list of inlinees (which are functions)
 // - address: the address where the function start: first_range.begin
 // - size: last_range.end - first_range.begin
-// - lines: each range is mapped to a set of lines, for any reason a range can be mapped with a line which is out of range
+// - lines: each range is mapped to a set of lines
 //   when the line address is an inlinee address, line info gives us the "calling" location
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
@@ -112,29 +108,23 @@ impl Default for InlineeManager {
 impl InlineeManager {
     /// Add to this manager inlinees we have in function
     /// It returns true if some inlinees contain address such as addr < inlinee_start_addr
-    fn add_inlinees(&mut self, fun: &Function, source: &mut SourceFiles) -> bool {
-        let mut has_lower_address = false;
+    fn add_inlinees(&mut self, fun: &Function, source: &mut SourceFiles) {
         for inlinee in fun.inlinees.iter() {
-            let has_hla = self.add_inlinee(inlinee, source);
-            has_lower_address |= has_hla;
+            self.add_inlinee(inlinee, source);
         }
-
-        has_lower_address
     }
 
     /// Add to this manager an inlinee
     /// It returns true if some inlinees contain address such as addr < inlinee_start_addr
-    fn add_inlinee(&mut self, fun: &Function, source: &mut SourceFiles) -> bool {
+    fn add_inlinee(&mut self, fun: &Function, source: &mut SourceFiles) {
         let inlinee_pos = self.inlinees.len();
-        let has_oor = self.collect_inlinee_data(fun.address, inlinee_pos, fun, source);
+        self.collect_inlinee_data(fun.address, inlinee_pos, fun, source);
 
         self.inlinees.push(Inlinee {
             location: ElfLineInfo::default(),
             start: fun.address,
             end: fun.address + fun.size,
         });
-
-        has_oor
     }
 
     fn collect_inlinee_data(
@@ -143,20 +133,15 @@ impl InlineeManager {
         inlinee_pos: usize,
         fun: &Function,
         source: &mut SourceFiles,
-    ) -> bool {
-        let mut has_lower_address = false;
+    ) {
         self.addresses.insert(fun.address, inlinee_pos);
         for line in fun.lines.iter() {
             self.addresses.insert(line.address, inlinee_pos);
-            has_lower_address |= line.address < base_address;
         }
 
         for inlinee in fun.inlinees.iter() {
-            let has_oor = self.collect_inlinee_data(base_address, inlinee_pos, inlinee, source);
-            has_lower_address |= has_oor;
+            self.collect_inlinee_data(base_address, inlinee_pos, inlinee, source);
         }
-
-        has_lower_address
     }
 
     /// Get the line info for the given address
@@ -176,21 +161,6 @@ impl InlineeManager {
         } else {
             // the line doesn't belong to an inlinee
             info
-        }
-    }
-
-    /// Set the location where the inlinees are inlined in the inliner
-    /// We use this function when some addresses in an inlinee are before the function start
-    fn set_line_info(&mut self, line: &LineInfo, compilation_dir: &[u8], source: &mut SourceFiles) {
-        if let Some(inlinee_pos) = self.addresses.get(&line.address) {
-            let inlinee = &mut self.inlinees[*inlinee_pos];
-            if inlinee.start == line.address {
-                let file_id = source.get_id(compilation_dir, &line.file);
-                inlinee.location = ElfLineInfo {
-                    file_id,
-                    line: line.line as u32,
-                };
-            }
         }
     }
 }
@@ -213,6 +183,7 @@ impl Collector {
         for f in fun.inlinees.iter() {
             Self::debug_function(&f, "  ".to_string() + &level);
         }
+        println!();
     }
 
     fn demangle(name: &Name) -> String {
@@ -258,15 +229,7 @@ impl Collector {
         }
 
         let mut inlinee_manager = InlineeManager::default();
-        let has_lower_address = inlinee_manager.add_inlinees(fun, source);
-
-        if has_lower_address {
-            // some addresses belong to an inlinee but they're before the inlinee call
-            // so we need to set the calling info (file, line) before
-            for line in fun.lines.iter() {
-                inlinee_manager.set_line_info(&line, fun.compilation_dir, source);
-            }
-        }
+        inlinee_manager.add_inlinees(fun, source);
 
         let mut lines = Lines::new();
         let mut last = None;
@@ -315,11 +278,7 @@ impl Collector {
             unreachable!();
         };
 
-        let functions_iter = ds.functions_option(DwarfFunctionIteratorOption {
-            collapse_lines: false,
-        });
-
-        for fun in functions_iter {
+        for fun in ds.functions() {
             match fun {
                 Ok(fun) => {
                     self.collect_function(&fun, source);
@@ -362,15 +321,16 @@ impl Collector {
 
         let mut cfi_writer = AsciiCfiWriter::new(writer);
         if let Err(e) = cfi_writer.process(o) {
-            error!("{}", e);
+            error!("{:?}", e);
         }
 
-        String::from_utf8(buf).unwrap()
+        // The output buffer contains only rules to unwind and so is full ascii
+        unsafe { String::from_utf8_unchecked(buf) }
     }
 }
 
 impl ElfInfo {
-    pub fn new(buf: &[u8], file_name: String, with_stack: bool) -> common::Result<Self> {
+    pub fn new(buf: &[u8], file_name: String) -> common::Result<Self> {
         let o = Object::parse(&buf).map_err(|e| e.compat())?;
         let mut collector = Collector::default();
         let mut source = SourceFiles::default();
@@ -381,11 +341,7 @@ impl ElfInfo {
         collector.collect_functions(&o, &mut source)?;
         collector.collect_publics(&o);
 
-        let stack = if with_stack {
-            Some(Collector::get_stack_info(&o))
-        } else {
-            None
-        };
+        let stack = Collector::get_stack_info(&o);
 
         Ok(Self {
             symbols: collector.syms,
@@ -396,6 +352,72 @@ impl ElfInfo {
             code_id,
             stack,
         })
+    }
+
+    pub fn merge(left: ElfInfo, right: ElfInfo) -> ElfInfo {
+        // Just to avoid to iterate on the bigger
+        let (mut left, mut right) = if left.symbols.len() > right.symbols.len() {
+            (left, right)
+        } else {
+            (right, left)
+        };
+
+        // merge the CFIs
+        if left.stack.is_empty() {
+            std::mem::swap(&mut left.stack, &mut right.stack);
+        } else if !right.stack.is_empty() {
+            left.stack.push('\n');
+            left.stack.push_str(&right.stack);
+        }
+
+        // If the two files contains some FUNC they may have differents FILE number associated with
+        // So merge them and get an array to remap files from 'right' with the new correct id
+        let remapping = left.files.merge(&mut right.files);
+
+        for (addr, sym) in right.symbols.iter_mut() {
+            if sym.is_public {
+                // No line info so just put the sym in the map
+
+                // Check that the symbol isn't inside another one (it happens sometimes IRL)
+                let last = left.symbols.range(0..*addr).next_back();
+                if let Some(last) = last {
+                    if *addr < last.1.rva + last.1.len {
+                        continue;
+                    }
+                }
+
+                match left.symbols.entry(*addr) {
+                    btree_map::Entry::Occupied(mut e) => {
+                        // we already have one so just discard this one
+                        e.get_mut().is_multiple = true;
+                    }
+                    btree_map::Entry::Vacant(e) => {
+                        e.insert(sym.clone());
+                    }
+                }
+                continue;
+            }
+
+            // Deal with a FUNC
+            match left.symbols.entry(*addr) {
+                btree_map::Entry::Occupied(mut e) => {
+                    let a_sym = e.get_mut();
+                    if a_sym.is_public {
+                        // FUNC is more interesting than the PUBLIC
+                        // so just keep the FUNC
+                        sym.fix_lines(remapping.as_ref());
+                        std::mem::swap(a_sym, sym);
+                    }
+                    a_sym.is_multiple = true;
+                }
+                btree_map::Entry::Vacant(e) => {
+                    sym.fix_lines(remapping.as_ref());
+                    e.insert(sym.clone());
+                }
+            }
+        }
+
+        left
     }
 }
 

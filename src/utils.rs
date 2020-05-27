@@ -4,18 +4,21 @@
 // copied, modified, or distributed except according to those terms.
 
 use cab::Cabinet;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{self, BufWriter, Cursor, Read, Write};
 use std::path::{Component, Path, PathBuf};
 
 pub fn read_file<P: AsRef<Path>>(path: P) -> Vec<u8> {
+    let file_size = fs::metadata(&path).map_or(1024 * 1024, |m| m.len() as usize);
+
     let mut file = File::open(&path).unwrap_or_else(|_| {
         panic!(
             "Unable to open the file {}",
             path.as_ref().to_str().unwrap()
         )
     });
-    let mut buf = Vec::new();
+
+    let mut buf = Vec::with_capacity(file_size + 1);
     file.read_to_end(&mut buf).unwrap_or_else(|_| {
         panic!(
             "Unable to read the file {}",
@@ -42,12 +45,12 @@ pub fn read_cabinet(buf: Vec<u8>, path: PathBuf) -> Option<Vec<u8>> {
         _ => return Some(buf),
     };
 
-    let file = match get_cabinet_files(&cab, path) {
+    let (file, size) = match get_cabinet_files(&cab, path) {
         Some(file) => file,
         _ => return None,
     };
 
-    let mut buf = Vec::new();
+    let mut buf = Vec::with_capacity(size + 1);
     let mut reader = match cab.read_file(&file) {
         Ok(reader) => reader,
         _ => return None,
@@ -75,15 +78,19 @@ fn get_corrected_path(path: PathBuf) -> PathBuf {
     }
 }
 
-fn get_cabinet_files<'a>(cab: &'a Cabinet<Cursor<&Vec<u8>>>, path: PathBuf) -> Option<String> {
+fn get_cabinet_files<'a>(
+    cab: &'a Cabinet<Cursor<&Vec<u8>>>,
+    path: PathBuf,
+) -> Option<(String, usize)> {
     // Try to find in the cabinet the same path with pdb extension
     let path = get_corrected_path(path);
     let file_name = path.file_name().unwrap();
     for folder in cab.folder_entries() {
         for file in folder.file_entries() {
+            let file_size = file.uncompressed_size() as usize;
             let path = PathBuf::from(file.name());
             if path.file_name().unwrap() == file_name {
-                return Some(file.name().to_string());
+                return Some((file.name().to_string(), file_size));
             }
         }
     }
@@ -129,4 +136,8 @@ pub fn normalize_path<P: AsRef<Path>>(path: P) -> PathBuf {
         }
     }
     ret
+}
+
+pub fn get_filename(path: &PathBuf) -> String {
+    path.file_name().unwrap().to_str().unwrap().to_string()
 }
