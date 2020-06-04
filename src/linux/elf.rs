@@ -21,7 +21,13 @@ use super::symbol::{ElfSymbol, ElfSymbols};
 use crate::common::{self, Dumpable, LineFinalizer};
 use crate::line::Lines;
 
-#[derive(Debug, Default)]
+#[derive(Debug, PartialEq)]
+pub enum Type {
+    Stripped,
+    DebugInfo,
+}
+
+#[derive(Debug)]
 pub struct ElfInfo {
     symbols: ElfSymbols,
     files: SourceMap,
@@ -30,6 +36,7 @@ pub struct ElfInfo {
     debug_id: String,
     code_id: Option<String>,
     stack: String,
+    bin_type: Type,
 }
 
 impl Display for ElfInfo {
@@ -370,6 +377,11 @@ impl ElfInfo {
         let debug_id = format!("{}", o.debug_id().breakpad());
         let code_id = o.code_id().map(|c| c.as_str().to_string().to_uppercase());
         let cpu = o.arch().name();
+        let bin_type = if o.has_debug_info() {
+            Type::DebugInfo
+        } else {
+            Type::Stripped
+        };
 
         collector.collect_functions(&o, &mut source)?;
         collector.collect_publics(&o);
@@ -384,10 +396,19 @@ impl ElfInfo {
             debug_id,
             code_id,
             stack,
+            bin_type,
         })
     }
 
-    pub fn merge(left: ElfInfo, right: ElfInfo) -> ElfInfo {
+    pub fn merge(left: ElfInfo, right: ElfInfo) -> common::Result<ElfInfo> {
+        if left.debug_id != right.debug_id {
+            return Err(format!(
+                "The files don't have the same debug id: {} and {}",
+                left.debug_id, right.debug_id
+            )
+            .into());
+        }
+
         // Just to avoid to iterate on the bigger
         let (mut left, mut right) = if left.symbols.len() > right.symbols.len() {
             (left, right)
@@ -454,7 +475,11 @@ impl ElfInfo {
             left.code_id = right.code_id;
         }
 
-        left
+        if right.bin_type == Type::Stripped {
+            left.file_name = right.file_name;
+        }
+
+        Ok(left)
     }
 }
 

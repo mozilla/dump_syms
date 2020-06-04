@@ -118,7 +118,7 @@ impl Dumper<'_> {
             .join()
             .expect("Couldn't join on the associated thread")?;
 
-        let elf = linux::elf::ElfInfo::merge(elf_1, elf_2);
+        let elf = linux::elf::ElfInfo::merge(elf_1, elf_2)?;
         self.store(&elf)
     }
 
@@ -208,7 +208,7 @@ mod tests {
     #[test]
     fn test_missing_pe() {
         let tmp_dir = Builder::new().prefix("no_pe").tempdir().unwrap();
-        let basic64 = PathBuf::from("./test_data/basic64.pdb");
+        let basic64 = PathBuf::from("./test_data/windows/basic64.pdb");
         let tmp_file = tmp_dir.path().join("basic64.pdb");
         let tmp_out = tmp_dir.path().join("output.sym");
 
@@ -234,9 +234,9 @@ mod tests {
     #[test]
     fn test_missing_pe_but_in_dir() {
         let tmp_dir = Builder::new().prefix("no_pe").tempdir().unwrap();
-        let basic64_pdb = PathBuf::from("./test_data/basic64.pdb");
+        let basic64_pdb = PathBuf::from("./test_data/windows/basic64.pdb");
         let tmp_pdb = tmp_dir.path().join("basic64.pdb");
-        let basic64_dll = PathBuf::from("./test_data/basic64.dll");
+        let basic64_dll = PathBuf::from("./test_data/windows/basic64.dll");
         let tmp_dll = tmp_dir.path().join("basic64.dll");
         let tmp_out = tmp_dir.path().join("output.sym");
 
@@ -263,8 +263,8 @@ mod tests {
     #[test]
     fn test_pe_and_pdb() {
         let tmp_dir = Builder::new().prefix("pe_pdb").tempdir().unwrap();
-        let basic64_pdb = PathBuf::from("./test_data/basic64.pdb");
-        let basic64_dll = PathBuf::from("./test_data/basic64.dll");
+        let basic64_pdb = PathBuf::from("./test_data/windows/basic64.pdb");
+        let basic64_dll = PathBuf::from("./test_data/windows/basic64.dll");
         let tmp_out = tmp_dir.path().join("output.sym");
 
         let action = Action::Dump(Dumper {
@@ -289,8 +289,8 @@ mod tests {
     #[test]
     fn test_pdb_and_pe() {
         let tmp_dir = Builder::new().prefix("pdb_pe").tempdir().unwrap();
-        let basic64_pdb = PathBuf::from("./test_data/basic64.pdb");
-        let basic64_dll = PathBuf::from("./test_data/basic64.dll");
+        let basic64_pdb = PathBuf::from("./test_data/windows/basic64.pdb");
+        let basic64_dll = PathBuf::from("./test_data/windows/basic64.dll");
         let tmp_out = tmp_dir.path().join("output.sym");
 
         let action = Action::Dump(Dumper {
@@ -310,5 +310,89 @@ mod tests {
 
         assert!(data.contains("CODE_ID"));
         assert!(data.contains("STACK CFI"));
+    }
+
+    #[test]
+    fn test_elf_full() {
+        let tmp_dir = Builder::new().prefix("full").tempdir().unwrap();
+        let full = PathBuf::from("./test_data/linux/basic.full");
+        let tmp_out = tmp_dir.path().join("output.sym");
+
+        let action = Action::Dump(Dumper {
+            output: tmp_out.to_str().unwrap(),
+            symbol_server: None,
+            store: None,
+            debug_id: None,
+            code_id: None,
+        });
+
+        action.action(&[full.to_str().unwrap()]).unwrap();
+
+        let data = read(tmp_out).unwrap();
+        let new: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+
+        let basic = PathBuf::from("./test_data/linux/basic.full.sym");
+        let data = read(basic).unwrap();
+        let basic: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+
+        assert_eq!(basic, new);
+    }
+
+    #[test]
+    fn test_elf_stripped_dbg() {
+        let tmp_dir = Builder::new().prefix("stripped_dbg").tempdir().unwrap();
+        let stripped = PathBuf::from("./test_data/linux/basic.stripped");
+        let dbg = PathBuf::from("./test_data/linux/basic.dbg");
+        let tmp_out = tmp_dir.path().join("output.sym");
+
+        let action = Action::Dump(Dumper {
+            output: tmp_out.to_str().unwrap(),
+            symbol_server: None,
+            store: None,
+            debug_id: None,
+            code_id: None,
+        });
+
+        action
+            .action(&[stripped.to_str().unwrap(), dbg.to_str().unwrap()])
+            .unwrap();
+
+        let data = read(tmp_out).unwrap();
+        let new: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+
+        let basic = PathBuf::from("./test_data/linux/basic.full.sym");
+        let data = read(basic).unwrap();
+        let basic: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+
+        assert_eq!(basic, new);
+    }
+
+    #[test]
+    fn test_elf_dbg_stripped() {
+        let tmp_dir = Builder::new().prefix("stripped_dbg").tempdir().unwrap();
+        let stripped = PathBuf::from("./test_data/linux/basic.stripped");
+        let dbg = PathBuf::from("./test_data/linux/basic.dbg");
+        let tmp_out = tmp_dir.path().join("output.sym");
+
+        let action = Action::Dump(Dumper {
+            output: tmp_out.to_str().unwrap(),
+            symbol_server: None,
+            store: None,
+            debug_id: None,
+            code_id: None,
+        });
+
+        action
+            .action(&[dbg.to_str().unwrap(), stripped.to_str().unwrap()])
+            .unwrap();
+
+        let data = read(tmp_out).unwrap();
+        let new: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+
+        let basic = PathBuf::from("./test_data/linux/basic.full.sym");
+        let data = read(basic).unwrap();
+        let basic: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+
+        assert_eq!(basic, new);
     }
 }

@@ -636,7 +636,7 @@ mod tests {
     }
 
     fn get_new_bp(file_name: &str) -> Vec<u8> {
-        let path = PathBuf::from("./test_data");
+        let path = PathBuf::from("./test_data/windows");
         let mut path = path.join(file_name);
 
         if !path.exists() {
@@ -659,7 +659,7 @@ mod tests {
     }
 
     fn get_data(file_name: &str) -> Vec<u8> {
-        let path = PathBuf::from("./test_data");
+        let path = PathBuf::from("./test_data/windows");
         let path = path.join(file_name);
 
         let mut file = File::open(&path).unwrap();
