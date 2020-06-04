@@ -9,7 +9,7 @@ use log::{error, warn};
 use std::collections::btree_map;
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
-use symbolic_debuginfo::{Function, LineInfo, Object, ObjectDebugSession};
+use symbolic_debuginfo::{Function, Object, ObjectDebugSession};
 
 use symbolic_common::{Language, Name};
 use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
@@ -114,30 +114,22 @@ impl Default for InlineeManager {
 
 impl InlineeManager {
     /// Add to this manager inlinees we have in function
-    /// It returns true if some inlinees contain address such as addr < inlinee_start_addr
-    fn add_inlinees(&mut self, fun: &Function, source: &mut SourceFiles) -> bool {
-        let mut has_lower_address = false;
+    fn add_inlinees(&mut self, fun: &Function, source: &mut SourceFiles) {
         for inlinee in fun.inlinees.iter() {
-            let has_hla = self.add_inlinee(inlinee, source);
-            has_lower_address |= has_hla;
+            self.add_inlinee(inlinee, source);
         }
-
-        has_lower_address
     }
 
     /// Add to this manager an inlinee
-    /// It returns true if some inlinees contain address such as addr < inlinee_start_addr
-    fn add_inlinee(&mut self, fun: &Function, source: &mut SourceFiles) -> bool {
+    fn add_inlinee(&mut self, fun: &Function, source: &mut SourceFiles) {
         let inlinee_pos = self.inlinees.len();
-        let has_oor = self.collect_inlinee_data(fun.address, inlinee_pos, fun, source);
+        self.collect_inlinee_data(fun.address, inlinee_pos, fun, source);
 
         self.inlinees.push(Inlinee {
             location: ElfLineInfo::default(),
             start: fun.address,
             end: fun.address + fun.size,
         });
-
-        has_oor
     }
 
     fn collect_inlinee_data(
@@ -146,20 +138,15 @@ impl InlineeManager {
         inlinee_pos: usize,
         fun: &Function,
         source: &mut SourceFiles,
-    ) -> bool {
-        let mut has_lower_address = false;
+    ) {
         self.addresses.insert(fun.address, inlinee_pos);
         for line in fun.lines.iter() {
             self.addresses.insert(line.address, inlinee_pos);
-            has_lower_address |= line.address < base_address;
         }
 
         for inlinee in fun.inlinees.iter() {
-            let has_oor = self.collect_inlinee_data(base_address, inlinee_pos, inlinee, source);
-            has_lower_address |= has_oor;
+            self.collect_inlinee_data(base_address, inlinee_pos, inlinee, source);
         }
-
-        has_lower_address
     }
 
     /// Get the line info for the given address
@@ -179,21 +166,6 @@ impl InlineeManager {
         } else {
             // the line doesn't belong to an inlinee
             info
-        }
-    }
-
-    /// Set the location where the inlinees are inlined in the inliner
-    /// We use this function when some addresses in an inlinee are before the function start
-    fn set_line_info(&mut self, line: &LineInfo, compilation_dir: &[u8], source: &mut SourceFiles) {
-        if let Some(inlinee_pos) = self.addresses.get(&line.address) {
-            let inlinee = &mut self.inlinees[*inlinee_pos];
-            if inlinee.start == line.address {
-                let file_id = source.get_id(compilation_dir, &line.file);
-                inlinee.location = ElfLineInfo {
-                    file_id,
-                    line: line.line as u32,
-                };
-            }
         }
     }
 }
@@ -262,15 +234,7 @@ impl Collector {
         }
 
         let mut inlinee_manager = InlineeManager::default();
-        let has_lower_address = inlinee_manager.add_inlinees(fun, source);
-
-        if has_lower_address {
-            // some addresses belong to an inlinee but they're before the inlinee call
-            // so we need to set the calling info (file, line) before
-            for line in fun.lines.iter() {
-                inlinee_manager.set_line_info(&line, fun.compilation_dir, source);
-            }
-        }
+        inlinee_manager.add_inlinees(fun, source);
 
         let mut lines = Lines::new();
         let mut last = None;
