@@ -25,10 +25,11 @@ fn main() {
         .author(crate_authors!("\n"))
         .about("Dump debug symbols to breakpad symbols")
         .arg(
-            Arg::with_name("filename")
-                .help("File to dump (.dll, .exe, .pdb or .pd_)")
+            Arg::with_name("filenames")
+                .help("Files to dump (.dll, .exe, .pdb, .pd_, .so, .dbg)")
                 .required(true)
-                .takes_value(true),
+                .takes_value(true)
+                .max_values(2),
         )
         .arg(
             Arg::with_name("output")
@@ -105,7 +106,7 @@ fn main() {
     }));
 
     let output = matches.value_of("output").unwrap();
-    let filename = matches.value_of("filename").unwrap();
+    let filenames: Vec<_> = matches.values_of("filenames").unwrap().collect();
     let symbol_server = matches.value_of("symbol-server");
     let store = matches.value_of("store");
     let debug_id = matches.value_of("debug_id");
@@ -119,7 +120,7 @@ fn main() {
         code_id,
     });
 
-    if let Err(e) = action.action(&filename) {
+    if let Err(e) = action.action(&filenames) {
         eprintln!("{}", e);
         std::process::exit(1);
     }

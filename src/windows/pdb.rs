@@ -196,7 +196,7 @@ pub(crate) struct PDBInfo {
     pdb_name: String,
     pe_name: String,
     code_id: Option<String>,
-    stack: Option<String>,
+    stack: String,
 }
 
 impl Display for PDBInfo {
@@ -219,9 +219,7 @@ impl Display for PDBInfo {
             write!(f, "{}", sym)?;
         }
 
-        if let Some(stack) = self.stack.as_ref() {
-            write!(f, "{}", stack)?;
-        }
+        write!(f, "{}", self.stack)?;
 
         Ok(())
     }
@@ -484,7 +482,6 @@ impl PDBInfo {
         pdb_name: String,
         pe_name: String,
         pe: Option<PeObject>,
-        with_stack: bool,
     ) -> Result<Self> {
         let cursor = Cursor::new(buf);
         let mut pdb = PDB::open(cursor)?;
@@ -523,11 +520,7 @@ impl PDBInfo {
             None
         };
 
-        let stack = if with_stack {
-            Some(get_stack_info(buf, pe, cpu))
-        } else {
-            None
-        };
+        let stack = get_stack_info(buf, pe, cpu);
 
         Ok(PDBInfo {
             symbols: collector.symbols.mv_to_pdb_symbols(
@@ -549,8 +542,8 @@ impl PDBInfo {
         if get_pe_debug_id(Some(&pe)).unwrap() == self.debug_id {
             self.code_id = Some(pe.code_id().unwrap().as_str().to_uppercase());
             self.pe_name = pe_name;
-            if self.stack.as_ref().map_or(false, |s| s.is_empty()) {
-                self.stack = Some(get_stack_info(pdb_buf, Some(pe), self.cpu));
+            if self.stack.is_empty() {
+                self.stack = get_stack_info(pdb_buf, Some(pe), self.cpu);
             }
             true
         } else {
@@ -634,7 +627,7 @@ mod tests {
 
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
-        let pdb = PDBInfo::new(&pdb_buf, pdb_name, name.to_string(), Some(pe), false).unwrap();
+        let pdb = PDBInfo::new(&pdb_buf, pdb_name, name.to_string(), Some(pe)).unwrap();
         pdb.dump(cursor).unwrap();
 
         let toks: Vec<_> = name.rsplitn(2, '.').collect();
@@ -643,7 +636,7 @@ mod tests {
     }
 
     fn get_new_bp(file_name: &str) -> Vec<u8> {
-        let path = PathBuf::from("./test_data");
+        let path = PathBuf::from("./test_data/windows");
         let mut path = path.join(file_name);
 
         if !path.exists() {
@@ -659,14 +652,14 @@ mod tests {
         .unwrap();
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
-        let pdb = PDBInfo::new(&pdb_buf, pdb_name, file_name.to_string(), Some(pe), false).unwrap();
+        let pdb = PDBInfo::new(&pdb_buf, pdb_name, file_name.to_string(), Some(pe)).unwrap();
         pdb.dump(cursor).unwrap();
 
         output
     }
 
     fn get_data(file_name: &str) -> Vec<u8> {
-        let path = PathBuf::from("./test_data");
+        let path = PathBuf::from("./test_data/windows");
         let path = path.join(file_name);
 
         let mut file = File::open(&path).unwrap();
