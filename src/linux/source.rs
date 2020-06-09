@@ -12,7 +12,7 @@ use symbolic_debuginfo::FileInfo;
 type SliceRef = (*const u8, usize);
 
 #[derive(Debug, Default)]
-pub(super) struct SourceFiles {
+pub struct SourceFiles {
     ref_to_id: HashMap<PathBuf, u32>,
     fake_id_to_ref: Vec<(Option<u32>, String)>,
     id_to_ref: Vec<String>,
@@ -20,7 +20,7 @@ pub(super) struct SourceFiles {
 }
 
 #[derive(Debug, Default)]
-pub(super) struct SourceMap {
+pub struct SourceMap {
     ref_to_id: HashMap<PathBuf, u32>,
     id_to_ref: Vec<String>,
 }

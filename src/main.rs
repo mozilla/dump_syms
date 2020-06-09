@@ -8,6 +8,7 @@ mod cache;
 mod common;
 mod line;
 mod linux;
+mod mac;
 mod utils;
 mod windows;
 
@@ -71,6 +72,19 @@ fn main() {
                 .default_value("error")
                 .takes_value(true),
         )
+        .arg(
+            Arg::with_name("arch")
+                .help("Set the architecture to select in fat binaries")
+                .short("a")
+                .long("arch")
+                .default_value(common::get_compile_time_arch())
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("list_arch")
+                .help("List the architectures present in the fat binaries")
+                .long("list-arch")
+        )
         .get_matches();
 
     let verbosity = match matches.value_of("verbose").unwrap() {
@@ -111,14 +125,20 @@ fn main() {
     let store = matches.value_of("store");
     let debug_id = matches.value_of("debug_id");
     let code_id = matches.value_of("code_id");
+    let arch = matches.value_of("arch").unwrap();
 
-    let action = Action::Dump(Dumper {
-        output,
-        symbol_server,
-        store,
-        debug_id,
-        code_id,
-    });
+    let action = if matches.is_present("list_arch") {
+        Action::ListArch
+    } else {
+        Action::Dump(Dumper {
+            output,
+            symbol_server,
+            store,
+            debug_id,
+            code_id,
+            arch,
+        })
+    };
 
     if let Err(e) = action.action(&filenames) {
         eprintln!("{}", e);

@@ -3,14 +3,18 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use failure::Fail;
 use log::info;
 use std::fs;
 use std::path::PathBuf;
+use std::str::FromStr;
 use std::thread;
+use symbolic_common::Arch;
 
 use crate::cache;
-use crate::common::{self, Dumpable, FileType};
+use crate::common::{self, Dumpable, FileType, Mergeable};
 use crate::linux;
+use crate::mac;
 use crate::utils;
 use crate::windows;
 
@@ -20,6 +24,7 @@ pub(crate) struct Dumper<'a> {
     pub store: Option<&'a str>,
     pub debug_id: Option<&'a str>,
     pub code_id: Option<&'a str>,
+    pub arch: &'a str,
 }
 
 impl Dumper<'_> {
@@ -89,26 +94,33 @@ impl Dumper<'_> {
     }
 
     fn elf(&self, buf: &[u8], filename: String) -> common::Result<()> {
-        let elf = linux::elf::ElfInfo::new(&buf, filename)?;
+        let elf = linux::elf::ElfInfo::new(&buf, filename, linux::elf::Platform::Linux)?;
         self.store(&elf)
     }
 
-    fn two_elfs(
-        &self,
-        buf_1: Vec<u8>,
-        filename_1: String,
-        buf_2: Vec<u8>,
-        filename_2: String,
-    ) -> common::Result<()> {
+    fn macho(&self, buf: &[u8], filename: String) -> common::Result<()> {
+        let arch = Arch::from_str(self.arch).map_err(|e| e.compat())?;
+        let macho = mac::macho::MachoInfo::new(&buf, filename, arch)?;
+        self.store(&macho)
+    }
+
+    fn two_elfs<T, F, G>(&self, f1: F, f2: G) -> common::Result<()>
+    where
+        T: Mergeable + Dumpable + Send + 'static,
+        F: FnOnce() -> common::Result<T>,
+        F: Send + 'static,
+        G: FnOnce() -> common::Result<T>,
+        G: Send + 'static,
+    {
         // Normally we should have a debug file and a stripped executable (or lib)
         // So the thread getting data for the debug file should be a way longer that the oter
         let t_1 = thread::Builder::new()
             .name("Dump_syms 1".to_string())
-            .spawn(move || linux::elf::ElfInfo::new(&buf_1, filename_1))
+            .spawn(f1)
             .unwrap();
         let t_2 = thread::Builder::new()
             .name("Dump_syms 2".to_string())
-            .spawn(move || linux::elf::ElfInfo::new(&buf_2, filename_2))
+            .spawn(f2)
             .unwrap();
 
         let elf_1 = t_1
@@ -118,7 +130,7 @@ impl Dumper<'_> {
             .join()
             .expect("Couldn't join on the associated thread")?;
 
-        let elf = linux::elf::ElfInfo::merge(elf_1, elf_2)?;
+        let elf = T::merge(elf_1, elf_2)?;
         self.store(&elf)
     }
 
@@ -137,6 +149,7 @@ impl Dumper<'_> {
 
 pub(crate) enum Action<'a> {
     Dump(Dumper<'a>),
+    ListArch,
 }
 
 impl Action<'_> {
@@ -159,8 +172,13 @@ impl Action<'_> {
                     FileType::Elf => dumper.elf(&buf, filename),
                     FileType::Pdb => dumper.pdb(&buf, path, filename),
                     FileType::Pe => dumper.pe(&buf, path, filename),
+                    FileType::Macho => dumper.macho(&buf, filename),
                     FileType::Unknown => Err("Unknown file format".into()),
                 }
+            }
+            Self::ListArch => {
+                let buf = utils::read_file(&path);
+                mac::macho::MachoInfo::print_architectures(&buf, filename)
             }
         }
     }
@@ -181,17 +199,44 @@ impl Action<'_> {
                 let (buf_2, filename_2) = dumper.get_from_id(&path_2, filename_2)?;
 
                 match (FileType::from_buf(&buf_1), FileType::from_buf(&buf_2)) {
-                    (FileType::Elf, FileType::Elf) => {
-                        dumper.two_elfs(buf_1, filename_1, buf_2, filename_2)
-                    }
+                    (FileType::Elf, FileType::Elf) => dumper.two_elfs(
+                        move || {
+                            linux::elf::ElfInfo::new(
+                                &buf_1,
+                                filename_1,
+                                linux::elf::Platform::Linux,
+                            )
+                        },
+                        move || {
+                            linux::elf::ElfInfo::new(
+                                &buf_2,
+                                filename_2,
+                                linux::elf::Platform::Linux,
+                            )
+                        },
+                    ),
                     (FileType::Pdb, FileType::Pe) => {
                         dumper.pdb_pe(&buf_1, filename_1, &buf_2, path_2, filename_2)
                     }
                     (FileType::Pe, FileType::Pdb) => {
                         dumper.pdb_pe(&buf_2, filename_2, &buf_1, path_1, filename_1)
                     }
+                    (FileType::Macho, FileType::Macho) => {
+                        let arch = Arch::from_str(dumper.arch).map_err(|e| e.compat())?;
+                        dumper.two_elfs(
+                            move || mac::macho::MachoInfo::new(&buf_1, filename_1, arch),
+                            move || mac::macho::MachoInfo::new(&buf_2, filename_2, arch),
+                        )
+                    }
                     _ => Err("Invalid files: must be two elf or a pdb and a pe".into()),
                 }
+            }
+            Self::ListArch => {
+                let buf = utils::read_file(&path_1);
+                mac::macho::MachoInfo::print_architectures(&buf, filename_1)?;
+
+                let buf = utils::read_file(&path_2);
+                mac::macho::MachoInfo::print_architectures(&buf, filename_2)
             }
         }
     }
@@ -220,6 +265,7 @@ mod tests {
             store: None,
             debug_id: None,
             code_id: None,
+            arch: "",
         });
 
         action.action(&[tmp_file.to_str().unwrap()]).unwrap();
@@ -249,6 +295,7 @@ mod tests {
             store: None,
             debug_id: None,
             code_id: None,
+            arch: "",
         });
 
         action.action(&[tmp_pdb.to_str().unwrap()]).unwrap();
@@ -273,6 +320,7 @@ mod tests {
             store: None,
             debug_id: None,
             code_id: None,
+            arch: "",
         });
 
         action
@@ -299,6 +347,7 @@ mod tests {
             store: None,
             debug_id: None,
             code_id: None,
+            arch: "",
         });
 
         action
@@ -324,6 +373,7 @@ mod tests {
             store: None,
             debug_id: None,
             code_id: None,
+            arch: "",
         });
 
         action.action(&[full.to_str().unwrap()]).unwrap();
@@ -351,6 +401,7 @@ mod tests {
             store: None,
             debug_id: None,
             code_id: None,
+            arch: "",
         });
 
         action
@@ -380,6 +431,7 @@ mod tests {
             store: None,
             debug_id: None,
             code_id: None,
+            arch: "",
         });
 
         action
