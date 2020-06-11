@@ -15,6 +15,7 @@ use crate::cache;
 use crate::common::{self, Dumpable, FileType, Mergeable};
 use crate::linux::elf::{ElfInfo, Platform};
 use crate::mac::macho::MachoInfo;
+use crate::mapping::PathMappings;
 use crate::utils;
 use crate::windows;
 
@@ -25,6 +26,10 @@ pub(crate) struct Dumper<'a> {
     pub debug_id: Option<&'a str>,
     pub code_id: Option<&'a str>,
     pub arch: &'a str,
+    pub mapping_var: Option<Vec<&'a str>>,
+    pub mapping_src: Option<Vec<&'a str>>,
+    pub mapping_dest: Option<Vec<&'a str>>,
+    pub mapping_file: Option<&'a str>,
 }
 
 impl Dumper<'_> {
@@ -93,14 +98,24 @@ impl Dumper<'_> {
         self.store(&pdb)
     }
 
-    fn elf(&self, buf: &[u8], filename: String) -> common::Result<()> {
-        let elf = ElfInfo::new(&buf, filename, Platform::Linux)?;
+    fn elf(
+        &self,
+        buf: &[u8],
+        filename: String,
+        mapping: Option<PathMappings>,
+    ) -> common::Result<()> {
+        let elf = ElfInfo::new(&buf, filename, Platform::Linux, mapping)?;
         self.store(&elf)
     }
 
-    fn macho(&self, buf: &[u8], filename: String) -> common::Result<()> {
+    fn macho(
+        &self,
+        buf: &[u8],
+        filename: String,
+        mapping: Option<PathMappings>,
+    ) -> common::Result<()> {
         let arch = Arch::from_str(self.arch).map_err(|e| e.compat())?;
-        let macho = MachoInfo::new(&buf, filename, arch)?;
+        let macho = MachoInfo::new(&buf, filename, arch, mapping)?;
         self.store(&macho)
     }
 
@@ -168,11 +183,17 @@ impl Action<'_> {
         match self {
             Self::Dump(dumper) => {
                 let (buf, filename) = dumper.get_from_id(&path, filename)?;
+                let file_mapping = PathMappings::new(
+                    &dumper.mapping_var,
+                    &dumper.mapping_src,
+                    &dumper.mapping_dest,
+                    &dumper.mapping_file,
+                )?;
                 match FileType::from_buf(&buf) {
-                    FileType::Elf => dumper.elf(&buf, filename),
+                    FileType::Elf => dumper.elf(&buf, filename, file_mapping),
                     FileType::Pdb => dumper.pdb(&buf, path, filename),
                     FileType::Pe => dumper.pe(&buf, path, filename),
-                    FileType::Macho => dumper.macho(&buf, filename),
+                    FileType::Macho => dumper.macho(&buf, filename, file_mapping),
                     FileType::Unknown => Err("Unknown file format".into()),
                 }
             }
@@ -202,8 +223,8 @@ impl Action<'_> {
                     (FileType::Elf, FileType::Elf) => {
                         let arch = Platform::Linux;
                         dumper.two_elfs(
-                            move || ElfInfo::new(&buf_1, filename_1, arch),
-                            move || ElfInfo::new(&buf_2, filename_2, arch),
+                            move || ElfInfo::new(&buf_1, filename_1, arch, None),
+                            move || ElfInfo::new(&buf_2, filename_2, arch, None),
                         )
                     }
                     (FileType::Pdb, FileType::Pe) => {
@@ -215,8 +236,8 @@ impl Action<'_> {
                     (FileType::Macho, FileType::Macho) => {
                         let arch = Arch::from_str(dumper.arch).map_err(|e| e.compat())?;
                         dumper.two_elfs(
-                            move || MachoInfo::new(&buf_1, filename_1, arch),
-                            move || MachoInfo::new(&buf_2, filename_2, arch),
+                            move || MachoInfo::new(&buf_1, filename_1, arch, None),
+                            move || MachoInfo::new(&buf_2, filename_2, arch, None),
                         )
                     }
                     _ => Err("Invalid files: must be two elf or a pdb and a pe".into()),
@@ -257,6 +278,10 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: "",
+            mapping_var: None,
+            mapping_src: None,
+            mapping_dest: None,
+            mapping_file: None,
         });
 
         action.action(&[tmp_file.to_str().unwrap()]).unwrap();
@@ -287,6 +312,10 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: "",
+            mapping_var: None,
+            mapping_src: None,
+            mapping_dest: None,
+            mapping_file: None,
         });
 
         action.action(&[tmp_pdb.to_str().unwrap()]).unwrap();
@@ -312,6 +341,10 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: "",
+            mapping_var: None,
+            mapping_src: None,
+            mapping_dest: None,
+            mapping_file: None,
         });
 
         action
@@ -339,6 +372,10 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: "",
+            mapping_var: None,
+            mapping_src: None,
+            mapping_dest: None,
+            mapping_file: None,
         });
 
         action
@@ -365,6 +402,10 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: "",
+            mapping_var: None,
+            mapping_src: None,
+            mapping_dest: None,
+            mapping_file: None,
         });
 
         action.action(&[full.to_str().unwrap()]).unwrap();
@@ -393,6 +434,10 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: "",
+            mapping_var: None,
+            mapping_src: None,
+            mapping_dest: None,
+            mapping_file: None,
         });
 
         action
@@ -423,6 +468,10 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: "",
+            mapping_var: None,
+            mapping_src: None,
+            mapping_dest: None,
+            mapping_file: None,
         });
 
         action

@@ -20,6 +20,7 @@ use super::symbol::{ElfSymbol, ElfSymbols};
 
 use crate::common::{self, Dumpable, LineFinalizer, Mergeable};
 use crate::line::Lines;
+use crate::mapping::PathMappings;
 
 #[derive(Debug, PartialEq)]
 pub enum Type {
@@ -355,14 +356,24 @@ impl Collector {
 }
 
 impl ElfInfo {
-    pub fn new(buf: &[u8], file_name: String, platform: Platform) -> common::Result<Self> {
+    pub(crate) fn new(
+        buf: &[u8],
+        file_name: String,
+        platform: Platform,
+        mapping: Option<PathMappings>,
+    ) -> common::Result<Self> {
         let o = Object::parse(&buf).map_err(|e| e.compat())?;
-        Self::from_object(&o, file_name, platform)
+        Self::from_object(&o, file_name, platform, mapping)
     }
 
-    pub fn from_object(o: &Object, file_name: String, platform: Platform) -> common::Result<Self> {
+    pub fn from_object(
+        o: &Object,
+        file_name: String,
+        platform: Platform,
+        mapping: Option<PathMappings>,
+    ) -> common::Result<Self> {
         let mut collector = Collector::default();
-        let mut source = SourceFiles::default();
+        let mut source = SourceFiles::new(mapping);
         let debug_id = format!("{}", o.debug_id().breakpad());
         let code_id = o.code_id().map(|c| c.as_str().to_string().to_uppercase());
         let cpu = o.arch().name();

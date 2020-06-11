@@ -8,6 +8,8 @@ use std::fs::{self, File, Metadata};
 use std::io::{self, BufWriter, Cursor, Read, Write};
 use std::path::{Component, Path, PathBuf};
 
+use crate::common;
+
 pub fn read_file<P: AsRef<Path>>(path: P) -> Vec<u8> {
     let metadata = fs::metadata(&path).unwrap_or_else(|_| {
         panic!(
@@ -173,4 +175,24 @@ pub fn normalize_path<P: AsRef<Path>>(path: P) -> PathBuf {
 
 pub fn get_filename(path: &PathBuf) -> String {
     path.file_name().unwrap().to_str().unwrap().to_string()
+}
+
+pub fn read<P: AsRef<Path>>(path: P) -> common::Result<Vec<u8>> {
+    let file_size = fs::metadata(&path)?.len() as usize;
+    let mut file = File::open(&path).unwrap_or_else(|_| {
+        panic!(
+            "Unable to open the file {}",
+            path.as_ref().to_str().unwrap()
+        )
+    });
+
+    let mut buf = Vec::with_capacity(file_size + 1);
+    file.read_to_end(&mut buf).unwrap_or_else(|_| {
+        panic!(
+            "Unable to read the file {}",
+            path.as_ref().to_str().unwrap()
+        )
+    });
+
+    Ok(buf)
 }

@@ -9,23 +9,33 @@ use std::fs;
 use std::path::PathBuf;
 use symbolic_debuginfo::FileInfo;
 
+use crate::mapping::PathMappings;
+
 type SliceRef = (*const u8, usize);
 
 #[derive(Debug, Default)]
 pub struct SourceFiles {
-    ref_to_id: HashMap<PathBuf, u32>,
+    ref_to_id: HashMap<String, u32>,
     fake_id_to_ref: Vec<(Option<u32>, String)>,
     id_to_ref: Vec<String>,
     cache: HashMap<(SliceRef, SliceRef, SliceRef), u32>,
+    mapping: Option<PathMappings>,
 }
 
 #[derive(Debug, Default)]
 pub struct SourceMap {
-    ref_to_id: HashMap<PathBuf, u32>,
+    ref_to_id: HashMap<String, u32>,
     id_to_ref: Vec<String>,
 }
 
 impl SourceFiles {
+    pub(super) fn new(mapping: Option<PathMappings>) -> Self {
+        SourceFiles {
+            mapping,
+            ..Default::default()
+        }
+    }
+
     #[inline(always)]
     fn cast_ptr(name: &[u8]) -> SliceRef {
         (name.as_ptr(), name.len())
@@ -76,11 +86,17 @@ impl SourceFiles {
             hash_map::Entry::Occupied(e) => *e.get(),
             hash_map::Entry::Vacant(e) => {
                 let path = Self::get_path(compilation_dir, file);
+                let path = path.to_str().unwrap();
+                let path = self
+                    .mapping
+                    .as_ref()
+                    .map_or_else(|| path.to_string(), |m| m.map(path).unwrap());
+
                 let id = match self.ref_to_id.entry(path) {
                     hash_map::Entry::Occupied(e) => *e.get(),
                     hash_map::Entry::Vacant(e) => {
                         let id = self.fake_id_to_ref.len() as u32;
-                        let path = e.key().to_str().unwrap().to_string();
+                        let path = e.key().to_string();
                         e.insert(id);
                         self.fake_id_to_ref.push((None, path));
                         id
