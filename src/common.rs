@@ -3,13 +3,12 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use goblin::{self, Hint};
-use std::convert::TryInto;
 use std::env::consts::ARCH;
 use std::error;
 use std::io::Write;
 use std::result;
 use symbolic_common::Arch;
+use symbolic_debuginfo::{peek, FileFormat};
 
 type Error = Box<dyn error::Error + std::marker::Send + std::marker::Sync>;
 pub type Result<T> = result::Result<T, Error>;
@@ -24,22 +23,12 @@ pub(crate) enum FileType {
 
 impl FileType {
     pub(crate) fn from_buf(buf: &[u8]) -> Self {
-        if buf.starts_with(b"Microsoft C/C++") {
-            Self::Pdb
-        } else if buf.len() >= 16 {
-            let start: &[u8; 16] = &buf[0..16].try_into().unwrap();
-            if let Ok(hint) = goblin::peek_bytes(start) {
-                match hint {
-                    Hint::Elf(_) => Self::Elf,
-                    Hint::Mach(_) | Hint::MachFat(_) => Self::Macho,
-                    Hint::PE => Self::Pe,
-                    _ => Self::Unknown,
-                }
-            } else {
-                Self::Unknown
-            }
-        } else {
-            Self::Unknown
+        match peek(buf, true /* check for fat binary */) {
+            FileFormat::Pdb => Self::Pdb,
+            FileFormat::Pe => Self::Pe,
+            FileFormat::Elf => Self::Elf,
+            FileFormat::MachO => Self::Macho,
+            _ => Self::Unknown,
         }
     }
 }
