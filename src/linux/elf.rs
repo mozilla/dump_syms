@@ -27,7 +27,7 @@ pub enum Type {
     DebugInfo,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Platform {
     Linux,
     Mac,

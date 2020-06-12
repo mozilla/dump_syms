@@ -13,8 +13,8 @@ use symbolic_common::Arch;
 
 use crate::cache;
 use crate::common::{self, Dumpable, FileType, Mergeable};
-use crate::linux;
-use crate::mac;
+use crate::linux::elf::{ElfInfo, Platform};
+use crate::mac::macho::MachoInfo;
 use crate::utils;
 use crate::windows;
 
@@ -94,13 +94,13 @@ impl Dumper<'_> {
     }
 
     fn elf(&self, buf: &[u8], filename: String) -> common::Result<()> {
-        let elf = linux::elf::ElfInfo::new(&buf, filename, linux::elf::Platform::Linux)?;
+        let elf = ElfInfo::new(&buf, filename, Platform::Linux)?;
         self.store(&elf)
     }
 
     fn macho(&self, buf: &[u8], filename: String) -> common::Result<()> {
         let arch = Arch::from_str(self.arch).map_err(|e| e.compat())?;
-        let macho = mac::macho::MachoInfo::new(&buf, filename, arch)?;
+        let macho = MachoInfo::new(&buf, filename, arch)?;
         self.store(&macho)
     }
 
@@ -178,7 +178,7 @@ impl Action<'_> {
             }
             Self::ListArch => {
                 let buf = utils::read_file(&path);
-                mac::macho::MachoInfo::print_architectures(&buf, filename)
+                MachoInfo::print_architectures(&buf, filename)
             }
         }
     }
@@ -199,22 +199,13 @@ impl Action<'_> {
                 let (buf_2, filename_2) = dumper.get_from_id(&path_2, filename_2)?;
 
                 match (FileType::from_buf(&buf_1), FileType::from_buf(&buf_2)) {
-                    (FileType::Elf, FileType::Elf) => dumper.two_elfs(
-                        move || {
-                            linux::elf::ElfInfo::new(
-                                &buf_1,
-                                filename_1,
-                                linux::elf::Platform::Linux,
-                            )
-                        },
-                        move || {
-                            linux::elf::ElfInfo::new(
-                                &buf_2,
-                                filename_2,
-                                linux::elf::Platform::Linux,
-                            )
-                        },
-                    ),
+                    (FileType::Elf, FileType::Elf) => {
+                        let arch = Platform::Linux;
+                        dumper.two_elfs(
+                            move || ElfInfo::new(&buf_1, filename_1, arch),
+                            move || ElfInfo::new(&buf_2, filename_2, arch),
+                        )
+                    }
                     (FileType::Pdb, FileType::Pe) => {
                         dumper.pdb_pe(&buf_1, filename_1, &buf_2, path_2, filename_2)
                     }
@@ -224,8 +215,8 @@ impl Action<'_> {
                     (FileType::Macho, FileType::Macho) => {
                         let arch = Arch::from_str(dumper.arch).map_err(|e| e.compat())?;
                         dumper.two_elfs(
-                            move || mac::macho::MachoInfo::new(&buf_1, filename_1, arch),
-                            move || mac::macho::MachoInfo::new(&buf_2, filename_2, arch),
+                            move || MachoInfo::new(&buf_1, filename_1, arch),
+                            move || MachoInfo::new(&buf_2, filename_2, arch),
                         )
                     }
                     _ => Err("Invalid files: must be two elf or a pdb and a pe".into()),
@@ -233,10 +224,10 @@ impl Action<'_> {
             }
             Self::ListArch => {
                 let buf = utils::read_file(&path_1);
-                mac::macho::MachoInfo::print_architectures(&buf, filename_1)?;
+                MachoInfo::print_architectures(&buf, filename_1)?;
 
                 let buf = utils::read_file(&path_2);
-                mac::macho::MachoInfo::print_architectures(&buf, filename_2)
+                MachoInfo::print_architectures(&buf, filename_2)
             }
         }
     }
