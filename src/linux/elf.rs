@@ -18,13 +18,29 @@ use symbolic_minidump::cfi::AsciiCfiWriter;
 use super::source::{SourceFiles, SourceMap};
 use super::symbol::{ElfSymbol, ElfSymbols};
 
-use crate::common::{self, Dumpable, LineFinalizer};
+use crate::common::{self, Dumpable, LineFinalizer, Mergeable};
 use crate::line::Lines;
 
 #[derive(Debug, PartialEq)]
 pub enum Type {
     Stripped,
     DebugInfo,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Platform {
+    Linux,
+    Mac,
+}
+
+impl Display for Platform {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        let p = match self {
+            Self::Linux => "Linux",
+            Self::Mac => "Mac",
+        };
+        write!(f, "{}", p)
+    }
 }
 
 #[derive(Debug)]
@@ -37,14 +53,15 @@ pub struct ElfInfo {
     code_id: Option<String>,
     stack: String,
     bin_type: Type,
+    platform: Platform,
 }
 
 impl Display for ElfInfo {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         writeln!(
             f,
-            "MODULE Linux {} {} {}",
-            self.cpu, self.debug_id, self.file_name
+            "MODULE {} {} {} {}",
+            self.platform, self.cpu, self.debug_id, self.file_name
         )?;
 
         if let Some(code_id) = self.code_id.as_ref() {
@@ -171,7 +188,7 @@ impl InlineeManager {
 }
 
 #[derive(Debug, Default)]
-struct Collector {
+pub struct Collector {
     syms: ElfSymbols,
 }
 
@@ -228,7 +245,7 @@ impl Collector {
         }
     }
 
-    fn collect_function(&mut self, fun: &Function, source: &mut SourceFiles) {
+    pub fn collect_function(&mut self, fun: &Function, source: &mut SourceFiles) {
         if fun.address == 0 {
             return;
         }
@@ -275,7 +292,11 @@ impl Collector {
         );
     }
 
-    fn collect_functions(&mut self, o: &Object, source: &mut SourceFiles) -> common::Result<()> {
+    pub fn collect_functions(
+        &mut self,
+        o: &Object,
+        source: &mut SourceFiles,
+    ) -> common::Result<()> {
         let ds = o.debug_session().map_err(|e| e.compat())?;
         let ds = if let ObjectDebugSession::Dwarf(ds) = ds {
             ds
@@ -334,8 +355,12 @@ impl Collector {
 }
 
 impl ElfInfo {
-    pub fn new(buf: &[u8], file_name: String) -> common::Result<Self> {
+    pub fn new(buf: &[u8], file_name: String, platform: Platform) -> common::Result<Self> {
         let o = Object::parse(&buf).map_err(|e| e.compat())?;
+        Self::from_object(&o, file_name, platform)
+    }
+
+    pub fn from_object(o: &Object, file_name: String, platform: Platform) -> common::Result<Self> {
         let mut collector = Collector::default();
         let mut source = SourceFiles::default();
         let debug_id = format!("{}", o.debug_id().breakpad());
@@ -361,10 +386,13 @@ impl ElfInfo {
             code_id,
             stack,
             bin_type,
+            platform,
         })
     }
+}
 
-    pub fn merge(left: ElfInfo, right: ElfInfo) -> common::Result<ElfInfo> {
+impl Mergeable for ElfInfo {
+    fn merge(left: ElfInfo, right: ElfInfo) -> common::Result<ElfInfo> {
         if left.debug_id != right.debug_id {
             return Err(format!(
                 "The files don't have the same debug id: {} and {}",
@@ -384,7 +412,9 @@ impl ElfInfo {
         if left.stack.is_empty() {
             std::mem::swap(&mut left.stack, &mut right.stack);
         } else if !right.stack.is_empty() {
-            left.stack.push('\n');
+            if *left.stack.as_bytes().last().unwrap() != b'\n' {
+                left.stack.push('\n');
+            }
             left.stack.push_str(&right.stack);
         }
 

@@ -4,34 +4,67 @@
 // copied, modified, or distributed except according to those terms.
 
 use cab::Cabinet;
-use std::fs::{self, File};
+use std::fs::{self, File, Metadata};
 use std::io::{self, BufWriter, Cursor, Read, Write};
 use std::path::{Component, Path, PathBuf};
 
 pub fn read_file<P: AsRef<Path>>(path: P) -> Vec<u8> {
-    let file_size = fs::metadata(&path).map_or(1024 * 1024, |m| m.len() as usize);
-
-    let mut file = File::open(&path).unwrap_or_else(|_| {
+    let metadata = fs::metadata(&path).unwrap_or_else(|_| {
         panic!(
             "Unable to open the file {}",
             path.as_ref().to_str().unwrap()
         )
     });
 
-    let mut buf = Vec::with_capacity(file_size + 1);
-    file.read_to_end(&mut buf).unwrap_or_else(|_| {
-        panic!(
-            "Unable to read the file {}",
-            path.as_ref().to_str().unwrap()
-        )
-    });
+    let (metadata, path) = get_mac_bundle(&metadata, &path)
+        .unwrap_or_else(|| (metadata, PathBuf::from(path.as_ref())));
 
-    read_cabinet(buf, path.as_ref().to_path_buf()).unwrap_or_else(|| {
-        panic!(
-            "Unable to read the cabinet file {}",
-            path.as_ref().to_str().unwrap()
-        )
-    })
+    let file_size = metadata.len() as usize;
+    let mut file = File::open(&path)
+        .unwrap_or_else(|_| panic!("Unable to open the file {}", path.to_str().unwrap()));
+
+    let mut buf = Vec::with_capacity(file_size + 1);
+    file.read_to_end(&mut buf)
+        .unwrap_or_else(|_| panic!("Unable to read the file {}", path.to_str().unwrap()));
+
+    read_cabinet(buf, path.clone())
+        .unwrap_or_else(|| panic!("Unable to read the cabinet file {}", path.to_str().unwrap()))
+}
+
+pub fn get_mac_bundle<P: AsRef<Path>>(metadata: &Metadata, path: P) -> Option<(Metadata, PathBuf)> {
+    if metadata.is_dir() {
+        // We may have a dSYM bundle
+        let dwarf_path = path.as_ref().to_path_buf().join("Contents/Resources/DWARF");
+        if dwarf_path.is_dir() {
+            let entries: Vec<_> = fs::read_dir(&dwarf_path).unwrap().collect();
+            match entries.len() {
+                0 => panic!(
+                    "Unable to find DWARF-bearing file in bundle: {}",
+                    dwarf_path.to_str().unwrap()
+                ),
+                1 => {
+                    let entry = entries[0].as_ref().unwrap();
+                    Some((
+                        entry.metadata().unwrap_or_else(|_| {
+                            panic!("Unable to open the file {}", entry.path().to_str().unwrap())
+                        }),
+                        entry.path(),
+                    ))
+                }
+                _ => panic!(
+                    "Too many DWARF files in bundle: {}",
+                    dwarf_path.to_str().unwrap()
+                ),
+            }
+        } else {
+            panic!(
+                "File {} is a directory and not a mac bundle",
+                path.as_ref().to_str().unwrap()
+            )
+        }
+    } else {
+        None
+    }
 }
 
 pub fn read_cabinet(buf: Vec<u8>, path: PathBuf) -> Option<Vec<u8>> {
