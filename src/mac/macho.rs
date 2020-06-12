@@ -31,16 +31,10 @@ impl MachoInfo {
         let object = if archive.object_count() == 1 {
             archive.object_by_index(0).unwrap()
         } else {
-            let mut object = None;
-            for o in archive.objects() {
-                if let Ok(o) = o {
-                    if o.arch() == arch {
-                        object = Some(o);
-                        break;
-                    }
-                }
-            }
-            object
+            archive
+                .objects()
+                .filter_map(|o| o.ok())
+                .find(|o| o.arch() == arch)
         };
 
         if let Some(object) = object {
