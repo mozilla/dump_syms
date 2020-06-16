@@ -79,8 +79,14 @@ impl Dumper<'_> {
         Ok((utils::read_file(&path), filename))
     }
 
-    fn pdb(&self, buf: &[u8], path: PathBuf, filename: String) -> common::Result<()> {
-        let mut pdb = windows::pdb::PDBInfo::new(&buf, filename, "".to_string(), None)?;
+    fn pdb(
+        &self,
+        buf: &[u8],
+        path: PathBuf,
+        filename: String,
+        mapping: Option<PathMappings>,
+    ) -> common::Result<()> {
+        let mut pdb = windows::pdb::PDBInfo::new(&buf, filename, "".to_string(), None, mapping)?;
         windows::utils::try_to_set_pe(&path, &mut pdb, &buf);
         self.store(&pdb)
     }
@@ -92,9 +98,11 @@ impl Dumper<'_> {
         pe_buf: &[u8],
         pe_path: PathBuf,
         pe_filename: String,
+        mapping: Option<PathMappings>,
     ) -> common::Result<()> {
         let pe = windows::utils::get_pe(pe_path, pe_buf);
-        let pdb = windows::pdb::PDBInfo::new(&pdb_buf, pdb_filename, pe_filename, Some(pe))?;
+        let pdb =
+            windows::pdb::PDBInfo::new(&pdb_buf, pdb_filename, pe_filename, Some(pe), mapping)?;
         self.store(&pdb)
     }
 
@@ -149,12 +157,18 @@ impl Dumper<'_> {
         self.store(&elf)
     }
 
-    fn pe(&self, buf: &[u8], path: PathBuf, filename: String) -> common::Result<()> {
+    fn pe(
+        &self,
+        buf: &[u8],
+        path: PathBuf,
+        filename: String,
+        mapping: Option<PathMappings>,
+    ) -> common::Result<()> {
         let symbol_server = cache::get_sym_servers(self.symbol_server);
         let res = windows::utils::get_pe_pdb_buf(path, &buf, symbol_server.as_ref());
 
         if let Some((pe, pdb_buf, pdb_name)) = res {
-            let pdb = windows::pdb::PDBInfo::new(&pdb_buf, pdb_name, filename, Some(pe))?;
+            let pdb = windows::pdb::PDBInfo::new(&pdb_buf, pdb_name, filename, Some(pe), mapping)?;
             self.store(&pdb)
         } else {
             Err("No pdb file found".into())
@@ -191,8 +205,8 @@ impl Action<'_> {
                 )?;
                 match FileType::from_buf(&buf) {
                     FileType::Elf => dumper.elf(&buf, filename, file_mapping),
-                    FileType::Pdb => dumper.pdb(&buf, path, filename),
-                    FileType::Pe => dumper.pe(&buf, path, filename),
+                    FileType::Pdb => dumper.pdb(&buf, path, filename, file_mapping),
+                    FileType::Pe => dumper.pe(&buf, path, filename, file_mapping),
                     FileType::Macho => dumper.macho(&buf, filename, file_mapping),
                     FileType::Unknown => Err("Unknown file format".into()),
                 }
@@ -216,6 +230,13 @@ impl Action<'_> {
                 if dumper.has_id() {
                     return Err("One filename must be given with --code-id or --debug-id".into());
                 }
+                let file_mapping = PathMappings::new(
+                    &dumper.mapping_var,
+                    &dumper.mapping_src,
+                    &dumper.mapping_dest,
+                    &dumper.mapping_file,
+                )?;
+
                 let (buf_1, filename_1) = dumper.get_from_id(&path_1, filename_1)?;
                 let (buf_2, filename_2) = dumper.get_from_id(&path_2, filename_2)?;
 
@@ -228,10 +249,10 @@ impl Action<'_> {
                         )
                     }
                     (FileType::Pdb, FileType::Pe) => {
-                        dumper.pdb_pe(&buf_1, filename_1, &buf_2, path_2, filename_2)
+                        dumper.pdb_pe(&buf_1, filename_1, &buf_2, path_2, filename_2, file_mapping)
                     }
                     (FileType::Pe, FileType::Pdb) => {
-                        dumper.pdb_pe(&buf_2, filename_2, &buf_1, path_1, filename_1)
+                        dumper.pdb_pe(&buf_2, filename_2, &buf_1, path_1, filename_1, file_mapping)
                     }
                     (FileType::Macho, FileType::Macho) => {
                         let arch = Arch::from_str(dumper.arch).map_err(|e| e.compat())?;

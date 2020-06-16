@@ -9,15 +9,13 @@ use log::{error, warn};
 use std::collections::btree_map;
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
-use symbolic_debuginfo::{Function, Object, ObjectDebugSession};
-
 use symbolic_common::{Language, Name};
+use symbolic_debuginfo::{Function, Object, ObjectDebugSession};
 use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
 use symbolic_minidump::cfi::AsciiCfiWriter;
 
 use super::source::{SourceFiles, SourceMap};
 use super::symbol::{ElfSymbol, ElfSymbols};
-
 use crate::common::{self, Dumpable, LineFinalizer, Mergeable};
 use crate::line::Lines;
 use crate::mapping::PathMappings;

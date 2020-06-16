@@ -8,6 +8,7 @@ use log::warn;
 use regex::Regex;
 use serde::Deserialize;
 use sha2::{Digest, Sha512};
+use std::path::Path;
 
 use crate::common;
 use crate::utils;
@@ -35,7 +36,7 @@ impl Mappings {
     }
 }
 
-fn get_digest(file: &str, uppercase: bool) -> common::Result<String> {
+fn get_digest(file: &Path, uppercase: bool) -> common::Result<String> {
     let data = utils::read(file)?;
     let sha = Sha512::digest(&data);
     Ok(if uppercase {
@@ -138,16 +139,23 @@ impl PathMappingGenerator {
         })
     }
 
-    pub(crate) fn apply(&self, file: &str) -> common::Result<Option<String>> {
-        if self.files.is_empty() || self.files.contains(file) {
-            if let Some(caps) = self.re.captures(file) {
+    pub(crate) fn apply(&self, file: &Path, file_str: &str) -> common::Result<Option<String>> {
+        if self.files.is_empty() || self.files.contains(file_str) {
+            if let Some(caps) = self.re.captures(file_str) {
                 let mut buf = Vec::with_capacity(self.mapping.len() * 3);
                 for action in self.actions.iter() {
                     buf.extend_from_slice(&self.mapping[action.start..action.end]);
                     match action.kind {
                         ActionKind::Group(group) => {
                             if let Some(group) = caps.get(group) {
-                                buf.extend_from_slice(group.as_str().as_bytes());
+                                let group = group.as_str();
+
+                                if cfg!(windows) {
+                                    let group = group.replace('\\', "/");
+                                    buf.extend_from_slice(group.as_bytes());
+                                } else {
+                                    buf.extend_from_slice(group.as_bytes());
+                                }
                             } else {
                                 return Ok(None);
                             }
@@ -282,17 +290,36 @@ impl PathMappings {
         Ok(())
     }
 
-    pub(crate) fn map(&self, file: &str) -> common::Result<String> {
+    pub(crate) fn map<P: AsRef<Path>>(&self, file: P) -> common::Result<Option<String>> {
+        let file = file.as_ref();
+        let file_str = match file.to_str() {
+            Some(f) => f,
+            None => {
+                warn!(
+                    "The path {} is not a valid UTF-8 string so cannot find a mapping for it.",
+                    file.to_string_lossy()
+                );
+                return Ok(None);
+            }
+        };
+
+        #[cfg(windows)]
+        let file_str = if file_str.starts_with(r"\\?\") {
+            file_str[r"\\?\".len()..]
+        } else {
+            file_str
+        };
+
         for mapping in self.mappings.iter() {
-            let mapping = mapping.apply(&file)?;
+            let mapping = mapping.apply(file, file_str)?;
             if let Some(mapping) = mapping {
-                return Ok(mapping);
+                return Ok(Some(mapping));
             }
         }
 
-        warn!("Cannot find a mapping for file {}", file);
+        warn!("Cannot find a mapping for file {}", file_str);
 
-        Ok(file.to_string())
+        Ok(None)
     }
 }
 
@@ -313,7 +340,8 @@ mod tests {
             HashSet::default(),
         )
         .unwrap();
-        let s = p.apply("test_data/linux/basic.cpp").unwrap().unwrap();
+        let file = "test_data/linux/basic.cpp";
+        let s = p.apply(Path::new(file), file).unwrap().unwrap();
 
         assert_eq!(s, "https://source/abcdef/dec67d788155e1895ba4fd1a178ca595798964529aab6a17ea1ecff133499137fc67ebdcf0c768ffb4fb7ec4f1f0fcf558073ec8a3b23c1063d23d62cc76b37a/basic.cpp/last");
     }
@@ -334,7 +362,7 @@ mod tests {
         ];
 
         for (path, expected) in files {
-            assert_eq!(mappings.map(path).unwrap(), expected.to_string())
+            assert_eq!(mappings.map(path).unwrap().unwrap(), expected.to_string())
         }
     }
 }
