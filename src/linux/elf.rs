@@ -9,6 +9,7 @@ use log::{error, warn};
 use std::collections::btree_map;
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
+use std::sync::Arc;
 use symbolic_common::{Language, Name};
 use symbolic_debuginfo::{Function, Object, ObjectDebugSession};
 use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
@@ -358,7 +359,7 @@ impl ElfInfo {
         buf: &[u8],
         file_name: String,
         platform: Platform,
-        mapping: Option<PathMappings>,
+        mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
         let o = Object::parse(&buf).map_err(|e| e.compat())?;
         Self::from_object(&o, file_name, platform, mapping)
@@ -368,7 +369,7 @@ impl ElfInfo {
         o: &Object,
         file_name: String,
         platform: Platform,
-        mapping: Option<PathMappings>,
+        mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
         let mut collector = Collector::default();
         let mut source = SourceFiles::new(mapping);

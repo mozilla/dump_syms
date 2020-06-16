@@ -6,6 +6,7 @@
 use failure::Fail;
 use std::fmt::{Display, Formatter};
 use std::io::Write;
+use std::sync::Arc;
 use symbolic_common::Arch;
 use symbolic_debuginfo::Archive;
 
@@ -29,7 +30,7 @@ impl MachoInfo {
         buf: &[u8],
         file_name: String,
         arch: Arch,
-        mapping: Option<PathMappings>,
+        mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
         // Fat files may contain several objects for different architectures
         // So if there is only one object, then we don't care about the arch (as argument)

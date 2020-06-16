@@ -7,6 +7,7 @@ use hashbrown::{hash_map, HashMap};
 use log::error;
 use std::fs;
 use std::path::PathBuf;
+use std::sync::Arc;
 use symbolic_debuginfo::FileInfo;
 
 use crate::mapping::PathMappings;
@@ -20,7 +21,7 @@ pub struct SourceFiles {
     fake_id_to_ref: Vec<(Option<u32>, String)>,
     id_to_ref: Vec<String>,
     cache: HashMap<(SliceRef, SliceRef, SliceRef), u32>,
-    mapping: Option<PathMappings>,
+    mapping: Option<Arc<PathMappings>>,
 }
 
 #[derive(Debug, Default)]
@@ -30,7 +31,7 @@ pub struct SourceMap {
 }
 
 impl SourceFiles {
-    pub(super) fn new(mapping: Option<PathMappings>) -> Self {
+    pub(super) fn new(mapping: Option<Arc<PathMappings>>) -> Self {
         SourceFiles {
             mapping,
             ..Default::default()

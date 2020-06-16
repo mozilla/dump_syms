@@ -12,6 +12,7 @@ use pdb::{
 };
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
+use std::sync::Arc;
 use symbolic_debuginfo::{pdb::PdbObject, pe::PeObject, Object};
 use symbolic_minidump::cfi::AsciiCfiWriter;
 use uuid::Uuid;
@@ -483,7 +484,7 @@ impl PDBInfo {
         pdb_name: String,
         pe_name: String,
         pe: Option<PeObject>,
-        mapping: Option<PathMappings>,
+        mapping: Option<Arc<PathMappings>>,
     ) -> Result<Self> {
         let cursor = Cursor::new(buf);
         let mut pdb = PDB::open(cursor)?;
@@ -637,7 +638,7 @@ mod tests {
         (output, toks[1])
     }
 
-    fn get_new_bp(file_name: &str, mapping: Option<PathMappings>) -> Vec<u8> {
+    fn get_new_bp(file_name: &str, mapping: Option<Arc<PathMappings>>) -> Vec<u8> {
         let path = PathBuf::from("./test_data/windows");
         let mut path = path.join(file_name);
 
@@ -1000,7 +1001,7 @@ mod tests {
         )
         .unwrap();
         let dll = "basic32.dll";
-        let output = get_new_bp(dll, mapping);
+        let output = get_new_bp(dll, mapping.map(Arc::new));
         let bp = BreakpadObject::parse(&output).unwrap();
 
         let map = bp.file_map();

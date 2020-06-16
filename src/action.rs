@@ -8,6 +8,7 @@ use log::info;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
+use std::sync::Arc;
 use std::thread;
 use symbolic_common::Arch;
 
@@ -84,7 +85,7 @@ impl Dumper<'_> {
         buf: &[u8],
         path: PathBuf,
         filename: String,
-        mapping: Option<PathMappings>,
+        mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<()> {
         let mut pdb = windows::pdb::PDBInfo::new(&buf, filename, "".to_string(), None, mapping)?;
         windows::utils::try_to_set_pe(&path, &mut pdb, &buf);
@@ -98,7 +99,7 @@ impl Dumper<'_> {
         pe_buf: &[u8],
         pe_path: PathBuf,
         pe_filename: String,
-        mapping: Option<PathMappings>,
+        mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<()> {
         let pe = windows::utils::get_pe(pe_path, pe_buf);
         let pdb =
@@ -110,7 +111,7 @@ impl Dumper<'_> {
         &self,
         buf: &[u8],
         filename: String,
-        mapping: Option<PathMappings>,
+        mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<()> {
         let elf = ElfInfo::new(&buf, filename, Platform::Linux, mapping)?;
         self.store(&elf)
@@ -120,7 +121,7 @@ impl Dumper<'_> {
         &self,
         buf: &[u8],
         filename: String,
-        mapping: Option<PathMappings>,
+        mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<()> {
         let arch = Arch::from_str(self.arch).map_err(|e| e.compat())?;
         let macho = MachoInfo::new(&buf, filename, arch, mapping)?;
@@ -162,7 +163,7 @@ impl Dumper<'_> {
         buf: &[u8],
         path: PathBuf,
         filename: String,
-        mapping: Option<PathMappings>,
+        mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<()> {
         let symbol_server = cache::get_sym_servers(self.symbol_server);
         let res = windows::utils::get_pe_pdb_buf(path, &buf, symbol_server.as_ref());
@@ -202,12 +203,21 @@ impl Action<'_> {
                     &dumper.mapping_src,
                     &dumper.mapping_dest,
                     &dumper.mapping_file,
-                )?;
+                )?
+                .map(Arc::new);
                 match FileType::from_buf(&buf) {
-                    FileType::Elf => dumper.elf(&buf, filename, file_mapping),
-                    FileType::Pdb => dumper.pdb(&buf, path, filename, file_mapping),
-                    FileType::Pe => dumper.pe(&buf, path, filename, file_mapping),
-                    FileType::Macho => dumper.macho(&buf, filename, file_mapping),
+                    FileType::Elf => {
+                        dumper.elf(&buf, filename, file_mapping.as_ref().map(Arc::clone))
+                    }
+                    FileType::Pdb => {
+                        dumper.pdb(&buf, path, filename, file_mapping.as_ref().map(Arc::clone))
+                    }
+                    FileType::Pe => {
+                        dumper.pe(&buf, path, filename, file_mapping.as_ref().map(Arc::clone))
+                    }
+                    FileType::Macho => {
+                        dumper.macho(&buf, filename, file_mapping.as_ref().map(Arc::clone))
+                    }
                     FileType::Unknown => Err("Unknown file format".into()),
                 }
             }
@@ -235,7 +245,8 @@ impl Action<'_> {
                     &dumper.mapping_src,
                     &dumper.mapping_dest,
                     &dumper.mapping_file,
-                )?;
+                )?
+                .map(Arc::new);
 
                 let (buf_1, filename_1) = dumper.get_from_id(&path_1, filename_1)?;
                 let (buf_2, filename_2) = dumper.get_from_id(&path_2, filename_2)?;
@@ -248,12 +259,22 @@ impl Action<'_> {
                             move || ElfInfo::new(&buf_2, filename_2, arch, None),
                         )
                     }
-                    (FileType::Pdb, FileType::Pe) => {
-                        dumper.pdb_pe(&buf_1, filename_1, &buf_2, path_2, filename_2, file_mapping)
-                    }
-                    (FileType::Pe, FileType::Pdb) => {
-                        dumper.pdb_pe(&buf_2, filename_2, &buf_1, path_1, filename_1, file_mapping)
-                    }
+                    (FileType::Pdb, FileType::Pe) => dumper.pdb_pe(
+                        &buf_1,
+                        filename_1,
+                        &buf_2,
+                        path_2,
+                        filename_2,
+                        file_mapping.as_ref().map(Arc::clone),
+                    ),
+                    (FileType::Pe, FileType::Pdb) => dumper.pdb_pe(
+                        &buf_2,
+                        filename_2,
+                        &buf_1,
+                        path_1,
+                        filename_1,
+                        file_mapping.as_ref().map(Arc::clone),
+                    ),
                     (FileType::Macho, FileType::Macho) => {
                         let arch = Arch::from_str(dumper.arch).map_err(|e| e.compat())?;
                         dumper.two_elfs(

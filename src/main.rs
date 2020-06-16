@@ -31,7 +31,6 @@ fn main() {
                 .help("Files to dump (.dll, .exe, .pdb, .pd_, .so, .dbg)")
                 .required(true)
                 .takes_value(true)
-                .max_values(2),
         )
         .arg(
             Arg::with_name("output")
