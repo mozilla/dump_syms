@@ -3,13 +3,15 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use crate::common::{self, Dumpable, Mergeable};
-use crate::linux::elf::{ElfInfo, Platform};
 use failure::Fail;
 use std::fmt::{Display, Formatter};
 use std::io::Write;
 use symbolic_common::Arch;
 use symbolic_debuginfo::Archive;
+
+use crate::common::{self, Dumpable, Mergeable};
+use crate::linux::elf::{ElfInfo, Platform};
+use crate::mapping::PathMappings;
 
 #[derive(Debug)]
 pub struct MachoInfo {
@@ -23,7 +25,12 @@ impl Display for MachoInfo {
 }
 
 impl MachoInfo {
-    pub fn new(buf: &[u8], file_name: String, arch: Arch) -> common::Result<Self> {
+    pub fn new(
+        buf: &[u8],
+        file_name: String,
+        arch: Arch,
+        mapping: Option<PathMappings>,
+    ) -> common::Result<Self> {
         // Fat files may contain several objects for different architectures
         // So if there is only one object, then we don't care about the arch (as argument)
         // and if several then we use arch (by default it's compile-time arch).
@@ -39,7 +46,7 @@ impl MachoInfo {
 
         if let Some(object) = object {
             Ok(Self {
-                elf: ElfInfo::from_object(&object, file_name, Platform::Mac)?,
+                elf: ElfInfo::from_object(&object, file_name, Platform::Mac, mapping)?,
             })
         } else {
             Err(format!(

@@ -21,6 +21,7 @@ use super::symbol::{BlockInfo, PDBSymbols, RvaSymbols, SelectedSymbol};
 use super::types::{DumperFlags, TypeDumper};
 use super::utils::get_pe_debug_id;
 use crate::common::{self, Dumpable};
+use crate::mapping::PathMappings;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum CPU {
@@ -482,6 +483,7 @@ impl PDBInfo {
         pdb_name: String,
         pe_name: String,
         pe: Option<PeObject>,
+        mapping: Option<PathMappings>,
     ) -> Result<Self> {
         let cursor = Cursor::new(buf);
         let mut pdb = PDB::open(cursor)?;
@@ -494,7 +496,7 @@ impl PDBInfo {
 
         let cpu = get_cpu(&dbi);
         let debug_id = get_debug_id(&dbi, pi);
-        let source_files = SourceFiles::new(&mut pdb)?;
+        let source_files = SourceFiles::new(&mut pdb, mapping)?;
 
         let pdb_data = PDBData {
             address_map: pdb.address_map()?,
@@ -627,7 +629,7 @@ mod tests {
 
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
-        let pdb = PDBInfo::new(&pdb_buf, pdb_name, name.to_string(), Some(pe)).unwrap();
+        let pdb = PDBInfo::new(&pdb_buf, pdb_name, name.to_string(), Some(pe), None).unwrap();
         pdb.dump(cursor).unwrap();
 
         let toks: Vec<_> = name.rsplitn(2, '.').collect();
@@ -635,7 +637,7 @@ mod tests {
         (output, toks[1])
     }
 
-    fn get_new_bp(file_name: &str) -> Vec<u8> {
+    fn get_new_bp(file_name: &str, mapping: Option<PathMappings>) -> Vec<u8> {
         let path = PathBuf::from("./test_data/windows");
         let mut path = path.join(file_name);
 
@@ -652,7 +654,8 @@ mod tests {
         .unwrap();
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
-        let pdb = PDBInfo::new(&pdb_buf, pdb_name, file_name.to_string(), Some(pe)).unwrap();
+        let pdb =
+            PDBInfo::new(&pdb_buf, pdb_name, file_name.to_string(), Some(pe), mapping).unwrap();
         pdb.dump(cursor).unwrap();
 
         output
@@ -862,7 +865,7 @@ mod tests {
             get_data_from_server(name)
         } else {
             let dll = name.to_string() + ".dll";
-            (get_new_bp(&dll), name)
+            (get_new_bp(&dll, None), name)
         };
         let new = BreakpadObject::parse(&out).unwrap();
 
@@ -984,6 +987,36 @@ mod tests {
         test_file(
             &format!("{}/oleaut32.dll/BCDE805BC4000/oleaut32.dll", MS),
             TestFlags::NO_MULTIPLICITY,
+        );
+    }
+
+    #[test]
+    fn test_win_mapping() {
+        let mapping = PathMappings::new(
+            &Some(vec!["rev=abcdef"]),
+            &Some(vec![r"d:\\agent\\_work\\3\\s\\src\\(.*)"]),
+            &Some(vec!["https://source/{rev}/{1}"]),
+            &None,
+        )
+        .unwrap();
+        let dll = "basic32.dll";
+        let output = get_new_bp(dll, mapping);
+        let bp = BreakpadObject::parse(&output).unwrap();
+
+        let map = bp.file_map();
+        let files: Vec<_> = map.values().collect();
+
+        assert_eq!(
+            files[6].replace('\\', "/"),
+            "https://source/abcdef/externalapis/windows/10/sdk/inc/winbase.h"
+        );
+        assert_eq!(
+            files[7].replace('\\', "/"),
+            "https://source/abcdef/externalapis/windows/10/sdk/inc/winerror.h"
+        );
+        assert_eq!(
+            files[files.len() - 1].replace('\\', "/"),
+            "https://source/abcdef/vctools/crt/vcruntime/src/string/i386/memcmp.c"
         );
     }
 }

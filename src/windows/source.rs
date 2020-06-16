@@ -4,14 +4,19 @@
 // copied, modified, or distributed except according to those terms.
 
 use hashbrown::{hash_map, HashMap};
+use log::error;
 use pdb::{
     AddressMap, FallibleIterator, FileIndex, LineInfo, LineProgram, PdbInternalSectionOffset,
     Result, Source, StringRef, StringTable, PDB,
 };
 use std::collections::BTreeMap;
+use std::fs;
 use std::ops::Bound::{Excluded, Included};
+use std::path::PathBuf;
 
 use crate::line::Lines;
+use crate::mapping::PathMappings;
+use crate::utils;
 
 type RefToIds = HashMap<StringRef, u32>;
 
@@ -83,10 +88,14 @@ pub(super) struct SourceFiles<'a> {
     string_table: Option<StringTable<'a>>,
     ref_to_id: RefToIds,
     id_to_ref: Vec<StringRef>,
+    mapping: Option<PathMappings>,
 }
 
 impl<'a> SourceFiles<'a> {
-    pub(super) fn new<S: 'a + Source<'a>>(pdb: &mut PDB<'a, S>) -> Result<Self> {
+    pub(super) fn new<S: 'a + Source<'a>>(
+        pdb: &mut PDB<'a, S>,
+        mapping: Option<PathMappings>,
+    ) -> Result<Self> {
         // The string table may be empty: not a problem
         let string_table = match pdb.string_table() {
             Ok(st) => st,
@@ -95,6 +104,7 @@ impl<'a> SourceFiles<'a> {
                     string_table: None,
                     ref_to_id: RefToIds::default(),
                     id_to_ref: Vec::new(),
+                    mapping: None,
                 })
             }
         };
@@ -131,11 +141,40 @@ impl<'a> SourceFiles<'a> {
             string_table: Some(string_table),
             ref_to_id,
             id_to_ref,
+            mapping,
         })
     }
 
     pub(super) fn get_id(&self, file_ref: StringRef) -> u32 {
         *self.ref_to_id.get(&file_ref).unwrap()
+    }
+
+    fn map(&self, file: String) -> String {
+        let path = PathBuf::from(&file);
+
+        let path = if cfg!(windows) {
+            // No need to try to canonicalize a windows path on a unix OS
+            if let Ok(path) = fs::canonicalize(&path) {
+                path
+            } else {
+                utils::normalize_path(&path)
+            }
+        } else {
+            utils::normalize_path(&path)
+        };
+
+        let new_path = if let Some(mapping) = self.mapping.as_ref() {
+            match mapping.map(&path) {
+                Ok(p) => p,
+                Err(e) => {
+                    error!("Mapping error: {}", e);
+                    None
+                }
+            }
+        } else {
+            None
+        };
+        new_path.unwrap_or(file)
     }
 
     pub(super) fn get_mapping(&self) -> Vec<String> {
@@ -144,6 +183,7 @@ impl<'a> SourceFiles<'a> {
                 .iter()
                 .filter_map(|file_ref| string_table.get(*file_ref).ok())
                 .map(|s| s.to_string().into_owned())
+                .map(|s| self.map(s))
                 .collect()
         } else {
             Vec::new()

@@ -1,0 +1,33 @@
+{
+    "variables":
+    {
+        "revision": "6639deb894172375b05d6791f5f8c7d53ca79723"
+    },
+    "mappings":
+    [
+        {
+            "source": "./test_data/mapping/(.*)",
+            "destination": "s3:gecko-generated-sources:{digest}/{1}",
+            "files": [
+                "./test_data/mapping/aaa.cpp",
+                "./test_data/mapping/bbb.cpp",
+                "./test_data/mapping/ccc.cpp"
+            ]
+        },
+        {
+            "source": "/home/worker/(.*)",
+            "destination": "hg:hg.mozilla.org/mozilla-central:{1}:{revision}",
+            "files": []
+        },
+        {
+            "source": "/rustc/([a-fA-F0-9]+)/(.*)",
+            "destination": "git:github.com/rust-lang/rust:{2}:{1}",
+            "files": []
+        },
+        {
+            "source": "/cargo/registry/src/[^/]+/([^-]+)-([^/]+)/(.*)",
+            "destination": "https://doc.rs/{2}/{1}/{3}.html",
+            "files": []
+        }
+    ]
+}

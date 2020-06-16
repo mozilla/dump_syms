@@ -9,6 +9,7 @@ mod common;
 mod line;
 mod linux;
 mod mac;
+mod mapping;
 mod utils;
 mod windows;
 
@@ -85,6 +86,35 @@ fn main() {
                 .help("List the architectures present in the fat binaries")
                 .long("list-arch")
         )
+        .arg(
+            Arg::with_name("mapping_var")
+                .help("A pair var=value such as rev=123abcd")
+                .long("mapping-var")
+                .multiple(true)
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("mapping_src")
+                .help("Regex to match a path with capturing groups")
+                .long("mapping-src")
+                .multiple(true)
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("mapping_dest")
+                .help(r#"A replacement string using groups, variables (set with --mapping-var), special variable like DIGEST or digest.
+For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapping-dest="https://my.source.org/{rev}/{digest}/{1}" a path like "/foo/bar/myfile.cpp" will be transformed into "https://my.source.org/123abc/sha512_of_myfile.cpp/myfile.cpp"
+"#)
+                .long("mapping-dest")
+                .multiple(true)
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("mapping_file")
+                .help("A json file containing mapping")
+                .long("mapping-file")
+                .takes_value(true),
+        )
         .get_matches();
 
     let verbosity = match matches.value_of("verbose").unwrap() {
@@ -126,6 +156,16 @@ fn main() {
     let debug_id = matches.value_of("debug_id");
     let code_id = matches.value_of("code_id");
     let arch = matches.value_of("arch").unwrap();
+    let mapping_var = matches
+        .values_of("mapping_var")
+        .map(|v| v.collect::<Vec<_>>());
+    let mapping_src = matches
+        .values_of("mapping_src")
+        .map(|v| v.collect::<Vec<_>>());
+    let mapping_dest = matches
+        .values_of("mapping_dest")
+        .map(|v| v.collect::<Vec<_>>());
+    let mapping_file = matches.value_of("mapping_file");
 
     let action = if matches.is_present("list_arch") {
         Action::ListArch
@@ -137,6 +177,10 @@ fn main() {
             debug_id,
             code_id,
             arch,
+            mapping_var,
+            mapping_src,
+            mapping_dest,
+            mapping_file,
         })
     };
 

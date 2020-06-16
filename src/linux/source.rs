@@ -3,11 +3,14 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use crate::utils;
 use hashbrown::{hash_map, HashMap};
+use log::error;
 use std::fs;
 use std::path::PathBuf;
 use symbolic_debuginfo::FileInfo;
+
+use crate::mapping::PathMappings;
+use crate::utils;
 
 type SliceRef = (*const u8, usize);
 
@@ -17,6 +20,7 @@ pub struct SourceFiles {
     fake_id_to_ref: Vec<(Option<u32>, String)>,
     id_to_ref: Vec<String>,
     cache: HashMap<(SliceRef, SliceRef, SliceRef), u32>,
+    mapping: Option<PathMappings>,
 }
 
 #[derive(Debug, Default)]
@@ -26,6 +30,13 @@ pub struct SourceMap {
 }
 
 impl SourceFiles {
+    pub(super) fn new(mapping: Option<PathMappings>) -> Self {
+        SourceFiles {
+            mapping,
+            ..Default::default()
+        }
+    }
+
     #[inline(always)]
     fn cast_ptr(name: &[u8]) -> SliceRef {
         (name.as_ptr(), name.len())
@@ -53,7 +64,7 @@ impl SourceFiles {
             PathBuf::from(comp_dir).join(dir).join(name)
         };
 
-        // Try to get the real path and in case we're on the machine where the files have compiled
+        // Try to get the real path and in case we're on the machine where the files have been compiled
         // else fallback on the basic way to normalize a path
         if let Ok(path) = fs::canonicalize(&path) {
             path
@@ -76,11 +87,22 @@ impl SourceFiles {
             hash_map::Entry::Occupied(e) => *e.get(),
             hash_map::Entry::Vacant(e) => {
                 let path = Self::get_path(compilation_dir, file);
-                let id = match self.ref_to_id.entry(path) {
+                let id = match self.ref_to_id.entry(path.clone()) {
                     hash_map::Entry::Occupied(e) => *e.get(),
                     hash_map::Entry::Vacant(e) => {
                         let id = self.fake_id_to_ref.len() as u32;
-                        let path = e.key().to_str().unwrap().to_string();
+                        let new_path = if let Some(mapping) = self.mapping.as_ref() {
+                            match mapping.map(&path) {
+                                Ok(p) => p,
+                                Err(e) => {
+                                    error!("Mapping error: {}", e);
+                                    None
+                                }
+                            }
+                        } else {
+                            None
+                        };
+                        let path = new_path.unwrap_or_else(|| path.to_str().unwrap().to_string());
                         e.insert(id);
                         self.fake_id_to_ref.push((None, path));
                         id
