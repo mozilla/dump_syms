@@ -78,11 +78,6 @@ pub fn get_pe_pdb_buf<'a>(
     }
 }
 
-pub fn get_pe(path: PathBuf, buf: &[u8]) -> PeObject {
-    PeObject::parse(&buf)
-        .unwrap_or_else(|_| panic!("Unable to parse the PE file {}", path.to_str().unwrap()))
-}
-
 pub fn get_pe_debug_id(pe: Option<&PeObject>) -> Option<String> {
     if let Some(pe) = pe {
         let mut buf = Uuid::encode_buffer();

@@ -21,7 +21,7 @@ use super::source::{SourceFiles, SourceLineCollector};
 use super::symbol::{BlockInfo, PDBSymbols, RvaSymbols, SelectedSymbol};
 use super::types::{DumperFlags, TypeDumper};
 use super::utils::get_pe_debug_id;
-use crate::common::{self, Dumpable};
+use crate::common::{self, Dumpable, Mergeable};
 use crate::mapping::PathMappings;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -567,6 +567,12 @@ impl Dumpable for PDBInfo {
 
     fn get_name(&self) -> &str {
         &self.pdb_name
+    }
+}
+
+impl Mergeable for PDBInfo {
+    fn merge(_left: PDBInfo, _right: PDBInfo) -> common::Result<PDBInfo> {
+        Err("PDB merge not implemented".into())
     }
 }
 

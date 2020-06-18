@@ -6,6 +6,7 @@
 mod action;
 mod cache;
 mod common;
+mod dumper;
 mod line;
 mod linux;
 mod mac;
@@ -19,7 +20,8 @@ use simplelog::{Config, LevelFilter, TermLogger, TerminalMode};
 use std::ops::Deref;
 use std::panic;
 
-use crate::action::{Action, Dumper};
+use crate::action::Action;
+use crate::common::FileType;
 
 fn main() {
     let matches = App::new("dump_syms")
@@ -30,6 +32,7 @@ fn main() {
             Arg::with_name("filenames")
                 .help("Files to dump (.dll, .exe, .pdb, .pd_, .so, .dbg)")
                 .required(true)
+                .multiple(true)
                 .takes_value(true)
         )
         .arg(
@@ -81,9 +84,24 @@ fn main() {
                 .takes_value(true),
         )
         .arg(
+            Arg::with_name("type")
+                .help("Debug file type, can be elf, macho or pdb")
+                .short("t")
+                .long("type")
+                .default_value("")
+                .takes_value(true),
+        ).arg(
             Arg::with_name("list_arch")
                 .help("List the architectures present in the fat binaries")
                 .long("list-arch")
+        )
+        .arg(
+            Arg::with_name("num_jobs")
+                .help("Number of jobs")
+                .short("j")
+                .value_name("NUMBER")
+                .default_value("")
+                .takes_value(true),
         )
         .arg(
             Arg::with_name("mapping_var")
@@ -165,17 +183,38 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
         .values_of("mapping_dest")
         .map(|v| v.collect::<Vec<_>>());
     let mapping_file = matches.value_of("mapping_file");
+    let num_jobs = if let Ok(num_jobs) = matches.value_of("num_jobs").unwrap().parse::<usize>() {
+        num_jobs
+    } else {
+        num_cpus::get()
+    };
+    let typ = matches.value_of("type").unwrap();
+    let file_type = if filenames.len() >= 2 && typ == "" {
+        eprintln!("Since there are several files to dump, the type must be specified with --type");
+        std::process::exit(1);
+    } else {
+        let t = common::FileType::from_str(typ);
+        match t {
+            FileType::Elf | FileType::Macho | FileType::Pdb => t,
+            _ => {
+                eprintln!("Type must be one of the values: elf, macho or pdb");
+                std::process::exit(1);
+            }
+        }
+    };
 
     let action = if matches.is_present("list_arch") {
         Action::ListArch
     } else {
-        Action::Dump(Dumper {
+        Action::Dump(dumper::Config {
             output,
             symbol_server,
             store,
             debug_id,
             code_id,
             arch,
+            file_type,
+            num_jobs,
             mapping_var,
             mapping_src,
             mapping_dest,
