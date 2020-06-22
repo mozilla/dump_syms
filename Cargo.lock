@@ -1546,9 +1546,9 @@ checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 
 [[package]]
 name = "symbolic-common"
-version = "7.3.3"
+version = "7.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f23c9aa29f681458ca732129cc8909a1dd41cbf09a988eeefd4558b6e1cd2591"
+checksum = "ebdc6030725c03c26dd3a56a19962767c4f2d9a45f1bc67247db6650ef17c71e"
 dependencies = [
  "debugid",
  "failure",
@@ -1559,9 +1559,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-debuginfo"
-version = "7.3.3"
+version = "7.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4a53577882185fb096242de254c4fc16f70409c9b74ad6e110d87d603af2fdde"
+checksum = "10b44ab8250413b085c28f39fe894ba020aef8000cc56fe3878750dcb15228c5"
 dependencies = [
  "dmsort",
  "failure",
@@ -1598,9 +1598,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-minidump"
-version = "7.3.3"
+version = "7.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "765a578af75d8a816b2df0e2376bb422243bb75c9a375c87b623f6ea380118b8"
+checksum = "8b6cf28c209bab28aebb19705a4585388e31eeea208c51da1caf4f9c95634078"
 dependencies = [
  "cc",
  "failure",
