@@ -9,6 +9,7 @@ use regex::Regex;
 use serde::Deserialize;
 use sha2::{Digest, Sha512};
 use std::path::Path;
+use std::sync::Mutex;
 
 use crate::common;
 use crate::utils;
@@ -179,6 +180,7 @@ impl PathMappingGenerator {
 #[derive(Debug, Default)]
 pub struct PathMappings {
     mappings: Vec<PathMappingGenerator>,
+    cache: Mutex<HashMap<String, String>>,
 }
 
 impl PathMappings {
@@ -197,7 +199,10 @@ impl PathMappings {
         Ok(if mappings.is_empty() {
             None
         } else {
-            Some(PathMappings { mappings })
+            Some(PathMappings {
+                mappings,
+                cache: Mutex::new(HashMap::default()),
+            })
         })
     }
 
@@ -310,11 +315,26 @@ impl PathMappings {
             file_str
         };
 
+        {
+            let cache = self.cache.lock().unwrap();
+            if let Some(cached) = cache.get(file_str) {
+                return Ok(Some(cached.to_string()));
+            }
+        }
+
+        let mut res = None;
         for mapping in self.mappings.iter() {
             let mapping = mapping.apply(file, file_str)?;
             if let Some(mapping) = mapping {
-                return Ok(Some(mapping));
+                res = Some(mapping);
+                break;
             }
+        }
+
+        if let Some(res) = res {
+            let mut cache = self.cache.lock().unwrap();
+            cache.insert(file_str.to_string(), res.clone());
+            return Ok(Some(res));
         }
 
         warn!("Cannot find a mapping for file {}", file_str);

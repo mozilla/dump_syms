@@ -59,6 +59,9 @@ pub(super) struct PDBSymbol {
     pub id: usize,
 }
 
+// it's safe because source (with Rc) isn't shared: it's just an internal thing
+unsafe impl Send for PDBSymbol {}
+
 impl PDBSymbol {
     fn get_from(&self, rva: u32, len: u32) -> PDBSymbol {
         PDBSymbol {

@@ -31,6 +31,16 @@ impl FileType {
             _ => Self::Unknown,
         }
     }
+
+    pub(crate) fn from_str(s: &str) -> Self {
+        let s = s.to_lowercase();
+        match s.as_str() {
+            "pdb" => Self::Pdb,
+            "elf" => Self::Elf,
+            "macho" => Self::Macho,
+            _ => Self::Unknown,
+        }
+    }
 }
 
 pub(crate) trait Dumpable {

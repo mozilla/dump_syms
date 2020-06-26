@@ -13,6 +13,7 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::ops::Bound::{Excluded, Included};
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use crate::line::Lines;
 use crate::mapping::PathMappings;
@@ -88,13 +89,13 @@ pub(super) struct SourceFiles<'a> {
     string_table: Option<StringTable<'a>>,
     ref_to_id: RefToIds,
     id_to_ref: Vec<StringRef>,
-    mapping: Option<PathMappings>,
+    mapping: Option<Arc<PathMappings>>,
 }
 
 impl<'a> SourceFiles<'a> {
     pub(super) fn new<S: 'a + Source<'a>>(
         pdb: &mut PDB<'a, S>,
-        mapping: Option<PathMappings>,
+        mapping: Option<Arc<PathMappings>>,
     ) -> Result<Self> {
         // The string table may be empty: not a problem
         let string_table = match pdb.string_table() {

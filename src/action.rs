@@ -3,273 +3,61 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use failure::Fail;
-use log::info;
-use std::fs;
 use std::path::PathBuf;
-use std::str::FromStr;
-use std::thread;
-use symbolic_common::Arch;
 
-use crate::cache;
-use crate::common::{self, Dumpable, FileType, Mergeable};
-use crate::linux::elf::{ElfInfo, Platform};
+use crate::common::{self, FileType};
+use crate::linux::elf::ElfInfo;
 use crate::mac::macho::MachoInfo;
-use crate::mapping::PathMappings;
 use crate::utils;
-use crate::windows;
+use crate::windows::pdb::PDBInfo;
 
-pub(crate) struct Dumper<'a> {
-    pub output: &'a str,
-    pub symbol_server: Option<&'a str>,
-    pub store: Option<&'a str>,
-    pub debug_id: Option<&'a str>,
-    pub code_id: Option<&'a str>,
-    pub arch: &'a str,
-    pub mapping_var: Option<Vec<&'a str>>,
-    pub mapping_src: Option<Vec<&'a str>>,
-    pub mapping_dest: Option<Vec<&'a str>>,
-    pub mapping_file: Option<&'a str>,
-}
-
-impl Dumper<'_> {
-    fn store<D: Dumpable>(&self, dumpable: &D) -> common::Result<()> {
-        let store = self.store.filter(|p| !p.is_empty()).map(|p| {
-            PathBuf::from(p).join(cache::get_path_for_sym(
-                &dumpable.get_name(),
-                dumpable.get_debug_id(),
-            ))
-        });
-
-        if let Some(store) = store.as_ref() {
-            fs::create_dir_all(store.parent().unwrap())?;
-            let store = store.to_str().unwrap();
-            let output = utils::get_writer_for_sym(store);
-            if let Err(e) = dumpable.dump(output) {
-                return Err(e);
-            }
-            info!("Write symbols at {}", store);
-        }
-
-        if self.output != "-" || store.is_none() {
-            let output = utils::get_writer_for_sym(self.output);
-            dumpable.dump(output)?;
-            info!("Write symbols at {}", self.output);
-        }
-        Ok(())
-    }
-
-    fn has_id(&self) -> bool {
-        self.debug_id.is_some() || self.code_id.is_some()
-    }
-
-    fn get_from_id(&self, path: &PathBuf, filename: String) -> common::Result<(Vec<u8>, String)> {
-        for id in &[self.debug_id, self.code_id] {
-            if let Some(id) = id {
-                let symbol_server = cache::get_sym_servers(self.symbol_server);
-                let (buf, filename) = cache::search_file(filename, id, symbol_server.as_ref());
-                return if let Some(buf) = buf {
-                    Ok((buf, filename))
-                } else {
-                    Err(format!("Impossible to get file {} with id {}", filename, id).into())
-                };
-            }
-        }
-
-        Ok((utils::read_file(&path), filename))
-    }
-
-    fn pdb(
-        &self,
-        buf: &[u8],
-        path: PathBuf,
-        filename: String,
-        mapping: Option<PathMappings>,
-    ) -> common::Result<()> {
-        let mut pdb = windows::pdb::PDBInfo::new(&buf, filename, "".to_string(), None, mapping)?;
-        windows::utils::try_to_set_pe(&path, &mut pdb, &buf);
-        self.store(&pdb)
-    }
-
-    fn pdb_pe(
-        &self,
-        pdb_buf: &[u8],
-        pdb_filename: String,
-        pe_buf: &[u8],
-        pe_path: PathBuf,
-        pe_filename: String,
-        mapping: Option<PathMappings>,
-    ) -> common::Result<()> {
-        let pe = windows::utils::get_pe(pe_path, pe_buf);
-        let pdb =
-            windows::pdb::PDBInfo::new(&pdb_buf, pdb_filename, pe_filename, Some(pe), mapping)?;
-        self.store(&pdb)
-    }
-
-    fn elf(
-        &self,
-        buf: &[u8],
-        filename: String,
-        mapping: Option<PathMappings>,
-    ) -> common::Result<()> {
-        let elf = ElfInfo::new(&buf, filename, Platform::Linux, mapping)?;
-        self.store(&elf)
-    }
-
-    fn macho(
-        &self,
-        buf: &[u8],
-        filename: String,
-        mapping: Option<PathMappings>,
-    ) -> common::Result<()> {
-        let arch = Arch::from_str(self.arch).map_err(|e| e.compat())?;
-        let macho = MachoInfo::new(&buf, filename, arch, mapping)?;
-        self.store(&macho)
-    }
-
-    fn two_elfs<T, F, G>(&self, f1: F, f2: G) -> common::Result<()>
-    where
-        T: Mergeable + Dumpable + Send + 'static,
-        F: FnOnce() -> common::Result<T>,
-        F: Send + 'static,
-        G: FnOnce() -> common::Result<T>,
-        G: Send + 'static,
-    {
-        // Normally we should have a debug file and a stripped executable (or lib)
-        // So the thread getting data for the debug file should be a way longer that the oter
-        let t_1 = thread::Builder::new()
-            .name("Dump_syms 1".to_string())
-            .spawn(f1)
-            .unwrap();
-        let t_2 = thread::Builder::new()
-            .name("Dump_syms 2".to_string())
-            .spawn(f2)
-            .unwrap();
-
-        let elf_1 = t_1
-            .join()
-            .expect("Couldn't join on the associated thread")?;
-        let elf_2 = t_2
-            .join()
-            .expect("Couldn't join on the associated thread")?;
-
-        let elf = T::merge(elf_1, elf_2)?;
-        self.store(&elf)
-    }
-
-    fn pe(
-        &self,
-        buf: &[u8],
-        path: PathBuf,
-        filename: String,
-        mapping: Option<PathMappings>,
-    ) -> common::Result<()> {
-        let symbol_server = cache::get_sym_servers(self.symbol_server);
-        let res = windows::utils::get_pe_pdb_buf(path, &buf, symbol_server.as_ref());
-
-        if let Some((pe, pdb_buf, pdb_name)) = res {
-            let pdb = windows::pdb::PDBInfo::new(&pdb_buf, pdb_name, filename, Some(pe), mapping)?;
-            self.store(&pdb)
-        } else {
-            Err("No pdb file found".into())
-        }
-    }
-}
+use super::dumper::{self, Config};
 
 pub(crate) enum Action<'a> {
-    Dump(Dumper<'a>),
+    Dump(Config<'a>),
     ListArch,
 }
 
 impl Action<'_> {
     pub(super) fn action(&self, filenames: &[&str]) -> common::Result<()> {
         if filenames.len() == 1 {
-            self.one_file(filenames[0])
+            // no need to spawn a thread for one file
+            self.single_file(filenames[0])
         } else {
-            self.two_files(filenames)
+            self.several_files(filenames)
         }
     }
 
-    fn one_file(&self, filename: &str) -> common::Result<()> {
-        let path = PathBuf::from(filename);
-        let filename = utils::get_filename(&path);
-
+    fn single_file(&self, filename: &str) -> common::Result<()> {
         match self {
-            Self::Dump(dumper) => {
-                let (buf, filename) = dumper.get_from_id(&path, filename)?;
-                let file_mapping = PathMappings::new(
-                    &dumper.mapping_var,
-                    &dumper.mapping_src,
-                    &dumper.mapping_dest,
-                    &dumper.mapping_file,
-                )?;
-                match FileType::from_buf(&buf) {
-                    FileType::Elf => dumper.elf(&buf, filename, file_mapping),
-                    FileType::Pdb => dumper.pdb(&buf, path, filename, file_mapping),
-                    FileType::Pe => dumper.pe(&buf, path, filename, file_mapping),
-                    FileType::Macho => dumper.macho(&buf, filename, file_mapping),
-                    FileType::Unknown => Err("Unknown file format".into()),
-                }
-            }
+            Self::Dump(config) => dumper::single_file(&config, filename),
             Self::ListArch => {
+                let path = PathBuf::from(filename);
+                let filename = utils::get_filename(&path);
+
                 let buf = utils::read_file(&path);
                 MachoInfo::print_architectures(&buf, filename)
             }
         }
     }
 
-    fn two_files(&self, filenames: &[&str]) -> common::Result<()> {
-        let path_1 = PathBuf::from(filenames[0]);
-        let filename_1 = utils::get_filename(&path_1);
-
-        let path_2 = PathBuf::from(filenames[1]);
-        let filename_2 = utils::get_filename(&path_2);
-
+    fn several_files(&self, filenames: &[&str]) -> common::Result<()> {
         match self {
-            Self::Dump(dumper) => {
-                if dumper.has_id() {
-                    return Err("One filename must be given with --code-id or --debug-id".into());
-                }
-                let file_mapping = PathMappings::new(
-                    &dumper.mapping_var,
-                    &dumper.mapping_src,
-                    &dumper.mapping_dest,
-                    &dumper.mapping_file,
-                )?;
-
-                let (buf_1, filename_1) = dumper.get_from_id(&path_1, filename_1)?;
-                let (buf_2, filename_2) = dumper.get_from_id(&path_2, filename_2)?;
-
-                match (FileType::from_buf(&buf_1), FileType::from_buf(&buf_2)) {
-                    (FileType::Elf, FileType::Elf) => {
-                        let arch = Platform::Linux;
-                        dumper.two_elfs(
-                            move || ElfInfo::new(&buf_1, filename_1, arch, None),
-                            move || ElfInfo::new(&buf_2, filename_2, arch, None),
-                        )
-                    }
-                    (FileType::Pdb, FileType::Pe) => {
-                        dumper.pdb_pe(&buf_1, filename_1, &buf_2, path_2, filename_2, file_mapping)
-                    }
-                    (FileType::Pe, FileType::Pdb) => {
-                        dumper.pdb_pe(&buf_2, filename_2, &buf_1, path_1, filename_1, file_mapping)
-                    }
-                    (FileType::Macho, FileType::Macho) => {
-                        let arch = Arch::from_str(dumper.arch).map_err(|e| e.compat())?;
-                        dumper.two_elfs(
-                            move || MachoInfo::new(&buf_1, filename_1, arch, None),
-                            move || MachoInfo::new(&buf_2, filename_2, arch, None),
-                        )
-                    }
-                    _ => Err("Invalid files: must be two elf or a pdb and a pe".into()),
-                }
-            }
+            Self::Dump(config) => match config.file_type {
+                FileType::Elf => dumper::several_files::<ElfInfo>(&config, filenames),
+                FileType::Macho => dumper::several_files::<MachoInfo>(&config, filenames),
+                FileType::Pdb => dumper::several_files::<PDBInfo>(&config, filenames),
+                _ => Ok(()),
+            },
             Self::ListArch => {
-                let buf = utils::read_file(&path_1);
-                MachoInfo::print_architectures(&buf, filename_1)?;
+                for f in filenames {
+                    let path = PathBuf::from(f);
+                    let filename = utils::get_filename(&path);
 
-                let buf = utils::read_file(&path_2);
-                MachoInfo::print_architectures(&buf, filename_2)
+                    let buf = utils::read_file(&path);
+                    MachoInfo::print_architectures(&buf, filename)?;
+                }
+                Ok(())
             }
         }
     }
@@ -292,13 +80,15 @@ mod tests {
 
         copy(basic64, &tmp_file).unwrap();
 
-        let action = Action::Dump(Dumper {
+        let action = Action::Dump(Config {
             output: tmp_out.to_str().unwrap(),
             symbol_server: None,
             store: None,
             debug_id: None,
             code_id: None,
-            arch: "",
+            arch: common::get_compile_time_arch(),
+            file_type: FileType::Pdb,
+            num_jobs: 1,
             mapping_var: None,
             mapping_src: None,
             mapping_dest: None,
@@ -326,13 +116,15 @@ mod tests {
         copy(basic64_pdb, &tmp_pdb).unwrap();
         copy(basic64_dll, &tmp_dll).unwrap();
 
-        let action = Action::Dump(Dumper {
+        let action = Action::Dump(Config {
             output: tmp_out.to_str().unwrap(),
             symbol_server: None,
             store: None,
             debug_id: None,
             code_id: None,
-            arch: "",
+            arch: common::get_compile_time_arch(),
+            file_type: FileType::Pdb,
+            num_jobs: 1,
             mapping_var: None,
             mapping_src: None,
             mapping_dest: None,
@@ -349,80 +141,20 @@ mod tests {
     }
 
     #[test]
-    fn test_pe_and_pdb() {
-        let tmp_dir = Builder::new().prefix("pe_pdb").tempdir().unwrap();
-        let basic64_pdb = PathBuf::from("./test_data/windows/basic64.pdb");
-        let basic64_dll = PathBuf::from("./test_data/windows/basic64.dll");
-        let tmp_out = tmp_dir.path().join("output.sym");
-
-        let action = Action::Dump(Dumper {
-            output: tmp_out.to_str().unwrap(),
-            symbol_server: None,
-            store: None,
-            debug_id: None,
-            code_id: None,
-            arch: "",
-            mapping_var: None,
-            mapping_src: None,
-            mapping_dest: None,
-            mapping_file: None,
-        });
-
-        action
-            .action(&[basic64_dll.to_str().unwrap(), basic64_pdb.to_str().unwrap()])
-            .unwrap();
-
-        let data = read(tmp_out).unwrap();
-        let data = String::from_utf8(data).unwrap();
-
-        assert!(data.contains("CODE_ID"));
-        assert!(data.contains("STACK CFI"));
-    }
-
-    #[test]
-    fn test_pdb_and_pe() {
-        let tmp_dir = Builder::new().prefix("pdb_pe").tempdir().unwrap();
-        let basic64_pdb = PathBuf::from("./test_data/windows/basic64.pdb");
-        let basic64_dll = PathBuf::from("./test_data/windows/basic64.dll");
-        let tmp_out = tmp_dir.path().join("output.sym");
-
-        let action = Action::Dump(Dumper {
-            output: tmp_out.to_str().unwrap(),
-            symbol_server: None,
-            store: None,
-            debug_id: None,
-            code_id: None,
-            arch: "",
-            mapping_var: None,
-            mapping_src: None,
-            mapping_dest: None,
-            mapping_file: None,
-        });
-
-        action
-            .action(&[basic64_pdb.to_str().unwrap(), basic64_dll.to_str().unwrap()])
-            .unwrap();
-
-        let data = read(tmp_out).unwrap();
-        let data = String::from_utf8(data).unwrap();
-
-        assert!(data.contains("CODE_ID"));
-        assert!(data.contains("STACK CFI"));
-    }
-
-    #[test]
     fn test_elf_full() {
         let tmp_dir = Builder::new().prefix("full").tempdir().unwrap();
         let full = PathBuf::from("./test_data/linux/basic.full");
         let tmp_out = tmp_dir.path().join("output.sym");
 
-        let action = Action::Dump(Dumper {
+        let action = Action::Dump(Config {
             output: tmp_out.to_str().unwrap(),
             symbol_server: None,
             store: None,
             debug_id: None,
             code_id: None,
-            arch: "",
+            arch: common::get_compile_time_arch(),
+            file_type: FileType::Elf,
+            num_jobs: 1,
             mapping_var: None,
             mapping_src: None,
             mapping_dest: None,
@@ -448,13 +180,15 @@ mod tests {
         let dbg = PathBuf::from("./test_data/linux/basic.dbg");
         let tmp_out = tmp_dir.path().join("output.sym");
 
-        let action = Action::Dump(Dumper {
+        let action = Action::Dump(Config {
             output: tmp_out.to_str().unwrap(),
             symbol_server: None,
             store: None,
             debug_id: None,
             code_id: None,
-            arch: "",
+            arch: common::get_compile_time_arch(),
+            file_type: FileType::Elf,
+            num_jobs: 2,
             mapping_var: None,
             mapping_src: None,
             mapping_dest: None,
@@ -482,13 +216,15 @@ mod tests {
         let dbg = PathBuf::from("./test_data/linux/basic.dbg");
         let tmp_out = tmp_dir.path().join("output.sym");
 
-        let action = Action::Dump(Dumper {
+        let action = Action::Dump(Config {
             output: tmp_out.to_str().unwrap(),
             symbol_server: None,
             store: None,
             debug_id: None,
             code_id: None,
-            arch: "",
+            arch: common::get_compile_time_arch(),
+            file_type: FileType::Elf,
+            num_jobs: 2,
             mapping_var: None,
             mapping_src: None,
             mapping_dest: None,
