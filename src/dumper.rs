@@ -246,6 +246,7 @@ fn send_store_jobs<T: Creator>(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn consumer<T: Creator>(
     arch: Arch,
     sender: Sender<Option<JobItem<T>>>,
@@ -322,7 +323,6 @@ pub(crate) fn several_files<T: 'static + Creator + std::marker::Send>(
     for i in 0..num_jobs {
         let sender = sender.clone();
         let receiver = receiver.clone();
-        let arch = arch.clone();
         let results = Arc::clone(&results);
         let counter = Arc::clone(&counter);
         let output = config.output.to_string();
