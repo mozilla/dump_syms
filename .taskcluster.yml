@@ -70,7 +70,7 @@ tasks:
             - "-cx"
             - "apt-get -qq update &&
                apt-get -qq install -y zip &&
-               rustup default nightly-2020-06-10 &&
+               rustup default nightly &&
                curl -L https://github.com/mozilla/grcov/releases/latest/download/grcov-linux-x86_64.tar.bz2 | tar jxf - &&
                git clone --recursive --quiet ${repository} &&
                cd dump_syms &&
