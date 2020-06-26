@@ -310,7 +310,7 @@ impl Collector {
                     self.collect_function(&fun, source);
                 }
                 Err(e) => {
-                    error!("{:?}", e);
+                    error!("Function collection: {:?}", e);
                 }
             }
         }
@@ -347,7 +347,7 @@ impl Collector {
 
         let mut cfi_writer = AsciiCfiWriter::new(writer);
         if let Err(e) = cfi_writer.process(o) {
-            error!("{}", e);
+            error!("CFI: {:?}", e);
         }
 
         String::from_utf8(buf).unwrap()

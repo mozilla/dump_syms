@@ -189,18 +189,24 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
         num_cpus::get()
     };
     let typ = matches.value_of("type").unwrap();
-    let file_type = if filenames.len() >= 2 && typ == "" {
-        eprintln!("Since there are several files to dump, the type must be specified with --type");
-        std::process::exit(1);
-    } else {
-        let t = common::FileType::from_str(typ);
-        match t {
-            FileType::Elf | FileType::Macho | FileType::Pdb => t,
-            _ => {
-                eprintln!("Type must be one of the values: elf, macho or pdb");
-                std::process::exit(1);
+    let file_type = if filenames.len() >= 2 {
+        if typ == "" {
+            eprintln!(
+                "Since there are several files to dump, the type must be specified with --type"
+            );
+            std::process::exit(1);
+        } else {
+            let t = common::FileType::from_str(typ);
+            match t {
+                FileType::Elf | FileType::Macho | FileType::Pdb => t,
+                _ => {
+                    eprintln!("Type must be one of the values: elf, macho or pdb");
+                    std::process::exit(1);
+                }
             }
         }
+    } else {
+        FileType::Unknown
     };
 
     let action = if matches.is_present("list_arch") {
