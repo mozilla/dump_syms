@@ -7,7 +7,7 @@ use crossbeam::channel::{Receiver, Sender};
 use crossbeam::crossbeam_channel::bounded;
 use failure::Fail;
 use hashbrown::HashMap;
-use log::info;
+use log::{error, info};
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -238,12 +238,15 @@ fn send_store_jobs<T: Creator>(
         }
     }
 
+    poison_queue(sender, num_threads);
+    Ok(())
+}
+
+fn poison_queue<T: Dumpable>(sender: &Sender<Option<JobItem<T>>>, num_threads: usize) {
     // Poison the receiver.
     for _ in 0..num_threads {
         sender.send(None).unwrap();
     }
-
-    Ok(())
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -270,11 +273,17 @@ fn consumer<T: Creator>(
                 let filename = utils::get_filename(&path);
                 let buf = utils::read_file(&path);
 
-                let info = T::get_dbg(arch, &buf, path, filename, mapping)?;
+                let info = T::get_dbg(arch, &buf, path, filename, mapping).map_err(|e| {
+                    poison_queue(&sender, num_threads);
+                    e
+                })?;
 
                 let mut results = results.lock().unwrap();
                 let info = if let Some(prev) = results.remove(info.get_debug_id()) {
-                    T::merge(info, prev)?
+                    T::merge(info, prev).map_err(|e| {
+                        poison_queue(&sender, num_threads);
+                        e
+                    })?
                 } else {
                     info
                 };
@@ -351,9 +360,8 @@ pub(crate) fn several_files<T: 'static + Creator + std::marker::Send>(
     }
 
     for receiver in receivers {
-        if let Err(e) = receiver.join() {
-            eprintln!("Error: {:?}", e);
-            std::process::exit(1);
+        if let Err(e) = receiver.join().unwrap() {
+            error!("{}", e);
         }
     }
 
