@@ -310,7 +310,7 @@ impl PathMappings {
 
         #[cfg(windows)]
         let file_str = if file_str.starts_with(r"\\?\") {
-            file_str[r"\\?\".len()..]
+            &file_str[r"\\?\".len()..]
         } else {
             file_str
         };
