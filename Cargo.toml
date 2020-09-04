@@ -45,3 +45,11 @@ vendored-openssl = ["openssl/vendored"]
 [dependencies.openssl]
 version = "0.10"
 optional = true
+
+[patch.crates-io]
+symbolic-common = { path = "../symbolic/symbolic-common" }
+symbolic-debuginfo = { path = "../symbolic/symbolic-debuginfo" }
+symbolic-demangle = { path = "../symbolic/symbolic-demangle" }
+symbolic-minidump = { path = "../symbolic/symbolic-minidump" }
+gimli = { path = "../gimli" }
+addr2line = { path = "../addr2line" }

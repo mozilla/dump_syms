@@ -83,19 +83,27 @@ pub(crate) fn fix_symbol_name<'a>(name: &'a Name<'a>) -> Name<'a> {
     }
     let fixed = LLVM_NNN.replace(name.as_str(), "");
 
-    Name::with_language(fixed, name.language())
+    Name::new(fixed, name.mangling(), name.language())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use symbolic_common::{Language, NameMangling};
 
     #[test]
     fn test_fix_symbol_name() {
-        let name = Name::new("hello");
+        let name = Name::new("hello", NameMangling::Mangled, Language::Unknown);
         assert_eq!(name, fix_symbol_name(&name));
 
-        let name = Name::new("hello.llvm.1234567890");
-        assert_eq!(Name::new("hello"), fix_symbol_name(&name));
+        let name = Name::new(
+            "hello.llvm.1234567890",
+            NameMangling::Mangled,
+            Language::Unknown,
+        );
+        assert_eq!(
+            Name::new("hello", NameMangling::Mangled, Language::Unknown),
+            fix_symbol_name(&name)
+        );
     }
 }
