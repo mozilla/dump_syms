@@ -23,6 +23,9 @@ use std::panic;
 use crate::action::Action;
 use crate::common::FileType;
 
+#[macro_use]
+extern crate lazy_static;
+
 fn main() {
     let matches = App::new("dump_syms")
         .version(crate_version!())
