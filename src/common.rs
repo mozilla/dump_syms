@@ -3,11 +3,12 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use regex::Regex;
 use std::env::consts::ARCH;
 use std::error;
 use std::io::Write;
 use std::result;
-use symbolic_common::Arch;
+use symbolic_common::{Arch, Name};
 use symbolic_debuginfo::{peek, FileFormat};
 
 type Error = Box<dyn error::Error + std::marker::Send + std::marker::Sync>;
@@ -74,4 +75,27 @@ pub(crate) fn get_compile_time_arch() -> &'static str {
         _ => Unknown,
     }
     .name()
+}
+
+pub(crate) fn fix_symbol_name<'a>(name: &'a Name<'a>) -> Name<'a> {
+    lazy_static! {
+        static ref LLVM_NNN: Regex = Regex::new(r"\.llvm\.[0-9]+$").unwrap();
+    }
+    let fixed = LLVM_NNN.replace(name.as_str(), "");
+
+    Name::with_language(fixed, name.language())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_fix_symbol_name() {
+        let name = Name::new("hello");
+        assert_eq!(name, fix_symbol_name(&name));
+
+        let name = Name::new("hello.llvm.1234567890");
+        assert_eq!(Name::new("hello"), fix_symbol_name(&name));
+    }
 }

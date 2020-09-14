@@ -432,6 +432,7 @@ dependencies = [
  "futures",
  "fxhash",
  "hashbrown",
+ "lazy_static",
  "log",
  "num_cpus",
  "openssl",

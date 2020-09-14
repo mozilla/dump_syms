@@ -15,6 +15,8 @@ use pdb::{
 use symbolic_common::{Language, Name};
 use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
 
+use crate::common;
+
 type FwdRefSize<'a> = HashMap<RawString<'a>, u32>;
 
 #[derive(Eq, PartialEq)]
@@ -336,6 +338,8 @@ impl<'a> TypeDumper<'a> {
         }
 
         let name = Name::with_language(ident, lang);
+        let name = common::fix_symbol_name(&name);
+
         match name.demangle(DemangleOptions {
             format: DemangleFormat::Full,
             with_arguments: true,

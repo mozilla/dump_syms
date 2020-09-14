@@ -209,6 +209,7 @@ impl Collector {
     }
 
     fn demangle(name: &Name) -> String {
+        let name = common::fix_symbol_name(name);
         if let Language::C = name.language() {
             return name.as_str().to_string();
         }
@@ -233,6 +234,8 @@ impl Collector {
         }
 
         let name = Name::with_language(name, lang);
+        let name = common::fix_symbol_name(&name);
+
         match name.demangle(DemangleOptions {
             format: DemangleFormat::Full,
             with_arguments: true,
