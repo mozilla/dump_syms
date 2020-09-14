@@ -421,7 +421,7 @@ checksum = "134951f4028bdadb9b84baf4232681efbf277da25144b9b0ad65df75946c422b"
 
 [[package]]
 name = "dump_syms"
-version = "0.0.5"
+version = "0.0.6"
 dependencies = [
  "bitflags",
  "cab",

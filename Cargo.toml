@@ -1,6 +1,6 @@
 [package]
 name = "dump_syms"
-version = "0.0.5"
+version = "0.0.6"
 authors = ["Calixte Denizet <cdenizet@mozilla.com>"]
 repository = "https://github.com/mozilla/dump_syms"
 homepage = "https://github.com/mozilla/dump_syms"
