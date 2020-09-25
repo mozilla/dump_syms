@@ -327,7 +327,7 @@ impl<'a> TypeDumper<'a> {
             .replace("  ", " ")
     }
 
-    fn demangle(ident: &str) -> FuncName {
+    pub fn demangle(ident: &str) -> FuncName {
         // If the name is not mangled maybe we can guess stacksize in using it.
         // So the boolean flag in the returned value is here for that (true == known language)
         // For information:

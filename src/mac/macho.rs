@@ -28,7 +28,7 @@ impl Display for MachoInfo {
 impl MachoInfo {
     pub fn new(
         buf: &[u8],
-        file_name: String,
+        file_name: &str,
         arch: Arch,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
