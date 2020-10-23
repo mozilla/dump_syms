@@ -13,6 +13,7 @@ use pdb::{
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
 use std::sync::Arc;
+use symbolic_common::Arch;
 use symbolic_debuginfo::{pdb::PdbObject, pe::PeObject, Object};
 use symbolic_minidump::cfi::AsciiCfiWriter;
 use uuid::Uuid;
@@ -250,24 +251,35 @@ fn get_debug_id(dbi: &DebugInformation, pi: PDBInformation) -> String {
     format!("{}{:x}", guid, age)
 }
 
-fn get_stack_info(pdb_buf: &[u8], pe: Option<PeObject>, cpu: CPU) -> String {
+fn get_stack_info(pdb_buf: Option<&[u8]>, pe: Option<PeObject>) -> String {
+    let mut found_unwind_info = false;
     let mut buf = Vec::new();
     let writer = Cursor::new(&mut buf);
 
     let mut cfi_writer = AsciiCfiWriter::new(writer);
-    if cpu == CPU::X86_64 {
-        if let Some(pe) = pe {
+    if let Some(pe) = pe {
+        if pe.has_unwind_info() {
             cfi_writer
                 .process(&Object::Pe(pe))
                 .map_err(|e| e.compat())
                 .unwrap();
+            found_unwind_info = true;
         }
-    } else if let Ok(pdb) = PdbObject::parse(&pdb_buf) {
-        cfi_writer
-            .process(&Object::Pdb(pdb))
-            .map_err(|e| e.compat())
-            .unwrap();
     }
+
+    if !found_unwind_info {
+        if let Some(pdb_buf) = pdb_buf {
+            if let Ok(pdb) = PdbObject::parse(&pdb_buf) {
+                if pdb.has_unwind_info() {
+                    cfi_writer
+                        .process(&Object::Pdb(pdb))
+                        .map_err(|e| e.compat())
+                        .unwrap();
+                }
+            }
+        }
+    }
+
     String::from_utf8(buf).unwrap()
 }
 
@@ -481,8 +493,8 @@ impl<'s> PDBData<'s> {
 impl PDBInfo {
     pub fn new(
         buf: &[u8],
-        pdb_name: String,
-        pe_name: String,
+        pdb_name: &str,
+        pe_name: &str,
         pe: Option<PeObject>,
         mapping: Option<Arc<PathMappings>>,
     ) -> Result<Self> {
@@ -523,7 +535,7 @@ impl PDBInfo {
             None
         };
 
-        let stack = get_stack_info(buf, pe, cpu);
+        let stack = get_stack_info(Some(&buf), pe);
 
         Ok(PDBInfo {
             symbols: collector.symbols.mv_to_pdb_symbols(
@@ -534,8 +546,8 @@ impl PDBInfo {
             files: source_files.get_mapping(),
             cpu,
             debug_id,
-            pdb_name,
-            pe_name,
+            pdb_name: String::from(pdb_name),
+            pe_name: String::from(pe_name),
             code_id,
             stack,
         })
@@ -546,7 +558,7 @@ impl PDBInfo {
             self.code_id = Some(pe.code_id().unwrap().as_str().to_uppercase());
             self.pe_name = pe_name;
             if self.stack.is_empty() {
-                self.stack = get_stack_info(pdb_buf, Some(pe), self.cpu);
+                self.stack = get_stack_info(Some(pdb_buf), Some(pe));
             }
             true
         } else {
@@ -573,6 +585,94 @@ impl Dumpable for PDBInfo {
 impl Mergeable for PDBInfo {
     fn merge(_left: PDBInfo, _right: PDBInfo) -> common::Result<PDBInfo> {
         Err("PDB merge not implemented".into())
+    }
+}
+
+pub(crate) struct PEInfo {
+    symbols: PDBSymbols,
+    cpu: CPU,
+    debug_id: String,
+    pdb_name: String,
+    pe_name: String,
+    code_id: Option<String>,
+    stack: String,
+}
+
+impl Display for PEInfo {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        writeln!(
+            f,
+            "MODULE windows {} {} {}",
+            self.cpu, self.debug_id, self.pdb_name
+        )?;
+
+        if let Some(code_id) = self.code_id.as_ref() {
+            writeln!(f, "INFO CODE_ID {} {}", code_id, self.pe_name)?;
+        }
+
+        for (_, sym) in self.symbols.iter() {
+            write!(f, "{}", sym)?;
+        }
+
+        write!(f, "{}", self.stack)?;
+
+        Ok(())
+    }
+}
+
+impl PEInfo {
+    pub fn new(pe_name: &str, pe: PeObject) -> Result<Self> {
+        let cpu = match pe.arch() {
+            Arch::X86 => CPU::X86,
+            Arch::X86Unknown => CPU::X86,
+            Arch::Amd64 => CPU::X86_64,
+            Arch::Amd64h => CPU::X86_64,
+            Arch::Amd64Unknown => CPU::X86_64,
+            _ => CPU::Unknown,
+        };
+        let pdb_name = pe.debug_file_name().unwrap_or_default().to_string();
+        let pdb_name = PEInfo::file_name_only(&pdb_name).to_string();
+
+        let debug_id = get_pe_debug_id(Some(&pe)).unwrap();
+        let code_id = Some(pe.code_id().unwrap().as_str().to_uppercase());
+        let symbols = crate::windows::symbol::symbolic_to_pdb_symbols(pe.symbols());
+        let stack = get_stack_info(None, Some(pe));
+
+        Ok(PEInfo {
+            symbols,
+            cpu,
+            debug_id,
+            pdb_name,
+            pe_name: String::from(pe_name),
+            code_id,
+            stack,
+        })
+    }
+
+    fn file_name_only(pdb_name: &str) -> &str {
+        let index = pdb_name.rfind('\\').map_or(0, |i| i + 1);
+        &pdb_name[index..pdb_name.len()]
+    }
+}
+
+impl Dumpable for PEInfo {
+    fn dump<W: Write>(&self, mut writer: W) -> common::Result<()> {
+        write!(writer, "{}", self)?;
+        Ok(())
+    }
+
+    fn get_debug_id(&self) -> &str {
+        &self.debug_id
+    }
+
+    fn get_name(&self) -> &str {
+        &self.pdb_name
+    }
+}
+
+impl Mergeable for PEInfo {
+    fn merge(_left: PEInfo, _right: PEInfo) -> common::Result<PEInfo> {
+        Err("PE merge not implemented".into())
     }
 }
 
@@ -628,7 +728,7 @@ mod tests {
         let pe_buf = dl_from_server(url);
         let pe_buf = crate::utils::read_cabinet(pe_buf, PathBuf::from(name)).unwrap();
         let (pe, pdb_buf, pdb_name) = crate::windows::utils::get_pe_pdb_buf(
-            PathBuf::from("."),
+            &PathBuf::from("."),
             &pe_buf,
             crate::cache::get_sym_servers(Some(&format!("SRV*~/symcache*{}", MS))).as_ref(),
         )
@@ -636,7 +736,7 @@ mod tests {
 
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
-        let pdb = PDBInfo::new(&pdb_buf, pdb_name, name.to_string(), Some(pe), None).unwrap();
+        let pdb = PDBInfo::new(&pdb_buf, &pdb_name, name, Some(pe), None).unwrap();
         pdb.dump(cursor).unwrap();
 
         let toks: Vec<_> = name.rsplitn(2, '.').collect();
@@ -654,15 +754,14 @@ mod tests {
 
         let pe_buf = crate::utils::read_file(&path);
         let (pe, pdb_buf, pdb_name) = crate::windows::utils::get_pe_pdb_buf(
-            path,
+            &path,
             &pe_buf,
             crate::cache::get_sym_servers(Some(&format!("SRV*~/symcache*{}", MS))).as_ref(),
         )
         .unwrap();
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
-        let pdb =
-            PDBInfo::new(&pdb_buf, pdb_name, file_name.to_string(), Some(pe), mapping).unwrap();
+        let pdb = PDBInfo::new(&pdb_buf, &pdb_name, file_name, Some(pe), mapping).unwrap();
         pdb.dump(cursor).unwrap();
 
         output

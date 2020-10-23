@@ -360,7 +360,7 @@ impl Collector {
 impl ElfInfo {
     pub(crate) fn new(
         buf: &[u8],
-        file_name: String,
+        file_name: &str,
         platform: Platform,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
@@ -370,7 +370,7 @@ impl ElfInfo {
 
     pub fn from_object(
         o: &Object,
-        file_name: String,
+        file_name: &str,
         platform: Platform,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
@@ -393,7 +393,7 @@ impl ElfInfo {
         Ok(Self {
             symbols: collector.syms,
             files: source.get_mapping(),
-            file_name,
+            file_name: String::from(file_name),
             cpu,
             debug_id,
             code_id,

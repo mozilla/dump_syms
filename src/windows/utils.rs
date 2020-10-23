@@ -11,7 +11,7 @@ use crate::cache::{self, SymbolServer};
 use crate::utils;
 use crate::windows::pdb::PDBInfo;
 
-fn try_to_find_pdb(path: PathBuf, pdb_filename: &str) -> Option<Vec<u8>> {
+fn try_to_find_pdb(path: &PathBuf, pdb_filename: &str) -> Option<Vec<u8>> {
     // Just check that the file is in the same directory as the PE one
     let pdb = path.with_file_name(pdb_filename);
     let mut pdb_cab = pdb.clone();
@@ -33,7 +33,7 @@ fn try_to_find_pdb(path: PathBuf, pdb_filename: &str) -> Option<Vec<u8>> {
     None
 }
 
-fn os_specific_try_to_find_pdb(path: PathBuf, pdb_filename: String) -> (Option<Vec<u8>>, String) {
+fn os_specific_try_to_find_pdb(path: &PathBuf, pdb_filename: String) -> (Option<Vec<u8>>, String) {
     // We may have gotten either an OS native path, or a Windows path.
     // On Windows, they're both the same. On Unix, they are different, and in that case,
     // we change backslashes to forward slashes for `file_name()` to do its job.
@@ -51,7 +51,7 @@ fn os_specific_try_to_find_pdb(path: PathBuf, pdb_filename: String) -> (Option<V
 }
 
 pub fn get_pe_pdb_buf<'a>(
-    path: PathBuf,
+    path: &PathBuf,
     buf: &'a [u8],
     symbol_server: Option<&Vec<SymbolServer>>,
 ) -> Option<(PeObject<'a>, Vec<u8>, String)> {

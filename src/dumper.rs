@@ -15,6 +15,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use symbolic_common::Arch;
+use symbolic_debuginfo::pe::PeObject;
 
 use crate::cache;
 use crate::common::{self, Dumpable, FileType, Mergeable};
@@ -22,7 +23,7 @@ use crate::linux::elf::{ElfInfo, Platform};
 use crate::mac::macho::MachoInfo;
 use crate::mapping::PathMappings;
 use crate::utils;
-use crate::windows::{self, pdb::PDBInfo};
+use crate::windows::{self, pdb::PDBInfo, pdb::PEInfo};
 
 pub(crate) struct Config<'a> {
     pub output: &'a str,
@@ -43,16 +44,16 @@ pub(crate) trait Creator: Mergeable + Dumpable + Sized {
     fn get_dbg(
         arch: Arch,
         buf: &[u8],
-        path: PathBuf,
-        filename: String,
+        path: &PathBuf,
+        filename: &str,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self>;
 
     fn get_pe<'a>(
         _conf: &Config<'a>,
         _buf: &[u8],
-        _path: PathBuf,
-        _filename: String,
+        _path: &PathBuf,
+        _filename: &str,
         _mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
         Err("Not implemented".into())
@@ -63,8 +64,8 @@ impl Creator for ElfInfo {
     fn get_dbg(
         _arch: Arch,
         buf: &[u8],
-        _path: PathBuf,
-        filename: String,
+        _path: &PathBuf,
+        filename: &str,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
         Self::new(&buf, filename, Platform::Linux, mapping)
@@ -75,8 +76,8 @@ impl Creator for MachoInfo {
     fn get_dbg(
         arch: Arch,
         buf: &[u8],
-        _path: PathBuf,
-        filename: String,
+        _path: &PathBuf,
+        filename: &str,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
         Self::new(&buf, filename, arch, mapping)
@@ -87,11 +88,11 @@ impl Creator for PDBInfo {
     fn get_dbg(
         _arch: Arch,
         buf: &[u8],
-        path: PathBuf,
-        filename: String,
+        path: &PathBuf,
+        filename: &str,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
-        let mut pdb = Self::new(&buf, filename, "".to_string(), None, mapping)?;
+        let mut pdb = Self::new(&buf, filename, "", None, mapping)?;
         windows::utils::try_to_set_pe(&path, &mut pdb, &buf);
         Ok(pdb)
     }
@@ -99,19 +100,44 @@ impl Creator for PDBInfo {
     fn get_pe<'a>(
         conf: &Config<'a>,
         buf: &[u8],
-        path: PathBuf,
-        filename: String,
+        path: &PathBuf,
+        filename: &str,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
         let symbol_server = cache::get_sym_servers(conf.symbol_server);
         let res = windows::utils::get_pe_pdb_buf(path, &buf, symbol_server.as_ref());
 
         if let Some((pe, pdb_buf, pdb_name)) = res {
-            let pdb = Self::new(&pdb_buf, pdb_name, filename, Some(pe), mapping)?;
+            let pdb = Self::new(&pdb_buf, &pdb_name, filename, Some(pe), mapping)?;
             Ok(pdb)
         } else {
             Err("No pdb file found".into())
         }
+    }
+}
+
+impl Creator for PEInfo {
+    fn get_dbg(
+        _arch: Arch,
+        _buf: &[u8],
+        _path: &PathBuf,
+        _filename: &str,
+        _mapping: Option<Arc<PathMappings>>,
+    ) -> common::Result<Self> {
+        Err("Not implemented".into())
+    }
+
+    fn get_pe<'a>(
+        _conf: &Config<'a>,
+        buf: &[u8],
+        path: &PathBuf,
+        filename: &str,
+        _mapping: Option<Arc<PathMappings>>,
+    ) -> common::Result<Self> {
+        let pe = PeObject::parse(&buf)
+            .unwrap_or_else(|_| panic!("Unable to parse the PE file {}", path.to_str().unwrap()));
+        let pe = Self::new(filename, pe)?;
+        Ok(pe)
     }
 }
 
@@ -184,22 +210,28 @@ pub(crate) fn single_file(config: &Config, filename: &str) -> common::Result<()>
         FileType::Elf => store(
             config.output,
             config.store,
-            ElfInfo::get_dbg(arch, &buf, path, filename, file_mapping)?,
+            ElfInfo::get_dbg(arch, &buf, &path, &filename, file_mapping)?,
         ),
         FileType::Pdb => store(
             config.output,
             config.store,
-            PDBInfo::get_dbg(arch, &buf, path, filename, file_mapping)?,
+            PDBInfo::get_dbg(arch, &buf, &path, &filename, file_mapping)?,
         ),
-        FileType::Pe => store(
-            config.output,
-            config.store,
-            PDBInfo::get_pe(config, &buf, path, filename, file_mapping)?,
-        ),
+        FileType::Pe => {
+            if let Ok(pdb_info) = PDBInfo::get_pe(config, &buf, &path, &filename, file_mapping) {
+                store(config.output, config.store, pdb_info)
+            } else {
+                store(
+                    config.output,
+                    config.store,
+                    PEInfo::get_pe(config, &buf, &path, &filename, None)?,
+                )
+            }
+        }
         FileType::Macho => store(
             config.output,
             config.store,
-            MachoInfo::get_dbg(arch, &buf, path, filename, file_mapping)?,
+            MachoInfo::get_dbg(arch, &buf, &path, &filename, file_mapping)?,
         ),
         FileType::Unknown => Err("Unknown file format".into()),
     }
@@ -273,7 +305,7 @@ fn consumer<T: Creator>(
                 let filename = utils::get_filename(&path);
                 let buf = utils::read_file(&path);
 
-                let info = T::get_dbg(arch, &buf, path, filename, mapping).map_err(|e| {
+                let info = T::get_dbg(arch, &buf, &path, &filename, mapping).map_err(|e| {
                     poison_queue(&sender, num_threads);
                     e
                 })?;

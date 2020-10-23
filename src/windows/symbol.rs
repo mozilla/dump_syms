@@ -11,6 +11,7 @@ use pdb::{
 use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
+use symbolic_debuginfo::pe::PeSymbolIterator;
 
 use super::pdb::{PDBContributions, PDBSections};
 use super::source::SourceLineCollector;
@@ -472,4 +473,32 @@ impl RvaSymbols {
         let (all_syms, ranges) = self.split_and_collect(dumper, address_map, frame_table);
         Self::fill_the_gaps(all_syms, ranges)
     }
+}
+
+pub(super) fn symbolic_to_pdb_symbols(syms: PeSymbolIterator) -> PDBSymbols {
+    let mut pdb_syms = PDBSymbols::default();
+
+    for sym in syms {
+        if let Some(name) = sym.name() {
+            let demangled_name = TypeDumper::demangle(&name);
+            let (name, parameter_size) = match demangled_name {
+                FuncName::Undecorated(name) => (name, 0),
+                FuncName::Unknown((name, parameter_size)) => (name, parameter_size),
+            };
+            let pdb_symbol = PDBSymbol {
+                name,
+                is_public: true,
+                is_multiple: false,
+                rva: sym.address as u32,
+                len: 0,
+                parameter_size,
+                source: Rc::new(Lines::new()),
+                id: 0,
+            };
+
+            pdb_syms.insert(pdb_symbol.rva, pdb_symbol);
+        }
+    }
+
+    pdb_syms
 }
