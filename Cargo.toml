@@ -31,7 +31,7 @@ symbolic-common = "7.5"
 symbolic-debuginfo = "7.5"
 symbolic-demangle = "7.5"
 symbolic-minidump = "7.5"
-tokio = "0.2"
+tokio = "0.3"
 url = "2.1"
 uuid = "0.8"
 
