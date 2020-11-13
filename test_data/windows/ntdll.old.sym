@@ -5263,6 +5263,7 @@ FUNC a4e64 47 0 RtlQueryResourcePolicy
 FUNC a5098 64 0 RtlpTestHookInitialize
 FUNC b0902 7 0 ResGetSystemWindowsDirectory
 FUNC b0920 a 0 ResQueryValueKey
+PUBLIC 145011 0 <unknown in ntdll.dll>
 STACK CFI INIT 14600 ec .cfa: $rsp .ra: .cfa 8 - ^
 STACK CFI 14600 .cfa: $rsp 112 +
 STACK CFI INIT 146f4 2e5 .cfa: $rsp .ra: .cfa 8 - ^

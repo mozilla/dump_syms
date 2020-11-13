@@ -383,9 +383,10 @@ impl ElfInfo {
         collector.collect_publics(&o);
 
         let stack = Collector::get_stack_info(&o);
+        let symbols = crate::linux::symbol::append_dummy_symbol(collector.syms, file_name);
 
         Ok(Self {
-            symbols: collector.syms,
+            symbols,
             files: source.get_mapping(),
             file_name: String::from(file_name),
             cpu,
