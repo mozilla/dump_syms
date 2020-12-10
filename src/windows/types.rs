@@ -12,8 +12,8 @@ use pdb::{
     ProcedureType, RawString, Result, TypeData, TypeFinder, TypeIndex, TypeInformation, UnionType,
     Variant,
 };
-use symbolic_common::{Language, Name, NameMangling};
-use symbolic_demangle::{Demangle, DemangleOptions};
+use symbolic::common::{Language, Name, NameMangling};
+use symbolic::demangle::{Demangle, DemangleOptions};
 
 use crate::common;
 

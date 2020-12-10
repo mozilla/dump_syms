@@ -14,8 +14,8 @@ use std::str::FromStr;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
-use symbolic_common::Arch;
-use symbolic_debuginfo::pe::PeObject;
+use symbolic::common::Arch;
+use symbolic::debuginfo::pe::PeObject;
 
 use crate::cache;
 use crate::common::{self, Dumpable, FileType, Mergeable};

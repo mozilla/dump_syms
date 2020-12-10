@@ -8,7 +8,7 @@ use log::error;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
-use symbolic_debuginfo::FileInfo;
+use symbolic::debuginfo::FileInfo;
 
 use crate::mapping::PathMappings;
 use crate::utils;

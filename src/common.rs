@@ -8,8 +8,8 @@ use std::env::consts::ARCH;
 use std::error;
 use std::io::Write;
 use std::result;
-use symbolic_common::{Arch, Name};
-use symbolic_debuginfo::{peek, FileFormat};
+use symbolic::common::{Arch, Name};
+use symbolic::debuginfo::{peek, FileFormat};
 
 type Error = Box<dyn error::Error + std::marker::Send + std::marker::Sync>;
 pub type Result<T> = result::Result<T, Error>;
@@ -89,7 +89,7 @@ pub(crate) fn fix_symbol_name<'a>(name: &'a Name<'a>) -> Name<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use symbolic_common::{Language, NameMangling};
+    use symbolic::common::{Language, NameMangling};
 
     #[test]
     fn test_fix_symbol_name() {

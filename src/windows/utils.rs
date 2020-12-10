@@ -4,7 +4,7 @@
 // copied, modified, or distributed except according to those terms.
 
 use std::path::PathBuf;
-use symbolic_debuginfo::pe::PeObject;
+use symbolic::debuginfo::pe::PeObject;
 use uuid::Uuid;
 
 use crate::cache::{self, SymbolServer};

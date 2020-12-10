@@ -7,8 +7,8 @@ use failure::Fail;
 use std::fmt::{Display, Formatter};
 use std::io::Write;
 use std::sync::Arc;
-use symbolic_common::Arch;
-use symbolic_debuginfo::Archive;
+use symbolic::common::Arch;
+use symbolic::debuginfo::Archive;
 
 use crate::common::{self, Dumpable, Mergeable};
 use crate::linux::elf::{ElfInfo, Platform};
