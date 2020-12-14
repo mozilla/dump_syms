@@ -685,7 +685,7 @@ mod tests {
     use std::io::Read;
     use std::path::PathBuf;
     use symbolic::debuginfo::breakpad::{
-        BreakpadFileMap, BreakpadFuncRecord, BreakpadLineRecord, BreakpadObject,
+        BreakpadError, BreakpadFileMap, BreakpadFuncRecord, BreakpadLineRecord, BreakpadObject,
     };
 
     use super::*;
@@ -801,14 +801,8 @@ mod tests {
     }
 
     fn check_func_len(
-        func_new: &[std::result::Result<
-            symbolic_debuginfo::breakpad::BreakpadFuncRecord<'_>,
-            symbolic_debuginfo::breakpad::BreakpadError,
-        >],
-        func_old: &[std::result::Result<
-            symbolic_debuginfo::breakpad::BreakpadFuncRecord<'_>,
-            symbolic_debuginfo::breakpad::BreakpadError,
-        >],
+        func_new: &[std::result::Result<BreakpadFuncRecord<'_>, BreakpadError>],
+        func_old: &[std::result::Result<BreakpadFuncRecord<'_>, BreakpadError>],
     ) {
         if func_new.len() != func_old.len() {
             // Try to find the diff in the addresses
