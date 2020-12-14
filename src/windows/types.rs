@@ -12,8 +12,8 @@ use pdb::{
     ProcedureType, RawString, Result, TypeData, TypeFinder, TypeIndex, TypeInformation, UnionType,
     Variant,
 };
-use symbolic_common::{Language, Name};
-use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
+use symbolic::common::{Language, Name, NameMangling};
+use symbolic::demangle::{Demangle, DemangleOptions};
 
 use crate::common;
 
@@ -332,18 +332,15 @@ impl<'a> TypeDumper<'a> {
         // So the boolean flag in the returned value is here for that (true == known language)
         // For information:
         //  - msvc-demangler has no problem with symbols containing ".llvm."
-        let lang = Name::new(ident).detect_language();
+        let lang = Name::new(ident, NameMangling::Mangled, Language::Unknown).detect_language();
         if lang == Language::Unknown {
             return FuncName::get_unknown(ident.to_string());
         }
 
-        let name = Name::with_language(ident, lang);
+        let name = Name::new(ident, NameMangling::Mangled, lang);
         let name = common::fix_symbol_name(&name);
 
-        match name.demangle(DemangleOptions {
-            format: DemangleFormat::Full,
-            with_arguments: true,
-        }) {
+        match name.demangle(DemangleOptions::complete()) {
             Some(demangled) => {
                 if demangled == ident {
                     // Maybe the langage detection was finally wrong

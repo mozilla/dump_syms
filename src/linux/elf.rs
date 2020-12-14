@@ -10,10 +10,10 @@ use std::collections::btree_map;
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
 use std::sync::Arc;
-use symbolic_common::{Language, Name};
-use symbolic_debuginfo::{Function, Object, ObjectDebugSession};
-use symbolic_demangle::{Demangle, DemangleFormat, DemangleOptions};
-use symbolic_minidump::cfi::AsciiCfiWriter;
+use symbolic::common::{Language, Name, NameMangling};
+use symbolic::debuginfo::{Function, Object, ObjectDebugSession};
+use symbolic::demangle::{Demangle, DemangleOptions};
+use symbolic::minidump::cfi::AsciiCfiWriter;
 
 use super::source::{SourceFiles, SourceMap};
 use super::symbol::{ElfSymbol, ElfSymbols};
@@ -214,10 +214,7 @@ impl Collector {
             return name.as_str().to_string();
         }
 
-        match name.demangle(DemangleOptions {
-            format: DemangleFormat::Full,
-            with_arguments: true,
-        }) {
+        match name.demangle(DemangleOptions::complete()) {
             Some(demangled) => demangled,
             None => {
                 let aname = name.as_str();
@@ -228,18 +225,15 @@ impl Collector {
     }
 
     fn demangle_str(name: &str) -> String {
-        let lang = Name::new(name).detect_language();
+        let lang = Name::new(name, NameMangling::Mangled, Language::Unknown).detect_language();
         if lang == Language::Unknown {
             return name.to_string();
         }
 
-        let name = Name::with_language(name, lang);
+        let name = Name::new(name, NameMangling::Mangled, lang);
         let name = common::fix_symbol_name(&name);
 
-        match name.demangle(DemangleOptions {
-            format: DemangleFormat::Full,
-            with_arguments: true,
-        }) {
+        match name.demangle(DemangleOptions::complete()) {
             Some(demangled) => demangled,
             None => {
                 warn!("Didn't manage to demangle {}", name);
