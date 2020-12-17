@@ -45,8 +45,8 @@ fn correct_path(path: &str) -> String {
         Some(h) => h,
         _ => return path.to_string(),
     };
-    if path.starts_with('~') {
-        format!("{}{}", home.to_str().unwrap(), &path[1..])
+    if let Some(stripped_pah) = path.strip_prefix('~') {
+        format!("{}{}", home.to_str().unwrap(), stripped_pah)
     } else {
         path.to_string()
     }

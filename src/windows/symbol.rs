@@ -301,8 +301,7 @@ impl RvaSymbols {
     }
 
     fn is_constant_number(name: &str) -> bool {
-        if name.starts_with("__") {
-            let name = &name[2..];
+        if let Some(name) = name.strip_prefix("__") {
             name.starts_with("real@") || name.starts_with("xmm@") || name.starts_with("ymm@")
         } else {
             false
