@@ -3,8 +3,7 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use crossbeam::channel::{Receiver, Sender};
-use crossbeam::crossbeam_channel::bounded;
+use crossbeam::channel::{bounded, Receiver, Sender};
 use failure::Fail;
 use hashbrown::HashMap;
 use log::{error, info};
