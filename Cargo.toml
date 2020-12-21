@@ -26,9 +26,9 @@ reqwest = { version = "0.10", features = ["blocking"] }
 serde = "1.0"
 serde_json = "1.0"
 sha2 = "0.9"
-simplelog = "0.8"
+simplelog = "0.9"
 symbolic = { version = "8", features = ["demangle", "minidump"] }
-tokio = "0.2"
+tokio = "*"
 url = "2.2"
 uuid = "0.8"
 

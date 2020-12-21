@@ -10,7 +10,7 @@ use std::fs::{self, File};
 use std::io::{BufWriter, Read, Write};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-use tokio::{self, runtime::Runtime};
+use tokio::runtime::Runtime;
 use url::Url;
 
 use crate::common;
@@ -241,9 +241,8 @@ fn check_data(jobs: Vec<Job>) -> Option<Job> {
     let client = Client::new();
     let n_queries = jobs.len();
     let results = Arc::new(Mutex::new(Vec::new()));
-    let mut rt = Runtime::new().unwrap();
 
-    rt.block_on(async {
+    Runtime::new().unwrap().block_on(async {
         stream::iter(jobs)
             .map({
                 let results = &results;
