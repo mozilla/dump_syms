@@ -11,7 +11,7 @@ use pdb::{
 use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
-use symbolic::debuginfo::pe::PeSymbolIterator;
+use symbolic::debuginfo::pe::{ExceptionData, PeSymbolIterator};
 
 use super::pdb::{PDBContributions, PDBSections};
 use super::source::SourceLineCollector;
@@ -474,8 +474,62 @@ impl RvaSymbols {
     }
 }
 
-pub(super) fn symbolic_to_pdb_symbols(syms: PeSymbolIterator) -> PDBSymbols {
+pub(super) fn append_dummy_symbol(mut syms: PDBSymbols, name: &str) -> PDBSymbols {
+    let (rva, len, id) = if let Some((_, last_sym)) = syms.iter().next_back() {
+        (last_sym.rva, last_sym.len, last_sym.id)
+    } else {
+        return syms;
+    };
+
+    let rva = if len == 0 { rva + len + 1 } else { rva + len };
+
+    let name = if name.is_empty() {
+        String::from("<unknown>")
+    } else {
+        format!("<unknown in {}>", name)
+    };
+
+    syms.insert(
+        rva,
+        PDBSymbol {
+            name,
+            is_public: true,
+            is_multiple: false,
+            rva,
+            len: 0,
+            parameter_size: 0,
+            source: Rc::new(Lines::new()),
+            id: id + 1,
+        },
+    );
+
+    syms
+}
+
+pub(super) fn symbolic_to_pdb_symbols(
+    syms: PeSymbolIterator,
+    exception_data: Option<&ExceptionData<'_>>,
+    name: &str,
+) -> PDBSymbols {
     let mut pdb_syms = PDBSymbols::default();
+    let sizes = match exception_data {
+        Some(data) => {
+            let mut sizes = HashMap::new();
+            for function in data {
+                if let Ok(function) = function {
+                    if function.end_address <= function.begin_address {
+                        continue;
+                    }
+                    sizes.insert(
+                        function.begin_address,
+                        function.end_address - function.begin_address,
+                    );
+                }
+            }
+            sizes
+        }
+        None => HashMap::new(),
+    };
 
     for sym in syms {
         if let Some(name) = sym.name() {
@@ -484,19 +538,72 @@ pub(super) fn symbolic_to_pdb_symbols(syms: PeSymbolIterator) -> PDBSymbols {
                 FuncName::Undecorated(name) => (name, 0),
                 FuncName::Unknown((name, parameter_size)) => (name, parameter_size),
             };
-            let pdb_symbol = PDBSymbol {
-                name,
-                is_public: true,
-                is_multiple: false,
-                rva: sym.address as u32,
-                len: 0,
-                parameter_size,
-                source: Rc::new(Lines::new()),
-                id: 0,
-            };
+            let rva = sym.address as u32;
+            let len = *sizes.get(&rva).unwrap_or(&0);
 
-            pdb_syms.insert(pdb_symbol.rva, pdb_symbol);
+            pdb_syms.insert(
+                rva,
+                PDBSymbol {
+                    name,
+                    // if we managed to have a length from CFI info
+                    // then we create a fake FUNC instead of having a
+                    // true PUBLIC.
+                    is_public: len == 0,
+                    is_multiple: false,
+                    rva,
+                    len,
+                    parameter_size,
+                    source: Rc::new(Lines::new()),
+                    id: 0,
+                },
+            );
         }
+    }
+
+    if pdb_syms.is_empty() {
+        return pdb_syms;
+    }
+
+    let name = if name.is_empty() {
+        String::from("<unknown>")
+    } else {
+        format!("<unknown in {}>", name)
+    };
+
+    // Find the holes and fill them with a dummy symbol
+    let mut iter = pdb_syms.values();
+    let first = iter.next().unwrap();
+    let mut last = if first.len == 0 {
+        None
+    } else {
+        Some(first.rva + first.len)
+    };
+    let mut syms_to_fill_holes = Vec::new();
+    for value in iter {
+        if let Some(last) = last {
+            if last < value.rva {
+                // we've a hole: [last; value.rva[
+                syms_to_fill_holes.push(PDBSymbol {
+                    name: name.clone(),
+                    is_public: true,
+                    is_multiple: false,
+                    rva: last,
+                    len: value.rva - last,
+                    parameter_size: 0,
+                    source: Rc::new(Lines::new()),
+                    id: 0,
+                });
+            }
+        }
+        last = if value.len == 0 {
+            None
+        } else {
+            Some(value.rva + value.len)
+        };
+    }
+
+    for sym in syms_to_fill_holes.drain(..) {
+        pdb_syms.insert(sym.rva, sym);
     }
 
     pdb_syms

@@ -4169,6 +4169,7 @@ bbf4 10 452 1865
 FUNC bc04 17 0 static  _close$fin$0()
 bc04 9 60 1396
 bc0d e 61 1396
+PUBLIC bc1b 0 <unknown>
 STACK CFI INIT 1010 6a .cfa: $rsp .ra: .cfa 8 - ^
 STACK CFI 1010 .cfa: $rsp 80 +
 STACK CFI INIT 10d0 36 .cfa: $rsp .ra: .cfa 8 - ^

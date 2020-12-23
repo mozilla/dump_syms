@@ -3174,6 +3174,7 @@ FUNC 53ca0 1c 0 cmpResult
 FUNC 53cc3 4f 0 cmpWORD
 PUBLIC 53d25 0 memcmp
 FUNC 550b2 de0 0 unaligned_memcmp
+PUBLIC 55e92 0 <unknown>
 STACK WIN 4 6be0 18 4 0 4 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
 STACK WIN 4 6be1 17 3 0 4 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = $ebp $T0 4 - ^ = 
 STACK WIN 4 6be3 15 1 0 4 4 0 0 1 $T0 $ebp 4 + = $eip $T0 ^ = $esp $T0 4 + = $ebp $T0 4 - ^ = 

@@ -66,6 +66,7 @@ impl Action<'_> {
 #[cfg(test)]
 mod tests {
 
+    use regex::Regex;
     use std::fs::{copy, read};
     use tempfile::Builder;
 
@@ -199,12 +200,17 @@ mod tests {
             .action(&[stripped.to_str().unwrap(), dbg.to_str().unwrap()])
             .unwrap();
 
+        let re = Regex::new(r"<unknown[^>]*>").unwrap();
         let data = read(tmp_out).unwrap();
-        let new: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+        let data = String::from_utf8(data).unwrap();
+        let data = re.replace_all(&data, "<unknown>");
+        let new: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
 
         let basic = PathBuf::from("./test_data/linux/basic.full.sym");
         let data = read(basic).unwrap();
-        let basic: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+        let data = String::from_utf8(data).unwrap();
+        let data = re.replace_all(&data, "<unknown>");
+        let basic: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
 
         assert_eq!(basic, new);
     }
@@ -235,12 +241,17 @@ mod tests {
             .action(&[dbg.to_str().unwrap(), stripped.to_str().unwrap()])
             .unwrap();
 
+        let re = Regex::new(r"<unknown[^>]*>").unwrap();
         let data = read(tmp_out).unwrap();
-        let new: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+        let data = String::from_utf8(data).unwrap();
+        let data = re.replace_all(&data, "<unknown>");
+        let new: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
 
         let basic = PathBuf::from("./test_data/linux/basic.full.sym");
         let data = read(basic).unwrap();
-        let basic: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+        let data = String::from_utf8(data).unwrap();
+        let data = re.replace_all(&data, "<unknown>");
+        let basic: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
 
         assert_eq!(basic, new);
     }

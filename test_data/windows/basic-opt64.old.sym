@@ -26718,6 +26718,7 @@ FUNC 69968 2c 0 _ctrlfp$filt$0
 69968 2c 98 23318
 FUNC 699a0 20 0 _IsNonwritableInCurrentImage$filt$0
 699a0 20 181 23749
+PUBLIC 699c0 0 <unknown>
 STACK CFI INIT 6af0 68 .cfa: $rsp .ra: .cfa 8 - ^
 STACK CFI 6af0 .cfa: $rsp 48 +
 STACK CFI INIT 9398 50 .cfa: $rsp .ra: .cfa 8 - ^

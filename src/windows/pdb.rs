@@ -536,13 +536,14 @@ impl PDBInfo {
         };
 
         let stack = get_stack_info(Some(&buf), pe);
+        let symbols =
+            collector
+                .symbols
+                .mv_to_pdb_symbols(type_dumper, &pdb_data.address_map, frame_table);
+        let symbols = crate::windows::symbol::append_dummy_symbol(symbols, pe_name);
 
         Ok(PDBInfo {
-            symbols: collector.symbols.mv_to_pdb_symbols(
-                type_dumper,
-                &pdb_data.address_map,
-                frame_table,
-            ),
+            symbols,
             files: source_files.get_mapping(),
             cpu,
             debug_id,
@@ -635,7 +636,12 @@ impl PEInfo {
 
         let debug_id = get_pe_debug_id(Some(&pe)).unwrap();
         let code_id = Some(pe.code_id().unwrap().as_str().to_uppercase());
-        let symbols = crate::windows::symbol::symbolic_to_pdb_symbols(pe.symbols());
+        let symbols = crate::windows::symbol::symbolic_to_pdb_symbols(
+            pe.symbols(),
+            pe.exception_data(),
+            pe_name,
+        );
+        let symbols = crate::windows::symbol::append_dummy_symbol(symbols, pe_name);
         let stack = get_stack_info(None, Some(pe));
 
         Ok(PEInfo {
@@ -758,18 +764,31 @@ mod tests {
             &pe_buf,
             crate::cache::get_sym_servers(Some(&format!("SRV*~/symcache*{}", MS))).as_ref(),
         )
-        .unwrap();
+        .unwrap_or_else(|| (PeObject::parse(&pe_buf).unwrap(), vec![], "".to_string()));
+
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
-        let pdb = PDBInfo::new(&pdb_buf, &pdb_name, file_name, Some(pe), mapping).unwrap();
-        pdb.dump(cursor).unwrap();
+
+        if pdb_buf.is_empty() {
+            let pe = PEInfo::new(file_name, pe).unwrap();
+            pe.dump(cursor).unwrap();
+        } else {
+            let pdb = PDBInfo::new(&pdb_buf, &pdb_name, file_name, Some(pe), mapping).unwrap();
+            pdb.dump(cursor).unwrap();
+        }
 
         output
     }
 
     fn get_data(file_name: &str) -> Vec<u8> {
         let path = PathBuf::from("./test_data/windows");
-        let path = path.join(file_name);
+        let mut path = path.join(file_name);
+        for ext in &["sym", "old.sym"] {
+            path.set_extension(ext);
+            if path.exists() {
+                break;
+            }
+        }
 
         let mut file = File::open(&path).unwrap();
         let mut buf = Vec::new();
@@ -969,8 +988,7 @@ mod tests {
         };
         let new = BreakpadObject::parse(&out).unwrap();
 
-        let sym = name.to_string() + ".old.sym";
-        let out = get_data(&sym);
+        let out = get_data(name);
         let old = BreakpadObject::parse(&out).unwrap();
 
         check_headers(&new, &old);
@@ -1072,6 +1090,11 @@ mod tests {
     #[test]
     fn test_dump_syms_regtest64() {
         test_file("dump_syms_regtest64", TestFlags::ALL);
+    }
+
+    #[test]
+    fn test_mozwer() {
+        test_file("mozwer", TestFlags::ALL);
     }
 
     #[test]

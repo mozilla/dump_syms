@@ -41,6 +41,7 @@ FUNC 12bd 1c 0 main
 PUBLIC 12e0 0 __libc_csu_init
 PUBLIC 1340 0 __libc_csu_fini
 PUBLIC 1344 0 _fini
+PUBLIC 1345 0 <unknown in basic.full>
 STACK CFI INIT 1040 2b .cfa: $rsp 8 +
 STACK CFI INIT 1020 10 .cfa: $rsp 16 + .ra: .cfa -8 + ^
 STACK CFI 1026 .cfa: $rsp 24 +

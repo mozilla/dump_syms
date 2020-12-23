@@ -3491,6 +3491,7 @@ FUNC 12f4 49 0 dcomoff_IID_Lookup
 FUNC 2828a 22 0 IPropertyBag_RemoteRead_Thunk
 FUNC 12ea a 0 dcomoa_IID_Lookup
 FUNC 1d9ae 24 0 IPropertyBag_Read_Proxy
+PUBLIC 8c1b4 0 <unknown in oleaut32.dll>
 STACK CFI INIT 1010 10d .cfa: $rsp .ra: .cfa 8 - ^
 STACK CFI 1010 .cfa: $rsp 64 +
 STACK CFI INIT 1130 125 .cfa: $rsp .ra: .cfa 8 - ^
