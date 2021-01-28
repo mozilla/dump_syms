@@ -113,10 +113,7 @@ fn get_corrected_path(path: PathBuf) -> PathBuf {
     }
 }
 
-fn get_cabinet_files<'a>(
-    cab: &'a Cabinet<Cursor<&Vec<u8>>>,
-    path: PathBuf,
-) -> Option<(String, usize)> {
+fn get_cabinet_files(cab: &Cabinet<Cursor<&Vec<u8>>>, path: PathBuf) -> Option<(String, usize)> {
     // Try to find in the cabinet the same path with pdb extension
     let path = get_corrected_path(path);
     let file_name = path.file_name().unwrap();

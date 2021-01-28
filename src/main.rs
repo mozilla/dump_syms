@@ -193,7 +193,7 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
     };
     let typ = matches.value_of("type").unwrap();
     let file_type = if filenames.len() >= 2 {
-        if typ == "" {
+        if typ.is_empty() {
             eprintln!(
                 "Since there are several files to dump, the type must be specified with --type"
             );

@@ -55,8 +55,8 @@ impl Display for CPU {
     }
 }
 
-const IMAGE_SCN_CNT_CODE: u32 = 0x00_000_020;
-const IMAGE_SCN_MEM_EXECUTE: u32 = 0x20_000_000;
+const IMAGE_SCN_CNT_CODE: u32 = 0x0000_0020;
+const IMAGE_SCN_MEM_EXECUTE: u32 = 0x2000_0000;
 
 #[derive(Debug)]
 pub(super) struct PDBSections {
@@ -801,7 +801,7 @@ mod tests {
         let mut res: Vec<BreakpadLineRecord> = Vec::new();
         func.lines().for_each(|l| {
             let line = l.unwrap();
-            if line.line >= 0xf00_000 {
+            if line.line >= 0x00f0_0000 {
                 res.last_mut().unwrap().size += line.size
             } else {
                 res.push(line);
