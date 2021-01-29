@@ -77,11 +77,17 @@ pub(crate) fn get_compile_time_arch() -> &'static str {
     .name()
 }
 
+pub(crate) fn normalize_anonymous_namespace(text: &str) -> String {
+    let fixed = text.replace("`anonymous namespace'", "(anonymous namespace)");
+    String::from(&fixed)
+}
+
 pub(crate) fn fix_symbol_name<'a>(name: &'a Name<'a>) -> Name<'a> {
     lazy_static! {
         static ref LLVM_NNN: Regex = Regex::new(r"\.llvm\.[0-9]+$").unwrap();
     }
     let fixed = LLVM_NNN.replace(name.as_str(), "");
+    let fixed = normalize_anonymous_namespace(&fixed);
 
     Name::new(fixed, name.mangling(), name.language())
 }
@@ -104,6 +110,21 @@ mod tests {
         assert_eq!(
             Name::new("hello", NameMangling::Mangled, Language::Unknown),
             fix_symbol_name(&name)
+        );
+    }
+
+    #[test]
+    fn test_normalize_anonymous_namespace() {
+        let name = "(anonymous namespace)";
+        assert_eq!(
+            "(anonymous namespace)",
+            normalize_anonymous_namespace(&name)
+        );
+
+        let name = "`anonymous namespace'";
+        assert_eq!(
+            "(anonymous namespace)",
+            normalize_anonymous_namespace(&name)
         );
     }
 }
