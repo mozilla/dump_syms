@@ -672,6 +672,10 @@ impl Dumpable for PEInfo {
     }
 
     fn get_name(&self) -> &str {
+        if self.pdb_name.is_empty() {
+            return &self.pe_name;
+        }
+
         &self.pdb_name
     }
 }
