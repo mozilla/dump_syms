@@ -55,14 +55,10 @@ impl<'a, 's> SourceLineCollector<'a, 's> {
         })
     }
 
-    pub(super) fn collect_source_lines(
-        &self,
-        offset: PdbInternalSectionOffset,
-        len: u32,
-    ) -> Result<Lines> {
+    pub(super) fn collect_source_lines(&self, offset: PdbInternalSectionOffset, len: u32) -> Lines {
         let mut source_lines = Lines::new();
         if self.lines.is_empty() {
-            return Ok(source_lines);
+            return source_lines;
         }
 
         let start = (offset.section, offset.offset);
@@ -80,7 +76,7 @@ impl<'a, 's> SourceLineCollector<'a, 's> {
             source_lines.add_line(rva.0, line.line_start, last_file_id);
         }
 
-        Ok(source_lines)
+        source_lines
     }
 }
 
