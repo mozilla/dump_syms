@@ -6,7 +6,7 @@
 use hashbrown::{hash_map, HashMap};
 use pdb::{
     AddressMap, FrameTable, PdbInternalRva, PdbInternalSectionOffset, ProcedureSymbol,
-    PublicSymbol, RegisterRelativeSymbol, Result, TypeIndex,
+    PublicSymbol, RegisterRelativeSymbol, TypeIndex,
 };
 use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
@@ -168,7 +168,7 @@ impl SelectedSymbol {
         function: ProcedureSymbol,
         block_info: BlockInfo,
         line_collector: &SourceLineCollector,
-    ) -> Result<()> {
+    ) {
         self.is_multiple = true;
 
         // TODO: this is legacy code
@@ -180,10 +180,8 @@ impl SelectedSymbol {
             self.type_index = function.type_index;
             self.offset = block_info.offset;
             self.len = block_info.len;
-            self.source = line_collector.collect_source_lines(block_info.offset, block_info.len)?;
+            self.source = line_collector.collect_source_lines(block_info.offset, block_info.len);
         }
-
-        Ok(())
     }
 
     pub(super) fn update_public(&mut self, symbol: PublicSymbol) {
@@ -266,16 +264,16 @@ impl RvaSymbols {
         line_collector: &SourceLineCollector,
         function: ProcedureSymbol,
         block_info: BlockInfo,
-    ) -> Result<()> {
+    ) {
         // Since several symbols may have the same rva (because they've the same disassembly code)
         // we need to "select" the a symbol for a rva.
         // Anyway it could lead to strange backtraces.
 
         let fun_name = function.name.to_string().into_owned();
         if let Some(selected) = self.map.get_mut(&block_info.rva) {
-            selected.update_private(function, block_info, line_collector)?;
+            selected.update_private(function, block_info, line_collector);
         } else {
-            let source = line_collector.collect_source_lines(block_info.offset, block_info.len)?;
+            let source = line_collector.collect_source_lines(block_info.offset, block_info.len);
             self.rva = block_info.rva;
             self.symbol = Some(SelectedSymbol {
                 name: fun_name,
@@ -292,8 +290,6 @@ impl RvaSymbols {
             });
             self.last_id += 1;
         }
-
-        Ok(())
     }
 
     fn is_constant_string(name: &str) -> bool {
@@ -363,11 +359,7 @@ impl RvaSymbols {
         }
     }
 
-    pub(super) fn add_symbol(
-        &mut self,
-        function: SelectedSymbol,
-        block_info: BlockInfo,
-    ) -> Result<()> {
+    pub(super) fn add_symbol(&mut self, function: SelectedSymbol, block_info: BlockInfo) {
         match self.map.entry(block_info.rva) {
             hash_map::Entry::Occupied(selected) => {
                 let selected = selected.into_mut();
@@ -377,8 +369,6 @@ impl RvaSymbols {
                 e.insert(function);
             }
         }
-
-        Ok(())
     }
 
     pub(super) fn add_ebp(&mut self, ebp: RegisterRelativeSymbol) {

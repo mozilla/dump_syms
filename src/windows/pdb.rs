@@ -166,12 +166,12 @@ impl Collector {
         symbol: ProcedureSymbol,
         info: BlockInfo,
         lines: &SourceLineCollector,
-    ) -> Result<()> {
-        self.symbols.add_procedure_symbol(lines, symbol, info)
+    ) {
+        self.symbols.add_procedure_symbol(lines, symbol, info);
     }
 
-    fn add_symbol(&mut self, symbol: SelectedSymbol, info: BlockInfo) -> Result<()> {
-        self.symbols.add_symbol(symbol, info)
+    fn add_symbol(&mut self, symbol: SelectedSymbol, info: BlockInfo) {
+        self.symbols.add_symbol(symbol, info);
     }
 
     fn add_reg_rel(&mut self, symbol: RegisterRelativeSymbol) {
@@ -353,7 +353,7 @@ impl<'s> PDBData<'s> {
                     len: block.len,
                 },
                 lines,
-            )?;
+            );
         }
 
         Ok(())
@@ -364,25 +364,25 @@ impl<'s> PDBData<'s> {
         block: SeparatedCodeSymbol,
         collector: &mut Collector,
         lines: &SourceLineCollector,
-    ) -> Result<()> {
+    ) {
         // We can see some sepcode syms in ntdll.dll
         // As far as I understand, they're pieces of code moved at compilation time.
         // According to some functions signatures these piece of code can be just
         // exception filter and exception handling
         let block_rva = match block.offset.to_rva(&self.address_map) {
             Some(rva) => rva,
-            _ => return Ok(()),
+            _ => return,
         };
 
         let parent_rva = match block.parent_offset.to_rva(&self.address_map) {
             Some(rva) => rva,
-            _ => return Ok(()),
+            _ => return,
         };
 
         if let Some(parent) = collector.get_symbol_at(parent_rva.0) {
             if block_rva < parent_rva || block_rva > parent_rva + parent.len {
                 // So the block is outside of its parent procedure
-                let source = lines.collect_source_lines(block.offset, block.len)?;
+                let source = lines.collect_source_lines(block.offset, block.len);
                 let sym = SelectedSymbol {
                     name: parent.name.clone(),
                     type_index: parent.type_index,
@@ -403,11 +403,9 @@ impl<'s> PDBData<'s> {
                         offset: block.offset,
                         len: block.len,
                     },
-                )?;
+                );
             }
         }
-
-        Ok(())
     }
 
     fn handle_symbol(
@@ -432,13 +430,13 @@ impl<'s> PDBData<'s> {
                         len: procedure.len,
                     },
                     lines,
-                )?;
+                );
             }
             SymbolData::Block(block) => {
                 self.add_block(&module_info, block, collector, lines)?;
             }
             SymbolData::SeparatedCode(block) => {
-                self.add_sepcode(block, collector, lines)?;
+                self.add_sepcode(block, collector, lines);
             }
             SymbolData::RegisterRelative(regrel) => {
                 collector.add_reg_rel(regrel);
