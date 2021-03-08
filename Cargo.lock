@@ -433,7 +433,7 @@ dependencies = [
  "log",
  "num_cpus",
  "openssl",
- "pdb",
+ "pdb 0.7.0",
  "regex",
  "reqwest",
  "serde",
@@ -1176,6 +1176,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "pdb"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13f4d162ecaaa1467de5afbe62d597757b674b51da8bb4e587430c5fdb2af7aa"
+dependencies = [
+ "fallible-iterator",
+ "scroll",
+ "uuid",
+]
+
+[[package]]
 name = "percent-encoding"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1692,7 +1703,7 @@ dependencies = [
  "lazy_static",
  "lazycell",
  "parking_lot",
- "pdb",
+ "pdb 0.6.0",
  "pest",
  "pest_derive",
  "regex",
