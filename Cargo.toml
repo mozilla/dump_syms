@@ -16,7 +16,7 @@ crossbeam = "0.8.0"
 dirs = "3.0"
 failure = "0.1"
 futures = "0.3"
-hashbrown = { version = "0.9", features = ["serde"] }
+hashbrown = { version = "0.11", features = ["serde"] }
 lazy_static = "1.4"
 log = "0.4"
 num_cpus = "1.13"
