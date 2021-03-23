@@ -859,13 +859,11 @@ mod tests {
                 .map(|(a, n, o)| format!("At 0x{:x}: new {}, old: {}", a, n, o))
                 .collect();
             panic!(
-                format!(
-                    "Not the same number of FUNC (new: {}, old: {}):\n - Diff keys: {:?}\n - Diff values: {:?}",
-                    func_new.len(),
-                    func_old.len(),
-                    diff,
-                    values,
-                )
+                "Not the same number of FUNC (new: {}, old: {}):\n - Diff keys: {:?}\n - Diff values: {:?}",
+                func_new.len(),
+                func_old.len(),
+                diff,
+                values,
             );
         }
     }
