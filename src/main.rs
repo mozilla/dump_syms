@@ -16,7 +16,7 @@ mod windows;
 
 use clap::{crate_authors, crate_version, App, Arg};
 use log::error;
-use simplelog::{Config, LevelFilter, TermLogger, TerminalMode};
+use simplelog::{ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
 use std::ops::Deref;
 use std::panic;
 
@@ -147,7 +147,9 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
     };
 
     // Init the logger
-    let _ = TermLogger::init(verbosity, Config::default(), TerminalMode::Stderr);
+    let mut config = ConfigBuilder::new();
+    config.set_time_to_local(true);
+    let _ = TermLogger::init(verbosity, config.build(), TerminalMode::Stderr);
 
     // Set a panic hook to redirect to the logger
     panic::set_hook(Box::new(|panic_info| {
