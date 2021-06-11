@@ -3,6 +3,7 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use log::warn;
 use std::path::PathBuf;
 use symbolic::debuginfo::pe::PeObject;
 use uuid::Uuid;
@@ -33,20 +34,23 @@ fn try_to_find_pdb(path: &PathBuf, pdb_filename: &str) -> Option<Vec<u8>> {
     None
 }
 
-fn os_specific_try_to_find_pdb(path: &PathBuf, pdb_filename: String) -> (Option<Vec<u8>>, String) {
+fn os_specific_try_to_find_pdb(path: &PathBuf, pdb_filename: &str) -> (Option<Vec<u8>>, String) {
     // We may have gotten either an OS native path, or a Windows path.
     // On Windows, they're both the same. On Unix, they are different, and in that case,
     // we change backslashes to forward slashes for `file_name()` to do its job.
     // But before that, just try wether the file exists.
     #[cfg(unix)]
     let pdb_filename = pdb_filename.replace("\\", "/");
-    let pdb_path = PathBuf::from(&pdb_filename);
-    let pdb_name = pdb_path.file_name().unwrap().to_str().unwrap().to_string();
-
-    if pdb_path.is_file() {
-        (Some(utils::read_file(pdb_path)), pdb_name)
+    let pdb_path = PathBuf::from(pdb_filename);
+    if let Some(file_name) = pdb_path.file_name() {
+        let pdb_name = file_name.to_str().unwrap().to_string();
+        if pdb_path.is_file() {
+            (Some(utils::read_file(pdb_path)), pdb_name)
+        } else {
+            (try_to_find_pdb(path, &pdb_name), pdb_name)
+        }
     } else {
-        (try_to_find_pdb(path, &pdb_name), pdb_name)
+        (None, "".to_string())
     }
 }
 
@@ -59,9 +63,11 @@ pub fn get_pe_pdb_buf<'a>(
         .unwrap_or_else(|_| panic!("Unable to parse the PE file {}", path.to_str().unwrap()));
     if let Some(pdb_filename) = pe.debug_file_name() {
         let pdb_filename = pdb_filename.into_owned();
-        let (pdb, pdb_name) = os_specific_try_to_find_pdb(path, pdb_filename);
-
-        if let Some(pdb_buf) = pdb {
+        let (pdb, pdb_name) = os_specific_try_to_find_pdb(path, &pdb_filename);
+        if pdb_name.is_empty() {
+            warn!("Invalid pdb filename in PE file: \"{}\"", pdb_filename);
+            None
+        } else if let Some(pdb_buf) = pdb {
             Some((pe, pdb_buf, pdb_name))
         } else {
             // Not here so try symbol server (or cache)
