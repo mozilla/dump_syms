@@ -8,7 +8,7 @@ use futures::{stream, StreamExt};
 use reqwest::{self, blocking, header::USER_AGENT, Client};
 use std::fs::{self, File};
 use std::io::{BufWriter, Read, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 use url::Url;
@@ -107,7 +107,7 @@ fn read_config() -> Option<Vec<SymbolServer>> {
 }
 
 fn read_config_from_str(s: &str) -> Option<Vec<SymbolServer>> {
-    let servers = parse_sympath(&s);
+    let servers = parse_sympath(s);
     if servers.is_empty() {
         None
     } else {
@@ -177,7 +177,7 @@ pub fn get_path_for_sym(file_name: &str, id: &str) -> PathBuf {
 fn search_in_cache(
     servers: &[SymbolServer],
     id: &str,
-    base: &PathBuf,
+    base: &Path,
     file_name: &str,
 ) -> Option<PathBuf> {
     for cache in servers.iter().filter_map(|x| x.cache.as_ref()) {
@@ -189,15 +189,14 @@ fn search_in_cache(
     None
 }
 
-fn get_jobs(servers: &[SymbolServer], id: &str, base: &PathBuf, file_name: &str) -> Vec<Job> {
+fn get_jobs(servers: &[SymbolServer], id: &str, base: &Path, file_name: &str) -> Vec<Job> {
     // The query urls are: https://symbols.mozilla.org/xul.pdb/DEBUG_ID/xul.pd_
     let mut jobs = Vec::new();
     for server in servers.iter() {
-        let path = if let Some(cache) = server.cache.as_ref() {
-            Some(PathBuf::from(cache).join(base).join(id).join(&file_name))
-        } else {
-            None
-        };
+        let path = server
+            .cache
+            .as_ref()
+            .map(|cache| PathBuf::from(cache).join(base).join(id).join(&file_name));
         let job = Job::new(
             path.clone(),
             format!("{}/{}/{}/{}", server.server, file_name, id, file_name),
@@ -299,13 +298,13 @@ pub fn search_file(
     let base = get_base(&file_name);
 
     // Start with the caches
-    if let Some(path) = search_in_cache(&servers, id, &base, &file_name) {
+    if let Some(path) = search_in_cache(servers, id, &base, &file_name) {
         return (Some(utils::read_file(path)), file_name);
     }
 
     // Try the symbol servers
     // Each job contains the path where to cache data (if one) and a query url
-    let jobs = get_jobs(&servers, id, &base, &file_name);
+    let jobs = get_jobs(servers, id, &base, &file_name);
     let buf = fetch_data(jobs);
 
     if let Some(buf) = buf {

@@ -523,12 +523,11 @@ impl<'a> TypeDumper<'a> {
     }
 
     fn dump_ptr(&self, ptr: PointerType, is_const: bool) -> Result<String> {
-        let mut attributes = Vec::new();
-        attributes.push(PtrAttributes {
+        let mut attributes = vec![PtrAttributes {
             is_pointer_const: ptr.attributes.is_const() || is_const,
             is_pointee_const: false,
             mode: ptr.attributes.pointer_mode(),
-        });
+        }];
         let mut ptr = ptr;
         loop {
             let typ = self.find(ptr.underlying_type)?;

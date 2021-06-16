@@ -67,7 +67,7 @@ impl<'a, 's> SourceLineCollector<'a, 's> {
         let mut last_file_id = 0;
 
         for (_, line) in self.lines.range((Included(&start), Excluded(&end))) {
-            let rva = line.offset.to_internal_rva(&self.address_map).unwrap();
+            let rva = line.offset.to_internal_rva(self.address_map).unwrap();
             if last_file_index != line.file_index {
                 let file = self.line_program.get_file_info(line.file_index).unwrap();
                 last_file_index = line.file_index;

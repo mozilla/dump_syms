@@ -4,7 +4,7 @@
 // copied, modified, or distributed except according to those terms.
 
 use log::warn;
-use std::path::PathBuf;
+use std::path::Path;
 use symbolic::debuginfo::pe::PeObject;
 use uuid::Uuid;
 
@@ -12,7 +12,7 @@ use crate::cache::{self, SymbolServer};
 use crate::utils;
 use crate::windows::pdb::PDBInfo;
 
-fn try_to_find_pdb(path: &PathBuf, pdb_filename: &str) -> Option<Vec<u8>> {
+fn try_to_find_pdb(path: &Path, pdb_filename: &str) -> Option<Vec<u8>> {
     // Just check that the file is in the same directory as the PE one
     let pdb = path.with_file_name(pdb_filename);
     let mut pdb_cab = pdb.clone();
@@ -34,14 +34,14 @@ fn try_to_find_pdb(path: &PathBuf, pdb_filename: &str) -> Option<Vec<u8>> {
     None
 }
 
-fn os_specific_try_to_find_pdb(path: &PathBuf, pdb_filename: &str) -> (Option<Vec<u8>>, String) {
+fn os_specific_try_to_find_pdb(path: &Path, pdb_filename: &str) -> (Option<Vec<u8>>, String) {
     // We may have gotten either an OS native path, or a Windows path.
     // On Windows, they're both the same. On Unix, they are different, and in that case,
     // we change backslashes to forward slashes for `file_name()` to do its job.
     // But before that, just try wether the file exists.
     #[cfg(unix)]
     let pdb_filename = pdb_filename.replace("\\", "/");
-    let pdb_path = PathBuf::from(pdb_filename);
+    let pdb_path = Path::new(&pdb_filename);
     if let Some(file_name) = pdb_path.file_name() {
         let pdb_name = file_name.to_str().unwrap().to_string();
         if pdb_path.is_file() {
@@ -55,11 +55,11 @@ fn os_specific_try_to_find_pdb(path: &PathBuf, pdb_filename: &str) -> (Option<Ve
 }
 
 pub fn get_pe_pdb_buf<'a>(
-    path: &PathBuf,
+    path: &Path,
     buf: &'a [u8],
     symbol_server: Option<&Vec<SymbolServer>>,
 ) -> Option<(PeObject<'a>, Vec<u8>, String)> {
-    let pe = PeObject::parse(&buf)
+    let pe = PeObject::parse(buf)
         .unwrap_or_else(|_| panic!("Unable to parse the PE file {}", path.to_str().unwrap()));
     if let Some(pdb_filename) = pe.debug_file_name() {
         let pdb_filename = pdb_filename.into_owned();
@@ -73,11 +73,7 @@ pub fn get_pe_pdb_buf<'a>(
             // Not here so try symbol server (or cache)
             let debug_id = get_pe_debug_id(Some(&pe)).unwrap();
             let (pdb, pdb_name) = cache::search_file(pdb_name, &debug_id, symbol_server);
-            if let Some(pdb_buf) = pdb {
-                Some((pe, pdb_buf, pdb_name))
-            } else {
-                None
-            }
+            pdb.map(|pdb_buf| (pe, pdb_buf, pdb_name))
         }
     } else {
         None
@@ -104,9 +100,9 @@ fn fix_extension(ext: &str) -> &str {
     }
 }
 
-pub(crate) fn try_to_set_pe(path: &PathBuf, pdb_info: &mut PDBInfo, pdb_buf: &[u8]) {
+pub(crate) fn try_to_set_pe(path: &Path, pdb_info: &mut PDBInfo, pdb_buf: &[u8]) {
     // Just check that the file is in the same directory as the PDB one
-    let mut path = path.clone();
+    let mut path = path.to_path_buf();
     for ext in vec!["dll", "dl_", "exe", "ex_"].drain(..) {
         path.set_extension(ext);
         if path.is_file() {

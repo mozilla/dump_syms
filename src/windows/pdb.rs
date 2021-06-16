@@ -26,13 +26,13 @@ use crate::common::{self, Dumpable, Mergeable};
 use crate::mapping::PathMappings;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-enum CPU {
+enum Cpu {
     X86,
     X86_64,
     Unknown,
 }
 
-impl CPU {
+impl Cpu {
     fn get_ptr_size(self) -> u32 {
         match self {
             Self::X86 => 4,
@@ -41,15 +41,15 @@ impl CPU {
     }
 }
 
-impl Display for CPU {
+impl Display for Cpu {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         write!(
             f,
             "{}",
             match self {
-                CPU::X86 => "x86",
-                CPU::X86_64 => "x86_64",
-                CPU::Unknown => "unknown",
+                Cpu::X86 => "x86",
+                Cpu::X86_64 => "x86_64",
+                Cpu::Unknown => "unknown",
             }
         )
     }
@@ -145,7 +145,7 @@ struct PDBData<'s> {
 }
 
 struct Collector {
-    cpu: CPU,
+    cpu: Cpu,
     symbols: RvaSymbols,
     pdb_sections: PDBSections,
     pdb_contributions: PDBContributions,
@@ -177,7 +177,7 @@ impl Collector {
     fn add_reg_rel(&mut self, symbol: RegisterRelativeSymbol) {
         // TODO: check that's the correct way to know if we've a parameter here
         // 22 comes from https://github.com/microsoft/microsoft-pdb/blob/master/include/cvconst.h#L436
-        if self.cpu == CPU::X86 && symbol.register == Register(22 /* EBP */) && symbol.offset > 0 {
+        if self.cpu == Cpu::X86 && symbol.register == Register(22 /* EBP */) && symbol.offset > 0 {
             self.symbols.add_ebp(symbol);
         }
     }
@@ -194,7 +194,7 @@ impl Collector {
 pub(crate) struct PDBInfo {
     symbols: PDBSymbols,
     files: Vec<String>,
-    cpu: CPU,
+    cpu: Cpu,
     debug_id: String,
     pdb_name: String,
     pe_name: String,
@@ -228,18 +228,18 @@ impl Display for PDBInfo {
     }
 }
 
-fn get_cpu(dbi: &DebugInformation) -> CPU {
+fn get_cpu(dbi: &DebugInformation) -> Cpu {
     if let Ok(mt) = dbi.machine_type() {
         match mt {
             // Currently breakpad code only uses these machine types
             // but we've more possibilities:
             // https://docs.rs/pdb/0.5.0/pdb/enum.MachineType.html
-            MachineType::X86 => CPU::X86,
-            MachineType::Amd64 | MachineType::Ia64 => CPU::X86_64,
-            _ => CPU::Unknown,
+            MachineType::X86 => Cpu::X86,
+            MachineType::Amd64 | MachineType::Ia64 => Cpu::X86_64,
+            _ => Cpu::Unknown,
         }
     } else {
-        CPU::Unknown
+        Cpu::Unknown
     }
 }
 
@@ -269,7 +269,7 @@ fn get_stack_info(pdb_buf: Option<&[u8]>, pe: Option<PeObject>) -> String {
 
     if !found_unwind_info {
         if let Some(pdb_buf) = pdb_buf {
-            if let Ok(pdb) = PdbObject::parse(&pdb_buf) {
+            if let Ok(pdb) = PdbObject::parse(pdb_buf) {
                 if pdb.has_unwind_info() {
                     cfi_writer
                         .process(&Object::Pdb(pdb))
@@ -433,7 +433,7 @@ impl<'s> PDBData<'s> {
                 );
             }
             SymbolData::Block(block) => {
-                self.add_block(&module_info, block, collector, lines)?;
+                self.add_block(module_info, block, collector, lines)?;
             }
             SymbolData::SeparatedCode(block) => {
                 self.add_sepcode(block, collector, lines);
@@ -469,7 +469,7 @@ impl<'s> PDBData<'s> {
 
             let lines = SourceLineCollector::new(
                 &self.address_map,
-                &source_files,
+                source_files,
                 module_info.line_program()?,
             )?;
 
@@ -527,13 +527,11 @@ impl PDBInfo {
         // Demangler or dumper (for type info we've for private symbols)
         let type_dumper = TypeDumper::new(&type_info, cpu.get_ptr_size(), DumperFlags::default())?;
 
-        let code_id = if let Some(pe) = pe.as_ref() {
-            Some(pe.code_id().unwrap().as_str().to_uppercase())
-        } else {
-            None
-        };
+        let code_id = pe
+            .as_ref()
+            .map(|pe| pe.code_id().unwrap().as_str().to_uppercase());
 
-        let stack = get_stack_info(Some(&buf), pe);
+        let stack = get_stack_info(Some(buf), pe);
         let symbols =
             collector
                 .symbols
@@ -589,7 +587,7 @@ impl Mergeable for PDBInfo {
 
 pub(crate) struct PEInfo {
     symbols: PDBSymbols,
-    cpu: CPU,
+    cpu: Cpu,
     debug_id: String,
     pdb_name: String,
     pe_name: String,
@@ -622,12 +620,12 @@ impl Display for PEInfo {
 impl PEInfo {
     pub fn new(pe_name: &str, pe: PeObject) -> Result<Self> {
         let cpu = match pe.arch() {
-            Arch::X86 => CPU::X86,
-            Arch::X86Unknown => CPU::X86,
-            Arch::Amd64 => CPU::X86_64,
-            Arch::Amd64h => CPU::X86_64,
-            Arch::Amd64Unknown => CPU::X86_64,
-            _ => CPU::Unknown,
+            Arch::X86 => Cpu::X86,
+            Arch::X86Unknown => Cpu::X86,
+            Arch::Amd64 => Cpu::X86_64,
+            Arch::Amd64h => Cpu::X86_64,
+            Arch::Amd64Unknown => Cpu::X86_64,
+            _ => Cpu::Unknown,
         };
         let pdb_name = pe.debug_file_name().unwrap_or_default().to_string();
         let pdb_name = PEInfo::file_name_only(&pdb_name).to_string();
