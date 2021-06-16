@@ -130,7 +130,7 @@ impl SelectedSymbol {
             return 0;
         }
 
-        let internal_rva = self.offset.to_internal_rva(&address_map).unwrap();
+        let internal_rva = self.offset.to_internal_rva(address_map).unwrap();
         let mut frames = frame_table.iter_at_rva(internal_rva);
         if let Ok(frame) = frames.next() {
             if let Some(frame) =  frame {
@@ -402,7 +402,7 @@ impl RvaSymbols {
             if sym.len == 0 {
                 ranges.insert((rva, 0), last);
             } else {
-                let start = offset.to_internal_rva(&address_map).unwrap();
+                let start = offset.to_internal_rva(address_map).unwrap();
                 let end = PdbInternalRva(start.0 + sym.len);
                 for (rva, len) in address_map
                     .rva_ranges(start..end)
@@ -532,7 +532,7 @@ pub(super) fn symbolic_to_pdb_symbols(
 
     for sym in syms {
         if let Some(name) = sym.name() {
-            let demangled_name = TypeDumper::demangle(&name);
+            let demangled_name = TypeDumper::demangle(name);
             let (name, parameter_size) = match demangled_name {
                 FuncName::Undecorated(name) => (name, 0),
                 FuncName::Unknown((name, parameter_size)) => (name, parameter_size),

@@ -165,7 +165,7 @@ impl PathMappingGenerator {
                             buf.extend_from_slice(val.as_bytes());
                         }
                         ActionKind::Digest(uppercase) => {
-                            buf.extend_from_slice(&get_digest(file, uppercase)?.as_bytes());
+                            buf.extend_from_slice(get_digest(file, uppercase)?.as_bytes());
                         }
                         ActionKind::None => {}
                     }

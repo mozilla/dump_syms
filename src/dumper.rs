@@ -8,7 +8,7 @@ use failure::Fail;
 use hashbrown::HashMap;
 use log::{error, info};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
@@ -43,7 +43,7 @@ pub(crate) trait Creator: Mergeable + Dumpable + Sized {
     fn get_dbg(
         arch: Arch,
         buf: &[u8],
-        path: &PathBuf,
+        path: &Path,
         filename: &str,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self>;
@@ -51,7 +51,7 @@ pub(crate) trait Creator: Mergeable + Dumpable + Sized {
     fn get_pe<'a>(
         _conf: &Config<'a>,
         _buf: &[u8],
-        _path: &PathBuf,
+        _path: &Path,
         _filename: &str,
         _mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
@@ -63,11 +63,11 @@ impl Creator for ElfInfo {
     fn get_dbg(
         _arch: Arch,
         buf: &[u8],
-        _path: &PathBuf,
+        _path: &Path,
         filename: &str,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
-        Self::new(&buf, filename, Platform::Linux, mapping)
+        Self::new(buf, filename, Platform::Linux, mapping)
     }
 }
 
@@ -75,11 +75,11 @@ impl Creator for MachoInfo {
     fn get_dbg(
         arch: Arch,
         buf: &[u8],
-        _path: &PathBuf,
+        _path: &Path,
         filename: &str,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
-        Self::new(&buf, filename, arch, mapping)
+        Self::new(buf, filename, arch, mapping)
     }
 }
 
@@ -87,24 +87,24 @@ impl Creator for PDBInfo {
     fn get_dbg(
         _arch: Arch,
         buf: &[u8],
-        path: &PathBuf,
+        path: &Path,
         filename: &str,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
-        let mut pdb = Self::new(&buf, filename, "", None, mapping)?;
-        windows::utils::try_to_set_pe(&path, &mut pdb, &buf);
+        let mut pdb = Self::new(buf, filename, "", None, mapping)?;
+        windows::utils::try_to_set_pe(path, &mut pdb, buf);
         Ok(pdb)
     }
 
     fn get_pe<'a>(
         conf: &Config<'a>,
         buf: &[u8],
-        path: &PathBuf,
+        path: &Path,
         filename: &str,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
         let symbol_server = cache::get_sym_servers(conf.symbol_server);
-        let res = windows::utils::get_pe_pdb_buf(path, &buf, symbol_server.as_ref());
+        let res = windows::utils::get_pe_pdb_buf(path, buf, symbol_server.as_ref());
 
         if let Some((pe, pdb_buf, pdb_name)) = res {
             let pdb = Self::new(&pdb_buf, &pdb_name, filename, Some(pe), mapping)?;
@@ -119,7 +119,7 @@ impl Creator for PEInfo {
     fn get_dbg(
         _arch: Arch,
         _buf: &[u8],
-        _path: &PathBuf,
+        _path: &Path,
         _filename: &str,
         _mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
@@ -129,11 +129,11 @@ impl Creator for PEInfo {
     fn get_pe<'a>(
         _conf: &Config<'a>,
         buf: &[u8],
-        path: &PathBuf,
+        path: &Path,
         filename: &str,
         _mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
-        let pe = PeObject::parse(&buf)
+        let pe = PeObject::parse(buf)
             .unwrap_or_else(|_| panic!("Unable to parse the PE file {}", path.to_str().unwrap()));
         let pe = Self::new(filename, pe)?;
         Ok(pe)
@@ -148,7 +148,7 @@ fn store<D: Dumpable, S1: AsRef<str>, S2: AsRef<str>>(
     let output = output.as_ref();
     let store = store.filter(|p| !p.as_ref().is_empty()).map(|p| {
         PathBuf::from(p.as_ref()).join(cache::get_path_for_sym(
-            &dumpable.get_name(),
+            dumpable.get_name(),
             dumpable.get_debug_id(),
         ))
     });
@@ -173,29 +173,27 @@ fn store<D: Dumpable, S1: AsRef<str>, S2: AsRef<str>>(
 
 fn get_from_id(
     config: &Config,
-    path: &PathBuf,
+    path: &Path,
     filename: String,
 ) -> common::Result<(Vec<u8>, String)> {
-    for id in &[config.debug_id, config.code_id] {
-        if let Some(id) = id {
-            let symbol_server = cache::get_sym_servers(config.symbol_server);
-            let (buf, filename) = cache::search_file(filename, id, symbol_server.as_ref());
-            return if let Some(buf) = buf {
-                Ok((buf, filename))
-            } else {
-                Err(format!("Impossible to get file {} with id {}", filename, id).into())
-            };
-        }
+    if let Some(id) = config.debug_id.or(config.code_id) {
+        let symbol_server = cache::get_sym_servers(config.symbol_server);
+        let (buf, filename) = cache::search_file(filename, id, symbol_server.as_ref());
+        return if let Some(buf) = buf {
+            Ok((buf, filename))
+        } else {
+            Err(format!("Impossible to get file {} with id {}", filename, id).into())
+        };
     }
 
     Ok((utils::read_file(&path), filename))
 }
 
 pub(crate) fn single_file(config: &Config, filename: &str) -> common::Result<()> {
-    let path = PathBuf::from(filename);
-    let filename = utils::get_filename(&path);
+    let path = Path::new(filename);
+    let filename = utils::get_filename(path);
 
-    let (buf, filename) = get_from_id(config, &path, filename)?;
+    let (buf, filename) = get_from_id(config, path, filename)?;
     let file_mapping = PathMappings::new(
         &config.mapping_var,
         &config.mapping_src,
@@ -209,28 +207,28 @@ pub(crate) fn single_file(config: &Config, filename: &str) -> common::Result<()>
         FileType::Elf => store(
             config.output,
             config.store,
-            ElfInfo::get_dbg(arch, &buf, &path, &filename, file_mapping)?,
+            ElfInfo::get_dbg(arch, &buf, path, &filename, file_mapping)?,
         ),
         FileType::Pdb => store(
             config.output,
             config.store,
-            PDBInfo::get_dbg(arch, &buf, &path, &filename, file_mapping)?,
+            PDBInfo::get_dbg(arch, &buf, path, &filename, file_mapping)?,
         ),
         FileType::Pe => {
-            if let Ok(pdb_info) = PDBInfo::get_pe(config, &buf, &path, &filename, file_mapping) {
+            if let Ok(pdb_info) = PDBInfo::get_pe(config, &buf, path, &filename, file_mapping) {
                 store(config.output, config.store, pdb_info)
             } else {
                 store(
                     config.output,
                     config.store,
-                    PEInfo::get_pe(config, &buf, &path, &filename, None)?,
+                    PEInfo::get_pe(config, &buf, path, &filename, None)?,
                 )
             }
         }
         FileType::Macho => store(
             config.output,
             config.store,
-            MachoInfo::get_dbg(arch, &buf, &path, &filename, file_mapping)?,
+            MachoInfo::get_dbg(arch, &buf, path, &filename, file_mapping)?,
         ),
         FileType::Unknown => Err("Unknown file format".into()),
     }

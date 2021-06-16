@@ -30,7 +30,7 @@ impl Action<'_> {
 
     fn single_file(&self, filename: &str) -> common::Result<()> {
         match self {
-            Self::Dump(config) => dumper::single_file(&config, filename),
+            Self::Dump(config) => dumper::single_file(config, filename),
             Self::ListArch => {
                 let path = PathBuf::from(filename);
                 let filename = utils::get_filename(&path);
@@ -44,9 +44,9 @@ impl Action<'_> {
     fn several_files(&self, filenames: &[&str]) -> common::Result<()> {
         match self {
             Self::Dump(config) => match config.file_type {
-                FileType::Elf => dumper::several_files::<ElfInfo>(&config, filenames),
-                FileType::Macho => dumper::several_files::<MachoInfo>(&config, filenames),
-                FileType::Pdb => dumper::several_files::<PDBInfo>(&config, filenames),
+                FileType::Elf => dumper::several_files::<ElfInfo>(config, filenames),
+                FileType::Macho => dumper::several_files::<MachoInfo>(config, filenames),
+                FileType::Pdb => dumper::several_files::<PDBInfo>(config, filenames),
                 _ => Ok(()),
             },
             Self::ListArch => {

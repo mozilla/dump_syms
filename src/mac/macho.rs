@@ -92,10 +92,10 @@ impl Dumpable for MachoInfo {
     }
 
     fn get_debug_id(&self) -> &str {
-        &self.elf.get_debug_id()
+        self.elf.get_debug_id()
     }
 
     fn get_name(&self) -> &str {
-        &self.elf.get_name()
+        self.elf.get_name()
     }
 }

@@ -170,7 +170,7 @@ pub fn normalize_path<P: AsRef<Path>>(path: P) -> PathBuf {
     ret
 }
 
-pub fn get_filename(path: &PathBuf) -> String {
+pub fn get_filename(path: &Path) -> String {
     path.file_name().unwrap().to_str().unwrap().to_string()
 }
 
