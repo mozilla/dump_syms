@@ -682,9 +682,9 @@ checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 
 [[package]]
 name = "goblin"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee05c709047abe5eb0571880d2887ac77299c5f0835f8e6b7f4d5404f8962921"
+checksum = "0b1800b95efee8ad4ef04517d4d69f8e209e763b1668f1179aeeedd0e454da55"
 dependencies = [
  "log",
  "plain",
@@ -1662,9 +1662,9 @@ checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 
 [[package]]
 name = "symbolic"
-version = "8.2.1"
+version = "8.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2623d737ef022c95212ef824415db53ce8a9b163a256d6a8ebc30a7c2f3a557"
+checksum = "15a8386ee899fa8c8e372d886e937444d2bd72123ef4a3f234e4ac10f65aa2b5"
 dependencies = [
  "symbolic-common",
  "symbolic-debuginfo",
@@ -1674,9 +1674,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-common"
-version = "8.2.1"
+version = "8.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47ff4840b3bc0674313dcb4e6d5afc15b2d3fd4269716f06fcf581037645a56e"
+checksum = "348885c332e7d0784d661844b13b198464144a5ebcd3bfc047a6c441867ea467"
 dependencies = [
  "debugid",
  "memmap",
@@ -1686,9 +1686,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-debuginfo"
-version = "8.2.1"
+version = "8.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e2f42fa4ff5572530e75a5f3d431fe051be978c46e6019fa99c3338fef2a3b9"
+checksum = "35bab4753ee9fcc994192a13fb17519397b283106424e33787265220472816ee"
 dependencies = [
  "dmsort",
  "elementtree",
@@ -1716,9 +1716,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-demangle"
-version = "8.2.1"
+version = "8.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34248c3797477de8fe190615c3f50d69ef79edd65179324f11ffec2ec922cb48"
+checksum = "6780c62bfbd609bffaa13d6959715850578aa43caaae7aee14f1f24ceb64f433"
 dependencies = [
  "cc",
  "cpp_demangle",
@@ -1729,9 +1729,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-minidump"
-version = "8.2.1"
+version = "8.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cda6f409edb044b46a57aff00da96936238e16360f464bb55595ff47e759283"
+checksum = "8507efc38cf694055f3a70ba4ca51b39ef258d5e661772cc29c97bc08f6069e7"
 dependencies = [
  "cc",
  "lazy_static",
