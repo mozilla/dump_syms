@@ -921,7 +921,7 @@ mod tests {
 
         // TODO: find a way to compare function names
 
-        let line_old = clean_old_lines(&old);
+        let line_old = clean_old_lines(old);
         let line_new = new.lines();
 
         assert_eq!(
