@@ -387,7 +387,7 @@ impl ElfInfo {
         collector.collect_publics(o);
 
         let stack = Collector::get_stack_info(o);
-        let symbols = crate::linux::symbol::append_dummy_symbol(collector.syms, file_name);
+        let symbols = crate::linux::symbol::add_executable_section_symbols(collector.syms, o);
 
         Ok(Self {
             symbols,

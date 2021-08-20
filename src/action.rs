@@ -167,7 +167,7 @@ mod tests {
         let data = read(tmp_out).unwrap();
         let new: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
 
-        let basic = PathBuf::from("./test_data/linux/basic.full.sym");
+        let basic = PathBuf::from("./test_data/linux/basic.full_no_multiple.sym");
         let data = read(basic).unwrap();
         let basic: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
 
@@ -200,16 +200,16 @@ mod tests {
             .action(&[stripped.to_str().unwrap(), dbg.to_str().unwrap()])
             .unwrap();
 
-        let re = Regex::new(r"<unknown[^>]*>").unwrap();
+        let re = Regex::new(r"<procedure linkage table[^>]*>").unwrap();
         let data = read(tmp_out).unwrap();
         let data = String::from_utf8(data).unwrap();
-        let data = re.replace_all(&data, "<unknown>");
+        let data = re.replace_all(&data, "<procedure linkage table>");
         let new: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
 
         let basic = PathBuf::from("./test_data/linux/basic.full.sym");
         let data = read(basic).unwrap();
         let data = String::from_utf8(data).unwrap();
-        let data = re.replace_all(&data, "<unknown>");
+        let data = re.replace_all(&data, "<procedure linkage table>");
         let basic: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
 
         assert_eq!(basic, new);
@@ -241,16 +241,13 @@ mod tests {
             .action(&[dbg.to_str().unwrap(), stripped.to_str().unwrap()])
             .unwrap();
 
-        let re = Regex::new(r"<unknown[^>]*>").unwrap();
         let data = read(tmp_out).unwrap();
         let data = String::from_utf8(data).unwrap();
-        let data = re.replace_all(&data, "<unknown>");
         let new: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
 
         let basic = PathBuf::from("./test_data/linux/basic.full.sym");
         let data = read(basic).unwrap();
         let data = String::from_utf8(data).unwrap();
-        let data = re.replace_all(&data, "<unknown>");
         let basic: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
 
         assert_eq!(basic, new);

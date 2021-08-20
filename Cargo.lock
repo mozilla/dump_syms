@@ -389,6 +389,7 @@ dependencies = [
  "failure",
  "futures",
  "fxhash",
+ "goblin",
  "hashbrown 0.11.2",
  "lazy_static",
  "log",
