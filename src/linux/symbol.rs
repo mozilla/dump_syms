@@ -5,6 +5,7 @@
 
 use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
+use std::ops::Bound::{Excluded, Included};
 
 use crate::line::Lines;
 
@@ -20,6 +21,17 @@ pub(super) struct ElfSymbol {
 }
 
 pub(super) type ElfSymbols = BTreeMap<u32, ElfSymbol>;
+
+pub trait ContainsSymbol {
+    fn is_inside_symbol(&self, rva: u32) -> bool;
+}
+
+impl ContainsSymbol for ElfSymbols {
+    fn is_inside_symbol(&self, rva: u32) -> bool {
+        let last = self.range((Included(0), Excluded(rva))).next_back();
+        last.map_or(false, |last| rva < (last.1.rva + last.1.len))
+    }
+}
 
 impl Display for ElfSymbol {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
