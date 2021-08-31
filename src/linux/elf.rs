@@ -16,7 +16,7 @@ use symbolic::demangle::{Demangle, DemangleOptions};
 use symbolic::minidump::cfi::AsciiCfiWriter;
 
 use super::source::{SourceFiles, SourceMap};
-use super::symbol::{ElfSymbol, ElfSymbols};
+use super::symbol::{ContainsSymbol, ElfSymbol, ElfSymbols};
 use crate::common::{self, Dumpable, LineFinalizer, Mergeable};
 use crate::line::Lines;
 use crate::mapping::PathMappings;
@@ -317,6 +317,10 @@ impl Collector {
 
     fn collect_publics(&mut self, o: &Object) {
         for sym in o.symbols() {
+            if self.syms.is_inside_symbol(sym.address as u32) {
+                continue;
+            }
+
             match self.syms.entry(sym.address as u32) {
                 btree_map::Entry::Occupied(_) => {}
                 btree_map::Entry::Vacant(e) => {
@@ -383,7 +387,7 @@ impl ElfInfo {
         collector.collect_publics(o);
 
         let stack = Collector::get_stack_info(o);
-        let symbols = crate::linux::symbol::append_dummy_symbol(collector.syms, file_name);
+        let symbols = crate::linux::symbol::add_executable_section_symbols(collector.syms, o);
 
         Ok(Self {
             symbols,
@@ -433,13 +437,8 @@ impl Mergeable for ElfInfo {
         for (addr, sym) in right.symbols.iter_mut() {
             if sym.is_public {
                 // No line info so just put the sym in the map
-
-                // Check that the symbol isn't inside another one (it happens sometimes IRL)
-                let last = left.symbols.range(0..*addr).next_back();
-                if let Some(last) = last {
-                    if *addr < last.1.rva + last.1.len {
-                        continue;
-                    }
+                if left.symbols.is_inside_symbol(*addr) {
+                    continue;
                 }
 
                 match left.symbols.entry(*addr) {

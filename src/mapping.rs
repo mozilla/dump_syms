@@ -309,11 +309,7 @@ impl PathMappings {
         };
 
         #[cfg(windows)]
-        let file_str = if file_str.starts_with(r"\\?\") {
-            &file_str[r"\\?\".len()..]
-        } else {
-            file_str
-        };
+        let file_str = file_str.strip_prefix(r"\\?\").unwrap_or(file_str);
 
         {
             let cache = self.cache.lock().unwrap();

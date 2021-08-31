@@ -116,15 +116,9 @@ mod tests {
     #[test]
     fn test_normalize_anonymous_namespace() {
         let name = "(anonymous namespace)";
-        assert_eq!(
-            "(anonymous namespace)",
-            normalize_anonymous_namespace(&name)
-        );
+        assert_eq!("(anonymous namespace)", normalize_anonymous_namespace(name));
 
         let name = "`anonymous namespace'";
-        assert_eq!(
-            "(anonymous namespace)",
-            normalize_anonymous_namespace(&name)
-        );
+        assert_eq!("(anonymous namespace)", normalize_anonymous_namespace(name));
     }
 }

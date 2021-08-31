@@ -5,6 +5,8 @@
 
 use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
+use std::ops::Bound::{Excluded, Included};
+use symbolic::debuginfo::Object;
 
 use crate::line::Lines;
 
@@ -20,6 +22,17 @@ pub(super) struct ElfSymbol {
 }
 
 pub(super) type ElfSymbols = BTreeMap<u32, ElfSymbol>;
+
+pub trait ContainsSymbol {
+    fn is_inside_symbol(&self, rva: u32) -> bool;
+}
+
+impl ContainsSymbol for ElfSymbols {
+    fn is_inside_symbol(&self, rva: u32) -> bool {
+        let last = self.range((Included(0), Excluded(rva))).next_back();
+        last.map_or(false, |last| rva < (last.1.rva + last.1.len))
+    }
+}
 
 impl Display for ElfSymbol {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
@@ -60,33 +73,26 @@ impl ElfSymbol {
     }
 }
 
-pub(super) fn append_dummy_symbol(mut syms: ElfSymbols, name: &str) -> ElfSymbols {
-    let (rva, len) = if let Some((_, last_sym)) = syms.iter().next_back() {
-        (last_sym.rva, last_sym.len)
-    } else {
-        return syms;
-    };
-
-    let rva = if len == 0 { rva + len + 1 } else { rva + len };
-
-    let name = if name.is_empty() {
-        String::from("<unknown>")
-    } else {
-        format!("<unknown in {}>", name)
-    };
-
-    syms.insert(
-        rva,
-        ElfSymbol {
-            name,
-            is_public: true,
-            is_multiple: false,
-            rva,
-            len: 0,
-            parameter_size: 0,
-            source: Lines::new(),
-        },
-    );
+pub(super) fn add_executable_section_symbols(mut syms: ElfSymbols, object: &Object) -> ElfSymbols {
+    let object = goblin::Object::parse(object.data());
+    if let Ok(goblin::Object::Elf(elf)) = object {
+        for header in elf.section_headers {
+            if header.is_executable() {
+                let section_name = elf.shdr_strtab.get_at(header.sh_name).unwrap_or("unknown");
+                let symbol_name = format!("<{} ELF section>", section_name);
+                let rva = header.sh_addr as u32;
+                syms.entry(rva).or_insert(ElfSymbol {
+                    name: symbol_name,
+                    is_public: true,
+                    is_multiple: false,
+                    rva,
+                    len: 0,
+                    parameter_size: 0,
+                    source: Lines::new(),
+                });
+            }
+        }
+    }
 
     syms
 }
