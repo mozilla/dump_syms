@@ -48,6 +48,7 @@ pub(crate) trait Dumpable {
     fn dump<W: Write>(&self, writer: W) -> Result<()>;
     fn get_name(&self) -> &str;
     fn get_debug_id(&self) -> &str;
+    fn has_stack(&self) -> bool;
 }
 
 pub(crate) trait Mergeable {

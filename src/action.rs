@@ -94,6 +94,7 @@ mod tests {
             mapping_src: None,
             mapping_dest: None,
             mapping_file: None,
+            check_cfi: false,
         });
 
         action.action(&[tmp_file.to_str().unwrap()]).unwrap();
@@ -103,6 +104,35 @@ mod tests {
 
         assert!(!data.contains("CODE_ID"));
         assert!(!data.contains("STACK CFI"));
+    }
+
+    #[test]
+    fn test_missing_cfi() {
+        let tmp_dir = Builder::new().prefix("missing_cfi").tempdir().unwrap();
+        let basic64 = PathBuf::from("./test_data/windows/basic64.pdb");
+        let tmp_file = tmp_dir.path().join("basic64.pdb");
+        let tmp_out = tmp_dir.path().join("output.sym");
+
+        copy(basic64, &tmp_file).unwrap();
+
+        let action = Action::Dump(Config {
+            output: tmp_out.to_str().unwrap(),
+            symbol_server: None,
+            store: None,
+            debug_id: None,
+            code_id: None,
+            arch: common::get_compile_time_arch(),
+            file_type: FileType::Pdb,
+            num_jobs: 1,
+            mapping_var: None,
+            mapping_src: None,
+            mapping_dest: None,
+            mapping_file: None,
+            check_cfi: true,
+        });
+
+        let res = action.action(&[tmp_file.to_str().unwrap()]);
+        assert!(res.is_err());
     }
 
     #[test]
@@ -130,6 +160,7 @@ mod tests {
             mapping_src: None,
             mapping_dest: None,
             mapping_file: None,
+            check_cfi: false,
         });
 
         action.action(&[tmp_pdb.to_str().unwrap()]).unwrap();
@@ -160,6 +191,7 @@ mod tests {
             mapping_src: None,
             mapping_dest: None,
             mapping_file: None,
+            check_cfi: false,
         });
 
         action.action(&[full.to_str().unwrap()]).unwrap();
@@ -194,6 +226,7 @@ mod tests {
             mapping_src: None,
             mapping_dest: None,
             mapping_file: None,
+            check_cfi: false,
         });
 
         action
@@ -235,6 +268,7 @@ mod tests {
             mapping_src: None,
             mapping_dest: None,
             mapping_file: None,
+            check_cfi: false,
         });
 
         action

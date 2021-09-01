@@ -497,4 +497,8 @@ impl Dumpable for ElfInfo {
     fn get_name(&self) -> &str {
         &self.file_name
     }
+
+    fn has_stack(&self) -> bool {
+        !self.stack.is_empty()
+    }
 }
