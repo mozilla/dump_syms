@@ -33,6 +33,7 @@ pub(crate) struct Config<'a> {
     pub arch: &'a str,
     pub file_type: FileType,
     pub num_jobs: usize,
+    pub check_cfi: bool,
     pub mapping_var: Option<Vec<&'a str>>,
     pub mapping_src: Option<Vec<&'a str>>,
     pub mapping_dest: Option<Vec<&'a str>>,
@@ -143,8 +144,13 @@ impl Creator for PEInfo {
 fn store<D: Dumpable, S1: AsRef<str>, S2: AsRef<str>>(
     output: S1,
     store: Option<S2>,
+    check_cfi: bool,
     dumpable: D,
 ) -> common::Result<()> {
+    if check_cfi && !dumpable.has_stack() {
+        return Err("No CFI data".into());
+    }
+
     let output = output.as_ref();
     let store = store.filter(|p| !p.as_ref().is_empty()).map(|p| {
         PathBuf::from(p.as_ref()).join(cache::get_path_for_sym(
@@ -207,20 +213,23 @@ pub(crate) fn single_file(config: &Config, filename: &str) -> common::Result<()>
         FileType::Elf => store(
             config.output,
             config.store,
+            config.check_cfi,
             ElfInfo::get_dbg(arch, &buf, path, &filename, file_mapping)?,
         ),
         FileType::Pdb => store(
             config.output,
             config.store,
+            config.check_cfi,
             PDBInfo::get_dbg(arch, &buf, path, &filename, file_mapping)?,
         ),
         FileType::Pe => {
             if let Ok(pdb_info) = PDBInfo::get_pe(config, &buf, path, &filename, file_mapping) {
-                store(config.output, config.store, pdb_info)
+                store(config.output, config.store, config.check_cfi, pdb_info)
             } else {
                 store(
                     config.output,
                     config.store,
+                    config.check_cfi,
                     PEInfo::get_pe(config, &buf, path, &filename, None)?,
                 )
             }
@@ -228,6 +237,7 @@ pub(crate) fn single_file(config: &Config, filename: &str) -> common::Result<()>
         FileType::Macho => store(
             config.output,
             config.store,
+            config.check_cfi,
             MachoInfo::get_dbg(arch, &buf, path, &filename, file_mapping)?,
         ),
         FileType::Unknown => Err("Unknown file format".into()),
@@ -251,10 +261,11 @@ fn send_store_jobs<T: Creator>(
     num_threads: usize,
     output: &str,
     store: &Option<String>,
+    check_cfi: bool,
 ) -> common::Result<()> {
     if results.len() == 1 {
         let (_, d) = results.drain().take(1).next().unwrap();
-        self::store(&output, store.as_ref(), d)?;
+        self::store(&output, store.as_ref(), check_cfi, d)?;
     } else {
         for (_, d) in results.drain() {
             sender
@@ -288,6 +299,7 @@ fn consumer<T: Creator>(
     num_threads: usize,
     output: String,
     store: Option<String>,
+    check_cfi: bool,
 ) -> common::Result<()> {
     while let Ok(job) = receiver.recv() {
         if job.is_none() {
@@ -321,7 +333,7 @@ fn consumer<T: Creator>(
             JobType::Dump(d) => {
                 let cwd = ".".to_string();
                 let store = Some(store.as_ref().unwrap_or(&cwd));
-                self::store(&output, store.as_ref(), d)?;
+                self::store(&output, store.as_ref(), check_cfi, d)?;
                 continue;
             }
         }
@@ -330,7 +342,14 @@ fn consumer<T: Creator>(
             // it was the last file: so we just have to add jobs to dump & store
             // and then poison the queue
             let mut results = results.lock().unwrap();
-            send_store_jobs(&sender, &mut results, num_threads, &output, &store)?;
+            send_store_jobs(
+                &sender,
+                &mut results,
+                num_threads,
+                &output,
+                &store,
+                check_cfi,
+            )?;
         } else {
             counter.fetch_sub(1, Ordering::SeqCst);
         }
@@ -365,12 +384,13 @@ pub(crate) fn several_files<T: 'static + Creator + std::marker::Send>(
         let counter = Arc::clone(&counter);
         let output = config.output.to_string();
         let store = config.store.map(|s| s.to_string());
+        let check_cfi = config.check_cfi;
 
         let t = thread::Builder::new()
             .name(format!("dump-syms {}", i))
             .spawn(move || {
                 consumer::<T>(
-                    arch, sender, receiver, results, counter, num_jobs, output, store,
+                    arch, sender, receiver, results, counter, num_jobs, output, store, check_cfi,
                 )
             })
             .unwrap();

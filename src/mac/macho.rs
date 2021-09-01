@@ -98,4 +98,8 @@ impl Dumpable for MachoInfo {
     fn get_name(&self) -> &str {
         self.elf.get_name()
     }
+
+    fn has_stack(&self) -> bool {
+        self.elf.has_stack()
+    }
 }

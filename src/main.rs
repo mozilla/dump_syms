@@ -72,6 +72,11 @@ fn main() {
                 .takes_value(true),
         )
         .arg(
+            Arg::with_name("check_cfi")
+                .help("Fail if there are no CFI data")
+                .long("check-cfi")
+        )
+        .arg(
             Arg::with_name("verbose")
                 .help("Set the level of verbosity (off, error (default), warn, info, debug, trace)")
                 .long("verbose")
@@ -178,6 +183,7 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
     let debug_id = matches.value_of("debug_id");
     let code_id = matches.value_of("code_id");
     let arch = matches.value_of("arch").unwrap();
+    let check_cfi = matches.is_present("check_cfi");
     let mapping_var = matches
         .values_of("mapping_var")
         .map(|v| v.collect::<Vec<_>>());
@@ -226,6 +232,7 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
             arch,
             file_type,
             num_jobs,
+            check_cfi,
             mapping_var,
             mapping_src,
             mapping_dest,
