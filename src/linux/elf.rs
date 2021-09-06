@@ -281,6 +281,7 @@ impl Collector {
                 name: Self::demangle(&fun.name),
                 is_public: false,
                 is_multiple: false,
+                is_synthetic: false,
                 rva: fun.address as u32,
                 len: fun.size as u32,
                 parameter_size: 0,
@@ -332,6 +333,7 @@ impl Collector {
                         name: sym_name,
                         is_public: true,
                         is_multiple: false,
+                        is_synthetic: false,
                         rva: sym.address as u32,
                         len: sym.size as u32,
                         parameter_size: 0,
@@ -387,7 +389,8 @@ impl ElfInfo {
         collector.collect_publics(o);
 
         let stack = Collector::get_stack_info(o);
-        let symbols = crate::linux::symbol::add_executable_section_symbols(collector.syms, o);
+        let symbols =
+            crate::linux::symbol::add_executable_section_symbols(collector.syms, file_name, o);
 
         Ok(Self {
             symbols,
@@ -443,8 +446,18 @@ impl Mergeable for ElfInfo {
 
                 match left.symbols.entry(*addr) {
                     btree_map::Entry::Occupied(mut e) => {
-                        // we already have one so just discard this one
-                        e.get_mut().is_multiple = true;
+                        if sym.is_synthetic {
+                            // Do not replace an existing symbol with a synthetic one
+                            continue;
+                        }
+
+                        if e.get().is_synthetic {
+                            // Always replace a synthetic symbol
+                            e.insert(sym.clone());
+                        } else if e.get().name != sym.name {
+                            // We already have one so just discard this one
+                            e.get_mut().is_multiple = true;
+                        }
                     }
                     btree_map::Entry::Vacant(e) => {
                         e.insert(sym.clone());

@@ -1,10 +1,10 @@
 MODULE Linux x86_64 20AD60B0B4C68177552708AA192E77390 basic.full
 INFO CODE_ID B060AD20C6B47781552708AA192E7739FAC7C84A
 FILE 0 /home/calixte/dev/mozilla/dump_syms.calixteman/test_data/linux/basic.cpp
-PUBLIC m 1000 0 _init
-PUBLIC m 1020 0 <.plt ELF section>
-PUBLIC m 1030 0 <.plt.got ELF section>
-PUBLIC m 1040 0 _start
+PUBLIC 1000 0 _init
+PUBLIC 1020 0 <.plt ELF section in basic.full>
+PUBLIC 1030 0 <.plt.got ELF section in basic.full>
+PUBLIC 1040 0 _start
 PUBLIC 1070 0 deregister_tm_clones
 PUBLIC 10a0 0 register_tm_clones
 PUBLIC 10e0 0 __do_global_dtors_aux
@@ -42,7 +42,7 @@ FUNC 12bd 1c 0 main
 12d7 2 37 0
 PUBLIC 12e0 0 __libc_csu_init
 PUBLIC 1340 0 __libc_csu_fini
-PUBLIC m 1344 0 _fini
+PUBLIC 1344 0 _fini
 STACK CFI INIT 1040 2b .cfa: $rsp 8 +
 STACK CFI INIT 1020 10 .cfa: $rsp 16 + .ra: .cfa -8 + ^
 STACK CFI 1026 .cfa: $rsp 24 +
