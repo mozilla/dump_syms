@@ -199,7 +199,7 @@ mod tests {
         let data = read(tmp_out).unwrap();
         let new: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
 
-        let basic = PathBuf::from("./test_data/linux/basic.full_no_multiple.sym");
+        let basic = PathBuf::from("./test_data/linux/basic.full.sym");
         let data = read(basic).unwrap();
         let basic: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
 
@@ -239,7 +239,7 @@ mod tests {
         let data = re.replace_all(&data, "<procedure linkage table>");
         let new: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
 
-        let basic = PathBuf::from("./test_data/linux/basic.full.sym");
+        let basic = PathBuf::from("./test_data/linux/basic.dbg.sym");
         let data = read(basic).unwrap();
         let data = String::from_utf8(data).unwrap();
         let data = re.replace_all(&data, "<procedure linkage table>");
@@ -279,7 +279,7 @@ mod tests {
         let data = String::from_utf8(data).unwrap();
         let new: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
 
-        let basic = PathBuf::from("./test_data/linux/basic.full.sym");
+        let basic = PathBuf::from("./test_data/linux/basic.dbg.sym");
         let data = read(basic).unwrap();
         let data = String::from_utf8(data).unwrap();
         let basic: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();

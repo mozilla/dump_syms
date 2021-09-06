@@ -15,6 +15,7 @@ pub(super) struct ElfSymbol {
     pub name: String,
     pub is_public: bool,
     pub is_multiple: bool,
+    pub is_synthetic: bool,
     pub rva: u32,
     pub len: u32,
     pub parameter_size: u32,
@@ -73,18 +74,24 @@ impl ElfSymbol {
     }
 }
 
-pub(super) fn add_executable_section_symbols(mut syms: ElfSymbols, object: &Object) -> ElfSymbols {
+pub(super) fn add_executable_section_symbols(
+    mut syms: ElfSymbols,
+    name: &str,
+    object: &Object,
+) -> ElfSymbols {
     let object = goblin::Object::parse(object.data());
     if let Ok(goblin::Object::Elf(elf)) = object {
         for header in elf.section_headers {
             if header.is_executable() {
+                let name = if name.is_empty() { "unknown" } else { name };
                 let section_name = elf.shdr_strtab.get_at(header.sh_name).unwrap_or("unknown");
-                let symbol_name = format!("<{} ELF section>", section_name);
+                let symbol_name = format!("<{} ELF section in {}>", section_name, name);
                 let rva = header.sh_addr as u32;
                 syms.entry(rva).or_insert(ElfSymbol {
                     name: symbol_name,
                     is_public: true,
                     is_multiple: false,
+                    is_synthetic: true,
                     rva,
                     len: 0,
                     parameter_size: 0,
