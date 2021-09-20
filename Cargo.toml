@@ -16,7 +16,7 @@ crossbeam = "0.8.1"
 dirs = "3.0"
 failure = "0.1"
 futures = "0.3"
-goblin = "0.4.2" # Keep in sync with symbolic-debuginfo
+goblin = "0.4.3" # Keep in sync with symbolic-debuginfo
 hashbrown = { version = "0.11", features = ["serde"] }
 lazy_static = "1.4"
 log = "0.4"
