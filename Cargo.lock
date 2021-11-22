@@ -640,19 +640,19 @@ dependencies = [
 
 [[package]]
 name = "gimli"
-version = "0.24.0"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e4075386626662786ddb0ec9081e7c7eeb1ba31951f447ca780ef9f5d568189"
+checksum = "f0a01e0497841a3b2db4f8afa483cce65f7e96a3498bd6c541734792aeac8fe7"
+
+[[package]]
+name = "gimli"
+version = "0.26.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78cc372d058dcf6d5ecd98510e7fbc9e5aec4d21de70f65fea8fecebcd881bd4"
 dependencies = [
  "fallible-iterator",
  "stable_deref_trait",
 ]
-
-[[package]]
-name = "gimli"
-version = "0.25.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0a01e0497841a3b2db4f8afa483cce65f7e96a3498bd6c541734792aeac8fe7"
 
 [[package]]
 name = "goblin"
@@ -954,6 +954,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a60c7ce501c71e03a9c9c0d35b861413ae925bd979cc7a4e30d060069aaac8d"
 
 [[package]]
+name = "minimal-lexical"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
+
+[[package]]
 name = "miniz_oxide"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1032,16 +1038,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "nom-supreme"
-version = "0.4.6"
+name = "nom"
+version = "7.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e08bbbb568bb8e06f87b58a592eb5af2bf6dbbfe1868ab7311adec38230459a8"
+checksum = "1b1d11e1ef389c76fe5b81bcaf2ea32cf88b62bc494e19f493d0b30e7a930109"
+dependencies = [
+ "memchr",
+ "minimal-lexical",
+ "version_check",
+]
+
+[[package]]
+name = "nom-supreme"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aadc66631948f6b65da03be4c4cd8bd104d481697ecbb9bbd65719b1ec60bc9f"
 dependencies = [
  "brownstone",
  "indent_write",
  "joinery",
  "memchr",
- "nom",
+ "nom 6.1.2",
 ]
 
 [[package]]
@@ -1587,9 +1604,9 @@ checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 
 [[package]]
 name = "symbolic"
-version = "8.3.0"
+version = "8.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "15a8386ee899fa8c8e372d886e937444d2bd72123ef4a3f234e4ac10f65aa2b5"
+checksum = "bf0b3be4c272aaef995fca595a89355caf49993b84a964013e4a94447f13c779"
 dependencies = [
  "symbolic-common",
  "symbolic-debuginfo",
@@ -1599,9 +1616,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-common"
-version = "8.3.0"
+version = "8.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "348885c332e7d0784d661844b13b198464144a5ebcd3bfc047a6c441867ea467"
+checksum = "cfc8618f0f31ed048f8e66aa2caecedfbdbbca962ff9ad87107ba4171de0742b"
 dependencies = [
  "debugid",
  "memmap",
@@ -1611,19 +1628,19 @@ dependencies = [
 
 [[package]]
 name = "symbolic-debuginfo"
-version = "8.3.0"
+version = "8.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "35bab4753ee9fcc994192a13fb17519397b283106424e33787265220472816ee"
+checksum = "ac34b5f005e9c87aa9c60a712102f80dca51cd9edf1fa04d5c7392b936c45d06"
 dependencies = [
  "dmsort",
  "elementtree",
  "fallible-iterator",
  "flate2",
- "gimli 0.24.0",
+ "gimli 0.26.1",
  "goblin",
  "lazy_static",
  "lazycell",
- "nom",
+ "nom 7.1.0",
  "nom-supreme",
  "parking_lot",
  "pdb",
@@ -1641,9 +1658,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-demangle"
-version = "8.3.0"
+version = "8.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6780c62bfbd609bffaa13d6959715850578aa43caaae7aee14f1f24ceb64f433"
+checksum = "8be790f170c892899802aa1d382b7b5b65baf692b1357864c74e92bbbbdabfbe"
 dependencies = [
  "cc",
  "cpp_demangle",
@@ -1654,9 +1671,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-minidump"
-version = "8.3.0"
+version = "8.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8507efc38cf694055f3a70ba4ca51b39ef258d5e661772cc29c97bc08f6069e7"
+checksum = "e8b2508cb03a81ef6dd79505fc03c5b2fd0f325cf34abc1e1e14be2da25190dd"
 dependencies = [
  "cc",
  "lazy_static",
