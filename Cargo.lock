@@ -398,7 +398,7 @@ dependencies = [
  "failure",
  "futures",
  "fxhash",
- "goblin",
+ "goblin 0.5.1",
  "hashbrown",
  "lazy_static",
  "log",
@@ -656,13 +656,24 @@ checksum = "f0a01e0497841a3b2db4f8afa483cce65f7e96a3498bd6c541734792aeac8fe7"
 
 [[package]]
 name = "goblin"
-version = "0.4.2"
+version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b1800b95efee8ad4ef04517d4d69f8e209e763b1668f1179aeeedd0e454da55"
+checksum = "32401e89c6446dcd28185931a01b1093726d0356820ac744023e6850689bf926"
 dependencies = [
  "log",
  "plain",
- "scroll",
+ "scroll 0.10.2",
+]
+
+[[package]]
+name = "goblin"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c955ab4e0ad8c843ea653a3d143048b87490d9be56bd7132a435c2407846ac8f"
+dependencies = [
+ "log",
+ "plain",
+ "scroll 0.11.0",
 ]
 
 [[package]]
@@ -1178,7 +1189,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13f4d162ecaaa1467de5afbe62d597757b674b51da8bb4e587430c5fdb2af7aa"
 dependencies = [
  "fallible-iterator",
- "scroll",
+ "scroll 0.10.2",
  "uuid",
 ]
 
@@ -1422,7 +1433,16 @@ version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fda28d4b4830b807a8b43f7b0e6b5df875311b3e7621d84577188c175b6ec1ec"
 dependencies = [
- "scroll_derive",
+ "scroll_derive 0.10.5",
+]
+
+[[package]]
+name = "scroll"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04c565b551bafbef4157586fa379538366e4385d42082f255bfd96e4fe8519da"
+dependencies = [
+ "scroll_derive 0.11.0",
 ]
 
 [[package]]
@@ -1430,6 +1450,17 @@ name = "scroll_derive"
 version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aaaae8f38bb311444cfb7f1979af0bc9240d95795f75f9ceddf6a59b79ceffa0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "scroll_derive"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bdbda6ac5cd1321e724fa9cee216f3a61885889b896f073b8f82322789c5250e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1620,7 +1651,7 @@ dependencies = [
  "fallible-iterator",
  "flate2",
  "gimli 0.24.0",
- "goblin",
+ "goblin 0.4.3",
  "lazy_static",
  "lazycell",
  "nom",
@@ -1628,7 +1659,7 @@ dependencies = [
  "parking_lot",
  "pdb",
  "regex",
- "scroll",
+ "scroll 0.10.2",
  "serde",
  "serde_json",
  "smallvec",
