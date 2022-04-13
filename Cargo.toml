@@ -17,7 +17,7 @@ dirs = "3.0"
 failure = "0.1"
 futures = "0.3"
 goblin = "0.5.1" # Keep in sync with symbolic-debuginfo
-hashbrown = { version = "0.11", features = ["serde"] }
+hashbrown = { version = "0.12", features = ["serde"] }
 lazy_static = "1.4"
 log = "0.4"
 num_cpus = "1.13"
