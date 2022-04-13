@@ -40,7 +40,7 @@ fn os_specific_try_to_find_pdb(path: &Path, pdb_filename: &str) -> (Option<Vec<u
     // we change backslashes to forward slashes for `file_name()` to do its job.
     // But before that, just try wether the file exists.
     #[cfg(unix)]
-    let pdb_filename = pdb_filename.replace("\\", "/");
+    let pdb_filename = pdb_filename.replace('\\', "/");
     let pdb_path = Path::new(&pdb_filename);
     if let Some(file_name) = pdb_path.file_name() {
         let pdb_name = file_name.to_str().unwrap().to_string();
