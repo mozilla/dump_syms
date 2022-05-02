@@ -3,7 +3,6 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use failure::Fail;
 use hashbrown::HashSet;
 use pdb::{
     AddressMap, BlockSymbol, DebugInformation, FallibleIterator, MachineType, ModuleInfo,
@@ -259,10 +258,7 @@ fn get_stack_info(pdb_buf: Option<&[u8]>, pe: Option<PeObject>) -> String {
     let mut cfi_writer = AsciiCfiWriter::new(writer);
     if let Some(pe) = pe {
         if pe.has_unwind_info() {
-            cfi_writer
-                .process(&Object::Pe(pe))
-                .map_err(|e| e.compat())
-                .unwrap();
+            cfi_writer.process(&Object::Pe(pe)).unwrap();
             found_unwind_info = true;
         }
     }
@@ -271,10 +267,7 @@ fn get_stack_info(pdb_buf: Option<&[u8]>, pe: Option<PeObject>) -> String {
         if let Some(pdb_buf) = pdb_buf {
             if let Ok(pdb) = PdbObject::parse(pdb_buf) {
                 if pdb.has_unwind_info() {
-                    cfi_writer
-                        .process(&Object::Pdb(pdb))
-                        .map_err(|e| e.compat())
-                        .unwrap();
+                    cfi_writer.process(&Object::Pdb(pdb)).unwrap();
                 }
             }
         }
@@ -585,7 +578,7 @@ impl Dumpable for PDBInfo {
 
 impl Mergeable for PDBInfo {
     fn merge(_left: PDBInfo, _right: PDBInfo) -> common::Result<PDBInfo> {
-        Err("PDB merge not implemented".into())
+        anyhow::bail!("PDB merge not implemented")
     }
 }
 
@@ -686,7 +679,7 @@ impl Dumpable for PEInfo {
 
 impl Mergeable for PEInfo {
     fn merge(_left: PEInfo, _right: PEInfo) -> common::Result<PEInfo> {
-        Err("PE merge not implemented".into())
+        anyhow::bail!("PE merge not implemented")
     }
 }
 

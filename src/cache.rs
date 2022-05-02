@@ -33,9 +33,7 @@ struct Job {
 
 impl Job {
     fn new(cache: Option<PathBuf>, url: String) -> common::Result<Self> {
-        if Url::parse(&url).is_err() {
-            return Err(From::from(format!("Invalid url: {}", url)));
-        }
+        anyhow::ensure!(Url::parse(&url).is_ok(), "Invalid url: {}", url);
         Ok(Self { cache, url })
     }
 }

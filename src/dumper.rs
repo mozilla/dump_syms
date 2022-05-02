@@ -4,7 +4,6 @@
 // copied, modified, or distributed except according to those terms.
 
 use crossbeam::channel::{bounded, Receiver, Sender};
-use failure::Fail;
 use hashbrown::HashMap;
 use log::{error, info};
 use std::fs;
@@ -56,7 +55,7 @@ pub(crate) trait Creator: Mergeable + Dumpable + Sized {
         _filename: &str,
         _mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
-        Err("Not implemented".into())
+        anyhow::bail!("Not implemented")
     }
 }
 
@@ -124,7 +123,7 @@ impl Creator for PEInfo {
         _filename: &str,
         _mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
-        Err("Not implemented".into())
+        anyhow::bail!("Not implemented")
     }
 
     fn get_pe<'a>(
@@ -188,7 +187,7 @@ fn get_from_id(
         return if let Some(buf) = buf {
             Ok((buf, filename))
         } else {
-            Err(format!("Impossible to get file {} with id {}", filename, id).into())
+            anyhow::bail!("Impossible to get file {} with id {}", filename, id)
         };
     }
 
@@ -240,7 +239,7 @@ pub(crate) fn single_file(config: &Config, filename: &str) -> common::Result<()>
             config.check_cfi,
             MachoInfo::get_dbg(arch, &buf, path, &filename, file_mapping)?,
         ),
-        FileType::Unknown => Err("Unknown file format".into()),
+        FileType::Unknown => anyhow::bail!("Unknown file format"),
     }
 }
 

@@ -112,7 +112,7 @@ impl PathMappingGenerator {
                 } else if let Ok(group) = action.parse::<usize>() {
                     ActionKind::Group(group)
                 } else {
-                    return Err(format!("Invalid action {} in mapping string", action).into());
+                    anyhow::bail!("Invalid action {} in mapping string", action);
                 };
                 actions.push(Action {
                     kind: action,
@@ -211,9 +211,7 @@ impl PathMappings {
         if let Some(vars) = vars {
             for var in vars {
                 let pair = var.splitn(2, '=').collect::<Vec<_>>();
-                if pair.len() != 2 {
-                    return Err(format!("Invalid pair {}: must be var=value", var).into());
-                }
+                anyhow::ensure!(pair.len() == 2, "Invalid pair {}: must be var=value", var);
                 variables.insert(pair[0].to_string(), pair[1].to_string());
             }
         }
@@ -230,11 +228,10 @@ impl PathMappings {
             return Ok(());
         }
 
-        if sources.as_ref().map_or(0, |v| v.len()) != destinations.as_ref().map_or(0, |v| v.len()) {
-            return Err(
-                "mapping-src and mapping-dest must have the same number of elements".into(),
-            );
-        }
+        anyhow::ensure!(
+            sources.as_ref().map_or(0, |v| v.len()) == destinations.as_ref().map_or(0, |v| v.len()),
+            "mapping-src and mapping-dest must have the same number of elements"
+        );
 
         let sources = sources.as_ref().unwrap();
         let destinations = destinations.as_ref().unwrap();

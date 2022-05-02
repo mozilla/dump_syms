@@ -3,7 +3,6 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use failure::Fail;
 use hashbrown::HashMap;
 use log::{error, warn};
 use std::collections::btree_map;
@@ -295,7 +294,7 @@ impl Collector {
         o: &Object,
         source: &mut SourceFiles,
     ) -> common::Result<()> {
-        let ds = o.debug_session().map_err(|e| e.compat())?;
+        let ds = o.debug_session()?;
         let ds = if let ObjectDebugSession::Dwarf(ds) = ds {
             ds
         } else {
@@ -364,7 +363,7 @@ impl ElfInfo {
         platform: Platform,
         mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
-        let o = Object::parse(buf).map_err(|e| e.compat())?;
+        let o = Object::parse(buf)?;
         Self::from_object(&o, file_name, platform, mapping)
     }
 
@@ -408,13 +407,12 @@ impl ElfInfo {
 
 impl Mergeable for ElfInfo {
     fn merge(left: ElfInfo, right: ElfInfo) -> common::Result<ElfInfo> {
-        if left.debug_id != right.debug_id {
-            return Err(format!(
-                "The files don't have the same debug id: {} and {}",
-                left.debug_id, right.debug_id
-            )
-            .into());
-        }
+        anyhow::ensure!(
+            left.debug_id == right.debug_id,
+            "The files don't have the same debug id: {} and {}",
+            left.debug_id,
+            right.debug_id
+        );
 
         // Just to avoid to iterate on the bigger
         let (mut left, mut right) = if left.symbols.len() > right.symbols.len() {
