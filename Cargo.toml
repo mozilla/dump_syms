@@ -8,15 +8,25 @@ description = "Dump debug symbols into Breakpad ones"
 edition = "2018"
 license = "MIT/Apache-2.0"
 
+[[bin]]
+name = "dump_syms"
+required-features = ["cli"]
+
+[features]
+default = ["cli", "http"]
+# Feature needed when building the dump_syms executable
+cli = ["clap"]
+# Feature for allowing retrieval of symbols via HTTP
+http = ["reqwest", "futures", "tokio"]
+
 [dependencies]
 anyhow = "1.0"
 bitflags = "1.3"
 cab = "0.2"
-clap = "2.33"
+clap = { version = "2.33", optional = true }
 crossbeam = "0.8.1"
 dirs = "3.0"
-failure = "0.1"
-futures = "0.3"
+futures = { version = "0.3", optional = true }
 goblin = "0.5.1" # Keep in sync with symbolic-debuginfo
 hashbrown = { version = "0.11", features = ["serde"] }
 lazy_static = "1.4"
@@ -24,23 +34,23 @@ log = "0.4"
 num_cpus = "1.13"
 pdb = "0.7"
 regex = "1.4"
-reqwest = { version = "0.11", features = ["blocking"] }
+reqwest = { version = "0.11", optional = true, default-features = false, features = [
+    "blocking",
+    "rustls-tls",
+] }
 serde = "1.0"
 serde_json = "1.0"
 sha2 = "0.9"
 simplelog = "0.10"
 symbolic = { version = "8", features = ["demangle", "minidump"] }
-tokio = "1.8"
+tokio = { version = "1.8", optional = true }
 url = "2.2"
 uuid = "0.8"
 
 [dev-dependencies]
+reqwest = { version = "0.11", default-features = false, features = [
+    "blocking",
+    "rustls-tls",
+] }
 fxhash = "0.2"
 tempfile = "3"
-
-[features]
-vendored-openssl = ["openssl/vendored"]
-
-[dependencies.openssl]
-version = "0.10"
-optional = true

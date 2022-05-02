@@ -6,6 +6,7 @@
 use crossbeam::channel::{bounded, Receiver, Sender};
 use hashbrown::HashMap;
 use log::{error, info};
+use std::fmt;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
@@ -15,7 +16,6 @@ use std::thread;
 use symbolic::common::Arch;
 use symbolic::debuginfo::pe::PeObject;
 
-use crate::cache;
 use crate::common::{self, Dumpable, FileType, Mergeable};
 use crate::linux::elf::{ElfInfo, Platform};
 use crate::mac::macho::MachoInfo;
@@ -23,10 +23,58 @@ use crate::mapping::PathMappings;
 use crate::utils;
 use crate::windows::{self, pdb::PDBInfo, pdb::PEInfo};
 
-pub(crate) struct Config<'a> {
-    pub output: &'a str,
+/// Different locations for file output
+#[derive(Clone)]
+pub enum FileOutput {
+    Path(PathBuf),
+    Stdout,
+    Stderr,
+}
+
+impl From<&str> for FileOutput {
+    fn from(s: &str) -> Self {
+        if s == "-" {
+            Self::Stdout
+        } else {
+            Self::Path(s.into())
+        }
+    }
+}
+
+impl fmt::Display for FileOutput {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Path(p) => write!(f, "{}", p.display()),
+            Self::Stdout => f.write_str("stdout"),
+            Self::Stderr => f.write_str("stderr"),
+        }
+    }
+}
+
+/// Defines how the final symbols are outputted
+#[derive(Clone)]
+pub enum Output {
+    File(FileOutput),
+    /// Store output symbols as FILENAME.<ext>/DEBUG_ID/FILENAME.sym in the
+    /// specified directory, ie the symbol store format
+    Store(PathBuf),
+    /// Writes symbols to a file as well as storing them in the symbol store
+    /// format to the specified directory
+    FileAndStore {
+        file: FileOutput,
+        store_directory: PathBuf,
+    },
+}
+
+impl From<PathBuf> for Output {
+    fn from(path: PathBuf) -> Self {
+        Self::File(FileOutput::Path(path))
+    }
+}
+
+pub struct Config<'a> {
+    pub output: Output,
     pub symbol_server: Option<&'a str>,
-    pub store: Option<&'a str>,
     pub debug_id: Option<&'a str>,
     pub code_id: Option<&'a str>,
     pub arch: &'a str,
@@ -39,7 +87,7 @@ pub(crate) struct Config<'a> {
     pub mapping_file: Option<&'a str>,
 }
 
-pub(crate) trait Creator: Mergeable + Dumpable + Sized {
+pub trait Creator: Mergeable + Dumpable + Sized {
     fn get_dbg(
         arch: Arch,
         buf: &[u8],
@@ -97,21 +145,27 @@ impl Creator for PDBInfo {
     }
 
     fn get_pe<'a>(
-        conf: &Config<'a>,
-        buf: &[u8],
-        path: &Path,
-        filename: &str,
-        mapping: Option<Arc<PathMappings>>,
+        _conf: &Config<'a>,
+        _buf: &[u8],
+        _path: &Path,
+        _filename: &str,
+        _mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
-        let symbol_server = cache::get_sym_servers(conf.symbol_server);
-        let res = windows::utils::get_pe_pdb_buf(path, buf, symbol_server.as_ref());
+        #[cfg(feature = "http")]
+        {
+            let symbol_server = crate::cache::get_sym_servers(_conf.symbol_server);
+            let res = windows::utils::get_pe_pdb_buf(_path, _buf, symbol_server.as_ref());
 
-        if let Some((pe, pdb_buf, pdb_name)) = res {
-            let pdb = Self::new(&pdb_buf, &pdb_name, filename, Some(pe), mapping)?;
-            Ok(pdb)
-        } else {
-            Err("No pdb file found".into())
+            if let Some((pe, pdb_buf, pdb_name)) = res {
+                let pdb = Self::new(&pdb_buf, &pdb_name, _filename, Some(pe), _mapping)?;
+                Ok(pdb)
+            } else {
+                anyhow::bail!("No pdb file found")
+            }
         }
+
+        #[cfg(not(feature = "http"))]
+        anyhow::bail!("HTTP symbol retrieval not enabled")
     }
 }
 
@@ -140,50 +194,75 @@ impl Creator for PEInfo {
     }
 }
 
-fn store<D: Dumpable, S1: AsRef<str>, S2: AsRef<str>>(
-    output: S1,
-    store: Option<S2>,
-    check_cfi: bool,
-    dumpable: D,
-) -> common::Result<()> {
-    if check_cfi && !dumpable.has_stack() {
-        return Err("No CFI data".into());
-    }
+#[inline]
+pub fn get_writer_for_sym(fo: &FileOutput) -> std::io::BufWriter<Box<dyn std::io::Write>> {
+    let output: Box<dyn std::io::Write> = match fo {
+        FileOutput::Stdout => Box::new(std::io::stdout()),
+        FileOutput::Stderr => Box::new(std::io::stderr()),
+        FileOutput::Path(path) => {
+            let output = std::fs::File::create(path)
+                .unwrap_or_else(|_| panic!("Cannot open file {} for writing", path.display()));
+            Box::new(output)
+        }
+    };
 
-    let output = output.as_ref();
-    let store = store.filter(|p| !p.as_ref().is_empty()).map(|p| {
-        PathBuf::from(p.as_ref()).join(cache::get_path_for_sym(
+    std::io::BufWriter::new(output)
+}
+
+fn store<D: Dumpable>(output: &Output, check_cfi: bool, dumpable: D) -> common::Result<()> {
+    anyhow::ensure!(!check_cfi || dumpable.has_stack(), "No CFI data");
+
+    let sym_store_path = |dir: &Path| -> Option<PathBuf> {
+        if dir.to_str()?.is_empty() {
+            return None;
+        }
+
+        let mut pb = PathBuf::new();
+        pb.push(dir);
+        pb.push(utils::get_path_for_sym(
             dumpable.get_name(),
             dumpable.get_debug_id(),
-        ))
-    });
+        ));
+        Some(pb)
+    };
 
-    if let Some(store) = store.as_ref() {
+    let (foutput, store) = match output {
+        Output::File(fo) => (Some(fo), None),
+        Output::Store(store) => (None, sym_store_path(store)),
+        Output::FileAndStore {
+            file,
+            store_directory,
+        } => (Some(file), sym_store_path(store_directory)),
+    };
+
+    if let Some(store) = store {
         fs::create_dir_all(store.parent().unwrap())?;
-        let store = store.to_str().unwrap();
-        let output = utils::get_writer_for_sym(store);
-        if let Err(e) = dumpable.dump(output) {
-            return Err(e);
-        }
-        info!("Write symbols at {}", store);
+
+        let fo = FileOutput::Path(store);
+        let output = get_writer_for_sym(&fo);
+        dumpable.dump(output)?;
+
+        info!("Store symbols at {}", fo);
     }
 
-    if output != "-" || store.is_none() {
-        let output_stream = utils::get_writer_for_sym(output);
-        dumpable.dump(output_stream)?;
-        info!("Write symbols at {}", output);
+    if let Some(file) = foutput {
+        let writer = get_writer_for_sym(file);
+        dumpable.dump(writer)?;
+
+        info!("Write symbols at {}", file);
     }
     Ok(())
 }
 
+#[cfg(feature = "http")]
 fn get_from_id(
     config: &Config,
     path: &Path,
     filename: String,
 ) -> common::Result<(Vec<u8>, String)> {
     if let Some(id) = config.debug_id.or(config.code_id) {
-        let symbol_server = cache::get_sym_servers(config.symbol_server);
-        let (buf, filename) = cache::search_file(filename, id, symbol_server.as_ref());
+        let symbol_server = crate::cache::get_sym_servers(config.symbol_server);
+        let (buf, filename) = crate::cache::search_file(filename, id, symbol_server.as_ref());
         return if let Some(buf) = buf {
             Ok((buf, filename))
         } else {
@@ -194,7 +273,16 @@ fn get_from_id(
     Ok((utils::read_file(&path), filename))
 }
 
-pub(crate) fn single_file(config: &Config, filename: &str) -> common::Result<()> {
+#[cfg(not(feature = "http"))]
+fn get_from_id(
+    _config: &Config,
+    _path: &Path,
+    _filename: String,
+) -> common::Result<(Vec<u8>, String)> {
+    anyhow::bail!("HTTP symbol retrieval not enabled")
+}
+
+pub fn single_file(config: &Config, filename: &str) -> common::Result<()> {
     let path = Path::new(filename);
     let filename = utils::get_filename(path);
 
@@ -206,36 +294,32 @@ pub(crate) fn single_file(config: &Config, filename: &str) -> common::Result<()>
         &config.mapping_file,
     )?
     .map(Arc::new);
-    let arch = Arch::from_str(config.arch).map_err(|e| e.compat())?;
+    let arch = Arch::from_str(config.arch)?;
 
     match FileType::from_buf(&buf) {
         FileType::Elf => store(
-            config.output,
-            config.store,
+            &config.output,
             config.check_cfi,
             ElfInfo::get_dbg(arch, &buf, path, &filename, file_mapping)?,
         ),
         FileType::Pdb => store(
-            config.output,
-            config.store,
+            &config.output,
             config.check_cfi,
             PDBInfo::get_dbg(arch, &buf, path, &filename, file_mapping)?,
         ),
         FileType::Pe => {
             if let Ok(pdb_info) = PDBInfo::get_pe(config, &buf, path, &filename, file_mapping) {
-                store(config.output, config.store, config.check_cfi, pdb_info)
+                store(&config.output, config.check_cfi, pdb_info)
             } else {
                 store(
-                    config.output,
-                    config.store,
+                    &config.output,
                     config.check_cfi,
                     PEInfo::get_pe(config, &buf, path, &filename, None)?,
                 )
             }
         }
         FileType::Macho => store(
-            config.output,
-            config.store,
+            &config.output,
             config.check_cfi,
             MachoInfo::get_dbg(arch, &buf, path, &filename, file_mapping)?,
         ),
@@ -258,13 +342,12 @@ fn send_store_jobs<T: Creator>(
     sender: &Sender<Option<JobItem<T>>>,
     results: &mut HashMap<String, T>,
     num_threads: usize,
-    output: &str,
-    store: &Option<String>,
+    output: Output,
     check_cfi: bool,
 ) -> common::Result<()> {
     if results.len() == 1 {
         let (_, d) = results.drain().take(1).next().unwrap();
-        self::store(&output, store.as_ref(), check_cfi, d)?;
+        self::store(&output, check_cfi, d)?;
     } else {
         for (_, d) in results.drain() {
             sender
@@ -296,8 +379,7 @@ fn consumer<T: Creator>(
     results: Arc<Mutex<HashMap<String, T>>>,
     counter: Arc<AtomicUsize>,
     num_threads: usize,
-    output: String,
-    store: Option<String>,
+    output: Output,
     check_cfi: bool,
 ) -> common::Result<()> {
     while let Ok(job) = receiver.recv() {
@@ -330,9 +412,7 @@ fn consumer<T: Creator>(
                 results.insert(info.get_debug_id().to_string(), info);
             }
             JobType::Dump(d) => {
-                let cwd = ".".to_string();
-                let store = Some(store.as_ref().unwrap_or(&cwd));
-                self::store(&output, store.as_ref(), check_cfi, d)?;
+                self::store(&output, check_cfi, d)?;
                 continue;
             }
         }
@@ -345,8 +425,7 @@ fn consumer<T: Creator>(
                 &sender,
                 &mut results,
                 num_threads,
-                &output,
-                &store,
+                output.clone(),
                 check_cfi,
             )?;
         } else {
@@ -357,7 +436,7 @@ fn consumer<T: Creator>(
     Ok(())
 }
 
-pub(crate) fn several_files<T: 'static + Creator + std::marker::Send>(
+pub fn several_files<T: 'static + Creator + std::marker::Send>(
     config: &Config,
     filenames: &[&str],
 ) -> common::Result<()> {
@@ -368,7 +447,7 @@ pub(crate) fn several_files<T: 'static + Creator + std::marker::Send>(
         &config.mapping_file,
     )?
     .map(Arc::new);
-    let arch = Arch::from_str(config.arch).map_err(|e| e.compat())?;
+    let arch = Arch::from_str(config.arch)?;
     let results = Arc::new(Mutex::new(HashMap::default()));
     let num_jobs = config.num_jobs.min(filenames.len());
     let counter = Arc::new(AtomicUsize::new(filenames.len()));
@@ -381,15 +460,15 @@ pub(crate) fn several_files<T: 'static + Creator + std::marker::Send>(
         let receiver = receiver.clone();
         let results = Arc::clone(&results);
         let counter = Arc::clone(&counter);
-        let output = config.output.to_string();
-        let store = config.store.map(|s| s.to_string());
+        let output = config.output.clone();
+
         let check_cfi = config.check_cfi;
 
         let t = thread::Builder::new()
             .name(format!("dump-syms {}", i))
             .spawn(move || {
                 consumer::<T>(
-                    arch, sender, receiver, results, counter, num_jobs, output, store, check_cfi,
+                    arch, sender, receiver, results, counter, num_jobs, output, check_cfi,
                 )
             })
             .unwrap();

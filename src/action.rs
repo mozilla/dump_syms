@@ -5,14 +5,15 @@
 
 use std::path::PathBuf;
 
-use crate::common::{self, FileType};
-use crate::linux::elf::ElfInfo;
-use crate::mac::macho::MachoInfo;
-use crate::utils;
-use crate::windows::pdb::PDBInfo;
+use dump_syms::common::{self, FileType};
+use dump_syms::linux::elf::ElfInfo;
+use dump_syms::mac::macho::MachoInfo;
+use dump_syms::utils;
+use dump_syms::windows::pdb::PDBInfo;
 
-use super::dumper::{self, Config};
+use dump_syms::dumper::{self, Config};
 
+#[allow(clippy::large_enum_variant)]
 pub(crate) enum Action<'a> {
     Dump(Config<'a>),
     ListArch,
@@ -82,9 +83,8 @@ mod tests {
         copy(basic64, &tmp_file).unwrap();
 
         let action = Action::Dump(Config {
-            output: tmp_out.to_str().unwrap(),
+            output: tmp_out.clone().into(),
             symbol_server: None,
-            store: None,
             debug_id: None,
             code_id: None,
             arch: common::get_compile_time_arch(),
@@ -116,9 +116,8 @@ mod tests {
         copy(basic64, &tmp_file).unwrap();
 
         let action = Action::Dump(Config {
-            output: tmp_out.to_str().unwrap(),
+            output: tmp_out.into(),
             symbol_server: None,
-            store: None,
             debug_id: None,
             code_id: None,
             arch: common::get_compile_time_arch(),
@@ -148,9 +147,8 @@ mod tests {
         copy(basic64_dll, &tmp_dll).unwrap();
 
         let action = Action::Dump(Config {
-            output: tmp_out.to_str().unwrap(),
+            output: tmp_out.clone().into(),
             symbol_server: None,
-            store: None,
             debug_id: None,
             code_id: None,
             arch: common::get_compile_time_arch(),
@@ -179,9 +177,8 @@ mod tests {
         let tmp_out = tmp_dir.path().join("output.sym");
 
         let action = Action::Dump(Config {
-            output: tmp_out.to_str().unwrap(),
+            output: tmp_out.clone().into(),
             symbol_server: None,
-            store: None,
             debug_id: None,
             code_id: None,
             arch: common::get_compile_time_arch(),
@@ -214,9 +211,8 @@ mod tests {
         let tmp_out = tmp_dir.path().join("output.sym");
 
         let action = Action::Dump(Config {
-            output: tmp_out.to_str().unwrap(),
+            output: tmp_out.clone().into(),
             symbol_server: None,
-            store: None,
             debug_id: None,
             code_id: None,
             arch: common::get_compile_time_arch(),
@@ -256,9 +252,8 @@ mod tests {
         let tmp_out = tmp_dir.path().join("output.sym");
 
         let action = Action::Dump(Config {
-            output: tmp_out.to_str().unwrap(),
+            output: tmp_out.clone().into(),
             symbol_server: None,
-            store: None,
             debug_id: None,
             code_id: None,
             arch: common::get_compile_time_arch(),

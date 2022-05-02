@@ -190,7 +190,7 @@ impl Collector {
     }
 }
 
-pub(crate) struct PDBInfo {
+pub struct PDBInfo {
     symbols: PDBSymbols,
     files: Vec<String>,
     cpu: Cpu,

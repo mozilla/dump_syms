@@ -5,7 +5,7 @@
 
 use cab::Cabinet;
 use std::fs::{self, File, Metadata};
-use std::io::{self, BufWriter, Cursor, Read, Write};
+use std::io::{Cursor, Read};
 use std::path::{Component, Path, PathBuf};
 
 use crate::common;
@@ -31,6 +31,42 @@ pub fn read_file<P: AsRef<Path>>(path: P) -> Vec<u8> {
 
     read_cabinet(buf, path.clone())
         .unwrap_or_else(|| panic!("Unable to read the cabinet file {}", path.to_str().unwrap()))
+}
+
+pub(crate) fn get_base(file_name: &str) -> PathBuf {
+    // The file is stored at cache/xul.pdb/DEBUG_ID/xul.pd_
+    // the xul.pdb represents the base
+    let mut path = PathBuf::from(file_name);
+    if let Some(e) = path.extension() {
+        let e = e.to_str().unwrap().to_lowercase();
+        match e.as_str() {
+            "pd_" => {
+                path.set_extension("pdb");
+            }
+            "ex_" => {
+                path.set_extension("exe");
+            }
+            "dl_" => {
+                path.set_extension("dll");
+            }
+            _ => {}
+        }
+
+        path
+    } else {
+        path
+    }
+}
+
+#[inline]
+pub fn get_path_for_sym(file_name: &str, id: &str) -> PathBuf {
+    let mut pb = get_base(file_name);
+
+    pb.push(id);
+    pb.push(file_name);
+    pb.set_extension("sym");
+
+    pb
 }
 
 pub fn get_mac_bundle<P: AsRef<Path>>(metadata: &Metadata, path: P) -> Option<(Metadata, PathBuf)> {
@@ -127,18 +163,6 @@ fn get_cabinet_files(cab: &Cabinet<Cursor<&Vec<u8>>>, path: PathBuf) -> Option<(
         }
     }
     None
-}
-
-pub fn get_writer_for_sym(file_name: &str) -> BufWriter<Box<dyn Write>> {
-    let output: Box<dyn Write> = if file_name.is_empty() || file_name == "-" {
-        Box::new(io::stdout())
-    } else {
-        let path = PathBuf::from(file_name);
-        let output = File::create(&path)
-            .unwrap_or_else(|_| panic!("Cannot open file {} for writing", path.to_str().unwrap()));
-        Box::new(output)
-    };
-    BufWriter::new(output)
 }
 
 pub fn normalize_path<P: AsRef<Path>>(path: P) -> PathBuf {

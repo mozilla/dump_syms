@@ -3,15 +3,16 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use log::warn;
 use std::path::Path;
 use symbolic::debuginfo::pe::PeObject;
 use uuid::Uuid;
 
+#[cfg(feature = "http")]
 use crate::cache::{self, SymbolServer};
 use crate::utils;
 use crate::windows::pdb::PDBInfo;
 
+#[cfg(feature = "http")]
 fn try_to_find_pdb(path: &Path, pdb_filename: &str) -> Option<Vec<u8>> {
     // Just check that the file is in the same directory as the PE one
     let pdb = path.with_file_name(pdb_filename);
@@ -34,6 +35,7 @@ fn try_to_find_pdb(path: &Path, pdb_filename: &str) -> Option<Vec<u8>> {
     None
 }
 
+#[cfg(feature = "http")]
 fn os_specific_try_to_find_pdb(path: &Path, pdb_filename: &str) -> (Option<Vec<u8>>, String) {
     // We may have gotten either an OS native path, or a Windows path.
     // On Windows, they're both the same. On Unix, they are different, and in that case,
@@ -54,6 +56,7 @@ fn os_specific_try_to_find_pdb(path: &Path, pdb_filename: &str) -> (Option<Vec<u
     }
 }
 
+#[cfg(feature = "http")]
 pub fn get_pe_pdb_buf<'a>(
     path: &Path,
     buf: &'a [u8],
@@ -65,7 +68,7 @@ pub fn get_pe_pdb_buf<'a>(
         let pdb_filename = pdb_filename.into_owned();
         let (pdb, pdb_name) = os_specific_try_to_find_pdb(path, &pdb_filename);
         if pdb_name.is_empty() {
-            warn!("Invalid pdb filename in PE file: \"{}\"", pdb_filename);
+            log::warn!("Invalid pdb filename in PE file: \"{}\"", pdb_filename);
             None
         } else if let Some(pdb_buf) = pdb {
             Some((pe, pdb_buf, pdb_name))
