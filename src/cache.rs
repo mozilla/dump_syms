@@ -33,9 +33,7 @@ struct Job {
 
 impl Job {
     fn new(cache: Option<PathBuf>, url: String) -> common::Result<Self> {
-        if Url::parse(&url).is_err() {
-            return Err(From::from(format!("Invalid url: {}", url)));
-        }
+        anyhow::ensure!(Url::parse(&url).is_ok(), "Invalid url: {}", url);
         Ok(Self { cache, url })
     }
 }
@@ -148,30 +146,6 @@ fn copy_in_cache(path: Option<PathBuf>, data: &[u8]) -> bool {
         .unwrap_or_else(|_| panic!("Cannot write file {}", path.to_str().unwrap()));
 
     true
-}
-
-fn get_base(file_name: &str) -> PathBuf {
-    // The file is stored at cache/xul.pdb/DEBUG_ID/xul.pd_
-    // the xul.pdb represents the base
-    let path = PathBuf::from(file_name);
-    if let Some(e) = path.extension() {
-        let e = e.to_str().unwrap().to_lowercase();
-        match e.as_str() {
-            "pd_" => path.with_extension("pdb"),
-            "ex_" => path.with_extension("exe"),
-            "dl_" => path.with_extension("dll"),
-            _ => path.clone(),
-        }
-    } else {
-        path.clone()
-    }
-}
-
-pub fn get_path_for_sym(file_name: &str, id: &str) -> PathBuf {
-    let base = get_base(file_name);
-    let file_name = PathBuf::from(file_name);
-    let file_name = file_name.with_extension("sym");
-    base.join(id).join(file_name)
 }
 
 fn search_in_cache(
@@ -295,7 +269,7 @@ pub fn search_file(
         _ => return (None, file_name),
     };
 
-    let base = get_base(&file_name);
+    let base = utils::get_base(&file_name);
 
     // Start with the caches
     if let Some(path) = search_in_cache(servers, id, &base, &file_name) {

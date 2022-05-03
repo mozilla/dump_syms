@@ -3,7 +3,6 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use failure::Fail;
 use std::fmt::{Display, Formatter};
 use std::io::Write;
 use std::sync::Arc;
@@ -35,7 +34,7 @@ impl MachoInfo {
         // Fat files may contain several objects for different architectures
         // So if there is only one object, then we don't care about the arch (as argument)
         // and if several then we use arch (by default it's compile-time arch).
-        let archive = Archive::parse(buf).map_err(|e| e.compat())?;
+        let archive = Archive::parse(buf)?;
         let object = if archive.object_count() == 1 {
             archive.object_by_index(0).unwrap()
         } else {
@@ -50,18 +49,17 @@ impl MachoInfo {
                 elf: ElfInfo::from_object(&object, file_name, Platform::Mac, mapping)?,
             })
         } else {
-            Err(format!(
+            anyhow::bail!(
                 "Cannot find a valid object for architecture {} in file {}",
                 arch.name(),
                 file_name
-            )
-            .into())
+            );
         }
     }
 
     /// Print on screen the cpu arch for the different objects present in the fat file
     pub fn print_architectures(buf: &[u8], file_name: String) -> common::Result<()> {
-        let archive = Archive::parse(buf).map_err(|e| e.compat())?;
+        let archive = Archive::parse(buf)?;
         let archs = archive
             .objects()
             .map(|o| o.unwrap().arch().name())

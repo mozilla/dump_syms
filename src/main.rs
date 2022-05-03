@@ -3,28 +3,17 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-mod action;
-mod cache;
-mod common;
-mod dumper;
-mod line;
-mod linux;
-mod mac;
-mod mapping;
-mod utils;
-mod windows;
-
 use clap::{crate_authors, crate_version, App, Arg};
 use log::error;
 use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
 use std::ops::Deref;
 use std::panic;
 
-use crate::action::Action;
-use crate::common::FileType;
+mod action;
 
-#[macro_use]
-extern crate lazy_static;
+use action::Action;
+use dump_syms::common::{self, FileType};
+use dump_syms::dumper;
 
 fn main() {
     let matches = App::new("dump_syms")
@@ -43,7 +32,6 @@ fn main() {
                 .help("Output file or - for stdout")
                 .short("o")
                 .long("output")
-                .default_value("-")
                 .takes_value(true),
         )
         .arg(
@@ -181,7 +169,7 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
         error!("A panic occurred at {}:{}: {}", filename, line, cause);
     }));
 
-    let output = matches.value_of("output").unwrap();
+    let output = matches.value_of("output");
     let filenames: Vec<_> = matches.values_of("filenames").unwrap().collect();
     let symbol_server = matches.value_of("symbol-server");
     let store = matches.value_of("store");
@@ -212,7 +200,7 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
             );
             std::process::exit(1);
         } else {
-            let t = common::FileType::from_str(typ);
+            let t: common::FileType = typ.parse().unwrap();
             match t {
                 FileType::Elf | FileType::Macho | FileType::Pdb => t,
                 _ => {
@@ -228,10 +216,19 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
     let action = if matches.is_present("list_arch") {
         Action::ListArch
     } else {
+        let output = match (output, store) {
+            (Some(out), Some(store)) => dumper::Output::FileAndStore {
+                file: out.into(),
+                store_directory: store.into(),
+            },
+            (Some(out), None) => dumper::Output::File(out.into()),
+            (None, Some(store)) => dumper::Output::Store(store.into()),
+            (None, None) => dumper::Output::File(dumper::FileOutput::Stdout),
+        };
+
         Action::Dump(dumper::Config {
             output,
             symbol_server,
-            store,
             debug_id,
             code_id,
             arch,

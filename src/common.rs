@@ -5,16 +5,14 @@
 
 use regex::Regex;
 use std::env::consts::ARCH;
-use std::error;
 use std::io::Write;
 use std::result;
 use symbolic::common::{Arch, Name};
 use symbolic::debuginfo::{peek, FileFormat};
 
-type Error = Box<dyn error::Error + std::marker::Send + std::marker::Sync>;
-pub type Result<T> = result::Result<T, Error>;
+pub type Result<T> = result::Result<T, anyhow::Error>;
 
-pub(crate) enum FileType {
+pub enum FileType {
     Pdb,
     Pe,
     Elf,
@@ -23,7 +21,7 @@ pub(crate) enum FileType {
 }
 
 impl FileType {
-    pub(crate) fn from_buf(buf: &[u8]) -> Self {
+    pub fn from_buf(buf: &[u8]) -> Self {
         match peek(buf, true /* check for fat binary */) {
             FileFormat::Pdb => Self::Pdb,
             FileFormat::Pe => Self::Pe,
@@ -32,26 +30,30 @@ impl FileType {
             _ => Self::Unknown,
         }
     }
+}
 
-    pub(crate) fn from_str(s: &str) -> Self {
+impl std::str::FromStr for FileType {
+    type Err = std::convert::Infallible;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         let s = s.to_lowercase();
-        match s.as_str() {
+        Ok(match s.as_str() {
             "pdb" => Self::Pdb,
             "elf" => Self::Elf,
             "macho" => Self::Macho,
             _ => Self::Unknown,
-        }
+        })
     }
 }
 
-pub(crate) trait Dumpable {
+pub trait Dumpable {
     fn dump<W: Write>(&self, writer: W) -> Result<()>;
     fn get_name(&self) -> &str;
     fn get_debug_id(&self) -> &str;
     fn has_stack(&self) -> bool;
 }
 
-pub(crate) trait Mergeable {
+pub trait Mergeable {
     fn merge(left: Self, right: Self) -> Result<Self>
     where
         Self: Sized;
@@ -61,7 +63,7 @@ pub(crate) trait LineFinalizer<M> {
     fn finalize(&mut self, sym_rva: u32, sym_len: u32, map: &M);
 }
 
-pub(crate) fn get_compile_time_arch() -> &'static str {
+pub fn get_compile_time_arch() -> &'static str {
     use Arch::*;
 
     match ARCH {
@@ -84,7 +86,7 @@ pub(crate) fn normalize_anonymous_namespace(text: &str) -> String {
 }
 
 pub(crate) fn fix_symbol_name<'a>(name: &'a Name<'a>) -> Name<'a> {
-    lazy_static! {
+    lazy_static::lazy_static! {
         static ref LLVM_NNN: Regex = Regex::new(r"\.llvm\.[0-9]+$").unwrap();
     }
     let fixed = LLVM_NNN.replace(name.as_str(), "");
