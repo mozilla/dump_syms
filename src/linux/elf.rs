@@ -3,7 +3,6 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use hashbrown::HashMap;
 use log::{error, warn};
 use std::collections::btree_map;
 use std::fmt::{Display, Formatter};
@@ -88,135 +87,6 @@ impl Display for ElfInfo {
 // - lines: each range is mapped to a set of lines, for any reason a range can be mapped with a line which is out of range
 //   when the line address is an inlinee address, line info gives us the "calling" location
 
-#[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
-struct ElfLineInfo {
-    file_id: u32,
-    line: u32,
-}
-
-/// An address range in the function which covers an inlined function call which was
-/// inlined directly into the outer function.
-///
-/// No Inlinees are created for inlined function calls at a deeper depth.
-#[derive(Debug, Default)]
-struct Inlinee {
-    /// Initialized to zero and is later set to the location of the *call* to this inlined function.
-    call_location: ElfLineInfo,
-    /// The start of the address range covered by this inline call.
-    start: u64,
-    /// The end of the address range covered by this inline call.
-    end: u64,
-}
-
-impl Display for Inlinee {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        writeln!(f, "call_location: {:?}", self.call_location)?;
-        writeln!(f, "start: 0x{:x}", self.start)?;
-        writeln!(f, "end: 0x{:x}", self.end)
-    }
-}
-
-/// Keeps track of inlined function calls so that addresses inside of them can be
-/// mapped to the location of the call.
-///
-/// A fresh InlineeManager is created for every outer function.
-#[derive(Debug)]
-struct InlineeManager {
-    /// All the first-level inlines inside the function, i.e. one entry for every function
-    /// call which was inlined directly into the outer function. There are no entries for
-    /// inlined function calls at a deeper nesting level because we're discarding their
-    /// information anyway.
-    inlinees: Vec<Inlinee>,
-
-    /// For every line record at any depth inside an inlined function, this map contains
-    /// an entry mapping the address of the line record to the index in `self.inlinees`
-    /// of the outermost inline covering that address.
-    addresses: HashMap<u64, usize>,
-}
-
-impl Default for InlineeManager {
-    fn default() -> Self {
-        Self {
-            inlinees: Vec::with_capacity(16),
-            addresses: HashMap::default(),
-        }
-    }
-}
-
-impl InlineeManager {
-    /// Collect information about all inlined calls inside this function, so that
-    /// we can map addresses inside of inlined calls to the location of the outermost
-    /// call.
-    fn add_inlinees(&mut self, fun: &Function) {
-        for inlinee in fun.inlinees.iter() {
-            self.add_outermost_inlinee(inlinee);
-        }
-    }
-
-    /// Collect information about a single "outermost" inlinee. It's outermost in the
-    /// sense that it is inlined directly into the outer function.
-    fn add_outermost_inlinee(&mut self, fun: &Function) {
-        let inlinee_index = self.inlinees.len();
-        self.collect_inlinee_line_addresses(inlinee_index, fun);
-
-        // Add this inlinee to self.inlinees.
-        // The call location will be updated later when we process the line records of `fun`.
-        self.inlinees.push(Inlinee {
-            call_location: ElfLineInfo::default(),
-            start: fun.address,
-            end: fun.address + fun.size,
-        });
-    }
-
-    /// Recursively traverses the inlinees in `fun` and collects the addresses of each inline and
-    /// of all their line records.
-    ///
-    /// Every collected address be mapped to `outermost_inlinee_index` and stored in `self.addresses`.
-    fn collect_inlinee_line_addresses(
-        &mut self,
-        outermost_inlinee_index: usize,
-        inlinee: &Function,
-    ) {
-        self.addresses
-            .insert(inlinee.address, outermost_inlinee_index);
-        for line in inlinee.lines.iter() {
-            self.addresses.insert(line.address, outermost_inlinee_index);
-        }
-
-        for child_inlinee in inlinee.inlinees.iter() {
-            self.collect_inlinee_line_addresses(outermost_inlinee_index, child_inlinee);
-        }
-    }
-
-    /// Update the call locations of our inlinees, and map the address to the location in the outer
-    /// function. Returns a location that is guaranteed to be in the outer function.
-    ///
-    /// For every inlined function call, the [`Function`] contains both an inlinee and a
-    /// line record; they both start at the same address and the line record has the location
-    /// of the call.
-    fn process_outer_function_line(
-        &mut self,
-        address: u64,
-        line: u32,
-        file_id: u32,
-    ) -> ElfLineInfo {
-        let info = ElfLineInfo { file_id, line };
-        if let Some(inlinee_pos) = self.addresses.get(&address) {
-            let inlinee = &mut self.inlinees[*inlinee_pos];
-            if inlinee.start == address {
-                // We have found the line record for the function call to the inlined function.
-                // Update the inlinee's call location so that upcoming addresses can map to the
-                // call location correctly.
-                inlinee.call_location = info;
-            }
-            inlinee.call_location.clone()
-        } else {
-            // This line record doesn't belong to an inlinee.
-            info
-        }
-    }
-}
-
 #[derive(Debug, Default)]
 pub struct Collector {
     syms: ElfSymbols,
@@ -277,11 +147,8 @@ impl Collector {
             return;
         }
 
-        let mut inlinee_manager = InlineeManager::default();
-        inlinee_manager.add_inlinees(fun);
-
         let mut lines = Lines::new();
-        let mut last = None;
+        let mut prev = None;
 
         for line in fun.lines.iter() {
             if line.line == 0 {
@@ -290,19 +157,14 @@ impl Collector {
             }
 
             let file_id = source.get_id(fun.compilation_dir, &line.file);
-            let line_info = inlinee_manager.process_outer_function_line(
-                line.address,
-                line.line as u32,
-                file_id,
-            );
-
-            if last.as_ref().map_or(true, |prev| *prev != line_info) {
+            let line_info = (line.line, file_id);
+            if prev.as_ref() != Some(&line_info) {
                 lines.add_line(
                     line.address as u32,
-                    line_info.line as u32,
-                    source.get_true_id(line_info.file_id),
+                    line.line as u32,
+                    source.get_true_id(file_id),
                 );
-                last = Some(line_info);
+                prev = Some(line_info);
             }
         }
 
