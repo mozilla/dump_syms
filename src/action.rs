@@ -95,6 +95,7 @@ mod tests {
             mapping_dest: None,
             mapping_file: None,
             check_cfi: false,
+            emit_inlines: false,
         });
 
         action.action(&[tmp_file.to_str().unwrap()]).unwrap();
@@ -128,6 +129,7 @@ mod tests {
             mapping_dest: None,
             mapping_file: None,
             check_cfi: true,
+            emit_inlines: false,
         });
 
         let res = action.action(&[tmp_file.to_str().unwrap()]);
@@ -159,6 +161,7 @@ mod tests {
             mapping_dest: None,
             mapping_file: None,
             check_cfi: false,
+            emit_inlines: false,
         });
 
         action.action(&[tmp_pdb.to_str().unwrap()]).unwrap();
@@ -189,6 +192,7 @@ mod tests {
             mapping_dest: None,
             mapping_file: None,
             check_cfi: false,
+            emit_inlines: false,
         });
 
         action.action(&[full.to_str().unwrap()]).unwrap();
@@ -223,6 +227,7 @@ mod tests {
             mapping_dest: None,
             mapping_file: None,
             check_cfi: false,
+            emit_inlines: false,
         });
 
         action
@@ -264,6 +269,7 @@ mod tests {
             mapping_dest: None,
             mapping_file: None,
             check_cfi: false,
+            emit_inlines: false,
         });
 
         action

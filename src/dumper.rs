@@ -81,6 +81,7 @@ pub struct Config<'a> {
     pub file_type: FileType,
     pub num_jobs: usize,
     pub check_cfi: bool,
+    pub emit_inlines: bool,
     pub mapping_var: Option<Vec<&'a str>>,
     pub mapping_src: Option<Vec<&'a str>>,
     pub mapping_dest: Option<Vec<&'a str>>,

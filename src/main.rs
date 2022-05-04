@@ -128,6 +128,11 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
                 .long("mapping-file")
                 .takes_value(true),
         )
+        .arg(
+            Arg::with_name("inlines")
+                .help("Whether to emit INLINE and INLINE_ORIGIN directives")
+                .long("inlines"),
+        )
         .get_matches();
 
     let verbosity = match matches.value_of("verbose").unwrap() {
@@ -179,6 +184,7 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
     let code_id = matches.value_of("code_id");
     let arch = matches.value_of("arch").unwrap();
     let check_cfi = matches.is_present("check_cfi");
+    let emit_inlines = matches.is_present("inlines");
     let mapping_var = matches
         .values_of("mapping_var")
         .map(|v| v.collect::<Vec<_>>());
@@ -237,6 +243,7 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
             file_type,
             num_jobs,
             check_cfi,
+            emit_inlines,
             mapping_var,
             mapping_src,
             mapping_dest,
