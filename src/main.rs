@@ -141,6 +141,9 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
 
     // Init the logger
     let mut config = ConfigBuilder::new();
+    // Note that this will fail if we have more than 1 thread running, but this
+    // should be fine here at startup
+    let _res = config.set_time_offset_to_local();
     let _ = TermLogger::init(
         verbosity,
         config.build(),
