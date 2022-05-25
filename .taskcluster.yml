@@ -137,7 +137,7 @@ tasks:
               features:
                 taskclusterProxy: true
               maxRunTime: 3600
-              image: "mozilla/taskboot:0.2.0"
+              image: "mozilla/taskboot:latest"
               env:
                 TASKCLUSTER_SECRET: project/relman/dump_syms/deploy
               command:
