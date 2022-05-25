@@ -276,10 +276,10 @@ fn get_from_id(
 #[cfg(not(feature = "http"))]
 fn get_from_id(
     _config: &Config,
-    _path: &Path,
-    _filename: String,
+    path: &Path,
+    filename: String,
 ) -> common::Result<(Vec<u8>, String)> {
-    anyhow::bail!("HTTP symbol retrieval not enabled")
+    Ok((utils::read_file(path), filename))
 }
 
 pub fn single_file(config: &Config, filename: &str) -> common::Result<()> {
