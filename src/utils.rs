@@ -63,8 +63,7 @@ pub fn get_path_for_sym(file_name: &str, id: &str) -> PathBuf {
     let mut pb = get_base(file_name);
 
     pb.push(id);
-    pb.push(file_name);
-    pb.set_extension("sym");
+    pb.push(format!("{file_name}.sym"));
 
     pb
 }
