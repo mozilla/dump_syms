@@ -391,6 +391,12 @@ impl ElfInfo {
         let symbols =
             crate::linux::symbol::add_executable_section_symbols(collector.syms, file_name, o);
 
+        let file_name = match o {
+            Object::Elf(elf) => elf.name().unwrap_or(file_name),
+            Object::MachO(macho) => macho.name().unwrap_or(file_name),
+            _ => file_name,
+        };
+
         Ok(Self {
             symbols,
             files: source.get_mapping(),
