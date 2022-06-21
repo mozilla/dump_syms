@@ -65,7 +65,7 @@ pub fn get_path_for_sym(file_name: &str, id: &str) -> PathBuf {
     pb.push(id);
 
     if file_name
-        .rsplit_once(".")
+        .rsplit_once('.')
         .map_or(false, |(_, ext)| ext.to_lowercase() == "pdb")
     {
         pb.push(file_name);
