@@ -65,12 +65,31 @@ impl Display for ElfSymbol {
 }
 
 impl ElfSymbol {
-    pub(super) fn fix_lines(&mut self, remapping: Option<&Vec<u32>>) {
-        if let Some(remapping) = remapping {
+    pub(super) fn remap_lines(&mut self, file_remapping: Option<&[u32]>) {
+        if let Some(file_remapping) = file_remapping {
             for line in self.source.lines.iter_mut() {
-                line.file_id = remapping[line.file_id as usize];
+                line.file_id = file_remapping[line.file_id as usize];
             }
         }
+    }
+
+    pub(super) fn remap_inlines(
+        &mut self,
+        file_remapping: Option<&[u32]>,
+        inline_origin_remapping: &[u32],
+    ) {
+        let inlines = std::mem::take(&mut self.source.inlines);
+        self.source.inlines = inlines
+            .into_iter()
+            .map(|(mut inline_site, address_ranges)| {
+                if let Some(file_remapping) = file_remapping {
+                    inline_site.call_file_id = file_remapping[inline_site.call_file_id as usize];
+                }
+                inline_site.inline_origin_id =
+                    inline_origin_remapping[inline_site.inline_origin_id as usize];
+                (inline_site, address_ranges)
+            })
+            .collect();
     }
 }
 

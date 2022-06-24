@@ -10,13 +10,15 @@ use std::io::{Cursor, Write};
 use std::sync::Arc;
 use symbolic::cfi::AsciiCfiWriter;
 use symbolic::common::{Language, Name, NameMangling};
+use symbolic::debuginfo::dwarf::DwarfDebugSession;
 use symbolic::debuginfo::{Function, Object, ObjectDebugSession};
 use symbolic::demangle::{Demangle, DemangleOptions};
 
 use super::source::{SourceFiles, SourceMap};
 use super::symbol::{ContainsSymbol, ElfSymbol, ElfSymbols};
 use crate::common::{self, Dumpable, LineFinalizer, Mergeable};
-use crate::line::Lines;
+use crate::inline_origins::{merge_inline_origins, InlineOrigins};
+use crate::line::{InlineAddressRange, InlineSite, Lines};
 use crate::mapping::PathMappings;
 
 #[derive(Debug, PartialEq)]
@@ -45,6 +47,7 @@ impl Display for Platform {
 pub struct ElfInfo {
     symbols: ElfSymbols,
     files: SourceMap,
+    inline_origins: Vec<String>,
     file_name: String,
     cpu: &'static str,
     debug_id: String,
@@ -68,6 +71,10 @@ impl Display for ElfInfo {
 
         for (n, file_name) in self.files.get_mapping().iter().enumerate() {
             writeln!(f, "FILE {} {}", n, file_name)?;
+        }
+
+        for (n, function_name) in self.inline_origins.iter().enumerate() {
+            writeln!(f, "INLINE_ORIGIN {} {}", n, function_name)?;
         }
 
         for (_, sym) in self.symbols.iter() {
@@ -143,7 +150,12 @@ impl Collector {
         }
     }
 
-    pub fn collect_function(&mut self, fun: &Function, source: &mut SourceFiles) {
+    pub fn collect_function<'a>(
+        &mut self,
+        fun: &Function<'a>,
+        source: &mut SourceFiles,
+        inline_origins: &mut InlineOrigins<'a>,
+    ) {
         if fun.address == 0 {
             return;
         }
@@ -156,23 +168,33 @@ impl Collector {
         }
 
         let mut lines = Lines::new();
-        let mut prev = None;
 
-        for line in fun.lines.iter() {
-            if line.line == 0 {
-                // It's probably better to skip it to avoid to have some links in crash-stats pointing to line 0 in a file
-                continue;
-            }
+        if self.collect_inlines {
+            Self::collect_function_with_inlines_recursive(
+                fun,
+                &mut lines,
+                source,
+                inline_origins,
+                0,
+            );
+        } else {
+            let mut prev = None;
+            for line in fun.lines.iter() {
+                if line.line == 0 {
+                    // It's probably better to skip it to avoid to have some links in crash-stats pointing to line 0 in a file
+                    continue;
+                }
 
-            let file_id = source.get_id(fun.compilation_dir, &line.file);
-            let line_info = (line.line, file_id);
-            if prev.as_ref() != Some(&line_info) {
-                lines.add_line(
-                    line.address as u32,
-                    line.line as u32,
-                    source.get_true_id(file_id),
-                );
-                prev = Some(line_info);
+                let file_id = source.get_id(fun.compilation_dir, &line.file);
+                let line_info = (line.line, file_id);
+                if prev.as_ref() != Some(&line_info) {
+                    lines.add_line(
+                        line.address as u32,
+                        line.line as u32,
+                        source.get_true_id(file_id),
+                    );
+                    prev = Some(line_info);
+                }
             }
         }
 
@@ -194,22 +216,194 @@ impl Collector {
         );
     }
 
-    pub fn collect_functions(
-        &mut self,
-        o: &Object,
+    /// Translate the information in `fun` into calls to `lines.add_line` and `lines.add_inline`.
+    fn collect_function_with_inlines_recursive<'a>(
+        fun: &Function<'a>,
+        lines: &mut Lines,
         source: &mut SourceFiles,
-    ) -> common::Result<()> {
-        let ds = o.debug_session()?;
-        let ds = if let ObjectDebugSession::Dwarf(ds) = ds {
-            ds
-        } else {
-            unreachable!();
-        };
+        inline_origins: &mut InlineOrigins<'a>,
+        call_depth: u32,
+    ) {
+        // This function converts between two representations of line information:
+        // "Lines for both self-lines and for inlined calls" -> "Only self-lines"
+        //
+        // `fun` contains the debug info for our function, with some data for each instruction
+        // that our function is made of, associated via the instruction's code address.
+        // `fun.lines` contains line records, each of which covers a range of code addresses.
+        // `fun.inlinees` contains inlinee records, each of which has its own set of line
+        // records (at `inlinee.lines`) covering code addresses.
+        //
+        // We can divide the instructions in a function into two buckets:
+        //  (1) Instructions which are part of an inlined function call, and
+        //  (2) instructions which are *not* part of an inlined function call.
+        //
+        // Our incoming line records cover both (1) and (2) types of instructions.
+        // We want to call `lines.add_line` *only for type (2)*.
+        //
+        // So we need to know which address ranges are covered by inline calls, so that we
+        // can filter out those address ranges and skip calling `lines.add_line` for them.
 
+        // First we gather the address ranges covered by inlined calls.
+        // We also recurse into the inlinees, while we're at it.
+        // The order of calls to `add_line` and `add_inline` is irrelevant; `Lines` will sort
+        // everything by address once the entire outer function has been processed.
+        let mut inline_ranges = Vec::new();
+        for inlinee in &fun.inlinees {
+            if inlinee.lines.is_empty() {
+                continue;
+            }
+
+            let inline_origin_id = inline_origins.get_id(&inlinee.name);
+
+            for line in &inlinee.lines {
+                let start = line.address;
+                let end = line.address + line.size.unwrap_or(1);
+                inline_ranges.push((start..end, inline_origin_id));
+            }
+
+            // Recurse.
+            Self::collect_function_with_inlines_recursive(
+                inlinee,
+                lines,
+                source,
+                inline_origins,
+                call_depth + 1,
+            );
+        }
+
+        // Sort the inline ranges.
+        inline_ranges.sort_unstable_by_key(|(range, _origin)| range.start);
+
+        // Walk two iterators. We assume that fun.lines is already sorted by address.
+        let mut line_iter = fun.lines.iter();
+        let mut inline_iter = inline_ranges.into_iter();
+        let mut next_line = line_iter.next();
+        let mut next_inline = inline_iter.next();
+
+        let mut prev_line_info = None;
+
+        // Iterate over the line records.
+        while let Some(line) = next_line.take() {
+            let line_range_start = line.address;
+            let line_range_end = line.address + line.size.unwrap_or(1);
+            let file_id = source.get_id(fun.compilation_dir, &line.file);
+            let file_id = source.get_true_id(file_id);
+            let line_no = line.line as u32;
+
+            // The incoming line record can be a "self line", or a "call line", or even a mixture.
+            //
+            // Examples:
+            //
+            //  a) Just self line:
+            //      Line:      |==============|
+            //      Inlines:    (none)
+            //
+            //      Effect: add_line()
+            //
+            //  b) Just call line:
+            //      Line:      |==============|
+            //      Inlines:   |--------------|
+            //
+            //      Effect: add_inline()
+            //
+            //  c) Just call line, for multiple inlined calls:
+            //      Line:      |==========================|
+            //      Inlines:   |----------||--------------|
+            //
+            //      Effect: add_inline(), add_inline()
+            //
+            //  d) Call line and trailing self line:
+            //      Line:      |==================|
+            //      Inlines:   |-----------|
+            //
+            //      Effect: add_inline(), add_line()
+            //
+            //  e) Leading self line and also call line:
+            //      Line:      |==================|
+            //      Inlines:          |-----------|
+            //
+            //      Effect: add_line(), add_inline()
+            //
+            //  f) Interleaving
+            //      Line:      |======================================|
+            //      Inlines:          |-----------|    |-------|
+            //
+            //      Effect: add_line(), add_inline(), add_line(), add_inline(), add_line()
+            //
+            //  g) Bad debug info
+            //      Line:      |=======|
+            //      Inlines:   |-------------|
+            //
+            //      Effect: add_inline()
+
+            let mut current_address = line_range_start;
+            while current_address < line_range_end {
+                // Emit a line at current_address if current_address is not covered by an inlined call.
+                if next_inline.is_none() || next_inline.as_ref().unwrap().0.start > current_address
+                {
+                    let line_info = (line_no, file_id);
+                    if prev_line_info.as_ref() != Some(&line_info) {
+                        lines.add_line(current_address as u32, line_no, file_id);
+                        prev_line_info = Some(line_info);
+                    }
+                }
+
+                // If there is an inlined call covered by this line record, turn this line into that
+                // call's "call line" and emit an inline record.
+                if next_inline.is_some() && next_inline.as_ref().unwrap().0.start < line_range_end {
+                    let (inline_range, inline_origin_id) = next_inline.take().unwrap();
+
+                    let call_line_number = line_no;
+                    let call_file_id = file_id;
+
+                    lines.add_inline(
+                        InlineSite {
+                            inline_origin_id,
+                            call_depth,
+                            call_line_number,
+                            call_file_id,
+                        },
+                        InlineAddressRange {
+                            rva: inline_range.start as u32,
+                            len: (inline_range.end - inline_range.start) as u32,
+                        },
+                    );
+
+                    // Advance current_address to the end of this inline range.
+                    current_address = inline_range.end;
+                    prev_line_info = None;
+                    next_inline = inline_iter.next();
+                } else {
+                    // No further inline ranges are overlapping with this line record. Advance to the
+                    // end of the line record.
+                    current_address = line_range_end;
+                }
+            }
+
+            // Advance the line iterator.
+            next_line = line_iter.next();
+
+            // Skip any lines that start before current_address.
+            // Such lines can exist if the debug information is faulty, or if the compiler created
+            // multiple identical small "call line" records instead of one combined record
+            // covering the entire inline range. We can't have different "call lines" for a single
+            // inline range anyway, so it's fine to skip these.
+            while next_line.is_some() && next_line.as_ref().unwrap().address < current_address {
+                next_line = line_iter.next();
+            }
+        }
+    }
+
+    pub fn collect_functions<'a>(
+        &mut self,
+        ds: &'a DwarfDebugSession,
+        source: &mut SourceFiles,
+        inline_origins: &mut InlineOrigins<'a>,
+    ) -> common::Result<()> {
         for fun in ds.functions() {
             match fun {
                 Ok(fun) => {
-                    self.collect_function(&fun, source);
+                    self.collect_function(&fun, source, inline_origins);
                 }
                 Err(e) => {
                     error!("Function collection: {:?}", e);
@@ -290,7 +484,16 @@ impl ElfInfo {
             collect_inlines,
             syms: ElfSymbols::default(),
         };
+
+        let ds = o.debug_session()?;
+        let ds = if let ObjectDebugSession::Dwarf(ds) = ds {
+            ds
+        } else {
+            unreachable!();
+        };
+
         let mut source = SourceFiles::new(mapping);
+        let mut inline_origins = InlineOrigins::default();
         let debug_id = format!("{}", o.debug_id().breakpad());
         let code_id = o.code_id().map(|c| c.as_str().to_string().to_uppercase());
         let cpu = o.arch().name();
@@ -300,7 +503,7 @@ impl ElfInfo {
             Type::Stripped
         };
 
-        collector.collect_functions(o, &mut source)?;
+        collector.collect_functions(&ds, &mut source, &mut inline_origins)?;
         collector.collect_publics(o);
 
         let stack = Collector::get_stack_info(o);
@@ -316,6 +519,7 @@ impl ElfInfo {
         Ok(Self {
             symbols,
             files: source.get_mapping(),
+            inline_origins: inline_origins.get_list(),
             file_name: Self::file_name_only(file_name).to_string(),
             cpu,
             debug_id,
@@ -359,7 +563,9 @@ impl Mergeable for ElfInfo {
 
         // If the two files contains some FUNC they may have differents FILE number associated with
         // So merge them and get an array to remap files from 'right' with the new correct id
-        let remapping = left.files.merge(&mut right.files);
+        let file_remapping = left.files.merge(&mut right.files);
+        let inline_origin_remapping =
+            merge_inline_origins(&mut left.inline_origins, right.inline_origins);
 
         for (addr, sym) in right.symbols.iter_mut() {
             if sym.is_public {
@@ -397,13 +603,15 @@ impl Mergeable for ElfInfo {
                     if a_sym.is_public {
                         // FUNC is more interesting than the PUBLIC
                         // so just keep the FUNC
-                        sym.fix_lines(remapping.as_ref());
+                        sym.remap_lines(file_remapping.as_deref());
+                        sym.remap_inlines(file_remapping.as_deref(), &inline_origin_remapping);
                         std::mem::swap(a_sym, sym);
                     }
                     a_sym.is_multiple = true;
                 }
                 btree_map::Entry::Vacant(e) => {
-                    sym.fix_lines(remapping.as_ref());
+                    sym.remap_lines(file_remapping.as_deref());
+                    sym.remap_inlines(file_remapping.as_deref(), &inline_origin_remapping);
                     e.insert(sym.clone());
                 }
             }

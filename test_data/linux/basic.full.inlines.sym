@@ -1,0 +1,134 @@
+MODULE Linux x86_64 20AD60B0B4C68177552708AA192E77390 basic.full
+INFO CODE_ID B060AD20C6B47781552708AA192E7739FAC7C84A
+FILE 0 /home/calixte/dev/mozilla/dump_syms.calixteman/test_data/linux/basic.cpp
+INLINE_ORIGIN 0 inline_4(int)
+INLINE_ORIGIN 1 inline_3(int)
+INLINE_ORIGIN 2 inline_2(int)
+INLINE_ORIGIN 3 inline_1(int)
+PUBLIC 1000 0 _init
+PUBLIC 1020 0 <.plt ELF section in basic.full>
+PUBLIC 1030 0 <.plt.got ELF section in basic.full>
+PUBLIC 1040 0 _start
+PUBLIC 1070 0 deregister_tm_clones
+PUBLIC 10a0 0 register_tm_clones
+PUBLIC 10e0 0 __do_global_dtors_aux
+PUBLIC 1120 0 frame_dummy
+FUNC 1125 26 0 inline_1(int)
+1125 7 2 0
+112c 9 3 0
+1135 11 4 0
+1146 3 5 0
+1149 2 6 0
+FUNC 114b 2c 0 inline_2(int)
+INLINE 0 10 0 3 1158 1d
+114b d 9 0
+1158 9 3 0
+1161 11 4 0
+1172 3 5 0
+1175 2 11 0
+FUNC 1177 33 0 inline_3(int)
+INLINE 0 15 0 2 118a 1e
+INLINE 1 10 0 3 118a 1d
+1177 13 14 0
+118a 9 3 0
+1193 11 4 0
+11a4 3 5 0
+11a7 1 10 0
+11a8 2 16 0
+FUNC 11aa 3a 0 inline_4(int)
+INLINE 0 20 0 1 11c3 1f
+INLINE 1 15 0 2 11c3 1e
+INLINE 2 10 0 3 11c3 1d
+11aa 19 19 0
+11c3 9 3 0
+11cc 11 4 0
+11dd 3 5 0
+11e0 1 10 0
+11e1 1 15 0
+11e2 2 21 0
+FUNC 11e4 d9 0 foo(int)
+INLINE 0 26 0 0 120e 20
+INLINE 1 20 0 1 120e 1f 1265 1f
+INLINE 2 15 0 2 120e 1e 1265 1e
+INLINE 3 10 0 3 120e 1d 1265 1d
+INLINE 0 29 0 0 1265 20
+INLINE 0 29 0 2 1292 1e
+INLINE 1 10 0 3 1292 1d
+11e4 7 24 0
+11eb 9 25 0
+11f4 1a 26 0
+120e 9 3 0
+1217 11 4 0
+1228 3 5 0
+122b 1 10 0
+122c 1 15 0
+122d 1 20 0
+122e 3 26 0
+1231 d 27 0
+123e c 28 0
+124a 1b 29 0
+1265 9 3 0
+126e 11 4 0
+127f 3 5 0
+1282 1 10 0
+1283 1 15 0
+1284 1 20 0
+1285 d 29 0
+1292 9 3 0
+129b 11 4 0
+12ac 3 5 0
+12af 1 10 0
+12b0 3 29 0
+12b3 8 31 0
+12bb 2 32 0
+FUNC 12bd 1c 0 main
+12bd f 35 0
+12cc b 36 0
+12d7 2 37 0
+PUBLIC 12e0 0 __libc_csu_init
+PUBLIC 1340 0 __libc_csu_fini
+PUBLIC 1344 0 _fini
+STACK CFI INIT 1040 2b .cfa: $rsp 8 +
+STACK CFI INIT 1020 10 .cfa: $rsp 16 + .ra: .cfa -8 + ^
+STACK CFI 1026 .cfa: $rsp 24 +
+STACK CFI INIT 1030 8 .cfa: $rsp 8 + .ra: .cfa -8 + ^
+STACK CFI INIT 1125 26 .cfa: $rsp 8 + .ra: .cfa -8 + ^
+STACK CFI 1126 .cfa: $rsp 16 + $rbp: .cfa -16 + ^
+STACK CFI 1129 .cfa: $rbp 16 +
+STACK CFI 114a .cfa: $rsp 8 +
+STACK CFI INIT 114b 2c .cfa: $rsp 8 + .ra: .cfa -8 + ^
+STACK CFI 114c .cfa: $rsp 16 + $rbp: .cfa -16 + ^
+STACK CFI 114f .cfa: $rbp 16 +
+STACK CFI 1176 .cfa: $rsp 8 +
+STACK CFI INIT 1177 33 .cfa: $rsp 8 + .ra: .cfa -8 + ^
+STACK CFI 1178 .cfa: $rsp 16 + $rbp: .cfa -16 + ^
+STACK CFI 117b .cfa: $rbp 16 +
+STACK CFI 11a9 .cfa: $rsp 8 +
+STACK CFI INIT 11aa 3a .cfa: $rsp 8 + .ra: .cfa -8 + ^
+STACK CFI 11ab .cfa: $rsp 16 + $rbp: .cfa -16 + ^
+STACK CFI 11ae .cfa: $rbp 16 +
+STACK CFI 11e3 .cfa: $rsp 8 +
+STACK CFI INIT 11e4 d9 .cfa: $rsp 8 + .ra: .cfa -8 + ^
+STACK CFI 11e5 .cfa: $rsp 16 + $rbp: .cfa -16 + ^
+STACK CFI 11e8 .cfa: $rbp 16 +
+STACK CFI 12bc .cfa: $rsp 8 +
+STACK CFI INIT 12bd 1c .cfa: $rsp 8 + .ra: .cfa -8 + ^
+STACK CFI 12be .cfa: $rsp 16 + $rbp: .cfa -16 + ^
+STACK CFI 12c1 .cfa: $rbp 16 +
+STACK CFI 12d8 .cfa: $rsp 8 +
+STACK CFI INIT 12e0 5d .cfa: $rsp 8 + .ra: .cfa -8 + ^
+STACK CFI 12e2 .cfa: $rsp 16 + $r15: .cfa -16 + ^
+STACK CFI 12eb .cfa: $rsp 24 + $r14: .cfa -24 + ^
+STACK CFI 12f0 .cfa: $rsp 32 + $r13: .cfa -32 + ^
+STACK CFI 12f5 .cfa: $rsp 40 + $r12: .cfa -40 + ^
+STACK CFI 12f9 .cfa: $rsp 48 + $rbp: .cfa -48 + ^
+STACK CFI 1301 .cfa: $rsp 56 + $rbx: .cfa -56 + ^
+STACK CFI 1308 .cfa: $rsp 64 +
+STACK CFI 1332 .cfa: $rsp 56 +
+STACK CFI 1333 .cfa: $rsp 48 +
+STACK CFI 1334 .cfa: $rsp 40 +
+STACK CFI 1336 .cfa: $rsp 32 +
+STACK CFI 1338 .cfa: $rsp 24 +
+STACK CFI 133a .cfa: $rsp 16 +
+STACK CFI 133c .cfa: $rsp 8 +
+STACK CFI INIT 1340 1 .cfa: $rsp 8 + .ra: .cfa -8 + ^
