@@ -7,6 +7,7 @@
 pub mod cache;
 pub mod common;
 pub mod dumper;
+pub mod inline_origins;
 mod line;
 pub mod linux;
 pub mod mac;

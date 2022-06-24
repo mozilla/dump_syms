@@ -10,6 +10,7 @@ use pdb_addr2line::pdb;
 
 impl LineFinalizer<AddressMap<'_>> for Lines {
     fn finalize(&mut self, sym_rva: u32, sym_len: u32, address_map: &AddressMap) {
+        self.ensure_order();
         self.compute_len(sym_rva, sym_len);
 
         // the rva is the internal rva (needed to compute the length)
