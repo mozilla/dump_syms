@@ -30,6 +30,7 @@ impl MachoInfo {
         file_name: &str,
         arch: Arch,
         mapping: Option<Arc<PathMappings>>,
+        collect_inlines: bool,
     ) -> common::Result<Self> {
         // Fat files may contain several objects for different architectures
         // So if there is only one object, then we don't care about the arch (as argument)
@@ -46,7 +47,13 @@ impl MachoInfo {
 
         if let Some(object) = object {
             Ok(Self {
-                elf: ElfInfo::from_object(&object, file_name, Platform::Mac, mapping)?,
+                elf: ElfInfo::from_object(
+                    &object,
+                    file_name,
+                    Platform::Mac,
+                    mapping,
+                    collect_inlines,
+                )?,
             })
         } else {
             anyhow::bail!(

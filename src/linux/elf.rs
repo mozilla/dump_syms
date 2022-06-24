@@ -87,8 +87,9 @@ impl Display for ElfInfo {
 // - lines: each range is mapped to a set of lines, for any reason a range can be mapped with a line which is out of range
 //   when the line address is an inlinee address, line info gives us the "calling" location
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Collector {
+    collect_inlines: bool,
     syms: ElfSymbols,
 }
 
@@ -272,9 +273,10 @@ impl ElfInfo {
         file_name: &str,
         platform: Platform,
         mapping: Option<Arc<PathMappings>>,
+        collect_inlines: bool,
     ) -> common::Result<Self> {
         let o = Object::parse(buf)?;
-        Self::from_object(&o, file_name, platform, mapping)
+        Self::from_object(&o, file_name, platform, mapping, collect_inlines)
     }
 
     pub fn from_object(
@@ -282,8 +284,12 @@ impl ElfInfo {
         file_name: &str,
         platform: Platform,
         mapping: Option<Arc<PathMappings>>,
+        collect_inlines: bool,
     ) -> common::Result<Self> {
-        let mut collector = Collector::default();
+        let mut collector = Collector {
+            collect_inlines,
+            syms: ElfSymbols::default(),
+        };
         let mut source = SourceFiles::new(mapping);
         let debug_id = format!("{}", o.debug_id().breakpad());
         let code_id = o.code_id().map(|c| c.as_str().to_string().to_uppercase());
