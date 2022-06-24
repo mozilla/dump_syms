@@ -95,6 +95,7 @@ pub trait Creator: Mergeable + Dumpable + Sized {
         path: &Path,
         filename: &str,
         mapping: Option<Arc<PathMappings>>,
+        collect_inlines: bool,
     ) -> common::Result<Self>;
 
     fn get_pe<'a>(
@@ -115,8 +116,9 @@ impl Creator for ElfInfo {
         _path: &Path,
         filename: &str,
         mapping: Option<Arc<PathMappings>>,
+        collect_inlines: bool,
     ) -> common::Result<Self> {
-        Self::new(buf, filename, Platform::Linux, mapping)
+        Self::new(buf, filename, Platform::Linux, mapping, collect_inlines)
     }
 }
 
@@ -127,8 +129,9 @@ impl Creator for MachoInfo {
         _path: &Path,
         filename: &str,
         mapping: Option<Arc<PathMappings>>,
+        collect_inlines: bool,
     ) -> common::Result<Self> {
-        Self::new(buf, filename, arch, mapping)
+        Self::new(buf, filename, arch, mapping, collect_inlines)
     }
 }
 
@@ -139,6 +142,7 @@ impl Creator for PDBInfo {
         path: &Path,
         filename: &str,
         mapping: Option<Arc<PathMappings>>,
+        _collect_inlines: bool,
     ) -> common::Result<Self> {
         let mut pdb = Self::new(buf, filename, "", None, mapping)?;
         windows::utils::try_to_set_pe(path, &mut pdb, buf);
@@ -177,6 +181,7 @@ impl Creator for PEInfo {
         _path: &Path,
         _filename: &str,
         _mapping: Option<Arc<PathMappings>>,
+        _collect_inlines: bool,
     ) -> common::Result<Self> {
         anyhow::bail!("Not implemented")
     }
@@ -301,12 +306,26 @@ pub fn single_file(config: &Config, filename: &str) -> common::Result<()> {
         FileType::Elf => store(
             &config.output,
             config.check_cfi,
-            ElfInfo::get_dbg(arch, &buf, path, &filename, file_mapping)?,
+            ElfInfo::get_dbg(
+                arch,
+                &buf,
+                path,
+                &filename,
+                file_mapping,
+                config.emit_inlines,
+            )?,
         ),
         FileType::Pdb => store(
             &config.output,
             config.check_cfi,
-            PDBInfo::get_dbg(arch, &buf, path, &filename, file_mapping)?,
+            PDBInfo::get_dbg(
+                arch,
+                &buf,
+                path,
+                &filename,
+                file_mapping,
+                config.emit_inlines,
+            )?,
         ),
         FileType::Pe => {
             if let Ok(pdb_info) = PDBInfo::get_pe(config, &buf, path, &filename, file_mapping) {
@@ -322,7 +341,14 @@ pub fn single_file(config: &Config, filename: &str) -> common::Result<()> {
         FileType::Macho => store(
             &config.output,
             config.check_cfi,
-            MachoInfo::get_dbg(arch, &buf, path, &filename, file_mapping)?,
+            MachoInfo::get_dbg(
+                arch,
+                &buf,
+                path,
+                &filename,
+                file_mapping,
+                config.emit_inlines,
+            )?,
         ),
         FileType::Unknown => anyhow::bail!("Unknown file format"),
     }
@@ -337,6 +363,7 @@ struct JobItem<D: Dumpable> {
     file: String,
     typ: JobType<D>,
     mapping: Option<Arc<PathMappings>>,
+    collect_inlines: bool,
 }
 
 fn send_store_jobs<T: Creator>(
@@ -345,6 +372,7 @@ fn send_store_jobs<T: Creator>(
     num_threads: usize,
     output: Output,
     check_cfi: bool,
+    collect_inlines: bool,
 ) -> common::Result<()> {
     if results.len() == 1 {
         let (_, d) = results.drain().take(1).next().unwrap();
@@ -356,6 +384,7 @@ fn send_store_jobs<T: Creator>(
                     file: "".to_string(),
                     typ: JobType::Dump(d),
                     mapping: None,
+                    collect_inlines,
                 }))
                 .unwrap();
         }
@@ -388,7 +417,12 @@ fn consumer<T: Creator>(
             return Ok(());
         }
 
-        let JobItem { file, typ, mapping } = job.unwrap();
+        let JobItem {
+            file,
+            typ,
+            mapping,
+            collect_inlines,
+        } = job.unwrap();
 
         match typ {
             JobType::Get => {
@@ -396,10 +430,11 @@ fn consumer<T: Creator>(
                 let filename = utils::get_filename(&path);
                 let buf = utils::read_file(&path);
 
-                let info = T::get_dbg(arch, &buf, &path, &filename, mapping).map_err(|e| {
-                    poison_queue(&sender, num_threads);
-                    e
-                })?;
+                let info = T::get_dbg(arch, &buf, &path, &filename, mapping, collect_inlines)
+                    .map_err(|e| {
+                        poison_queue(&sender, num_threads);
+                        e
+                    })?;
 
                 let mut results = results.lock().unwrap();
                 let info = if let Some(prev) = results.remove(info.get_debug_id()) {
@@ -428,6 +463,7 @@ fn consumer<T: Creator>(
                 num_threads,
                 output.clone(),
                 check_cfi,
+                collect_inlines,
             )?;
         } else {
             counter.fetch_sub(1, Ordering::SeqCst);
@@ -483,6 +519,7 @@ pub fn several_files<T: 'static + Creator + std::marker::Send>(
                 file: f.to_string(),
                 typ: JobType::Get,
                 mapping: file_mapping.as_ref().map(Arc::clone),
+                collect_inlines: config.emit_inlines,
             }))
             .unwrap();
     }
