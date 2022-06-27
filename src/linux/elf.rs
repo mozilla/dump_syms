@@ -9,10 +9,10 @@ use std::collections::btree_map;
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
 use std::sync::Arc;
+use symbolic::cfi::AsciiCfiWriter;
 use symbolic::common::{Language, Name, NameMangling};
 use symbolic::debuginfo::{Function, Object, ObjectDebugSession};
 use symbolic::demangle::{Demangle, DemangleOptions};
-use symbolic::minidump::cfi::AsciiCfiWriter;
 
 use super::source::{SourceFiles, SourceMap};
 use super::symbol::{ContainsSymbol, ElfSymbol, ElfSymbols};
