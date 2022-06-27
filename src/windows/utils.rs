@@ -87,7 +87,7 @@ pub fn get_pe_debug_id(pe: Option<&PeObject>) -> Option<String> {
     if let Some(pe) = pe {
         let mut buf = Uuid::encode_buffer();
         let debug_id = pe.debug_id();
-        let uuid = debug_id.uuid().to_simple().encode_upper(&mut buf);
+        let uuid = debug_id.uuid().as_simple().encode_upper(&mut buf);
         let appendix = debug_id.appendix();
         Some(format!("{}{:x}", uuid, appendix))
     } else {
