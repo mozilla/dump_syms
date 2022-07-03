@@ -4,20 +4,76 @@
 // copied, modified, or distributed except according to those terms.
 
 use hashbrown::{hash_map, HashMap};
+use log::warn;
 use pdb::{
     AddressMap, FrameTable, PdbInternalRva, PdbInternalSectionOffset, ProcedureSymbol,
     PublicSymbol, RegisterRelativeSymbol, TypeIndex,
 };
+use pdb_addr2line::pdb;
+use pdb_addr2line::TypeFormatter;
 use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
+use symbolic::common::{Language, Name, NameMangling};
 use symbolic::debuginfo::pe::{ExceptionData, PeSymbolIterator};
+use symbolic::demangle::{Demangle, DemangleOptions};
 
 use super::pdb::{PDBContributions, PDBSections};
 use super::source::SourceLineCollector;
-use super::types::{FuncName, TypeDumper};
+use crate::common;
 use crate::common::LineFinalizer;
 use crate::line::Lines;
+
+pub enum FuncName {
+    // The undecorated name even in case of failure
+    // (there is a bug somewhere else but the name should be undecorated)
+    Undecorated(String),
+    // The name hasn't been undecorated because the language is unknown
+    Unknown((String, u32)),
+}
+
+impl FuncName {
+    pub fn get_unknown(name: String) -> Self {
+        // https://docs.microsoft.com/en-us/cpp/build/reference/decorated-names?view=vs-2019
+        // __cdecl Leading underscore (_)
+        // __stdcall Leading underscore (_) and a trailing at sign (@) followed by the number of bytes in the parameter list in decimal
+        // __fastcall Leading and trailing at signs (@) followed by a decimal number representing the number of bytes in the parameter list
+
+        if name.is_empty() {
+            return FuncName::Unknown((name, 0));
+        }
+
+        let (first, sub) = name.split_at(1);
+
+        if (first != "_" && first != "@") || sub.find(|c: char| c == ':' || c == '(').is_some() {
+            return FuncName::Unknown((name, 0));
+        }
+
+        let parts: Vec<_> = sub.rsplitn(2, '@').collect();
+        if parts.len() <= 1 {
+            let name = if first == "_" { sub.to_string() } else { name };
+            return FuncName::Unknown((name, 0));
+        }
+
+        if let Ok(stack_param_size) = parts[0].parse::<u32>() {
+            let sps = if first == "@" {
+                // __fastcall: the two first args are put in ECX and EDX
+                if stack_param_size > 8 {
+                    stack_param_size - 8
+                } else {
+                    0
+                }
+            } else {
+                stack_param_size
+            };
+            return FuncName::Unknown((parts[1].to_string(), sps));
+        }
+
+        let name = if first == "_" { sub.to_string() } else { name };
+
+        FuncName::Unknown((name, 0))
+    }
+}
 
 pub(super) struct BlockInfo {
     pub rva: u32,
@@ -112,15 +168,26 @@ impl Display for PDBSymbol {
 }
 
 impl SelectedSymbol {
-    fn get_und(&self, dumper: &TypeDumper) -> FuncName {
-        dumper
-            .dump_function(&self.name, self.type_index)
-            .unwrap_or_else(|_| FuncName::get_unknown(self.name.clone()))
+    fn get_und(&self, formatter: &TypeFormatter) -> FuncName {
+        if self.name.is_empty() {
+            FuncName::Undecorated("<name omitted>".to_string())
+        } else if self.type_index == TypeIndex(0) {
+            demangle(&self.name)
+        } else {
+            match formatter.format_function(
+                &self.name,
+                0, /* TODO: module_index */
+                self.type_index,
+            ) {
+                Ok(function) => FuncName::Undecorated(function),
+                Err(_) => FuncName::get_unknown(self.name.clone()),
+            }
+        }
     }
 
     fn get_stack_param_size(
         &mut self,
-        dumper: &TypeDumper,
+        formatter: &TypeFormatter,
         _address_map: &AddressMap,
         _frame_table: &FrameTable,
     ) -> u32 {
@@ -145,7 +212,10 @@ impl SelectedSymbol {
         let (min_start, max_end) = self.ebp.drain(..).fold((std::u32::MAX, 0), |acc, i| {
             (
                 acc.0.min(i.offset),
-                acc.1.max(i.offset + dumper.get_type_size(i.type_index)),
+                acc.1.max(
+                    i.offset
+                        + formatter.get_type_size(0 /* TODO: module_index */, i.type_index),
+                ),
             )
         });
 
@@ -214,16 +284,16 @@ impl SelectedSymbol {
 
     pub(super) fn mv_to_pdb_symbol(
         mut self,
-        dumper: &TypeDumper,
+        formatter: &TypeFormatter,
         rva: u32,
         address_map: &AddressMap,
         frame_table: &FrameTable,
     ) -> (PDBSymbol, PdbInternalSectionOffset) {
-        let name = self.get_und(dumper);
+        let name = self.get_und(formatter);
         let (name, stack_param_size) = match name {
             FuncName::Undecorated(name) => (
                 name,
-                self.get_stack_param_size(dumper, address_map, frame_table),
+                self.get_stack_param_size(formatter, address_map, frame_table),
             ),
             FuncName::Unknown((name, sps)) => (name, sps),
         };
@@ -388,7 +458,7 @@ impl RvaSymbols {
 
     fn split_and_collect(
         mut self,
-        dumper: TypeDumper,
+        formatter: TypeFormatter,
         address_map: &AddressMap,
         frame_table: FrameTable,
     ) -> (Vec<PDBSymbol>, BTreeMap<(u32, u32), usize>) {
@@ -397,7 +467,7 @@ impl RvaSymbols {
         let mut all_syms = Vec::with_capacity(self.map.len());
 
         for (rva, sym) in self.map.drain() {
-            let (sym, offset) = sym.mv_to_pdb_symbol(&dumper, rva, address_map, &frame_table);
+            let (sym, offset) = sym.mv_to_pdb_symbol(&formatter, rva, address_map, &frame_table);
             let last = all_syms.len();
             if sym.len == 0 {
                 ranges.insert((rva, 0), last);
@@ -451,7 +521,7 @@ impl RvaSymbols {
 
     pub(super) fn mv_to_pdb_symbols(
         self,
-        dumper: TypeDumper,
+        formatter: TypeFormatter,
         address_map: &AddressMap,
         frame_table: FrameTable,
     ) -> PDBSymbols {
@@ -459,7 +529,7 @@ impl RvaSymbols {
             return PDBSymbols::default();
         }
 
-        let (all_syms, ranges) = self.split_and_collect(dumper, address_map, frame_table);
+        let (all_syms, ranges) = self.split_and_collect(formatter, address_map, frame_table);
         Self::fill_the_gaps(all_syms, ranges)
     }
 }
@@ -494,6 +564,46 @@ pub(super) fn append_dummy_symbol(mut syms: PDBSymbols, name: &str) -> PDBSymbol
     );
 
     syms
+}
+
+#[inline(always)]
+fn fix_mangled_name(name: String) -> String {
+    name.replace("__cdecl", "")
+        .replace("public: ", "")
+        .replace("protected: ", "")
+        .replace("private: ", "")
+        .replace("(void)", "")
+        .replace("  ", " ")
+}
+
+pub fn demangle(ident: &str) -> FuncName {
+    // If the name is not mangled maybe we can guess stacksize in using it.
+    // So the boolean flag in the returned value is here for that (true == known language)
+    // For information:
+    //  - msvc-demangler has no problem with symbols containing ".llvm."
+    let lang = Name::new(ident, NameMangling::Mangled, Language::Unknown).detect_language();
+    if lang == Language::Unknown {
+        return FuncName::get_unknown(ident.to_string());
+    }
+
+    let name = Name::new(ident, NameMangling::Mangled, lang);
+    let name = common::fix_symbol_name(&name);
+
+    match name.demangle(DemangleOptions::complete()) {
+        Some(demangled) => {
+            if demangled == ident {
+                // Maybe the langage detection was finally wrong
+                FuncName::get_unknown(demangled)
+            } else {
+                let demangled = fix_mangled_name(demangled);
+                FuncName::Undecorated(demangled)
+            }
+        }
+        None => {
+            warn!("Didn't manage to demangle {}", ident);
+            FuncName::Undecorated(ident.to_string())
+        }
+    }
 }
 
 pub(super) fn symbolic_to_pdb_symbols(
@@ -532,7 +642,7 @@ pub(super) fn symbolic_to_pdb_symbols(
 
     for sym in syms {
         if let Some(name) = sym.name() {
-            let demangled_name = TypeDumper::demangle(name);
+            let demangled_name = demangle(name);
             let (name, parameter_size) = match demangled_name {
                 FuncName::Undecorated(name) => (name, 0),
                 FuncName::Unknown((name, parameter_size)) => (name, parameter_size),

@@ -6,9 +6,11 @@
 use hashbrown::HashSet;
 use pdb::{
     AddressMap, BlockSymbol, DebugInformation, FallibleIterator, MachineType, ModuleInfo,
-    PDBInformation, ProcedureSymbol, PublicSymbol, Register, RegisterRelativeSymbol, Result,
+    PDBInformation, ProcedureSymbol, PublicSymbol, Register, RegisterRelativeSymbol,
     SeparatedCodeSymbol, Source, SymbolData, SymbolTable, PDB,
 };
+use pdb_addr2line::pdb;
+use pdb_addr2line::{Error, TypeFormatterFlags};
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
 use std::sync::Arc;
@@ -19,25 +21,17 @@ use uuid::Uuid;
 
 use super::source::{SourceFiles, SourceLineCollector};
 use super::symbol::{BlockInfo, PDBSymbols, RvaSymbols, SelectedSymbol};
-use super::types::{DumperFlags, TypeDumper};
 use super::utils::get_pe_debug_id;
 use crate::common::{self, Dumpable, Mergeable};
 use crate::mapping::PathMappings;
+
+type Result<V> = std::result::Result<V, Error>;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Cpu {
     X86,
     X86_64,
     Unknown,
-}
-
-impl Cpu {
-    fn get_ptr_size(self) -> u32 {
-        match self {
-            Self::X86 => 4,
-            _ => 8,
-        }
-    }
 }
 
 impl Display for Cpu {
@@ -516,9 +510,11 @@ impl PDBInfo {
         pdb_data.collect_functions(&mut pdb, &dbi, &mut collector, &source_files)?;
         pdb_data.collect_public_symbols(globals, &mut collector)?;
 
-        let type_info = pdb.type_information()?;
-        // Demangler or dumper (for type info we've for private symbols)
-        let type_dumper = TypeDumper::new(&type_info, cpu.get_ptr_size(), DumperFlags::default())?;
+        let context_data = pdb_addr2line::ContextPdbData::try_from_pdb(pdb)?;
+        let flags = TypeFormatterFlags::NO_FUNCTION_RETURN
+            | TypeFormatterFlags::SPACE_AFTER_COMMA
+            | TypeFormatterFlags::NAME_ONLY;
+        let formatter = context_data.make_type_formatter_with_flags(flags)?;
 
         let code_id = pe
             .as_ref()
@@ -528,7 +524,7 @@ impl PDBInfo {
         let symbols =
             collector
                 .symbols
-                .mv_to_pdb_symbols(type_dumper, &pdb_data.address_map, frame_table);
+                .mv_to_pdb_symbols(formatter, &pdb_data.address_map, frame_table);
         let symbols = crate::windows::symbol::append_dummy_symbol(symbols, pe_name);
 
         Ok(PDBInfo {

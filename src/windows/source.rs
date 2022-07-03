@@ -9,6 +9,7 @@ use pdb::{
     AddressMap, FallibleIterator, FileIndex, LineInfo, LineProgram, PdbInternalSectionOffset,
     Result, Source, StringRef, StringTable, PDB,
 };
+use pdb_addr2line::pdb;
 use std::collections::BTreeMap;
 use std::fs;
 use std::ops::Bound::{Excluded, Included};
