@@ -93,6 +93,7 @@ pub(super) struct EBPInfo {
 pub(super) struct SelectedSymbol {
     pub name: String,
     pub type_index: TypeIndex,
+    pub module_index: Option<usize>,
     pub is_public: bool,
     pub is_multiple: bool,
     pub offset: PdbInternalSectionOffset,
@@ -176,7 +177,7 @@ impl SelectedSymbol {
         } else {
             match formatter.format_function(
                 &self.name,
-                0, /* TODO: module_index */
+                self.module_index.unwrap_or(0) as u16,
                 self.type_index,
             ) {
                 Ok(function) => FuncName::Undecorated(function),
@@ -209,13 +210,12 @@ impl SelectedSymbol {
             return self.parameter_size;
         }
 
+        let module_index = self.module_index.unwrap_or(0) as u16;
         let (min_start, max_end) = self.ebp.drain(..).fold((std::u32::MAX, 0), |acc, i| {
             (
                 acc.0.min(i.offset),
-                acc.1.max(
-                    i.offset
-                        + formatter.get_type_size(0 /* TODO: module_index */, i.type_index),
-                ),
+                acc.1
+                    .max(i.offset + formatter.get_type_size(module_index, i.type_index)),
             )
         });
 
@@ -334,6 +334,7 @@ impl RvaSymbols {
         line_collector: &SourceLineCollector,
         function: ProcedureSymbol,
         block_info: BlockInfo,
+        module_index: usize,
     ) {
         // Since several symbols may have the same rva (because they've the same disassembly code)
         // we need to "select" the a symbol for a rva.
@@ -348,6 +349,7 @@ impl RvaSymbols {
             self.symbol = Some(SelectedSymbol {
                 name: fun_name,
                 type_index: function.type_index,
+                module_index: Some(module_index),
                 is_public: false,
                 is_multiple: false,
                 offset: block_info.offset,
@@ -413,6 +415,7 @@ impl RvaSymbols {
                     e.insert(SelectedSymbol {
                         name: sym_name,
                         type_index: TypeIndex(0),
+                        module_index: None,
                         is_public: true,
                         is_multiple: false,
                         offset,

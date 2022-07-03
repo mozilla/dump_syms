@@ -156,11 +156,13 @@ impl Collector {
 
     fn add_procedure_symbol(
         &mut self,
+        module_index: usize,
         symbol: ProcedureSymbol,
         info: BlockInfo,
         lines: &SourceLineCollector,
     ) {
-        self.symbols.add_procedure_symbol(lines, symbol, info);
+        self.symbols
+            .add_procedure_symbol(lines, symbol, info, module_index);
     }
 
     fn add_symbol(&mut self, symbol: SelectedSymbol, info: BlockInfo) {
@@ -293,6 +295,7 @@ impl<'s> PDBData<'s> {
 
     fn add_block(
         &self,
+        module_index: usize,
         module_info: &ModuleInfo,
         block: BlockSymbol,
         collector: &mut Collector,
@@ -333,6 +336,7 @@ impl<'s> PDBData<'s> {
         if block_rva < parent_rva || block_rva > parent_rva + parent.len {
             // So the block is outside of its parent procedure
             collector.add_procedure_symbol(
+                module_index,
                 parent,
                 BlockInfo {
                     rva: block_rva.0,
@@ -348,6 +352,7 @@ impl<'s> PDBData<'s> {
 
     fn add_sepcode(
         &self,
+        module_index: usize,
         block: SeparatedCodeSymbol,
         collector: &mut Collector,
         lines: &SourceLineCollector,
@@ -373,6 +378,7 @@ impl<'s> PDBData<'s> {
                 let sym = SelectedSymbol {
                     name: parent.name.clone(),
                     type_index: parent.type_index,
+                    module_index: Some(module_index),
                     is_public: parent.is_public,
                     is_multiple: false,
                     offset: block.offset,
@@ -400,6 +406,7 @@ impl<'s> PDBData<'s> {
         symbol: SymbolData,
         collector: &mut Collector,
         lines: &SourceLineCollector,
+        module_index: usize,
         module_info: &ModuleInfo,
     ) -> Result<()> {
         match symbol {
@@ -410,6 +417,7 @@ impl<'s> PDBData<'s> {
                 };
 
                 collector.add_procedure_symbol(
+                    module_index,
                     procedure,
                     BlockInfo {
                         rva: rva.0,
@@ -420,10 +428,10 @@ impl<'s> PDBData<'s> {
                 );
             }
             SymbolData::Block(block) => {
-                self.add_block(module_info, block, collector, lines)?;
+                self.add_block(module_index, module_info, block, collector, lines)?;
             }
             SymbolData::SeparatedCode(block) => {
-                self.add_sepcode(block, collector, lines);
+                self.add_sepcode(module_index, block, collector, lines);
             }
             SymbolData::RegisterRelative(regrel) => {
                 collector.add_reg_rel(regrel);
@@ -444,11 +452,11 @@ impl<'s> PDBData<'s> {
         collector: &mut Collector,
         source_files: &SourceFiles<'s>,
     ) -> Result<()> {
-        let mut modules = dbi.modules()?;
+        let mut modules = dbi.modules()?.enumerate();
 
         // We get all the procedures and the labels
         // Labels correspond to some labelled code we can map with some public symbols (assembly)
-        while let Some(module) = modules.next()? {
+        while let Some((module_index, module)) = modules.next()? {
             let module_info = match pdb.module_info(&module)? {
                 Some(info) => info,
                 _ => continue,
@@ -467,7 +475,7 @@ impl<'s> PDBData<'s> {
                     _ => continue,
                 };
 
-                self.handle_symbol(symbol, collector, &lines, &module_info)?;
+                self.handle_symbol(symbol, collector, &lines, module_index, &module_info)?;
             }
         }
 
