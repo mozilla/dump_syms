@@ -613,7 +613,7 @@ FUNC 6c90 3 0 A::meth2(int)
 6c90 3 72 0
 FUNC 6ca0 5 0 A::meth2(double)
 6ca0 5 75 0
-FUNC 6cb0 1 0 static A::meth2(short, signed char)
+FUNC 6cb0 1 0 A::meth2(short, signed char)
 6cb0 1 78 0
 FUNC 6cc0 7 0 A::meth4(A*, A::B&&)
 6cc0 7 89 0
@@ -773,7 +773,7 @@ FUNC 996f d 0 __crt_rotate_pointer_value(const unsigned int, const int)
 996f 3 491 23
 9972 8 492 23
 997a 2 493 23
-FUNC 997f d 0 static __scrt_narrow_argv_policy::configure_argv()
+FUNC 997f d 0 __scrt_narrow_argv_policy::configure_argv()
 997f d 400 24
 FUNC 998f 44 0 find_pe_section(unsigned char* const, const unsigned int)
 998f 3 61 37
@@ -786,7 +786,7 @@ FUNC 998f 44 0 find_pe_section(unsigned char* const, const unsigned int)
 99ca 3 79 37
 99cd 2 80 37
 99cf 4 75 37
-FUNC 99e4 5 0 static __scrt_narrow_environment_policy::initialize_environment()
+FUNC 99e4 5 0 __scrt_narrow_environment_policy::initialize_environment()
 99e4 5 421 24
 FUNC 99e9 34 0 is_potentially_valid_image_base(void* const)
 99e9 3 28 37
@@ -1282,9 +1282,9 @@ a960 8 472 48
 a968 12 474 48
 a97a c 500 48
 a986 11 515 48
-FUNC a9ec 5 0 static <lambda_02a71323d951a238fa4826e9f186893b>::<lambda_invoker_cdecl>(void* const)
+FUNC a9ec 5 0 <lambda_02a71323d951a238fa4826e9f186893b>::<lambda_invoker_cdecl>(void* const)
 a9ec 5 84 49
-FUNC a9f1 9 0 static <lambda_cea3005bd909f0fdd45a57e92f4e3309>::<lambda_invoker_cdecl>(const unsigned int)
+FUNC a9f1 9 0 <lambda_cea3005bd909f0fdd45a57e92f4e3309>::<lambda_invoker_cdecl>(const unsigned int)
 a9f1 9 83 49
 FUNC a9fc 10 0 __crt_internal_free_policy::operator()<char>(char const* const) const
 a9fc 3 334 23
@@ -2018,7 +2018,7 @@ bbad 3 134 57
 bbb0 11 136 57
 bbc1 f 136 57
 bbd0 1 139 57
-FUNC bbdf 1f 0 static UnDecorator::UScore(Tokens)
+FUNC bbdf 1f 0 UnDecorator::UScore(Tokens)
 bbdf 3 4979 57
 bbe2 17 4984 57
 bbf9 3 4987 57
@@ -2029,7 +2029,7 @@ bc0a 9 613 58
 bc13 2a 615 58
 bc3d 4 616 58
 bc41 a 621 58
-FUNC bc5c cdd 0 static UnDecorator::composeDeclaration(DName const&)
+FUNC bc5c cdd 0 UnDecorator::composeDeclaration(DName const&)
 bc5c 9 2394 57
 bc65 e 2396 57
 bc73 2 2395 57
@@ -2170,25 +2170,25 @@ c8f6 8 2701 57
 c8fe 28 2703 57
 c926 b 2706 57
 c931 8 2708 57
-FUNC cc70 e 0 static UnDecorator::doAccessSpecifiers()
+FUNC cc70 e 0 UnDecorator::doAccessSpecifiers()
 cc70 e 4960 57
-FUNC cc81 e 0 static UnDecorator::doAllocationLanguage()
+FUNC cc81 e 0 UnDecorator::doAllocationLanguage()
 cc81 e 4952 57
-FUNC cc92 e 0 static UnDecorator::doAllocationModel()
+FUNC cc92 e 0 UnDecorator::doAllocationModel()
 cc92 e 4951 57
-FUNC cca3 e 0 static UnDecorator::doEcsu()
+FUNC cca3 e 0 UnDecorator::doEcsu()
 cca3 e 4970 57
-FUNC ccb4 e 0 static UnDecorator::doEllipsis()
+FUNC ccb4 e 0 UnDecorator::doEllipsis()
 ccb4 e 4972 57
-FUNC ccc5 e 0 static UnDecorator::doFunctionReturns()
+FUNC ccc5 e 0 UnDecorator::doFunctionReturns()
 ccc5 e 4950 57
-FUNC ccd6 d 0 static UnDecorator::doMSKeywords()
+FUNC ccd6 d 0 UnDecorator::doMSKeywords()
 ccd6 d 4948 57
-FUNC cce6 e 0 static UnDecorator::doMemberTypes()
+FUNC cce6 e 0 UnDecorator::doMemberTypes()
 cce6 e 4962 57
-FUNC ccf7 b 0 static UnDecorator::doNameOnly()
+FUNC ccf7 b 0 UnDecorator::doNameOnly()
 ccf7 b 4967 57
-FUNC cd04 b 0 static UnDecorator::doNoIdentCharCheck()
+FUNC cd04 b 0 UnDecorator::doNoIdentCharCheck()
 cd04 b 4971 57
 FUNC cd11 86 0 DName::doPchar(char const*, int)
 cd11 7 828 58
@@ -2204,19 +2204,19 @@ cd84 6 838 58
 cd8a 2 857 58
 cd8c 6 858 58
 cd92 5 860 58
-FUNC cdb8 e 0 static UnDecorator::doPtr64()
+FUNC cdb8 e 0 UnDecorator::doPtr64()
 cdb8 e 4949 57
-FUNC cdc9 e 0 static UnDecorator::doRestrictionSpec()
+FUNC cdc9 e 0 UnDecorator::doRestrictionSpec()
 cdc9 e 4975 57
-FUNC cdda 12 0 static UnDecorator::doThisTypes()
+FUNC cdda 12 0 UnDecorator::doThisTypes()
 cdda 12 4959 57
-FUNC cdf0 e 0 static UnDecorator::doThrowTypes()
+FUNC cdf0 e 0 UnDecorator::doThrowTypes()
 cdf0 e 4961 57
-FUNC ce01 b 0 static UnDecorator::doTypeOnly()
+FUNC ce01 b 0 UnDecorator::doTypeOnly()
 ce01 b 4968 57
-FUNC ce0e b 0 static UnDecorator::doUnderScore()
+FUNC ce0e b 0 UnDecorator::doUnderScore()
 ce0e b 4947 57
-FUNC ce1b f6 0 static UnDecorator::getArgumentList()
+FUNC ce1b f6 0 UnDecorator::getArgumentList()
 ce1b 8 3544 57
 ce23 3 3546 57
 ce26 4 3545 57
@@ -2244,7 +2244,7 @@ ceef 12 3549 57
 cf01 9 3605 57
 cf0a 5 3614 57
 cf0f 2 3616 57
-FUNC cf4e ca 0 static UnDecorator::getArgumentTypes()
+FUNC cf4e ca 0 UnDecorator::getArgumentTypes()
 cf4e 5 3503 57
 cf53 17 3504 57
 cf6a 9 3514 57
@@ -2258,7 +2258,7 @@ cfd2 d 3540 57
 cfdf 21 3507 57
 d000 b 3510 57
 d00b d 3540 57
-FUNC d04a 1b1 0 static UnDecorator::getArrayType(DName const&)
+FUNC d04a 1b1 0 UnDecorator::getArrayType(DName const&)
 d04a 3 4647 57
 d04d 13 4648 57
 d060 7 4650 57
@@ -2290,7 +2290,7 @@ d187 b 4685 57
 d192 36 4686 57
 d1c8 17 4688 57
 d1df 1c 4690 57
-FUNC d267 98 0 static UnDecorator::getBasedType()
+FUNC d267 98 0 UnDecorator::getBasedType()
 d267 6 3057 57
 d26d 11 3058 57
 d27e c 3063 57
@@ -2305,7 +2305,7 @@ d2d8 a 3116 57
 d2e2 d 3120 57
 d2ef e 3124 57
 d2fd 2 3126 57
-FUNC d325 3df 0 static UnDecorator::getBasicDataType(DName const&)
+FUNC d325 3df 0 UnDecorator::getBasicDataType(DName const&)
 d325 3 3725 57
 d328 14 3726 57
 d33c 3 3728 57
@@ -2416,9 +2416,9 @@ d892 12 973 57
 d8a4 12 974 57
 d8b6 20 975 57
 d8d6 4 979 57
-FUNC d911 14 0 static UnDecorator::getCallIndex()
+FUNC d911 14 0 UnDecorator::getCallIndex()
 d911 14 4734 57
-FUNC d92a d3 0 static UnDecorator::getCallingConvention()
+FUNC d92a d3 0 UnDecorator::getCallingConvention()
 d92a 5 3229 57
 d92f f 3230 57
 d93e c 3232 57
@@ -2456,7 +2456,7 @@ d9de e 3311 57
 d9ec 2 3317 57
 d9ee d 3315 57
 d9fb 2 3317 57
-FUNC da31 5ea 0 static UnDecorator::getDataIndirectType(DName const&, char const*, DName const&, int)
+FUNC da31 5ea 0 UnDecorator::getDataIndirectType(DName const&, char const*, DName const&, int)
 da31 6 4321 57
 da37 16 4327 57
 da4d 7 4329 57
@@ -2572,11 +2572,11 @@ dffe 8 4570 57
 e006 3 4571 57
 e009 a 4573 57
 e013 8 4575 57
-FUNC e195 32 0 static UnDecorator::getDataIndirectType()
+FUNC e195 32 0 UnDecorator::getDataIndirectType()
 e195 6 4698 57
 e19b 2a 4701 57
 e1c5 2 4702 57
-FUNC e1d3 c5 0 static UnDecorator::getDataType(DName*)
+FUNC e1d3 c5 0 UnDecorator::getDataType(DName*)
 e1d3 6 3338 57
 e1d9 b 3339 57
 e1e4 19 3344 57
@@ -2592,7 +2592,7 @@ e240 2a 3364 57
 e26a 11 3365 57
 e27b a 3347 57
 e285 13 3375 57
-FUNC e2c9 242 0 static UnDecorator::getDecoratedName()
+FUNC e2c9 242 0 UnDecorator::getDecoratedName()
 e2c9 c 992 57
 e2d5 6 1003 57
 e2db 5 1007 57
@@ -2655,7 +2655,7 @@ e4e0 4 1129 57
 e4e4 e 1130 57
 e4f2 a 1132 57
 e4fc f 1134 57
-FUNC e59b 11f 0 static UnDecorator::getDimension(bool)
+FUNC e59b 11f 0 UnDecorator::getDimension(bool)
 e59b 3 1871 57
 e59e 13 1873 57
 e5b1 c 1876 57
@@ -2678,7 +2678,7 @@ e676 1e 1910 57
 e694 14 1914 57
 e6a8 d 1893 57
 e6b5 5 1918 57
-FUNC e701 54 0 static UnDecorator::getDispatchTarget()
+FUNC e701 54 0 UnDecorator::getDispatchTarget()
 e701 3 3702 57
 e704 1c 3703 57
 e720 8 3707 57
@@ -2688,9 +2688,9 @@ e739 e 3713 57
 e747 2 3721 57
 e749 a 3720 57
 e753 2 3721 57
-FUNC e76a 14 0 static UnDecorator::getDisplacement()
+FUNC e76a 14 0 UnDecorator::getDisplacement()
 e76a 14 4733 57
-FUNC e783 118 0 static UnDecorator::getECSUDataType()
+FUNC e783 118 0 UnDecorator::getECSUDataType()
 e783 3 3967 57
 e786 5 3970 57
 e78b 3 3967 57
@@ -2717,9 +2717,9 @@ e85b 16 4021 57
 e871 10 4025 57
 e881 16 3979 57
 e897 4 4027 57
-FUNC e8e1 11 0 static UnDecorator::getECSUName()
+FUNC e8e1 11 0 UnDecorator::getECSUName()
 e8e1 11 3162 57
-FUNC e8f6 f0 0 static UnDecorator::getEnumType()
+FUNC e8f6 f0 0 UnDecorator::getEnumType()
 e8f6 6 3166 57
 e8fc 5 3170 57
 e901 8 3167 57
@@ -2740,7 +2740,7 @@ e9a8 c 3199 57
 e9b4 2 3224 57
 e9b6 d 3222 57
 e9c3 23 3224 57
-FUNC ea22 1b7 0 static UnDecorator::getExtendedDataIndirectType(char const*&, bool&, int)
+FUNC ea22 1b7 0 UnDecorator::getExtendedDataIndirectType(char const*&, bool&, int)
 ea22 6 4236 57
 ea28 11 4243 57
 ea39 2 4239 57
@@ -2784,7 +2784,7 @@ ebb4 10 4252 57
 ebc4 3 4254 57
 ebc7 b 4317 57
 ebd2 7 4318 57
-FUNC ec46 67 0 static UnDecorator::getExternalDataType(DName const&)
+FUNC ec46 67 0 UnDecorator::getExternalDataType(DName const&)
 ec46 6 4932 57
 ec4c 5 4935 57
 ec51 1 4932 57
@@ -2795,7 +2795,7 @@ eca4 3 4943 57
 eca7 3 4941 57
 ecaa 1 4943 57
 ecab 2 4945 57
-FUNC ecc6 3d8 0 static UnDecorator::getFunctionIndirectType(DName const&)
+FUNC ecc6 3d8 0 UnDecorator::getFunctionIndirectType(DName const&)
 ecc6 3 4036 57
 ecc9 16 4037 57
 ecdf 10 4040 57
@@ -2858,7 +2858,7 @@ f06b b 4174 57
 f076 10 4097 57
 f086 10 4057 57
 f096 8 4179 57
-FUNC f194 14 0 static UnDecorator::getGuardNumber()
+FUNC f194 14 0 UnDecorator::getGuardNumber()
 f194 14 4735 57
 FUNC f1ad 20 0 DName::getLastChar() const
 f1ad 1 511 58
@@ -2891,7 +2891,7 @@ f23b e 932 58
 f249 1 933 58
 f24a 2 932 58
 f24c 1 933 58
-FUNC f251 3f 0 static UnDecorator::getLexicalFrame()
+FUNC f251 3f 0 UnDecorator::getLexicalFrame()
 f251 3f 4693 57
 FUNC f29f 87 0 _HeapManager::getMemory(unsigned int, int)
 f29f 6 151 58
@@ -2913,14 +2913,14 @@ f30b 3 190 58
 f30e d 202 58
 f31b 7 205 58
 f322 4 194 58
-FUNC f347 45 0 static UnDecorator::getNoexcept()
+FUNC f347 45 0 UnDecorator::getNoexcept()
 f347 3 3636 57
 f34a 1c 3637 57
 f366 18 3640 57
 f37e 2 3644 57
 f380 a 3643 57
 f38a 2 3644 57
-FUNC f39d 61 0 static UnDecorator::getNumberOfDimensions()
+FUNC f39d 61 0 UnDecorator::getNumberOfDimensions()
 f39d c 1923 57
 f3a9 8 1925 57
 f3b1 d 1926 57
@@ -2938,7 +2938,7 @@ f3f8 2 1952 57
 f3fa 1 1955 57
 f3fb 2 1937 57
 f3fd 1 1955 57
-FUNC f416 658 0 static UnDecorator::getOperatorName(bool, bool*)
+FUNC f416 658 0 UnDecorator::getOperatorName(bool, bool*)
 f416 6 1267 57
 f41c d 1276 57
 f429 2 1268 57
@@ -3046,15 +3046,15 @@ fa22 13 1394 57
 fa35 8 1645 57
 fa3d 11 1646 57
 fa4e 20 1647 57
-FUNC fc04 1e 0 static UnDecorator::getPointerType(DName const&, DName const&)
+FUNC fc04 1e 0 UnDecorator::getPointerType(DName const&, DName const&)
 fc04 3 4712 57
 fc07 19 4715 57
 fc20 2 4716 57
-FUNC fc29 1e 0 static UnDecorator::getPointerTypeArray(DName const&, DName const&)
+FUNC fc29 1e 0 UnDecorator::getPointerTypeArray(DName const&, DName const&)
 fc29 3 4719 57
 fc2c 19 4722 57
 fc45 2 4723 57
-FUNC fc4e 1e4 0 static UnDecorator::getPrimaryDataType(DName const&)
+FUNC fc4e 1e4 0 UnDecorator::getPrimaryDataType(DName const&)
 fc4e 6 3380 57
 fc54 8 3384 57
 fc5c 2 3381 57
@@ -3093,7 +3093,7 @@ fe14 4 3447 57
 fe18 a 3449 57
 fe22 6 3455 57
 fe28 a 3461 57
-FUNC feab 129 0 static UnDecorator::getPtrRefDataType(DName const&, int)
+FUNC feab 129 0 UnDecorator::getPtrRefDataType(DName const&, int)
 feab 3 4579 57
 feae 12 4581 57
 fec0 6 4584 57
@@ -3124,7 +3124,7 @@ ffb4 9 4637 57
 ffbd 2 4643 57
 ffbf d 4641 57
 ffcc 8 4643 57
-FUNC 1001e fa 0 static UnDecorator::getPtrRefType(DName const&, DName const&, char const*)
+FUNC 1001e fa 0 UnDecorator::getPtrRefType(DName const&, DName const&, char const*)
 1001e 5 4183 57
 10023 11 4188 57
 10034 c 4189 57
@@ -3147,11 +3147,11 @@ FUNC 1001e fa 0 static UnDecorator::getPtrRefType(DName const&, DName const&, ch
 100fc 9 4225 57
 10105 10 4229 57
 10115 3 4232 57
-FUNC 10156 1c 0 static UnDecorator::getReferenceType(DName const&, DName const&, char const*)
+FUNC 10156 1c 0 UnDecorator::getReferenceType(DName const&, DName const&, char const*)
 10156 3 4726 57
 10159 17 4727 57
 10170 2 4728 57
-FUNC 10179 f9 0 static UnDecorator::getRestrictionSpec()
+FUNC 10179 f9 0 UnDecorator::getRestrictionSpec()
 10179 5 3648 57
 1017e 31 3649 57
 101af 5 3652 57
@@ -3177,13 +3177,13 @@ FUNC 10179 f9 0 static UnDecorator::getRestrictionSpec()
 10257 c 3693 57
 10263 9 3697 57
 1026c 6 3699 57
-FUNC 102b0 2f 0 static UnDecorator::getReturnType(DName*)
+FUNC 102b0 2f 0 UnDecorator::getReturnType(DName*)
 102b0 3 3322 57
 102b3 d 3323 57
 102c0 10 3327 57
 102d0 a 3331 57
 102da 5 3333 57
-FUNC 102ea 394 0 static UnDecorator::getScope()
+FUNC 102ea 394 0 UnDecorator::getScope()
 102ea c 1693 57
 102f6 a 1694 57
 10300 2 1695 57
@@ -3242,7 +3242,7 @@ FUNC 102ea 394 0 static UnDecorator::getScope()
 10649 2e 1837 57
 10677 5 1851 57
 1067c 2 1853 57
-FUNC 10763 d4 0 static UnDecorator::getScopedName()
+FUNC 10763 d4 0 UnDecorator::getScopedName()
 10763 6 3131 57
 10769 5 3137 57
 1076e 3 3132 57
@@ -3268,7 +3268,7 @@ FUNC 10763 d4 0 static UnDecorator::getScopedName()
 10806 2a 3153 57
 10830 5 3157 57
 10835 2 3159 57
-FUNC 1086c 51 0 static UnDecorator::getSignedDimension()
+FUNC 1086c 51 0 UnDecorator::getSignedDimension()
 1086c 5 1857 57
 10871 b 1858 57
 1087c c 1859 57
@@ -3277,7 +3277,7 @@ FUNC 1086c 51 0 static UnDecorator::getSignedDimension()
 10895 19 1863 57
 108ae a 1866 57
 108b8 5 1867 57
-FUNC 108d1 11 0 static UnDecorator::getStorageConvention()
+FUNC 108d1 11 0 UnDecorator::getStorageConvention()
 108d1 11 4694 57
 FUNC 108e6 2d 0 DName::getString(char*, char*) const
 108e6 4 554 58
@@ -3332,7 +3332,7 @@ FUNC 10a46 1b 0 pcharNode::getString(char*, char*) const
 10a46 3 971 58
 10a49 14 972 58
 10a5d 4 973 58
-FUNC 10a67 b0 0 static UnDecorator::getStringEncoding(char const*, int)
+FUNC 10a67 b0 0 UnDecorator::getStringEncoding(char const*, int)
 10a67 6 1655 57
 10a6d b 1656 57
 10a78 22 1659 57
@@ -3358,7 +3358,7 @@ FUNC 10b43 37 0 getStringHelper(char*, char const*, char const*, int)
 10b57 1e 212 58
 10b75 3 213 58
 10b78 2 214 58
-FUNC 10b87 48 0 static UnDecorator::getSymbolName()
+FUNC 10b87 48 0 UnDecorator::getSymbolName()
 10b87 3 1139 57
 10b8a a 1140 57
 10b94 6 1142 57
@@ -3366,7 +3366,7 @@ FUNC 10b87 48 0 static UnDecorator::getSymbolName()
 10ba8 13 1150 57
 10bbb c 1155 57
 10bc7 8 1157 57
-FUNC 10be1 29d 0 static UnDecorator::getTemplateArgumentList()
+FUNC 10be1 29d 0 UnDecorator::getTemplateArgumentList()
 10be1 15 2039 57
 10bf6 2 2041 57
 10bf8 5 2040 57
@@ -3425,7 +3425,7 @@ FUNC 10be1 29d 0 static UnDecorator::getTemplateArgumentList()
 10e45 c 2185 57
 10e51 17 2044 57
 10e68 16 2196 57
-FUNC 10f25 332 0 static UnDecorator::getTemplateConstant()
+FUNC 10f25 332 0 UnDecorator::getTemplateConstant()
 10f25 13 2214 57
 10f38 e 2221 57
 10f46 49 2222 57
@@ -3484,7 +3484,7 @@ FUNC 10f25 332 0 static UnDecorator::getTemplateConstant()
 11216 33 2391 57
 11249 7 2370 57
 11250 7 2367 57
-FUNC 11323 162 0 static UnDecorator::getTemplateName(bool)
+FUNC 11323 162 0 UnDecorator::getTemplateName(bool)
 11323 3 1959 57
 11326 1e 1963 57
 11344 9 1972 57
@@ -3515,16 +3515,16 @@ FUNC 11323 162 0 static UnDecorator::getTemplateName(bool)
 11473 2 2035 57
 11475 e 1964 57
 11483 2 2035 57
-FUNC 114dd 33 0 static UnDecorator::getThisType()
+FUNC 114dd 33 0 UnDecorator::getThisType()
 114dd 6 4705 57
 114e3 2b 4708 57
 1150e 2 4709 57
-FUNC 1151c 23 0 static UnDecorator::getThrowTypes()
+FUNC 1151c 23 0 UnDecorator::getThrowTypes()
 1151c 3 3620 57
 1151f 17 3629 57
 11536 7 3630 57
 1153d 2 3633 57
-FUNC 11547 328 0 static UnDecorator::getTypeEncoding()
+FUNC 11547 328 0 UnDecorator::getTypeEncoding()
 11547 e 2712 57
 11555 7 2718 57
 1155c c 2722 57
@@ -3649,7 +3649,7 @@ FUNC 11939 c4 0 UnDecorator::getUndecoratedName(char*, int)
 119f3 2 907 57
 119f5 4 912 57
 119f9 4 914 57
-FUNC 11a2e 47 0 static UnDecorator::getVCallThunkType()
+FUNC 11a2e 47 0 UnDecorator::getVCallThunkType()
 11a2e 3 4744 57
 11a31 10 4746 57
 11a41 e 4754 57
@@ -3657,11 +3657,11 @@ FUNC 11a2e 47 0 static UnDecorator::getVCallThunkType()
 11a51 15 4750 57
 11a66 a 4752 57
 11a70 5 4858 57
-FUNC 11a86 15 0 static UnDecorator::getVbTableType(DName const&)
+FUNC 11a86 15 0 UnDecorator::getVbTableType(DName const&)
 11a86 3 4738 57
 11a89 10 4739 57
 11a99 2 4740 57
-FUNC 11aa0 54 0 static UnDecorator::getVdispMapType(DName const&)
+FUNC 11aa0 54 0 UnDecorator::getVdispMapType(DName const&)
 11aa0 5 4918 57
 11aa5 3 4919 57
 11aa8 1 4918 57
@@ -3677,7 +3677,7 @@ FUNC 11aa0 54 0 static UnDecorator::getVdispMapType(DName const&)
 11ae8 7 4925 57
 11aef 3 4926 57
 11af2 2 4927 57
-FUNC 11b09 163 0 static UnDecorator::getVfTableType(DName const&)
+FUNC 11b09 163 0 UnDecorator::getVfTableType(DName const&)
 11b09 3 4862 57
 11b0c 3 4863 57
 11b0f 3 4862 57
@@ -3706,7 +3706,7 @@ FUNC 11b09 163 0 static UnDecorator::getVfTableType(DName const&)
 11c46 21 4910 57
 11c67 3 4912 57
 11c6a 2 4914 57
-FUNC 11cc4 1ff 0 static UnDecorator::getZName(bool, bool)
+FUNC 11cc4 1ff 0 UnDecorator::getZName(bool, bool)
 11cc4 11 1161 57
 11cd5 15 1162 57
 11cea 5 1167 57
@@ -3747,7 +3747,7 @@ FUNC 11cc4 1ff 0 static UnDecorator::getZName(bool, bool)
 11e9f 9 1256 57
 11ea8 b 1259 57
 11eb3 10 1262 57
-FUNC 11f42 b 0 static UnDecorator::haveTemplateParameters()
+FUNC 11f42 b 0 UnDecorator::haveTemplateParameters()
 11f42 b 4969 57
 FUNC 11f4f a 0 DName::isArray() const
 11f4f 9 467 58
@@ -3809,14 +3809,14 @@ FUNC 12021 46 0 pairNode::length() const
 FUNC 12078 4 0 pcharNode::length() const
 12078 3 927 58
 1207b 1 928 58
-FUNC 1207c 1c 0 static DNameStatusNode::make(DNameStatus)
+FUNC 1207c 1c 0 DNameStatusNode::make(DNameStatus)
 1207c 3 1021 58
 1207f 8 1028 58
 12087 8 1029 58
 1208f 2 1032 58
 12091 5 1031 58
 12096 2 1032 58
-FUNC 1209f ee 0 static UnDecorator::parseDecoratedName()
+FUNC 1209f ee 0 UnDecorator::parseDecoratedName()
 1209f 3 808 57
 120a2 8 814 57
 120aa 2 809 57
@@ -4364,7 +4364,7 @@ FUNC 12fca 8 0 std::forward<__FrameHandler3::TryBlockMap::iterator &>(__FrameHan
 12fd0 2 1575 79
 FUNC 12fd4 14 0 __FrameHandler3::TryBlockMap::iterator::iterator(__FrameHandler3::TryBlockMap&, unsigned int)
 12fd4 14 547 74
-FUNC 12fed 82 0 static __FrameHandler3::GetRangeOfTrysToCheck(__FrameHandler3::TryBlockMap&, int, int)
+FUNC 12fed 82 0 __FrameHandler3::GetRangeOfTrysToCheck(__FrameHandler3::TryBlockMap&, int, int)
 12fed 6 752 73
 12ff3 3 753 73
 12ff6 1 752 73
@@ -5129,9 +5129,9 @@ FUNC 14847 13 0 __FrameHandler3::TryBlockMap::iterator::operator<(__FrameHandler
 14856 4 572 74
 FUNC 1485e 2d 0 std::bad_exception::`scalar deleting destructor'(unsigned int)
 FUNC 14896 2d 0 std::exception::`scalar deleting destructor'(unsigned int)
-FUNC 148ce 5 0 static __FrameHandler3::BuildCatchObject(EHExceptionRecord*, void*, _s_HandlerType const*, _s_CatchableType const*)
+FUNC 148ce 5 0 __FrameHandler3::BuildCatchObject(EHExceptionRecord*, void*, _s_HandlerType const*, _s_CatchableType const*)
 148ce 5 2027 82
-FUNC 148d3 9 0 static __FrameHandler3::BuildCatchObjectHelper(EHExceptionRecord*, void*, _s_HandlerType const*, _s_CatchableType const*)
+FUNC 148d3 9 0 __FrameHandler3::BuildCatchObjectHelper(EHExceptionRecord*, void*, _s_HandlerType const*, _s_CatchableType const*)
 148d3 3 1915 82
 148d6 1 1917 82
 148d7 5 1916 82
@@ -5188,11 +5188,11 @@ FUNC 14b5b 4a 0 ExFilterRethrow(_EXCEPTION_POINTERS*)
 14b9f 2 1735 82
 14ba1 2 1733 82
 14ba3 2 1735 82
-FUNC 14bb7 18 0 static __FrameHandler3::FrameUnwindToEmptyState(EHRegistrationNode*, void*, _s_FuncInfo const*)
+FUNC 14bb7 18 0 __FrameHandler3::FrameUnwindToEmptyState(EHRegistrationNode*, void*, _s_FuncInfo const*)
 14bb7 3 48 82
 14bba 13 49 82
 14bcd 2 50 82
-FUNC 14bd5 e8 0 static __FrameHandler3::FrameUnwindToState(EHRegistrationNode*, void*, _s_FuncInfo const*, int)
+FUNC 14bd5 e8 0 __FrameHandler3::FrameUnwindToState(EHRegistrationNode*, void*, _s_FuncInfo const*, int)
 14bd5 c 1167 82
 14be1 16 1176 82
 14bf7 8 1177 82
@@ -5216,7 +5216,7 @@ FUNC 14bd5 e8 0 static __FrameHandler3::FrameUnwindToState(EHRegistrationNode*, 
 14ca3 b 1221 82
 14cae 9 1222 82
 14cb7 6 1240 82
-FUNC 14cf7 b 0 static __FrameHandler3::GetMaxState(void*, _s_FuncInfo const*)
+FUNC 14cf7 b 0 __FrameHandler3::GetMaxState(void*, _s_FuncInfo const*)
 14cf7 3 448 74
 14cfa 6 449 74
 14d00 2 450 74
@@ -5244,7 +5244,7 @@ FUNC 14dc4 39 0 Is_bad_exception_allowed(_s_ESTypeList const*)
 14df2 3 2157 82
 14df5 4 2158 82
 14df9 4 2153 82
-FUNC 14e0b 9 0 static __FrameHandler3::TypeMatch(_s_HandlerType const*, _s_CatchableType const*, _s_ThrowInfo const*)
+FUNC 14e0b 9 0 __FrameHandler3::TypeMatch(_s_HandlerType const*, _s_CatchableType const*, _s_ThrowInfo const*)
 14e0b 3 976 82
 14e0e 1 978 82
 14e0f 5 977 82
@@ -5276,25 +5276,25 @@ FUNC 14e82 11 0 __FrameHandler3::HandlerMap::end()
 14e82 3 668 74
 14e85 a 669 74
 14e8f 4 670 74
-FUNC 14e97 b 0 static __FrameHandler3::getESTypes(_s_FuncInfo const*)
+FUNC 14e97 b 0 __FrameHandler3::getESTypes(_s_FuncInfo const*)
 14e97 3 196 82
 14e9a 6 197 82
 14ea0 2 198 82
 FUNC 14ea4 e 0 __FrameHandler3::HandlerMap::getLastEntry()
 14ea4 d 674 74
 14eb1 1 675 74
-FUNC 14eb5 f 0 static __FrameHandler3::getMagicNum(_s_FuncInfo const*)
+FUNC 14eb5 f 0 __FrameHandler3::getMagicNum(_s_FuncInfo const*)
 14eb5 3 504 74
 14eb8 a 505 74
 14ec2 2 506 74
 FUNC 14ec7 6 0 __FrameHandler3::TryBlockMap::getNumTryBlocks()
 14ec7 5 587 74
 14ecc 1 588 74
-FUNC 14ecd d 0 static __FrameHandler3::isEHs(_s_FuncInfo const*)
+FUNC 14ecd d 0 __FrameHandler3::isEHs(_s_FuncInfo const*)
 14ecd 3 494 74
 14ed0 8 495 74
 14ed8 2 496 74
-FUNC 14edd 10 0 static __FrameHandler3::isNoExcept(_s_FuncInfo const*)
+FUNC 14edd 10 0 __FrameHandler3::isNoExcept(_s_FuncInfo const*)
 14edd 3 499 74
 14ee0 b 500 74
 14eeb 2 501 74
@@ -5369,14 +5369,14 @@ FUNC 14fe3 1d 0 unexpected()
 14ff0 8 43 85
 14ff8 2 43 85
 14ffa 6 46 85
-FUNC 15007 1d 0 static __FrameHandler3::GetCurrentState(EHRegistrationNode*, void*, _s_FuncInfo const*)
+FUNC 15007 1d 0 __FrameHandler3::GetCurrentState(EHRegistrationNode*, void*, _s_FuncInfo const*)
 15007 3 202 86
 1500a f 205 86
 15019 4 207 86
 1501d 2 212 86
 1501f 3 210 86
 15022 2 212 86
-FUNC 1502b e 0 static __FrameHandler3::SetState(EHRegistrationNode*, _s_FuncInfo const*, int)
+FUNC 1502b e 0 __FrameHandler3::SetState(EHRegistrationNode*, _s_FuncInfo const*, int)
 1502b 3 219 86
 1502e 9 220 86
 15037 2 221 86
@@ -6153,7 +6153,7 @@ FUNC 1647b 17 0 __crt_unique_handle_t<__crt_hmodule_traits>::close()
 16485 8 1146 211
 1648d 3 1147 211
 16490 2 1148 211
-FUNC 16497 15 0 static __crt_hmodule_traits::close(HINSTANCE__*)
+FUNC 16497 15 0 __crt_hmodule_traits::close(HINSTANCE__*)
 16497 5 1061 211
 1649c e 1062 211
 164aa 2 1063 211
@@ -6179,7 +6179,7 @@ FUNC 16580 3 0 __crt_unique_handle_t<__crt_hmodule_traits>::get() const
 FUNC 16583 3 0 __crt_unique_handle_t<__crt_hmodule_traits>::get_address_of()
 16583 2 1162 211
 16585 1 1163 211
-FUNC 16586 3 0 static __crt_hmodule_traits::get_invalid_value()
+FUNC 16586 3 0 __crt_hmodule_traits::get_invalid_value()
 16586 2 1067 211
 16588 1 1068 211
 FUNC 16589 43 0 is_managed_app()
@@ -6314,9 +6314,9 @@ FUNC 1690a 12f 0 common_configure_argv<wchar_t>(const _crt_argv_mode)
 16a16 3 390 329
 16a19 1e 391 329
 16a37 2 392 329
-FUNC 16a84 1c 0 static __crt_char_traits<char>::get_module_file_name<std::nullptr_t,char (&)[261],int>(void*&&, char[261]&, int&&)
+FUNC 16a84 1c 0 __crt_char_traits<char>::get_module_file_name<std::nullptr_t,char (&)[261],int>(void*&&, char[261]&, int&&)
 16a84 1c 109 333
-FUNC 16aa7 1a 0 static __crt_char_traits<wchar_t>::get_module_file_name<std::nullptr_t,wchar_t (&)[261],int>(void*&&, wchar_t[261]&, int&&)
+FUNC 16aa7 1a 0 __crt_char_traits<wchar_t>::get_module_file_name<std::nullptr_t,wchar_t (&)[261],int>(void*&&, wchar_t[261]&, int&&)
 16aa7 1a 124 333
 FUNC 16ac7 177 0 parse_command_line<char>(char*, char**, char*, unsigned int*, unsigned int*)
 16ac7 6 102 329
@@ -6448,9 +6448,9 @@ FUNC 16c9b 195 0 parse_command_line<wchar_t>(wchar_t*, wchar_t**, wchar_t*, unsi
 16e24 3 259 329
 16e27 7 261 329
 16e2e 2 262 329
-FUNC 16e95 11 0 static __crt_char_traits<char>::set_program_name<char *>(char*&&)
+FUNC 16e95 11 0 __crt_char_traits<char>::set_program_name<char *>(char*&&)
 16e95 11 109 333
-FUNC 16eaa 11 0 static __crt_char_traits<wchar_t>::set_program_name<wchar_t *>(wchar_t*&&)
+FUNC 16eaa 11 0 __crt_char_traits<wchar_t>::set_program_name<wchar_t *>(wchar_t*&&)
 16eaa 11 124 333
 FUNC 16ebf 10 0 <lambda_a36aafc41185bea294aaaa3896c79ecc>::<lambda_a36aafc41185bea294aaaa3896c79ecc>(__crt_unique_heap_ptr<wchar_t *,__crt_internal_free_policy>&)
 16ebf 10 388 329
@@ -6740,9 +6740,9 @@ FUNC 175ad 2f 0 free_environment<wchar_t>(wchar_t** const)
 175cd 4 95 335
 175d1 9 98 335
 175da 2 99 335
-FUNC 175e7 5 0 static __crt_char_traits<char>::get_environment_from_os<>()
+FUNC 175e7 5 0 __crt_char_traits<char>::get_environment_from_os<>()
 175e7 5 109 333
-FUNC 175ec 5 0 static __crt_char_traits<wchar_t>::get_environment_from_os<>()
+FUNC 175ec 5 0 __crt_char_traits<wchar_t>::get_environment_from_os<>()
 175ec 5 124 333
 FUNC 175f1 83 0 initialize_environment_by_cloning_nolock<char>()
 175f1 5 242 335
@@ -6782,17 +6782,17 @@ FUNC 17694 7d 0 initialize_environment_by_cloning_nolock<wchar_t>()
 176ff 4 268 335
 17703 7 262 335
 1770a 7 269 335
-FUNC 17730 18 0 static __crt_char_traits<char>::set_variable_in_environment_nolock<char *,int>(char*&&, int&&)
+FUNC 17730 18 0 __crt_char_traits<char>::set_variable_in_environment_nolock<char *,int>(char*&&, int&&)
 17730 18 109 333
-FUNC 1774e 18 0 static __crt_char_traits<wchar_t>::set_variable_in_environment_nolock<wchar_t *,int>(wchar_t*&&, int&&)
+FUNC 1774e 18 0 __crt_char_traits<wchar_t>::set_variable_in_environment_nolock<wchar_t *,int>(wchar_t*&&, int&&)
 1774e 18 124 333
-FUNC 1776c 1e 0 static __crt_char_traits<char>::tcscpy_s<char *,unsigned int const &,char * &>(char*&&, unsigned int const&, char*&)
+FUNC 1776c 1e 0 __crt_char_traits<char>::tcscpy_s<char *,unsigned int const &,char * &>(char*&&, unsigned int const&, char*&)
 1776c 1e 109 333
-FUNC 17791 1e 0 static __crt_char_traits<wchar_t>::tcscpy_s<wchar_t *,unsigned int const &,wchar_t * &>(wchar_t*&&, unsigned int const&, wchar_t*&)
+FUNC 17791 1e 0 __crt_char_traits<wchar_t>::tcscpy_s<wchar_t *,unsigned int const &,wchar_t * &>(wchar_t*&&, unsigned int const&, wchar_t*&)
 17791 1e 124 333
-FUNC 177b6 18 0 static __crt_char_traits<char>::tcslen<char * &>(char*&)
+FUNC 177b6 18 0 __crt_char_traits<char>::tcslen<char * &>(char*&)
 177b6 18 109 333
-FUNC 177d4 1e 0 static __crt_char_traits<wchar_t>::tcslen<wchar_t * &>(wchar_t*&)
+FUNC 177d4 1e 0 __crt_char_traits<wchar_t>::tcslen<wchar_t * &>(wchar_t*&)
 177d4 1e 124 333
 FUNC 177f9 29 0 __crt_state_management::dual_state_global<char * *>::uninitialize<void (__cdecl&)(char * * &)>(void (&)(char**&))
 177f9 9 177 106
@@ -8529,113 +8529,113 @@ FUNC 1c88b 1c 0 __crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::st
 1c890 11 1007 363
 1c8a1 2 1009 363
 1c8a3 4 1010 363
-FUNC 1c8ae 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type<char>(char*)
+FUNC 1c8ae 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type<char>(char*)
 1c8ae 4 1452 363
-FUNC 1c8b2 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type<char>(char*)
+FUNC 1c8b2 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type<char>(char*)
 1c8b2 4 1452 363
-FUNC 1c8b6 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type<char>(char*)
+FUNC 1c8b6 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type<char>(char*)
 1c8b6 4 1452 363
-FUNC 1c8ba 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type<char>(char*)
+FUNC 1c8ba 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type<char>(char*)
 1c8ba 4 1452 363
-FUNC 1c8be 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type<`__crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> > >::type_case_Z'::`2'::ansi_string>(__crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> > >::type_case_Z::__l2::ansi_string*)
+FUNC 1c8be 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type<`__crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> > >::type_case_Z'::`2'::ansi_string>(__crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> > >::type_case_Z::__l2::ansi_string*)
 1c8be 4 1452 363
-FUNC 1c8c2 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type<`__crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> > >::type_case_Z'::`2'::ansi_string>(__crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> > >::type_case_Z::__l2::ansi_string*)
+FUNC 1c8c2 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type<`__crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> > >::type_case_Z'::`2'::ansi_string>(__crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> > >::type_case_Z::__l2::ansi_string*)
 1c8c2 4 1452 363
-FUNC 1c8c6 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type<`__crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::type_case_Z'::`2'::ansi_string>(__crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::type_case_Z::__l2::ansi_string*)
+FUNC 1c8c6 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type<`__crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::type_case_Z'::`2'::ansi_string>(__crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::type_case_Z::__l2::ansi_string*)
 1c8c6 4 1452 363
-FUNC 1c8ca 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type<`__crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::type_case_Z'::`2'::ansi_string>(__crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::type_case_Z::__l2::ansi_string*)
+FUNC 1c8ca 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type<`__crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::type_case_Z'::`2'::ansi_string>(__crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::type_case_Z::__l2::ansi_string*)
 1c8ca 4 1452 363
-FUNC 1c8ce 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type<void>(void*)
+FUNC 1c8ce 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type<void>(void*)
 1c8ce 4 1452 363
-FUNC 1c8d2 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type<void>(void*)
+FUNC 1c8d2 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type<void>(void*)
 1c8d2 4 1452 363
-FUNC 1c8d6 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type<void>(void*)
+FUNC 1c8d6 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type<void>(void*)
 1c8d6 4 1452 363
-FUNC 1c8da 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type<void>(void*)
+FUNC 1c8da 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type<void>(void*)
 1c8da 4 1452 363
-FUNC 1c8de 18 0 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::is_character_specifier<char>(const char)
+FUNC 1c8de 18 0 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::is_character_specifier<char>(const char)
 1c8de 5 1566 363
 1c8e3 d 1567 363
 1c8f0 2 1568 363
 1c8f2 2 1567 363
 1c8f4 2 1568 363
-FUNC 1c8fc 18 0 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::is_character_specifier<char>(const char)
+FUNC 1c8fc 18 0 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::is_character_specifier<char>(const char)
 1c8fc 5 1566 363
 1c901 d 1567 363
 1c90e 2 1568 363
 1c910 2 1567 363
 1c912 2 1568 363
-FUNC 1c91a 1b 0 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::is_character_specifier<wchar_t>(const wchar_t)
+FUNC 1c91a 1b 0 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::is_character_specifier<wchar_t>(const wchar_t)
 1c91a 5 1566 363
 1c91f 10 1567 363
 1c92f 2 1568 363
 1c931 2 1567 363
 1c933 2 1568 363
-FUNC 1c93b 1b 0 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::is_character_specifier<wchar_t>(const wchar_t)
+FUNC 1c93b 1b 0 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::is_character_specifier<wchar_t>(const wchar_t)
 1c93b 5 1566 363
 1c940 10 1567 363
 1c950 2 1568 363
 1c952 2 1567 363
 1c954 2 1568 363
-FUNC 1c95c 2c 0 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::is_integral_specifier<char>(const char)
+FUNC 1c95c 2c 0 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::is_integral_specifier<char>(const char)
 1c95c 5 1572 363
 1c961 21 1573 363
 1c982 2 1576 363
 1c984 2 1573 363
 1c986 2 1576 363
-FUNC 1c993 2c 0 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::is_integral_specifier<char>(const char)
+FUNC 1c993 2c 0 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::is_integral_specifier<char>(const char)
 1c993 5 1572 363
 1c998 21 1573 363
 1c9b9 2 1576 363
 1c9bb 2 1573 363
 1c9bd 2 1576 363
-FUNC 1c9ca 3b 0 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::is_integral_specifier<wchar_t>(const wchar_t)
+FUNC 1c9ca 3b 0 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::is_integral_specifier<wchar_t>(const wchar_t)
 1c9ca 5 1572 363
 1c9cf 30 1573 363
 1c9ff 2 1576 363
 1ca01 2 1573 363
 1ca03 2 1576 363
-FUNC 1ca13 3b 0 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::is_integral_specifier<wchar_t>(const wchar_t)
+FUNC 1ca13 3b 0 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::is_integral_specifier<wchar_t>(const wchar_t)
 1ca13 5 1572 363
 1ca18 30 1573 363
 1ca48 2 1576 363
 1ca4a 2 1573 363
 1ca4c 2 1576 363
-FUNC 1ca5c e 0 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::is_pointer_specifier<char>(const char)
+FUNC 1ca5c e 0 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::is_pointer_specifier<char>(const char)
 1ca5c 5 1554 363
 1ca61 7 1555 363
 1ca68 2 1556 363
-FUNC 1ca6d e 0 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::is_pointer_specifier<char>(const char)
+FUNC 1ca6d e 0 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::is_pointer_specifier<char>(const char)
 1ca6d 5 1554 363
 1ca72 7 1555 363
 1ca79 2 1556 363
-FUNC 1ca7e f 0 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::is_pointer_specifier<wchar_t>(const wchar_t)
+FUNC 1ca7e f 0 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::is_pointer_specifier<wchar_t>(const wchar_t)
 1ca7e 5 1554 363
 1ca83 8 1555 363
 1ca8b 2 1556 363
-FUNC 1ca90 f 0 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::is_pointer_specifier<wchar_t>(const wchar_t)
+FUNC 1ca90 f 0 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::is_pointer_specifier<wchar_t>(const wchar_t)
 1ca90 5 1554 363
 1ca95 8 1555 363
 1ca9d 2 1556 363
-FUNC 1caa2 18 0 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::is_string_specifier<char>(const char)
+FUNC 1caa2 18 0 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::is_string_specifier<char>(const char)
 1caa2 5 1560 363
 1caa7 d 1561 363
 1cab4 2 1562 363
 1cab6 2 1561 363
 1cab8 2 1562 363
-FUNC 1cac0 18 0 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::is_string_specifier<char>(const char)
+FUNC 1cac0 18 0 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::is_string_specifier<char>(const char)
 1cac0 5 1560 363
 1cac5 d 1561 363
 1cad2 2 1562 363
 1cad4 2 1561 363
 1cad6 2 1562 363
-FUNC 1cade 1b 0 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::is_string_specifier<wchar_t>(const wchar_t)
+FUNC 1cade 1b 0 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::is_string_specifier<wchar_t>(const wchar_t)
 1cade 5 1560 363
 1cae3 10 1561 363
 1caf3 2 1562 363
 1caf5 2 1561 363
 1caf7 2 1562 363
-FUNC 1caff 1b 0 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::is_string_specifier<wchar_t>(const wchar_t)
+FUNC 1caff 1b 0 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::is_string_specifier<wchar_t>(const wchar_t)
 1caff 5 1560 363
 1cb04 10 1561 363
 1cb14 2 1562 363
@@ -8723,9 +8723,9 @@ FUNC 1ccaa d 0 __crt_stdio_output::peek_va_arg<wchar_t>(char*)
 1ccaa 5 39 363
 1ccaf 6 40 363
 1ccb5 2 41 363
-FUNC 1ccba 1a 0 static __crt_char_traits<char>::puttc_nolock<char const &,_iobuf *>(char const&, _iobuf*&&)
+FUNC 1ccba 1a 0 __crt_char_traits<char>::puttc_nolock<char const &,_iobuf *>(char const&, _iobuf*&&)
 1ccba 1a 109 333
-FUNC 1ccda 1a 0 static __crt_char_traits<wchar_t>::puttc_nolock<wchar_t const &,_iobuf *>(wchar_t const&, _iobuf*&&)
+FUNC 1ccda 1a 0 __crt_char_traits<wchar_t>::puttc_nolock<wchar_t const &,_iobuf *>(wchar_t const&, _iobuf*&&)
 1ccda 1a 124 333
 FUNC 1ccfa 12 0 __crt_stdio_output::read_va_arg<signed char>(char*&)
 1ccfa 5 33 363
@@ -8831,13 +8831,13 @@ FUNC 1cf1f 1e 0 __crt_stdio_output::formatting_buffer::scratch_data<char>()
 1cf34 4 389 363
 1cf38 3 391 363
 1cf3b 2 392 363
-FUNC 1cf44 1e 0 static __crt_char_traits<char>::tcstol<char const * &,char * *,int>(char const*&, char**&&, int&&)
+FUNC 1cf44 1e 0 __crt_char_traits<char>::tcstol<char const * &,char * *,int>(char const*&, char**&&, int&&)
 1cf44 1e 109 333
-FUNC 1cf69 1e 0 static __crt_char_traits<wchar_t>::tcstol<wchar_t const * &,wchar_t * *,int>(wchar_t const*&, wchar_t**&&, int&&)
+FUNC 1cf69 1e 0 __crt_char_traits<wchar_t>::tcstol<wchar_t const * &,wchar_t * *,int>(wchar_t const*&, wchar_t**&&, int&&)
 1cf69 1e 124 333
-FUNC 1cf8e 1e 0 static __crt_char_traits<char>::tcstol<char const *,char * *,int>(char const*&&, char**&&, int&&)
+FUNC 1cf8e 1e 0 __crt_char_traits<char>::tcstol<char const *,char * *,int>(char const*&&, char**&&, int&&)
 1cf8e 1e 109 333
-FUNC 1cfb3 1e 0 static __crt_char_traits<wchar_t>::tcstol<wchar_t const *,wchar_t * *,int>(wchar_t const*&&, wchar_t**&&, int&&)
+FUNC 1cfb3 1e 0 __crt_char_traits<wchar_t>::tcstol<wchar_t const *,wchar_t * *,int>(wchar_t const*&&, wchar_t**&&, int&&)
 1cfb3 1e 124 333
 FUNC 1cfd8 73 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::stream_output_adapter<char> > >::type_case_integer_parse_into_buffer<unsigned int>(unsigned int, const unsigned int, const bool)
 1cfd8 a 2584 363
@@ -9527,51 +9527,51 @@ FUNC 1f152 9 0 <lambda_dbd837d1c0b7fc6e2d81c287c81c071b>::operator()() const
 FUNC 1f15d 4 0 _LocaleUpdate::GetLocaleT()
 1f15d 3 1844 211
 1f160 1 1845 211
-FUNC 1f161 14 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::stream_output_adapter<char> > >::adjust_hexit(const int, const bool)
+FUNC 1f161 14 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::stream_output_adapter<char> > >::adjust_hexit(const int, const bool)
 1f161 5 2729 363
 1f166 d 2730 363
 1f173 2 2734 363
-FUNC 1f17a 14 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> > >::adjust_hexit(const int, const bool)
+FUNC 1f17a 14 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> > >::adjust_hexit(const int, const bool)
 1f17a 5 2729 363
 1f17f d 2730 363
 1f18c 2 2734 363
-FUNC 1f193 14 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::standard_base<char,__crt_stdio_output::stream_output_adapter<char> > >::adjust_hexit(const int, const bool)
+FUNC 1f193 14 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::standard_base<char,__crt_stdio_output::stream_output_adapter<char> > >::adjust_hexit(const int, const bool)
 1f193 5 2729 363
 1f198 d 2730 363
 1f1a5 2 2734 363
-FUNC 1f1ac 14 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::string_output_adapter<char> > >::adjust_hexit(const int, const bool)
+FUNC 1f1ac 14 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::string_output_adapter<char> > >::adjust_hexit(const int, const bool)
 1f1ac 5 2729 363
 1f1b1 d 2730 363
 1f1be 2 2734 363
-FUNC 1f1c5 14 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> > >::adjust_hexit(const int, const bool)
+FUNC 1f1c5 14 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> > >::adjust_hexit(const int, const bool)
 1f1c5 5 2729 363
 1f1ca d 2730 363
 1f1d7 2 2734 363
-FUNC 1f1de 14 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::standard_base<char,__crt_stdio_output::string_output_adapter<char> > >::adjust_hexit(const int, const bool)
+FUNC 1f1de 14 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::standard_base<char,__crt_stdio_output::string_output_adapter<char> > >::adjust_hexit(const int, const bool)
 1f1de 5 2729 363
 1f1e3 d 2730 363
 1f1f0 2 2734 363
-FUNC 1f1f7 14 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::adjust_hexit(const int, const bool)
+FUNC 1f1f7 14 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::adjust_hexit(const int, const bool)
 1f1f7 5 2729 363
 1f1fc d 2730 363
 1f209 2 2734 363
-FUNC 1f210 14 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::adjust_hexit(const int, const bool)
+FUNC 1f210 14 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::adjust_hexit(const int, const bool)
 1f210 5 2729 363
 1f215 d 2730 363
 1f222 2 2734 363
-FUNC 1f229 14 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::adjust_hexit(const int, const bool)
+FUNC 1f229 14 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::adjust_hexit(const int, const bool)
 1f229 5 2729 363
 1f22e d 2730 363
 1f23b 2 2734 363
-FUNC 1f242 14 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::adjust_hexit(const int, const bool)
+FUNC 1f242 14 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::adjust_hexit(const int, const bool)
 1f242 5 2729 363
 1f247 d 2730 363
 1f254 2 2734 363
-FUNC 1f25b 14 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::adjust_hexit(const int, const bool)
+FUNC 1f25b 14 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::adjust_hexit(const int, const bool)
 1f25b 5 2729 363
 1f260 d 2730 363
 1f26d 2 2734 363
-FUNC 1f274 14 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::adjust_hexit(const int, const bool)
+FUNC 1f274 14 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::adjust_hexit(const int, const bool)
 1f274 5 2729 363
 1f279 d 2730 363
 1f286 2 2734 363
@@ -9741,69 +9741,69 @@ FUNC 1f904 14 0 __crt_deferred_errno_cache::get()
 FUNC 1f91d 7 0 __crt_stdio_stream::get_flags() const
 1f91d 6 233 347
 1f923 1 234 347
-FUNC 1f924 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(short)
+FUNC 1f924 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(short)
 1f924 4 1453 363
-FUNC 1f928 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(unsigned short)
+FUNC 1f928 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(unsigned short)
 1f928 4 1454 363
-FUNC 1f92c 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(int)
+FUNC 1f92c 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(int)
 1f92c 4 1456 363
-FUNC 1f930 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(unsigned int)
+FUNC 1f930 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(unsigned int)
 1f930 4 1457 363
-FUNC 1f934 4 8 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(_CRT_DOUBLE)
+FUNC 1f934 4 8 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(_CRT_DOUBLE)
 1f934 4 1460 363
-FUNC 1f938 4 8 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(long long)
+FUNC 1f938 4 8 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(long long)
 1f938 4 1458 363
-FUNC 1f93c 4 8 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(unsigned long long)
+FUNC 1f93c 4 8 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(unsigned long long)
 1f93c 4 1459 363
-FUNC 1f940 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(wchar_t)
+FUNC 1f940 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> >::get_parameter_type(wchar_t)
 1f940 4 1455 363
-FUNC 1f944 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(short)
+FUNC 1f944 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(short)
 1f944 4 1453 363
-FUNC 1f948 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(unsigned short)
+FUNC 1f948 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(unsigned short)
 1f948 4 1454 363
-FUNC 1f94c 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(int)
+FUNC 1f94c 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(int)
 1f94c 4 1456 363
-FUNC 1f950 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(unsigned int)
+FUNC 1f950 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(unsigned int)
 1f950 4 1457 363
-FUNC 1f954 4 8 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(_CRT_DOUBLE)
+FUNC 1f954 4 8 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(_CRT_DOUBLE)
 1f954 4 1460 363
-FUNC 1f958 4 8 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(long long)
+FUNC 1f958 4 8 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(long long)
 1f958 4 1458 363
-FUNC 1f95c 4 8 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(unsigned long long)
+FUNC 1f95c 4 8 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(unsigned long long)
 1f95c 4 1459 363
-FUNC 1f960 4 4 static __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(wchar_t)
+FUNC 1f960 4 4 __crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> >::get_parameter_type(wchar_t)
 1f960 4 1455 363
-FUNC 1f964 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(short)
+FUNC 1f964 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(short)
 1f964 4 1453 363
-FUNC 1f968 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(unsigned short)
+FUNC 1f968 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(unsigned short)
 1f968 4 1454 363
-FUNC 1f96c 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(int)
+FUNC 1f96c 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(int)
 1f96c 4 1456 363
-FUNC 1f970 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(unsigned int)
+FUNC 1f970 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(unsigned int)
 1f970 4 1457 363
-FUNC 1f974 4 8 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(_CRT_DOUBLE)
+FUNC 1f974 4 8 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(_CRT_DOUBLE)
 1f974 4 1460 363
-FUNC 1f978 4 8 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(long long)
+FUNC 1f978 4 8 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(long long)
 1f978 4 1458 363
-FUNC 1f97c 4 8 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(unsigned long long)
+FUNC 1f97c 4 8 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(unsigned long long)
 1f97c 4 1459 363
-FUNC 1f980 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(wchar_t)
+FUNC 1f980 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::get_parameter_type(wchar_t)
 1f980 4 1455 363
-FUNC 1f984 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(short)
+FUNC 1f984 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(short)
 1f984 4 1453 363
-FUNC 1f988 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(unsigned short)
+FUNC 1f988 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(unsigned short)
 1f988 4 1454 363
-FUNC 1f98c 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(int)
+FUNC 1f98c 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(int)
 1f98c 4 1456 363
-FUNC 1f990 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(unsigned int)
+FUNC 1f990 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(unsigned int)
 1f990 4 1457 363
-FUNC 1f994 4 8 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(_CRT_DOUBLE)
+FUNC 1f994 4 8 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(_CRT_DOUBLE)
 1f994 4 1460 363
-FUNC 1f998 4 8 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(long long)
+FUNC 1f998 4 8 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(long long)
 1f998 4 1458 363
-FUNC 1f99c 4 8 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(unsigned long long)
+FUNC 1f99c 4 8 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(unsigned long long)
 1f99c 4 1459 363
-FUNC 1f9a0 4 4 static __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(wchar_t)
+FUNC 1f9a0 4 4 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::get_parameter_type(wchar_t)
 1f9a0 4 1455 363
 FUNC 1f9a4 12 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::stream_output_adapter<char> > >::has_flag(const unsigned int) const
 1f9a4 12 2707 363
@@ -9947,29 +9947,29 @@ FUNC 1fec6 118 0 __crt_stdio_output::positional_parameter_base<wchar_t,__crt_std
 1ffd7 7 1527 363
 FUNC 20024 c 0 __crt_stdio_stream::is_string_backed() const
 20024 c 227 347
-FUNC 20033 6 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::stream_output_adapter<char> > >::narrow_null_string()
+FUNC 20033 6 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::stream_output_adapter<char> > >::narrow_null_string()
 20033 6 2737 363
-FUNC 20039 6 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> > >::narrow_null_string()
+FUNC 20039 6 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> > >::narrow_null_string()
 20039 6 2737 363
-FUNC 2003f 6 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::standard_base<char,__crt_stdio_output::stream_output_adapter<char> > >::narrow_null_string()
+FUNC 2003f 6 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::standard_base<char,__crt_stdio_output::stream_output_adapter<char> > >::narrow_null_string()
 2003f 6 2737 363
-FUNC 20045 6 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::string_output_adapter<char> > >::narrow_null_string()
+FUNC 20045 6 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::string_output_adapter<char> > >::narrow_null_string()
 20045 6 2737 363
-FUNC 2004b 6 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> > >::narrow_null_string()
+FUNC 2004b 6 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> > >::narrow_null_string()
 2004b 6 2737 363
-FUNC 20051 6 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::standard_base<char,__crt_stdio_output::string_output_adapter<char> > >::narrow_null_string()
+FUNC 20051 6 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::standard_base<char,__crt_stdio_output::string_output_adapter<char> > >::narrow_null_string()
 20051 6 2737 363
-FUNC 20057 6 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::narrow_null_string()
+FUNC 20057 6 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::narrow_null_string()
 20057 6 2737 363
-FUNC 2005d 6 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::narrow_null_string()
+FUNC 2005d 6 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::narrow_null_string()
 2005d 6 2737 363
-FUNC 20063 6 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::narrow_null_string()
+FUNC 20063 6 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::narrow_null_string()
 20063 6 2737 363
-FUNC 20069 6 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::narrow_null_string()
+FUNC 20069 6 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::narrow_null_string()
 20069 6 2737 363
-FUNC 2006f 6 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::narrow_null_string()
+FUNC 2006f 6 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::narrow_null_string()
 2006f 6 2737 363
-FUNC 20075 6 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::narrow_null_string()
+FUNC 20075 6 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::narrow_null_string()
 20075 6 2737 363
 FUNC 2007b 74 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::stream_output_adapter<char> > >::parse_int_from_format_string(int* const)
 2007b b 1775 363
@@ -12395,52 +12395,52 @@ FUNC 26531 2c 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output:
 26556 4 1814 363
 2655a 2 1817 363
 2655c 1 1818 363
-FUNC 26568 4 0 static __crt_stdio_output::format_validation_base<char,__crt_stdio_output::stream_output_adapter<char> >::state_count()
+FUNC 26568 4 0 __crt_stdio_output::format_validation_base<char,__crt_stdio_output::stream_output_adapter<char> >::state_count()
 26568 3 1103 363
 2656b 1 1104 363
-FUNC 2656c 4 0 static __crt_stdio_output::format_validation_base<char,__crt_stdio_output::string_output_adapter<char> >::state_count()
+FUNC 2656c 4 0 __crt_stdio_output::format_validation_base<char,__crt_stdio_output::string_output_adapter<char> >::state_count()
 2656c 3 1103 363
 2656f 1 1104 363
-FUNC 26570 4 0 static __crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::state_count()
+FUNC 26570 4 0 __crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::state_count()
 26570 3 1103 363
 26573 1 1104 363
-FUNC 26574 4 0 static __crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::state_count()
+FUNC 26574 4 0 __crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::state_count()
 26574 3 1103 363
 26577 1 1104 363
-FUNC 26578 4 0 static __crt_stdio_output::standard_base<char,__crt_stdio_output::stream_output_adapter<char> >::state_count()
+FUNC 26578 4 0 __crt_stdio_output::standard_base<char,__crt_stdio_output::stream_output_adapter<char> >::state_count()
 26578 3 1046 363
 2657b 1 1047 363
-FUNC 2657c 4 0 static __crt_stdio_output::standard_base<char,__crt_stdio_output::string_output_adapter<char> >::state_count()
+FUNC 2657c 4 0 __crt_stdio_output::standard_base<char,__crt_stdio_output::string_output_adapter<char> >::state_count()
 2657c 3 1046 363
 2657f 1 1047 363
-FUNC 26580 4 0 static __crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::state_count()
+FUNC 26580 4 0 __crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::state_count()
 26580 3 1046 363
 26583 1 1047 363
-FUNC 26584 4 0 static __crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::state_count()
+FUNC 26584 4 0 __crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::state_count()
 26584 3 1046 363
 26587 1 1047 363
-FUNC 26588 6 0 static __crt_stdio_output::format_validation_base<char,__crt_stdio_output::stream_output_adapter<char> >::state_transition_table()
+FUNC 26588 6 0 __crt_stdio_output::format_validation_base<char,__crt_stdio_output::stream_output_adapter<char> >::state_transition_table()
 26588 5 1108 363
 2658d 1 1109 363
-FUNC 2658e 6 0 static __crt_stdio_output::format_validation_base<char,__crt_stdio_output::string_output_adapter<char> >::state_transition_table()
+FUNC 2658e 6 0 __crt_stdio_output::format_validation_base<char,__crt_stdio_output::string_output_adapter<char> >::state_transition_table()
 2658e 5 1108 363
 26593 1 1109 363
-FUNC 26594 6 0 static __crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::state_transition_table()
+FUNC 26594 6 0 __crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::state_transition_table()
 26594 5 1108 363
 26599 1 1109 363
-FUNC 2659a 6 0 static __crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::state_transition_table()
+FUNC 2659a 6 0 __crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::state_transition_table()
 2659a 5 1108 363
 2659f 1 1109 363
-FUNC 265a0 6 0 static __crt_stdio_output::standard_base<char,__crt_stdio_output::stream_output_adapter<char> >::state_transition_table()
+FUNC 265a0 6 0 __crt_stdio_output::standard_base<char,__crt_stdio_output::stream_output_adapter<char> >::state_transition_table()
 265a0 5 1051 363
 265a5 1 1052 363
-FUNC 265a6 6 0 static __crt_stdio_output::standard_base<char,__crt_stdio_output::string_output_adapter<char> >::state_transition_table()
+FUNC 265a6 6 0 __crt_stdio_output::standard_base<char,__crt_stdio_output::string_output_adapter<char> >::state_transition_table()
 265a6 5 1051 363
 265ab 1 1052 363
-FUNC 265ac 6 0 static __crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::state_transition_table()
+FUNC 265ac 6 0 __crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> >::state_transition_table()
 265ac 5 1051 363
 265b1 1 1052 363
-FUNC 265b2 6 0 static __crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::state_transition_table()
+FUNC 265b2 6 0 __crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::state_transition_table()
 265b2 5 1051 363
 265b7 1 1052 363
 FUNC 265b8 6 4 __crt_stdio_output::common_data<char>::tchar_string(char)
@@ -14758,39 +14758,39 @@ FUNC 2cd12 3 0 __crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::str
 FUNC 2cd15 3 0 __crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> >::validate_state_for_type_case_a() const
 2cd15 2 1026 363
 2cd17 1 1027 363
-FUNC 2cd18 87 0 static __acrt_stdio_char_traits<char>::validate_stream_is_ansi_if_required(_iobuf* const)
+FUNC 2cd18 87 0 __acrt_stdio_char_traits<char>::validate_stream_is_ansi_if_required(_iobuf* const)
 2cd18 5 439 347
 2cd1d 3 440 347
 2cd20 1 439 347
 2cd21 79 440 347
 2cd9a 3 441 347
 2cd9d 2 442 347
-FUNC 2cdc0 3 4 static __acrt_stdio_char_traits<wchar_t>::validate_stream_is_ansi_if_required(_iobuf* const)
+FUNC 2cdc0 3 4 __acrt_stdio_char_traits<wchar_t>::validate_stream_is_ansi_if_required(_iobuf* const)
 2cdc0 2 454 347
 2cdc2 1 455 347
-FUNC 2cdc3 6 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::stream_output_adapter<char> > >::wide_null_string()
+FUNC 2cdc3 6 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::stream_output_adapter<char> > >::wide_null_string()
 2cdc3 6 2738 363
-FUNC 2cdc9 6 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> > >::wide_null_string()
+FUNC 2cdc9 6 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::stream_output_adapter<char> > >::wide_null_string()
 2cdc9 6 2738 363
-FUNC 2cdcf 6 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::standard_base<char,__crt_stdio_output::stream_output_adapter<char> > >::wide_null_string()
+FUNC 2cdcf 6 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::stream_output_adapter<char>,__crt_stdio_output::standard_base<char,__crt_stdio_output::stream_output_adapter<char> > >::wide_null_string()
 2cdcf 6 2738 363
-FUNC 2cdd5 6 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::string_output_adapter<char> > >::wide_null_string()
+FUNC 2cdd5 6 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::format_validation_base<char,__crt_stdio_output::string_output_adapter<char> > >::wide_null_string()
 2cdd5 6 2738 363
-FUNC 2cddb 6 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> > >::wide_null_string()
+FUNC 2cddb 6 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::positional_parameter_base<char,__crt_stdio_output::string_output_adapter<char> > >::wide_null_string()
 2cddb 6 2738 363
-FUNC 2cde1 6 0 static __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::standard_base<char,__crt_stdio_output::string_output_adapter<char> > >::wide_null_string()
+FUNC 2cde1 6 0 __crt_stdio_output::output_processor<char,__crt_stdio_output::string_output_adapter<char>,__crt_stdio_output::standard_base<char,__crt_stdio_output::string_output_adapter<char> > >::wide_null_string()
 2cde1 6 2738 363
-FUNC 2cde7 6 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::wide_null_string()
+FUNC 2cde7 6 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::wide_null_string()
 2cde7 6 2738 363
-FUNC 2cded 6 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::wide_null_string()
+FUNC 2cded 6 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::wide_null_string()
 2cded 6 2738 363
-FUNC 2cdf3 6 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::wide_null_string()
+FUNC 2cdf3 6 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t>,__crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::stream_output_adapter<wchar_t> > >::wide_null_string()
 2cdf3 6 2738 363
-FUNC 2cdf9 6 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::wide_null_string()
+FUNC 2cdf9 6 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::format_validation_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::wide_null_string()
 2cdf9 6 2738 363
-FUNC 2cdff 6 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::wide_null_string()
+FUNC 2cdff 6 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::positional_parameter_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::wide_null_string()
 2cdff 6 2738 363
-FUNC 2ce05 6 0 static __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::wide_null_string()
+FUNC 2ce05 6 0 __crt_stdio_output::output_processor<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t>,__crt_stdio_output::standard_base<wchar_t,__crt_stdio_output::string_output_adapter<wchar_t> > >::wide_null_string()
 2ce05 6 2738 363
 FUNC 2ce0b 1f 0 __crt_stdio_output::output_adapter_common<char,__crt_stdio_output::stream_output_adapter<char> >::write_character(const char, int* const) const
 2ce0b 5 60 363
@@ -16117,35 +16117,35 @@ FUNC 3134f 2f 0 get_win_policy<`__acrt_get_process_end_policy'::`2'::process_end
 3136a 9 23 377
 31373 9 26 377
 3137c 2 27 377
-FUNC 31389 f 0 static `__acrt_get_begin_thread_init_policy'::`2'::begin_thread_init_policy_properties::appmodel_get_policy(AppPolicyThreadInitializationType*)
+FUNC 31389 f 0 `__acrt_get_begin_thread_init_policy'::`2'::begin_thread_init_policy_properties::appmodel_get_policy(AppPolicyThreadInitializationType*)
 31389 5 110 377
 3138e 8 111 377
 31396 2 112 377
-FUNC 3139b f 0 static `__acrt_get_developer_information_policy'::`2'::developer_information_policy_properties::appmodel_get_policy(AppPolicyShowDeveloperDiagnostic*)
+FUNC 3139b f 0 `__acrt_get_developer_information_policy'::`2'::developer_information_policy_properties::appmodel_get_policy(AppPolicyShowDeveloperDiagnostic*)
 3139b 5 141 377
 313a0 8 142 377
 313a8 2 143 377
-FUNC 313ad f 0 static `__acrt_get_process_end_policy'::`2'::process_end_policy_properties::appmodel_get_policy(AppPolicyProcessTerminationMethod*)
+FUNC 313ad f 0 `__acrt_get_process_end_policy'::`2'::process_end_policy_properties::appmodel_get_policy(AppPolicyProcessTerminationMethod*)
 313ad 5 79 377
 313b2 8 80 377
 313ba 2 81 377
-FUNC 313bf f 0 static `__acrt_get_windowing_model_policy'::`2'::windowing_model_policy_properties::appmodel_get_policy(AppPolicyWindowingModel*)
+FUNC 313bf f 0 `__acrt_get_windowing_model_policy'::`2'::windowing_model_policy_properties::appmodel_get_policy(AppPolicyWindowingModel*)
 313bf 5 179 377
 313c4 8 180 377
 313cc 2 181 377
-FUNC 313d1 11 0 static `__acrt_get_begin_thread_init_policy'::`2'::begin_thread_init_policy_properties::appmodel_policy_to_policy_type(const long)
+FUNC 313d1 11 0 `__acrt_get_begin_thread_init_policy'::`2'::begin_thread_init_policy_properties::appmodel_policy_to_policy_type(const long)
 313d1 5 98 377
 313d6 a 99 377
 313e0 2 107 377
-FUNC 313e6 11 0 static `__acrt_get_developer_information_policy'::`2'::developer_information_policy_properties::appmodel_policy_to_policy_type(const long)
+FUNC 313e6 11 0 `__acrt_get_developer_information_policy'::`2'::developer_information_policy_properties::appmodel_policy_to_policy_type(const long)
 313e6 5 129 377
 313eb a 130 377
 313f5 2 138 377
-FUNC 313fb 10 0 static `__acrt_get_process_end_policy'::`2'::process_end_policy_properties::appmodel_policy_to_policy_type(const AppPolicyProcessTerminationMethod)
+FUNC 313fb 10 0 `__acrt_get_process_end_policy'::`2'::process_end_policy_properties::appmodel_policy_to_policy_type(const AppPolicyProcessTerminationMethod)
 313fb 5 67 377
 31400 9 68 377
 31409 2 76 377
-FUNC 3140f 29 0 static `__acrt_get_windowing_model_policy'::`2'::windowing_model_policy_properties::appmodel_policy_to_policy_type(const long)
+FUNC 3140f 29 0 `__acrt_get_windowing_model_policy'::`2'::windowing_model_policy_properties::appmodel_policy_to_policy_type(const long)
 3140f 5 160 377
 31414 12 161 377
 31426 4 174 377
@@ -16242,9 +16242,9 @@ FUNC 316f6 5d 0 _calloc_base(unsigned int, unsigned int)
 3171a 14 45 379
 3172e 15 38 379
 31743 10 53 379
-FUNC 3176a 18 0 static <lambda_838c7f62c73c983481e27c09e84b0b5d>::<lambda_invoker_cdecl>(void const*, void const*)
+FUNC 3176a 18 0 <lambda_838c7f62c73c983481e27c09e84b0b5d>::<lambda_invoker_cdecl>(void const*, void const*)
 3176a 18 301 384
-FUNC 31788 18 0 static <lambda_d388dc2bcbe6079ffc891eec49d9b3b2>::<lambda_invoker_cdecl>(void const*, void const*)
+FUNC 31788 18 0 <lambda_d388dc2bcbe6079ffc891eec49d9b3b2>::<lambda_invoker_cdecl>(void const*, void const*)
 31788 18 301 384
 FUNC 317a6 b2 0 __acrt_convert_wcs_mbs_cp<char,wchar_t,<lambda_62f6974d9771e494a5ea317cc32e971c>,__crt_win32_buffer_internal_dynamic_resizing>(char const* const, __crt_win32_buffer<wchar_t,__crt_win32_buffer_internal_dynamic_resizing>&, __acrt_mbs_to_wcs_cp::__l2::<lambda_62f6974d9771e494a5ea317cc32e971c> const&, const unsigned int)
 317a6 6 494 334
@@ -16495,25 +16495,25 @@ FUNC 32394 172 0 expand_argument_wildcards<wchar_t>(wchar_t* const, wchar_t* con
 324d4 16 292 384
 324ea d 303 384
 324f7 f 304 384
-FUNC 32562 18 0 static __crt_char_traits<char>::tcslen<char const * const &>(char const* const&)
+FUNC 32562 18 0 __crt_char_traits<char>::tcslen<char const * const &>(char const* const&)
 32562 18 109 333
-FUNC 32580 1e 0 static __crt_char_traits<wchar_t>::tcslen<wchar_t const * const &>(wchar_t const* const&)
+FUNC 32580 1e 0 __crt_char_traits<wchar_t>::tcslen<wchar_t const * const &>(wchar_t const* const&)
 32580 1e 124 333
-FUNC 325a5 23 0 static __crt_char_traits<char>::tcsncpy_s<char * &,unsigned int,char * &,unsigned int const &>(char*&, unsigned int&&, char*&, unsigned int const&)
+FUNC 325a5 23 0 __crt_char_traits<char>::tcsncpy_s<char * &,unsigned int,char * &,unsigned int const &>(char*&, unsigned int&&, char*&, unsigned int const&)
 325a5 23 109 333
-FUNC 325d0 23 0 static __crt_char_traits<wchar_t>::tcsncpy_s<wchar_t * &,unsigned int,wchar_t * &,unsigned int const &>(wchar_t*&, unsigned int&&, wchar_t*&, unsigned int const&)
+FUNC 325d0 23 0 __crt_char_traits<wchar_t>::tcsncpy_s<wchar_t * &,unsigned int,wchar_t * &,unsigned int const &>(wchar_t*&, unsigned int&&, wchar_t*&, unsigned int const&)
 325d0 23 124 333
-FUNC 325fb 23 0 static __crt_char_traits<char>::tcsncpy_s<char *,unsigned int const &,char const * const &,unsigned int const &>(char*&&, unsigned int const&, char const* const&, unsigned int const&)
+FUNC 325fb 23 0 __crt_char_traits<char>::tcsncpy_s<char *,unsigned int const &,char const * const &,unsigned int const &>(char*&&, unsigned int const&, char const* const&, unsigned int const&)
 325fb 23 109 333
-FUNC 32626 23 0 static __crt_char_traits<char>::tcsncpy_s<char *,unsigned int,char const * const &,unsigned int const &>(char*&&, unsigned int&&, char const* const&, unsigned int const&)
+FUNC 32626 23 0 __crt_char_traits<char>::tcsncpy_s<char *,unsigned int,char const * const &,unsigned int const &>(char*&&, unsigned int&&, char const* const&, unsigned int const&)
 32626 23 109 333
-FUNC 32651 23 0 static __crt_char_traits<wchar_t>::tcsncpy_s<wchar_t *,unsigned int const &,wchar_t const * const &,unsigned int const &>(wchar_t*&&, unsigned int const&, wchar_t const* const&, unsigned int const&)
+FUNC 32651 23 0 __crt_char_traits<wchar_t>::tcsncpy_s<wchar_t *,unsigned int const &,wchar_t const * const &,unsigned int const &>(wchar_t*&&, unsigned int const&, wchar_t const* const&, unsigned int const&)
 32651 23 124 333
-FUNC 3267c 23 0 static __crt_char_traits<wchar_t>::tcsncpy_s<wchar_t *,unsigned int,wchar_t const * const &,unsigned int const &>(wchar_t*&&, unsigned int&&, wchar_t const* const&, unsigned int const&)
+FUNC 3267c 23 0 __crt_char_traits<wchar_t>::tcsncpy_s<wchar_t *,unsigned int,wchar_t const * const &,unsigned int const &>(wchar_t*&&, unsigned int&&, wchar_t const* const&, unsigned int const&)
 3267c 23 124 333
-FUNC 326a7 16 0 static __crt_char_traits<char>::tcspbrk<char * &,char const (&)[3]>(char*&, const char[3]&)
+FUNC 326a7 16 0 __crt_char_traits<char>::tcspbrk<char * &,char const (&)[3]>(char*&, const char[3]&)
 326a7 16 109 333
-FUNC 326c2 16 0 static __crt_char_traits<wchar_t>::tcspbrk<wchar_t * &,wchar_t const (&)[3]>(wchar_t*&, const wchar_t[3]&)
+FUNC 326c2 16 0 __crt_char_traits<wchar_t>::tcspbrk<wchar_t * &,wchar_t const (&)[3]>(wchar_t*&, const wchar_t[3]&)
 326c2 16 124 333
 FUNC 326dd 10 0 __crt_unique_handle_t<__crt_findfile_traits>::__crt_unique_handle_t<__crt_findfile_traits>(void* const)
 326dd 5 1098 211
@@ -16626,7 +16626,7 @@ FUNC 329a0 3f 0 __crt_win32_buffer<wchar_t,__crt_win32_buffer_internal_dynamic_r
 329d0 4 360 334
 329d4 5 362 334
 329d9 6 363 334
-FUNC 329ee 1f 0 static __crt_win32_buffer_internal_dynamic_resizing::allocate(void** const, const unsigned int, __crt_win32_buffer_empty_debug_info const&)
+FUNC 329ee 1f 0 __crt_win32_buffer_internal_dynamic_resizing::allocate(void** const, const unsigned int, __crt_win32_buffer_empty_debug_info const&)
 329ee 5 82 334
 329f3 9 83 334
 329fc 5 84 334
@@ -16666,7 +16666,7 @@ FUNC 32aa6 17 0 __crt_unique_handle_t<__crt_findfile_traits>::close()
 32ab0 8 1146 211
 32ab8 3 1147 211
 32abb 2 1148 211
-FUNC 32ac2 15 0 static __crt_findfile_traits::close(void*)
+FUNC 32ac2 15 0 __crt_findfile_traits::close(void*)
 32ac2 5 1076 211
 32ac7 e 1077 211
 32ad5 2 1078 211
@@ -16676,7 +16676,7 @@ FUNC 32adc 4 0 __crt_win32_buffer<char,__crt_win32_buffer_internal_dynamic_resiz
 FUNC 32ae0 4 0 __crt_win32_buffer<wchar_t,__crt_win32_buffer_internal_dynamic_resizing>::data()
 32ae0 3 248 334
 32ae3 1 249 334
-FUNC 32ae4 10 0 static __crt_win32_buffer_internal_dynamic_resizing::deallocate(void* const, __crt_win32_buffer_empty_debug_info const&)
+FUNC 32ae4 10 0 __crt_win32_buffer_internal_dynamic_resizing::deallocate(void* const, __crt_win32_buffer_empty_debug_info const&)
 32ae4 5 92 334
 32ae9 9 93 334
 32af2 2 94 334
@@ -16748,7 +16748,7 @@ FUNC 32c8c a 0 get_file_name(__crt_win32_buffer<wchar_t,__crt_win32_buffer_inter
 32c8c 5 207 384
 32c91 3 208 384
 32c94 2 209 384
-FUNC 32c98 4 0 static __crt_findfile_traits::get_invalid_value()
+FUNC 32c98 4 0 __crt_findfile_traits::get_invalid_value()
 32c98 3 1082 211
 32c9b 1 1083 211
 FUNC 32c9c a 0 get_wide(__crt_win32_buffer<wchar_t,__crt_win32_buffer_internal_dynamic_resizing>*, wchar_t* const)
@@ -16865,7 +16865,7 @@ FUNC 32f2e 27 4 __crt_win32_buffer<char,__crt_win32_buffer_no_resizing>::allocat
 32f3d a 348 334
 32f47 b 357 334
 32f52 3 363 334
-FUNC 32f5e d c static __crt_win32_buffer_no_resizing::allocate(void** const, const unsigned int, __crt_win32_buffer_empty_debug_info const&)
+FUNC 32f5e d c __crt_win32_buffer_no_resizing::allocate(void** const, const unsigned int, __crt_win32_buffer_empty_debug_info const&)
 32f5e a 132 334
 32f68 2 133 334
 32f6a 1 134 334
@@ -16875,7 +16875,7 @@ FUNC 32f6e 4 0 __crt_win32_buffer<char,__crt_win32_buffer_no_resizing>::capacity
 FUNC 32f72 4 0 __crt_win32_buffer<char,__crt_win32_buffer_no_resizing>::data()
 32f72 3 248 334
 32f75 1 249 334
-FUNC 32f76 3 8 static __crt_win32_buffer_no_resizing::deallocate(void* const, __crt_win32_buffer_empty_debug_info const&)
+FUNC 32f76 3 8 __crt_win32_buffer_no_resizing::deallocate(void* const, __crt_win32_buffer_empty_debug_info const&)
 32f76 3 138 334
 FUNC 32f79 3 0 __crt_win32_buffer<char,__crt_win32_buffer_no_resizing>::debug_info() const
 32f79 2 341 334
@@ -17409,7 +17409,7 @@ FUNC 34443 17 0 __crt_unique_handle_t<`anonymous namespace'::environment_strings
 3444d 8 1146 211
 34455 3 1147 211
 34458 2 1148 211
-FUNC 3445f 12 0 static `anonymous namespace'::environment_strings_traits::close(wchar_t*)
+FUNC 3445f 12 0 `anonymous namespace'::environment_strings_traits::close(wchar_t*)
 3445f 5 24 398
 34464 9 25 398
 3446d 2 26 398
@@ -17423,7 +17423,7 @@ FUNC 34475 37 0 find_end_of_double_null_terminated_sequence(wchar_t const* const
 FUNC 344b9 3 0 __crt_unique_handle_t<`anonymous namespace'::environment_strings_traits>::get() const
 344b9 2 1138 211
 344bb 1 1139 211
-FUNC 344bc 3 0 static `anonymous namespace'::environment_strings_traits::get_invalid_value()
+FUNC 344bc 3 0 `anonymous namespace'::environment_strings_traits::get_invalid_value()
 344bc 2 31 398
 344be 1 32 398
 FUNC 344bf 7 0 __crt_unique_handle_t<`anonymous namespace'::environment_strings_traits>::is_valid() const
@@ -17640,33 +17640,33 @@ FUNC 34df6 58 0 find_in_environment_nolock<wchar_t>(wchar_t const* const, const 
 34e39 7 125 399
 34e40 7 126 399
 34e47 7 121 399
-FUNC 34e64 5 0 static __crt_char_traits<char>::get_or_create_environment_nolock<>()
+FUNC 34e64 5 0 __crt_char_traits<char>::get_or_create_environment_nolock<>()
 34e64 5 109 333
-FUNC 34e69 5 0 static __crt_char_traits<wchar_t>::get_or_create_environment_nolock<>()
+FUNC 34e69 5 0 __crt_char_traits<wchar_t>::get_or_create_environment_nolock<>()
 34e69 5 124 333
-FUNC 34e6e 18 0 static __crt_char_traits<char>::set_environment_variable<char * const &,char * const>(char* const&, char* const&&)
+FUNC 34e6e 18 0 __crt_char_traits<char>::set_environment_variable<char * const &,char * const>(char* const&, char* const&&)
 34e6e 18 109 333
-FUNC 34e8c 17 0 static __crt_char_traits<wchar_t>::set_environment_variable<wchar_t * const &,wchar_t * const>(wchar_t* const&, wchar_t* const&&)
+FUNC 34e8c 17 0 __crt_char_traits<wchar_t>::set_environment_variable<wchar_t * const &,wchar_t * const>(wchar_t* const&, wchar_t* const&&)
 34e8c 17 124 333
-FUNC 34ea8 1a 0 static __crt_char_traits<char>::tcschr<char * const &,char>(char* const&, char&&)
+FUNC 34ea8 1a 0 __crt_char_traits<char>::tcschr<char * const &,char>(char* const&, char&&)
 34ea8 1a 109 333
-FUNC 34ec8 1e 0 static __crt_char_traits<wchar_t>::tcschr<wchar_t * const &,char>(wchar_t* const&, char&&)
+FUNC 34ec8 1e 0 __crt_char_traits<wchar_t>::tcschr<wchar_t * const &,char>(wchar_t* const&, char&&)
 34ec8 1e 124 333
-FUNC 34eed 1e 0 static __crt_char_traits<char>::tcscpy_s<char * &,unsigned int const &,char * &>(char*&, unsigned int const&, char*&)
+FUNC 34eed 1e 0 __crt_char_traits<char>::tcscpy_s<char * &,unsigned int const &,char * &>(char*&, unsigned int const&, char*&)
 34eed 1e 109 333
-FUNC 34f12 1e 0 static __crt_char_traits<wchar_t>::tcscpy_s<wchar_t * &,unsigned int const &,wchar_t * &>(wchar_t*&, unsigned int const&, wchar_t*&)
+FUNC 34f12 1e 0 __crt_char_traits<wchar_t>::tcscpy_s<wchar_t * &,unsigned int const &,wchar_t * &>(wchar_t*&, unsigned int const&, wchar_t*&)
 34f12 1e 124 333
-FUNC 34f37 1e 0 static __crt_char_traits<char>::tcscpy_s<char * const &,unsigned int const &,char * const &>(char* const&, unsigned int const&, char* const&)
+FUNC 34f37 1e 0 __crt_char_traits<char>::tcscpy_s<char * const &,unsigned int const &,char * const &>(char* const&, unsigned int const&, char* const&)
 34f37 1e 109 333
-FUNC 34f5c 1e 0 static __crt_char_traits<wchar_t>::tcscpy_s<wchar_t * const &,unsigned int const &,wchar_t * const &>(wchar_t* const&, unsigned int const&, wchar_t* const&)
+FUNC 34f5c 1e 0 __crt_char_traits<wchar_t>::tcscpy_s<wchar_t * const &,unsigned int const &,wchar_t * const &>(wchar_t* const&, unsigned int const&, wchar_t* const&)
 34f5c 1e 124 333
-FUNC 34f81 18 0 static __crt_char_traits<char>::tcslen<char * const &>(char* const&)
+FUNC 34f81 18 0 __crt_char_traits<char>::tcslen<char * const &>(char* const&)
 34f81 18 109 333
-FUNC 34f9f 1e 0 static __crt_char_traits<wchar_t>::tcslen<wchar_t * const &>(wchar_t* const&)
+FUNC 34f9f 1e 0 __crt_char_traits<wchar_t>::tcslen<wchar_t * const &>(wchar_t* const&)
 34f9f 1e 124 333
-FUNC 34fc4 1e 0 static __crt_char_traits<char>::tcsnicoll<char const * const &,char * &,unsigned int const &>(char const* const&, char*&, unsigned int const&)
+FUNC 34fc4 1e 0 __crt_char_traits<char>::tcsnicoll<char const * const &,char * &,unsigned int const &>(char const* const&, char*&, unsigned int const&)
 34fc4 1e 109 333
-FUNC 34fe9 1e 0 static __crt_char_traits<wchar_t>::tcsnicoll<wchar_t const * const &,wchar_t * &,unsigned int const &>(wchar_t const* const&, wchar_t*&, unsigned int const&)
+FUNC 34fe9 1e 0 __crt_char_traits<wchar_t>::tcsnicoll<wchar_t const * const &,wchar_t * &,unsigned int const &>(wchar_t const* const&, wchar_t*&, unsigned int const&)
 34fe9 1e 124 333
 FUNC 3500e 6 4 get_environment(char)
 3500e 6 17 399
@@ -17710,7 +17710,7 @@ FUNC 35073 6d 0 _recalloc_base(void*, unsigned int, unsigned int)
 350c8 11 40 400
 350d9 5 43 400
 350de 2 44 400
-FUNC 350fb d 0 static <lambda_29d3c280b90b41c2ae070ffca879996a>::<lambda_invoker_stdcall>(wchar_t*)
+FUNC 350fb d 0 <lambda_29d3c280b90b41c2ae070ffca879996a>::<lambda_invoker_stdcall>(wchar_t*)
 350fb d 425 402
 FUNC 3510b 6 0 __crt_fast_encoded_nullptr_t::operator<int __stdcall(wchar_t *,unsigned long,long)> int (__stdcall*)(wchar_t *,unsigned long,long)() const
 3510b 5 536 156
@@ -19355,28 +19355,28 @@ FUNC 396d9 4 0 __crt_simd_cleanup_guard<1>::~__crt_simd_cleanup_guard<1>()
 396dc 1 116 425
 FUNC 396dd 3 0 __crt_simd_cleanup_guard<0>::~__crt_simd_cleanup_guard<0>()
 396dd 3 63 425
-FUNC 396e0 5 0 static __crt_simd_traits<1,unsigned char>::compare_equals(const __m256i, const __m256i)
+FUNC 396e0 5 0 __crt_simd_traits<1,unsigned char>::compare_equals(const __m256i, const __m256i)
 396e0 4 143 425
 396e4 1 144 425
-FUNC 396e5 5 0 static __crt_simd_traits<1,unsigned short>::compare_equals(const __m256i, const __m256i)
+FUNC 396e5 5 0 __crt_simd_traits<1,unsigned short>::compare_equals(const __m256i, const __m256i)
 396e5 4 153 425
 396e9 1 154 425
-FUNC 396ea 5 0 static __crt_simd_traits<0,unsigned char>::compare_equals(const __m128i, const __m128i)
+FUNC 396ea 5 0 __crt_simd_traits<0,unsigned char>::compare_equals(const __m128i, const __m128i)
 396ea 4 90 425
 396ee 1 91 425
-FUNC 396ef 5 0 static __crt_simd_traits<0,unsigned short>::compare_equals(const __m128i, const __m128i)
+FUNC 396ef 5 0 __crt_simd_traits<0,unsigned short>::compare_equals(const __m128i, const __m128i)
 396ef 4 100 425
 396f3 1 101 425
-FUNC 396f4 5 0 static __crt_simd_pack_traits<1>::compute_byte_mask(const __m256i)
+FUNC 396f4 5 0 __crt_simd_pack_traits<1>::compute_byte_mask(const __m256i)
 396f4 4 133 425
 396f8 1 134 425
-FUNC 396f9 5 0 static __crt_simd_pack_traits<0>::compute_byte_mask(const __m128i)
+FUNC 396f9 5 0 __crt_simd_pack_traits<0>::compute_byte_mask(const __m128i)
 396f9 4 80 425
 396fd 1 81 425
-FUNC 396fe 5 0 static __crt_simd_pack_traits<1>::get_zero_pack()
+FUNC 396fe 5 0 __crt_simd_pack_traits<1>::get_zero_pack()
 396fe 4 128 425
 39702 1 129 425
-FUNC 39703 4 0 static __crt_simd_pack_traits<0>::get_zero_pack()
+FUNC 39703 4 0 __crt_simd_pack_traits<0>::get_zero_pack()
 39703 3 75 425
 39706 1 76 425
 FUNC 39707 122 8 strnlen(char const*, unsigned int)
@@ -24566,17 +24566,17 @@ FUNC 4c853 7e 0 common_show_message_box<wchar_t>(wchar_t const* const, wchar_t c
 4c8b8 f 75 511
 4c8c7 6 64 511
 4c8cd 4 76 511
-FUNC 4c8f0 20 0 static __crt_char_traits<char>::message_box<std::nullptr_t,char const * const &,char const * const &,unsigned long>(void*&&, char const* const&, char const* const&, unsigned long&&)
+FUNC 4c8f0 20 0 __crt_char_traits<char>::message_box<std::nullptr_t,char const * const &,char const * const &,unsigned long>(void*&&, char const* const&, char const* const&, unsigned long&&)
 4c8f0 20 109 333
-FUNC 4c918 20 0 static __crt_char_traits<wchar_t>::message_box<std::nullptr_t,wchar_t const * const &,wchar_t const * const &,unsigned long>(void*&&, wchar_t const* const&, wchar_t const* const&, unsigned long&&)
+FUNC 4c918 20 0 __crt_char_traits<wchar_t>::message_box<std::nullptr_t,wchar_t const * const &,wchar_t const * const &,unsigned long>(void*&&, wchar_t const* const&, wchar_t const* const&, unsigned long&&)
 4c918 20 124 333
-FUNC 4c940 20 0 static __crt_char_traits<char>::message_box<HWND__ *,char const * const &,char const * const &,unsigned int const &>(HWND__*&&, char const* const&, char const* const&, unsigned int const&)
+FUNC 4c940 20 0 __crt_char_traits<char>::message_box<HWND__ *,char const * const &,char const * const &,unsigned int const &>(HWND__*&&, char const* const&, char const* const&, unsigned int const&)
 4c940 20 109 333
-FUNC 4c968 20 0 static __crt_char_traits<wchar_t>::message_box<HWND__ *,wchar_t const * const &,wchar_t const * const &,unsigned int const &>(HWND__*&&, wchar_t const* const&, wchar_t const* const&, unsigned int const&)
+FUNC 4c968 20 0 __crt_char_traits<wchar_t>::message_box<HWND__ *,wchar_t const * const &,wchar_t const * const &,unsigned int const &>(HWND__*&&, wchar_t const* const&, wchar_t const* const&, unsigned int const&)
 4c968 20 124 333
-FUNC 4c990 11 0 static __crt_char_traits<char>::output_debug_string<char const * const &>(char const* const&)
+FUNC 4c990 11 0 __crt_char_traits<char>::output_debug_string<char const * const &>(char const* const&)
 4c990 11 109 333
-FUNC 4c9a5 12 0 static __crt_char_traits<wchar_t>::output_debug_string<wchar_t const * const &>(wchar_t const* const&)
+FUNC 4c9a5 12 0 __crt_char_traits<wchar_t>::output_debug_string<wchar_t const * const &>(wchar_t const* const&)
 4c9a5 12 124 333
 FUNC 4c9bb b 0 __acrt_show_narrow_message_box(char const*, char const*, unsigned int)
 4c9bb 5 83 511

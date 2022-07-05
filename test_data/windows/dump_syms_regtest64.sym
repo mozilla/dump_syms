@@ -343,7 +343,7 @@ FUNC 1110 26 0 google_breakpad::C::f()
 1110 26 43 0
 FUNC 1140 b 0 google_breakpad::C::g()
 1140 b 44 0
-FUNC 1150 8 0 static google_breakpad::C::h(google_breakpad::C const&)
+FUNC 1150 8 0 google_breakpad::C::h(google_breakpad::C const&)
 1150 8 45 0
 FUNC 1160 16 0 google_breakpad::C::set_member(int)
 1160 16 40 0
@@ -433,7 +433,7 @@ FUNC 13d0 67 0 strcmp()
 142f 3 125 236
 1432 4 126 236
 1436 1 127 236
-FUNC 1438 6c 0 static type_info::_Type_info_dtor(type_info*)
+FUNC 1438 6c 0 type_info::_Type_info_dtor(type_info*)
 1438 9 31 307
 1441 b 32 307
 144c 9 34 307
