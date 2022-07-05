@@ -10,7 +10,7 @@ use pdb::{
     SeparatedCodeSymbol, Source, SymbolData, SymbolTable, PDB,
 };
 use pdb_addr2line::pdb;
-use pdb_addr2line::{Error, TypeFormatterFlags};
+use pdb_addr2line::Error;
 use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Write};
 use std::sync::Arc;
@@ -519,10 +519,7 @@ impl PDBInfo {
         pdb_data.collect_public_symbols(globals, &mut collector)?;
 
         let context_data = pdb_addr2line::ContextPdbData::try_from_pdb(pdb)?;
-        let flags = TypeFormatterFlags::NO_FUNCTION_RETURN
-            | TypeFormatterFlags::SPACE_AFTER_COMMA
-            | TypeFormatterFlags::NAME_ONLY;
-        let formatter = context_data.make_type_formatter_with_flags(flags)?;
+        let formatter = context_data.make_type_formatter()?;
 
         let code_id = pe
             .as_ref()
