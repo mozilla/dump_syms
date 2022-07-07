@@ -177,7 +177,7 @@ impl SelectedSymbol {
         } else {
             match formatter.format_function(
                 &self.name,
-                self.module_index.unwrap_or(0) as u16,
+                self.module_index.unwrap_or(0),
                 self.type_index,
             ) {
                 Ok(function) => FuncName::Undecorated(function),
@@ -210,12 +210,12 @@ impl SelectedSymbol {
             return self.parameter_size;
         }
 
-        let module_index = self.module_index.unwrap_or(0) as u16;
+        let module_index = self.module_index.unwrap_or(0);
         let (min_start, max_end) = self.ebp.drain(..).fold((std::u32::MAX, 0), |acc, i| {
             (
                 acc.0.min(i.offset),
                 acc.1
-                    .max(i.offset + formatter.get_type_size(module_index, i.type_index)),
+                    .max(i.offset + formatter.get_type_size(module_index, i.type_index) as u32),
             )
         });
 
