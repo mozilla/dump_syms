@@ -7,7 +7,7 @@ use hashbrown::HashSet;
 use pdb::{
     AddressMap, BlockSymbol, DebugInformation, FallibleIterator, MachineType, ModuleInfo,
     PDBInformation, ProcedureSymbol, PublicSymbol, Register, RegisterRelativeSymbol,
-    SeparatedCodeSymbol, Source, SymbolData, SymbolTable, PDB,
+    SectionCharacteristics, SeparatedCodeSymbol, Source, SymbolData, SymbolTable, PDB,
 };
 use pdb_addr2line::pdb;
 use pdb_addr2line::{Error, TypeFormatterFlags};
@@ -48,9 +48,6 @@ impl Display for Cpu {
     }
 }
 
-const IMAGE_SCN_CNT_CODE: u32 = 0x0000_0020;
-const IMAGE_SCN_MEM_EXECUTE: u32 = 0x2000_0000;
-
 #[derive(Debug)]
 pub(super) struct PDBSections {
     sections: Option<Vec<bool>>,
@@ -75,8 +72,8 @@ impl PDBSections {
             .map_or(false, |v| *v.get(section).unwrap_or(&false))
     }
 
-    pub(super) fn has_code(characteristics: u32) -> bool {
-        characteristics & (IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE) != 0
+    pub(super) fn has_code(characteristics: SectionCharacteristics) -> bool {
+        characteristics.executable() || characteristics.execute()
     }
 
     pub(super) fn len(&self) -> usize {
@@ -241,7 +238,7 @@ fn get_cpu(dbi: &DebugInformation) -> Cpu {
 fn get_debug_id(dbi: &DebugInformation, pi: PDBInformation) -> String {
     // Here the guid is treated like a 128-bit uuid (PDB >=7.0)
     let mut buf = Uuid::encode_buffer();
-    let guid = pi.guid.to_simple().encode_upper(&mut buf);
+    let guid = pi.guid.as_simple().encode_upper(&mut buf);
     let age = dbi.age().unwrap_or(pi.age);
     format!("{}{:x}", guid, age)
 }
