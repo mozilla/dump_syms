@@ -297,7 +297,7 @@ impl ElfInfo {
         Ok(Self {
             symbols,
             files: source.get_mapping(),
-            file_name: String::from(file_name),
+            file_name: Self::file_name_only(file_name).to_string(),
             cpu,
             debug_id,
             code_id,
@@ -305,6 +305,10 @@ impl ElfInfo {
             bin_type,
             platform,
         })
+    }
+
+    fn file_name_only(file_name: &str) -> &str {
+        file_name.rsplit('/').next().unwrap_or(file_name)
     }
 }
 
