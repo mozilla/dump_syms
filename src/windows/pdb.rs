@@ -788,12 +788,7 @@ mod tests {
     fn get_data(file_name: &str) -> Vec<u8> {
         let path = PathBuf::from("./test_data/windows");
         let mut path = path.join(file_name);
-        for ext in &["sym", "old.sym"] {
-            path.set_extension(ext);
-            if path.exists() {
-                break;
-            }
-        }
+        path.set_extension("sym");
 
         let mut file = File::open(&path).unwrap();
         let mut buf = Vec::new();
@@ -903,28 +898,11 @@ mod tests {
             new.address
         );
 
-        if new.name.contains("test_array(") {
-            assert_eq!(new.name, "test_array(char*, int[34]*, std::basic_string<char,std::char_traits<char>,std::allocator<char> >[34][56]*, double*[34][56][78]*)");
-        }
-
-        if new.name.contains("test_array_empty_struct(") {
-            assert_eq!(
-                new.name,
-                "test_array_empty_struct(Empty*, Empty[]*, Empty[][]*, Empty[][][]*)"
-            );
-        }
-
-        if new
-            .name
-            .contains("RefCountMap<unsigned short *>::Increment")
-        {
-            assert_eq!(
-                new.name,
-                "long RefCountMap<unsigned short *>::Increment(unsigned short *)"
-            );
-        }
-
-        // TODO: find a way to compare function names
+        assert_eq!(
+            new.name, old.name,
+            "Not the same name for FUNC at rva {:x}",
+            new.address
+        );
 
         let line_old = clean_old_lines(old);
         let line_new = new.lines();
