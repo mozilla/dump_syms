@@ -12,11 +12,11 @@ use symbolic::cfi::AsciiCfiWriter;
 use symbolic::common::{Language, Name, NameMangling};
 use symbolic::debuginfo::dwarf::DwarfDebugSession;
 use symbolic::debuginfo::{Function, Object, ObjectDebugSession};
-use symbolic::demangle::{Demangle, DemangleOptions};
+use symbolic::demangle::Demangle;
 
 use super::source::{SourceFiles, SourceMap};
 use super::symbol::{ContainsSymbol, ElfSymbol, ElfSymbols};
-use crate::common::{self, Dumpable, LineFinalizer, Mergeable};
+use crate::common::{self, demangle_options, Dumpable, LineFinalizer, Mergeable};
 use crate::inline_origins::{merge_inline_origins, InlineOrigins};
 use crate::line::{InlineAddressRange, InlineSite, Lines};
 use crate::mapping::PathMappings;
@@ -122,7 +122,7 @@ impl Collector {
             return name.as_str().to_string();
         }
 
-        match name.demangle(DemangleOptions::complete()) {
+        match name.demangle(demangle_options()) {
             Some(demangled) => demangled,
             None => {
                 let aname = name.as_str();
@@ -141,7 +141,7 @@ impl Collector {
         let name = Name::new(name, NameMangling::Mangled, lang);
         let name = common::fix_symbol_name(&name);
 
-        match name.demangle(DemangleOptions::complete()) {
+        match name.demangle(demangle_options()) {
             Some(demangled) => demangled,
             None => {
                 warn!("Didn't manage to demangle {}", name);
