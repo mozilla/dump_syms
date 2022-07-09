@@ -16,11 +16,12 @@ use std::fmt::{Display, Formatter};
 use std::rc::Rc;
 use symbolic::common::{Language, Name, NameMangling};
 use symbolic::debuginfo::pe::{ExceptionData, PeSymbolIterator};
-use symbolic::demangle::{Demangle, DemangleOptions};
+use symbolic::demangle::Demangle;
 
 use super::pdb::{PDBContributions, PDBSections};
 use super::source::SourceLineCollector;
 use crate::common;
+use crate::common::demangle_options;
 use crate::common::LineFinalizer;
 use crate::line::Lines;
 
@@ -570,7 +571,7 @@ pub fn demangle(ident: &str) -> FuncName {
     let name = Name::new(ident, NameMangling::Mangled, lang);
     let name = common::fix_symbol_name(&name);
 
-    match name.demangle(DemangleOptions::complete()) {
+    match name.demangle(demangle_options()) {
         Some(demangled) => {
             if demangled == ident {
                 // Maybe the langage detection was finally wrong

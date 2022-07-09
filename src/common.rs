@@ -9,8 +9,13 @@ use std::io::Write;
 use std::result;
 use symbolic::common::{Arch, Name};
 use symbolic::debuginfo::{peek, FileFormat};
+use symbolic::demangle::DemangleOptions;
 
 pub type Result<T> = result::Result<T, anyhow::Error>;
+
+pub fn demangle_options() -> DemangleOptions {
+    DemangleOptions::complete().return_type(false)
+}
 
 pub enum FileType {
     Pdb,
