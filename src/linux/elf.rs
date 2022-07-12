@@ -147,6 +147,13 @@ impl Collector {
             return;
         }
 
+        if let Some(sym) = self.syms.get_mut(&(fun.address as u32)) {
+            if !sym.is_public {
+                sym.is_multiple = true;
+                return;
+            }
+        }
+
         let mut lines = Lines::new();
         let mut prev = None;
 
@@ -212,6 +219,7 @@ impl Collector {
         Ok(())
     }
 
+    // This runs after collect_functions.
     fn collect_publics(&mut self, o: &Object) {
         for sym in o.symbols() {
             if self.syms.is_inside_symbol(sym.address as u32) {
@@ -219,7 +227,12 @@ impl Collector {
             }
 
             match self.syms.entry(sym.address as u32) {
-                btree_map::Entry::Occupied(_) => {}
+                btree_map::Entry::Occupied(mut e) => {
+                    let sym = e.get_mut();
+                    if sym.is_public {
+                        sym.is_multiple = true;
+                    }
+                }
                 btree_map::Entry::Vacant(e) => {
                     let sym_name = sym.name.map_or_else(
                         || "<name omitted>".to_string(),
