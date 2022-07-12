@@ -233,27 +233,6 @@ impl SelectedSymbol {
         sps
     }
 
-    pub(super) fn update_private(
-        &mut self,
-        function: ProcedureSymbol,
-        block_info: BlockInfo,
-        line_collector: &SourceLineCollector,
-    ) {
-        self.is_multiple = true;
-
-        // TODO: this is legacy code
-        // this is probably useless.
-        let fun_name = function.name.to_string().into_owned();
-
-        if fun_name < self.name {
-            self.name = fun_name;
-            self.type_index = function.type_index;
-            self.offset = block_info.offset;
-            self.len = block_info.len;
-            self.source = line_collector.collect_source_lines(block_info.offset, block_info.len);
-        }
-    }
-
     pub(super) fn update_public(&mut self, symbol: PublicSymbol) {
         if self.is_public {
             self.is_multiple = true;
@@ -342,7 +321,7 @@ impl RvaSymbols {
 
         let fun_name = function.name.to_string().into_owned();
         if let Some(selected) = self.map.get_mut(&block_info.rva) {
-            selected.update_private(function, block_info, line_collector);
+            selected.is_multiple = true;
         } else {
             let source = line_collector.collect_source_lines(block_info.offset, block_info.len);
             self.rva = block_info.rva;
