@@ -1250,7 +1250,7 @@ abfb 8 59 45
 ac03 2 59 45
 ac05 9 55 45
 ac0e 2 62 45
-FUNC ac20 46 0 _SEH_prolog4()
+FUNC ac20 46 0 __SEH_prolog4()
 ac20 5 71 46
 ac25 7 72 46
 ac2c 4 73 46
@@ -1272,7 +1272,7 @@ ac58 3 88 46
 ac5b 3 89 46
 ac5e 6 90 46
 ac64 2 91 46
-FUNC ac66 15 0 _SEH_epilog4()
+FUNC ac66 15 0 __SEH_epilog4()
 ac66 3 113 46
 ac69 7 114 46
 ac70 1 115 46
@@ -1724,7 +1724,7 @@ b704 5 346 56
 b709 3 347 56
 b70c 1 348 56
 b70d 3 349 56
-FUNC b710 17 0 _EH4_CallFilterFunc()
+FUNC b710 17 0 @_EH4_CallFilterFunc@8()
 b710 1 387 56
 b711 1 388 56
 b712 1 389 56
@@ -1741,7 +1741,7 @@ b723 1 399 56
 b724 1 400 56
 b725 1 401 56
 b726 1 402 56
-FUNC b728 19 0 _EH4_TransferToHandler()
+FUNC b728 19 0 @_EH4_TransferToHandler@8()
 b728 2 431 56
 b72a 2 432 56
 b72c 2 433 56
@@ -1753,7 +1753,7 @@ b739 2 438 56
 b73b 2 439 56
 b73d 2 440 56
 b73f 2 441 56
-FUNC b744 1a 0 _EH4_GlobalUnwind2()
+FUNC b744 1a 0 @_EH4_GlobalUnwind2@8()
 b744 1 467 56
 b745 2 468 56
 b747 1 469 56
@@ -1769,7 +1769,7 @@ b75a 1 479 56
 b75b 1 480 56
 b75c 1 481 56
 b75d 1 482 56
-FUNC b760 17 8 _EH4_LocalUnwind()
+FUNC b760 17 8 @_EH4_LocalUnwind@16()
 b760 1 513 56
 b761 4 514 56
 b765 1 515 56
@@ -4321,7 +4321,7 @@ FUNC 1345a 1d 0 __crt_fast_encode_pointer<void (__cdecl*)(void)>(void (* const)(
 FUNC 1347e b 0 __vcrt_initialize_pure_virtual_call_handler()
 1347e a 21 65
 13488 1 22 65
-FUNC 13490 21 0 _global_unwind2()
+FUNC 13490 21 0 __global_unwind2()
 13490 7 92 66
 13497 2 93 66
 13499 2 94 66
@@ -4352,7 +4352,7 @@ FUNC 134b1 45 0 __unwind_handler()
 134ee 2 169 66
 134f0 5 171 66
 134f5 1 173 66
-FUNC 134f6 84 0 _local_unwind2()
+FUNC 134f6 84 0 __local_unwind2()
 134f6 1 205 66
 134f7 1 206 66
 134f8 1 207 66
@@ -4395,7 +4395,7 @@ FUNC 134f6 84 0 _local_unwind2()
 13577 1 260 66
 13578 1 261 66
 13579 1 262 66
-FUNC 1357a 23 0 _abnormal_termination()
+FUNC 1357a 23 0 __abnormal_termination()
 1357a 2 275 66
 1357c 7 277 66
 13583 7 278 66

@@ -669,9 +669,9 @@ FUNC 9790 19 0 dllmain_raw(HINSTANCE__* const, const unsigned long, void* const)
 979c 5 164 24
 97a1 1 167 24
 97a2 7 166 24
-FUNC 97b0 5 0 CRT_INIT(HINSTANCE__* const, const unsigned long, void* const)
+FUNC 97b0 5 0 _CRT_INIT(HINSTANCE__* const, const unsigned long, void* const)
 97b0 5 154 24
-FUNC 97b8 3d 0 DllMainCRTStartup(HINSTANCE__* const, const unsigned long, void* const)
+FUNC 97b8 3d 0 _DllMainCRTStartup(HINSTANCE__* const, const unsigned long, void* const)
 97b8 17 243 24
 97cf 5 244 24
 97d4 5 250 24
@@ -691,7 +691,7 @@ FUNC 980c 6b 0 __get_entropy()
 984e 3 115 28
 9851 20 132 28
 9871 6 136 28
-FUNC 9894 ac 0 _security_init_cookie()
+FUNC 9894 ac 0 __security_init_cookie()
 9894 d 158 28
 98a1 16 169 28
 98b7 5c 184 28
@@ -705,13 +705,13 @@ FUNC 9974 e 0 __scrt_initialize_type_info()
 9974 e 17 30
 FUNC 9988 c 0 __scrt_uninitialize_type_info()
 9988 c 25 30
-FUNC 9998 8 0 _local_stdio_printf_options()
+FUNC 9998 8 0 __local_stdio_printf_options()
 9998 7 83 36
 999f 1 84 36
-FUNC 99a4 8 0 _local_stdio_scanf_options()
+FUNC 99a4 8 0 __local_stdio_scanf_options()
 99a4 7 93 36
 99ab 1 94 36
-FUNC 99b0 1b 0 _scrt_initialize_default_local_stdio_options()
+FUNC 99b0 1b 0 __scrt_initialize_default_local_stdio_options()
 99b0 4 17 33
 99b4 9 18 33
 99bd 9 19 33
@@ -753,7 +753,7 @@ FUNC 9aa4 2f 0 is_potentially_valid_image_base(void* const)
 FUNC 9ae0 a 0 NtCurrentTeb()
 9ae0 9 21341 15
 9ae9 1 21342 15
-FUNC 9aec 39 0 _scrt_acquire_startup_lock()
+FUNC 9aec 39 0 __scrt_acquire_startup_lock()
 9aec 4 139 37
 9af0 9 140 37
 9af9 d 146 37
@@ -763,7 +763,7 @@ FUNC 9aec 39 0 _scrt_acquire_startup_lock()
 9b1a 2 156 37
 9b1c 5 157 37
 9b21 4 152 37
-FUNC 9b34 34 0 _scrt_dllmain_after_initialize_c()
+FUNC 9b34 34 0 __scrt_dllmain_after_initialize_c()
 9b34 4 376 37
 9b38 9 377 37
 9b41 5 379 37
@@ -773,11 +773,11 @@ FUNC 9b34 34 0 _scrt_dllmain_after_initialize_c()
 9b5c 5 388 37
 9b61 2 391 37
 9b63 5 392 37
-FUNC 9b78 15 0 _scrt_dllmain_before_initialize_c()
+FUNC 9b78 15 0 __scrt_dllmain_before_initialize_c()
 9b78 4 366 37
 9b7c c 367 37
 9b88 5 373 37
-FUNC 9b94 28 0 _scrt_dllmain_crt_thread_attach()
+FUNC 9b94 28 0 __scrt_dllmain_crt_thread_attach()
 9b94 4 434 37
 9b98 9 436 37
 9ba1 4 448 37
@@ -786,20 +786,20 @@ FUNC 9b94 28 0 _scrt_dllmain_crt_thread_attach()
 9bb3 2 444 37
 9bb5 2 447 37
 9bb7 5 448 37
-FUNC 9bc8 15 0 _scrt_dllmain_crt_thread_detach()
+FUNC 9bc8 15 0 __scrt_dllmain_crt_thread_detach()
 9bc8 4 451 37
 9bcc 5 453 37
 9bd1 5 454 37
 9bd6 2 455 37
 9bd8 5 456 37
-FUNC 9be4 60 0 _scrt_dllmain_exception_filter(HINSTANCE__*, unsigned long, void*, int (*)(HINSTANCE__*, unsigned long, void*), unsigned long, _EXCEPTION_POINTERS*)
+FUNC 9be4 60 0 __scrt_dllmain_exception_filter(HINSTANCE__*, unsigned long, void*, int (*)(HINSTANCE__*, unsigned long, void*), unsigned long, _EXCEPTION_POINTERS*)
 9be4 1f 350 37
 9c03 e 351 37
 9c11 11 359 37
 9c22 9 362 37
 9c2b 14 363 37
 9c3f 5 362 37
-FUNC 9c5c 30 0 _scrt_dllmain_uninitialize_c()
+FUNC 9c5c 30 0 __scrt_dllmain_uninitialize_c()
 9c5c 4 395 37
 9c60 9 396 37
 9c69 7 398 37
@@ -808,12 +808,12 @@ FUNC 9c5c 30 0 _scrt_dllmain_uninitialize_c()
 9c79 9 402 37
 9c82 5 404 37
 9c87 5 407 37
-FUNC 9c98 14 0 _scrt_dllmain_uninitialize_critical()
+FUNC 9c98 14 0 __scrt_dllmain_uninitialize_critical()
 9c98 4 410 37
 9c9c 7 429 37
 9ca3 4 431 37
 9ca7 5 430 37
-FUNC 9cb4 49 0 _scrt_initialize_crt(__scrt_module_type)
+FUNC 9cb4 49 0 __scrt_initialize_crt(__scrt_module_type)
 9cb4 6 185 37
 9cba 17 186 37
 9cd1 5 191 37
@@ -824,7 +824,7 @@ FUNC 9cb4 49 0 _scrt_initialize_crt(__scrt_module_type)
 9cf3 2 202 37
 9cf5 2 205 37
 9cf7 6 206 37
-FUNC 9d10 d8 0 _scrt_initialize_onexit_tables(__scrt_module_type)
+FUNC 9d10 d8 0 __scrt_initialize_onexit_tables(__scrt_module_type)
 9d10 6 296 37
 9d16 f 297 37
 9d25 9 302 37
@@ -838,7 +838,7 @@ FUNC 9d10 d8 0 _scrt_initialize_onexit_tables(__scrt_module_type)
 9dce 7 331 37
 9dd5 8 333 37
 9ddd b 304 37
-FUNC 9e20 99 0 _scrt_is_nonwritable_in_current_image(void const*)
+FUNC 9e20 99 0 __scrt_is_nonwritable_in_current_image(void const*)
 9e20 7 88 37
 9e27 33 99 37
 9e5a 3 107 37
@@ -851,19 +851,19 @@ FUNC 9e20 99 0 _scrt_is_nonwritable_in_current_image(void const*)
 9eae 4 101 37
 9eb2 2 127 37
 9eb4 5 129 37
-FUNC 9ee0 24 0 _scrt_release_startup_lock(bool)
+FUNC 9ee0 24 0 __scrt_release_startup_lock(bool)
 9ee0 8 160 37
 9ee8 b 161 37
 9ef3 4 167 37
 9ef7 7 172 37
 9efe 6 173 37
-FUNC 9f10 2b 0 _scrt_uninitialize_crt(bool, bool)
+FUNC 9f10 2b 0 __scrt_uninitialize_crt(bool, bool)
 9f10 6 209 37
 9f16 f 214 37
 9f25 7 220 37
 9f2c 7 221 37
 9f33 8 224 37
-FUNC 9f48 4f 0 onexit(int (*)())
+FUNC 9f48 4f 0 _onexit(int (*)())
 9f48 6 256 37
 9f4e 7 257 37
 9f55 3 256 37
@@ -883,13 +883,13 @@ FUNC 9ff0 17 0 atexit(void (*)())
 9ff0 4 274 37
 9ff4 e 275 37
 a002 5 278 37
-FUNC a00c 8 0 _scrt_get_dyn_tls_init_callback(<NoType>)
+FUNC a00c 8 0 __scrt_get_dyn_tls_init_callback(<NoType>)
 a00c 7 20 38
 a013 1 21 38
-FUNC a018 8 0 _crt_debugger_hook(int)
+FUNC a018 8 0 __crt_debugger_hook(int)
 a018 7 131 39
 a01f 1 132 39
-FUNC a024 14a 0 _scrt_fastfail(unsigned int)
+FUNC a024 14a 0 __scrt_fastfail(unsigned int)
 a024 17 147 39
 a03b e 150 39
 a049 4 151 39
@@ -910,18 +910,18 @@ a142 b 227 39
 a14d 8 231 39
 a155 8 232 39
 a15d 11 233 39
-FUNC a1c0 3a 0 _scrt_get_show_window_mode()
+FUNC a1c0 3a 0 __scrt_get_show_window_mode()
 a1c0 7 22 39
 a1c7 10 23 39
 a1d7 b 24 39
 a1e2 10 26 39
 a1f2 8 29 39
-FUNC a208 5 0 _scrt_initialize_mta()
+FUNC a208 5 0 __scrt_initialize_mta()
 a208 5 83 39
-FUNC a210 3 0 _scrt_initialize_winrt()
+FUNC a210 3 0 __scrt_initialize_winrt()
 a210 2 67 39
 a212 1 68 39
-FUNC a214 52 0 _scrt_is_managed_app()
+FUNC a214 52 0 __scrt_is_managed_app()
 a214 4 32 39
 a218 8 33 39
 a220 5 34 39
@@ -934,33 +934,33 @@ a252 9 58 39
 a25b 4 61 39
 a25f 2 59 39
 a261 5 62 39
-FUNC a27c e 0 _scrt_set_unhandled_exception_filter()
+FUNC a27c e 0 __scrt_set_unhandled_exception_filter()
 a27c e 99 39
-FUNC a290 3 0 _scrt_stub_for_initialize_mta()
+FUNC a290 3 0 __scrt_stub_for_initialize_mta()
 a290 2 76 39
 a292 1 77 39
-FUNC a294 38 0 _scrt_unhandled_exception_filter(_EXCEPTION_POINTERS* const)
+FUNC a294 38 0 __scrt_unhandled_exception_filter(_EXCEPTION_POINTERS* const)
 a294 4 87 39
 a298 3 88 39
 a29b 24 89 39
 a2bf 2 94 39
 a2c1 5 95 39
 a2c6 6 91 39
-FUNC a2dc 3c 0 RTC_Initialize()
+FUNC a2dc 3c 0 _RTC_Initialize()
 a2dc a 38 40
 a2e6 10 41 40
 a2f6 8 43 40
 a2fe 6 45 40
 a304 9 41 40
 a30d b 48 40
-FUNC a328 3c 0 RTC_Terminate()
+FUNC a328 3c 0 _RTC_Terminate()
 a328 a 52 40
 a332 10 55 40
 a342 8 57 40
 a34a 6 59 40
 a350 9 55 40
 a359 b 62 40
-FUNC a374 3 0 guard_check_icall_nop(unsigned long long)
+FUNC a374 3 0 _guard_check_icall_nop(unsigned long long)
 a374 3 82 41
 FUNC a378 4 0 ReadNoFence64(long long const*)
 a378 3 7716 15
@@ -968,13 +968,13 @@ a37b 1 7718 15
 FUNC a37c 4 0 ReadPointerNoFence(void* const*)
 a37c 3 8335 15
 a37f 1 8336 15
-FUNC a380 17 0 guard_icall_checks_enforced()
+FUNC a380 17 0 _guard_icall_checks_enforced()
 a380 16 130 41
 a396 1 131 41
-FUNC a39c 3 0 guard_rf_checks_enforced()
+FUNC a39c 3 0 _guard_rf_checks_enforced()
 a39c 2 162 41
 a39e 1 163 41
-FUNC a3a0 1b9 0 _isa_available_init(<NoType>)
+FUNC a3a0 1b9 0 __isa_available_init(<NoType>)
 a3a0 12 70 42
 a3b2 1a 82 42
 a3cc 6 86 42
@@ -1003,10 +1003,10 @@ a52b 6 158 42
 a531 d 160 42
 a53e 6 161 42
 a544 15 168 42
-FUNC a5c8 6 0 get_startup_argv_mode()
+FUNC a5c8 6 0 _get_startup_argv_mode()
 a5c8 5 15 43
 a5cd 1 16 43
-FUNC a5d0 c 0 _scrt_is_ucrt_dll_in_use(<NoType>)
+FUNC a5d0 c 0 __scrt_is_ucrt_dll_in_use(<NoType>)
 a5d0 b 23 44
 a5db 1 24 44
 PUBLIC a5e0 0 QueryPerformanceCounter
@@ -1023,7 +1023,7 @@ PUBLIC a61c 0 SetUnhandledExceptionFilter
 PUBLIC a622 0 GetStartupInfoW
 PUBLIC a628 0 IsProcessorFeaturePresent
 PUBLIC a62e 0 GetModuleHandleW
-FUNC a634 20b 0 _C_specific_handler(_EXCEPTION_RECORD*, void*, _CONTEXT*, _DISPATCHER_CONTEXT*)
+FUNC a634 20b 0 __C_specific_handler(_EXCEPTION_RECORD*, void*, _CONTEXT*, _DISPATCHER_CONTEXT*)
 a634 22 175 49
 a656 e 196 49
 a664 4 205 49
@@ -1134,13 +1134,13 @@ a9f0 9 394 22
 a9f9 8 395 22
 aa01 4 396 22
 aa05 6 397 22
-FUNC aa14 27 0 _std_type_info_compare(__std_type_info_data const*, __std_type_info_data const*)
+FUNC aa14 27 0 __std_type_info_compare(__std_type_info_data const*, __std_type_info_data const*)
 aa14 5 23 50
 aa19 19 28 50
 aa32 3 29 50
 aa35 5 28 50
 aa3a 1 29 50
-FUNC aa44 2a 0 _std_type_info_destroy_list(__type_info_node*)
+FUNC aa44 2a 0 __std_type_info_destroy_list(__type_info_node*)
 aa44 6 139 50
 aa4a 6 140 50
 aa50 5 141 50
@@ -1148,7 +1148,7 @@ aa55 3 143 50
 aa58 8 144 50
 aa60 8 145 50
 aa68 6 147 50
-FUNC aa78 3b 0 _std_type_info_hash(__std_type_info_data const*)
+FUNC aa78 3b 0 __std_type_info_hash(__std_type_info_data const*)
 aa78 a 47 50
 aa82 6 48 50
 aa88 3 50 50
@@ -1156,7 +1156,7 @@ aa8b 17 51 50
 aaa2 6 48 50
 aaa8 a 56 50
 aab2 1 62 50
-FUNC aac4 11c 0 _std_type_info_name(__std_type_info_data*, __type_info_node*)
+FUNC aac4 11c 0 __std_type_info_name(__std_type_info_data*, __type_info_node*)
 aac4 1c 68 50
 aae0 3 72 50
 aae3 6 68 50
@@ -1183,7 +1183,7 @@ aba3 3 129 50
 aba6 6 130 50
 abac 16 131 50
 abc2 1e 132 50
-FUNC ac28 32 0 _vcrt_initialize()
+FUNC ac28 32 0 __vcrt_initialize()
 ac28 4 54 51
 ac2c 5 61 51
 ac31 5 62 51
@@ -1194,16 +1194,16 @@ ac4c 5 71 51
 ac51 2 72 51
 ac53 2 75 51
 ac55 5 76 51
-FUNC ac68 14 0 _vcrt_thread_attach()
+FUNC ac68 14 0 __vcrt_thread_attach()
 ac68 4 104 51
 ac6c b 108 51
 ac77 5 112 51
-FUNC ac84 12 0 _vcrt_thread_detach()
+FUNC ac84 12 0 __vcrt_thread_detach()
 ac84 4 115 51
 ac88 7 117 51
 ac8f 2 118 51
 ac91 5 119 51
-FUNC ac9c 20 0 _vcrt_uninitialize(bool)
+FUNC ac9c 20 0 __vcrt_uninitialize(bool)
 ac9c 4 79 51
 aca0 4 85 51
 aca4 5 88 51
@@ -1211,7 +1211,7 @@ aca9 5 89 51
 acae 7 90 51
 acb5 2 93 51
 acb7 5 94 51
-FUNC acc4 10 0 _vcrt_uninitialize_critical()
+FUNC acc4 10 0 __vcrt_uninitialize_critical()
 acc4 4 97 51
 acc8 5 98 51
 accd 2 100 51
@@ -1313,32 +1313,32 @@ ae97 1 305 52
 ae98 3 308 52
 ae9b 4 309 52
 ae9f 1 310 52
-FUNC af20 18 0 NLG_Notify()
+FUNC af20 18 0 _NLG_Notify()
 af20 5 51 53
 af25 5 52 53
 af2a 5 53 53
 af2f 7 54 53
 af36 2 55 53
-FUNC af40 1 0 _NLG_Dispatch2()
+FUNC af40 1 0 __NLG_Dispatch2()
 af40 1 60 53
-FUNC af50 1 0 _NLG_Return2()
+FUNC af50 1 0 __NLG_Return2()
 af50 1 84 53
 FUNC af64 5 0 __except_get_jumpbuf_sp(_SETJMP_FLOAT128*)
 af64 4 159 54
 af68 1 160 54
-FUNC af6c 37 0 _except_validate_context_record(_CONTEXT*)
+FUNC af6c 37 0 __except_validate_context_record(_CONTEXT*)
 af6c 13 83 54
 af7f 9 84 54
 af88 7 90 54
 af8f c 91 54
 af9b 7 94 54
 afa2 1 97 54
-FUNC afb0 3f 0 _except_validate_jump_buffer(_SETJMP_FLOAT128*)
+FUNC afb0 3f 0 __except_validate_jump_buffer(_SETJMP_FLOAT128*)
 afb0 7 167 54
 afb7 3 166 54
 afba 34 167 54
 afee 1 168 54
-FUNC b000 5b 0 _except_validate_jump_buffer_common(_SETJMP_FLOAT128*, void* (*)(_SETJMP_FLOAT128*))
+FUNC b000 5b 0 __except_validate_jump_buffer_common(_SETJMP_FLOAT128*, void* (*)(_SETJMP_FLOAT128*))
 b000 a 123 54
 b00a 7 135 54
 b011 3 123 54
@@ -1350,7 +1350,7 @@ b046 2 143 54
 b048 6 147 54
 b04e 2 149 54
 b050 b 153 54
-FUNC b074 71 0 _DestructExceptionObject(EHExceptionRecord*, unsigned char)
+FUNC b074 71 0 __DestructExceptionObject(EHExceptionRecord*, unsigned char)
 b074 5 223 61
 b079 8 220 61
 b081 1b 223 61
@@ -1368,7 +1368,7 @@ b104 3 149 65
 FUNC b108 5 0 type_info::raw_name() const
 b108 4 103 31
 b10c 1 104 31
-FUNC b110 2f 0 IsExceptionObjectToBeDestroyed(void*)
+FUNC b110 2f 0 _IsExceptionObjectToBeDestroyed(void*)
 b110 9 276 61
 b119 b 279 61
 b124 5 280 61
@@ -1376,16 +1376,16 @@ b129 9 279 61
 b132 3 284 61
 b135 6 285 61
 b13b 4 281 61
-FUNC b14c 8 0 SetWinRTOutOfMemoryExceptionCallback(void* (*)())
+FUNC b14c 8 0 _SetWinRTOutOfMemoryExceptionCallback(void* (*)())
 b14c 7 185 61
 b153 1 186 61
-FUNC b158 23 0 _AdjustPointer(void*, PMD const&)
+FUNC b158 23 0 __AdjustPointer(void*, PMD const&)
 b158 6 48 61
 b15e 6 50 61
 b164 10 51 61
 b174 6 58 61
 b17a 1 62 61
-FUNC b184 4a 0 _FrameUnwindFilter(_EXCEPTION_POINTERS*)
+FUNC b184 4a 0 __FrameUnwindFilter(_EXCEPTION_POINTERS*)
 b184 4 134 61
 b188 1d 139 61
 b1a5 b 168 61
@@ -1394,7 +1394,7 @@ b1b8 2 172 61
 b1ba 5 178 61
 b1bf 9 141 61
 b1c8 6 142 61
-FUNC b1e0 5b 0 _GetPlatformExceptionInfo(int*)
+FUNC b1e0 5b 0 __GetPlatformExceptionInfo(int*)
 b1e0 6 75 61
 b1e6 6 76 61
 b1ec 9 77 61
@@ -1408,22 +1408,22 @@ b215 6 93 61
 b21b 18 95 61
 b233 2 100 61
 b235 6 101 61
-FUNC b254 12 0 _current_exception()
+FUNC b254 12 0 __current_exception()
 b254 4 112 61
 b258 9 113 61
 b261 5 114 61
-FUNC b26c 12 0 _current_exception_context()
+FUNC b26c 12 0 __current_exception_context()
 b26c 4 117 61
 b270 9 118 61
 b279 5 119 61
-FUNC b284 12 0 _processing_throw()
+FUNC b284 12 0 __processing_throw()
 b284 4 122 61
 b288 9 123 61
 b291 5 124 61
-FUNC b29c a 0 _std_terminate()
+FUNC b29c a 0 __std_terminate()
 b29c 4 197 61
 b2a0 6 198 61
-FUNC b2a8 a5 0 is_exception_typeof(type_info const&, _EXCEPTION_POINTERS*)
+FUNC b2a8 a5 0 _is_exception_typeof(type_info const&, _EXCEPTION_POINTERS*)
 b2a8 9 292 61
 b2b1 9 293 61
 b2ba 3 295 61
@@ -3559,11 +3559,11 @@ FUNC 13db0 2c 0 und_strncmp(char const*, char const*, unsigned int)
 13dce 5 1084 70
 13dd3 8 1090 70
 13ddb 1 1091 70
-FUNC 13de8 27 0 _unDName(char*, char const*, int, void* (*)(unsigned long long), void (*)(void*), unsigned short)
+FUNC 13de8 27 0 __unDName(char*, char const*, int, void* (*)(unsigned long long), void (*)(void*), unsigned short)
 13de8 4 707 69
 13dec 1e 708 69
 13e0a 5 710 69
-FUNC 13e18 132 0 _unDNameEx(char*, char const*, int, void* (*)(unsigned long long), void (*)(void*), char* (*)(long), unsigned long)
+FUNC 13e18 132 0 __unDNameEx(char*, char const*, int, void* (*)(unsigned long long), void (*)(void*), char* (*)(long), unsigned long)
 13e18 24 746 69
 13e3c 5 749 69
 13e41 2 750 69
@@ -3575,7 +3575,7 @@ FUNC 13e18 132 0 _unDNameEx(char*, char const*, int, void* (*)(unsigned long lon
 13f03 38 770 69
 13f3b 7 776 69
 13f42 8 782 69
-FUNC 13f98 62 0 vsprintf_s_l(char* const, const unsigned long long, char const* const, __crt_locale_pointers* const, char*)
+FUNC 13f98 62 0 _vsprintf_s_l(char* const, const unsigned long long, char const* const, __crt_locale_pointers* const, char*)
 13f98 20 1493 34
 13fb8 25 1494 34
 13fdd 1d 1499 34
@@ -3641,25 +3641,25 @@ FUNC 14274 34 0 store_and_initialize_ptd(__vcrt_ptd* const)
 14299 7 59 71
 142a0 2 61 71
 142a2 6 62 71
-FUNC 142b8 1f 0 _vcrt_freefls(void*)
+FUNC 142b8 1f 0 __vcrt_freefls(void*)
 142b8 4 194 71
 142bc 11 195 71
 142cd 5 198 71
 142d2 5 199 71
-FUNC 142e0 4d 0 _vcrt_freeptd(__vcrt_ptd*)
+FUNC 142e0 4d 0 __vcrt_freeptd(__vcrt_ptd*)
 142e0 9 175 71
 142e9 b 177 71
 142f4 13 183 71
 14307 7 187 71
 1430e 19 188 71
 14327 6 189 71
-FUNC 14340 19 0 _vcrt_getptd()
+FUNC 14340 19 0 __vcrt_getptd()
 14340 4 164 71
 14344 5 165 71
 14349 5 166 71
 1434e 5 172 71
 14353 6 168 71
-FUNC 14360 cb 0 _vcrt_getptd_noexit()
+FUNC 14360 cb 0 __vcrt_getptd_noexit()
 14360 f 95 71
 1436f 9 106 71
 14378 7 108 71
@@ -3678,7 +3678,7 @@ FUNC 14360 cb 0 _vcrt_getptd_noexit()
 143fb 6 139 71
 14401 1a 143 71
 1441b 10 144 71
-FUNC 14460 4d 0 _vcrt_getptd_noinit()
+FUNC 14460 4d 0 __vcrt_getptd_noinit()
 14460 a 148 71
 1446a 9 150 71
 14473 4 151 71
@@ -3687,7 +3687,7 @@ FUNC 14460 4d 0 _vcrt_getptd_noinit()
 1448a b 157 71
 14495 d 159 71
 144a2 b 160 71
-FUNC 144c0 51 0 _vcrt_initialize_ptd()
+FUNC 144c0 51 0 __vcrt_initialize_ptd()
 144c0 4 67 71
 144c4 12 68 71
 144d6 5 69 71
@@ -3695,14 +3695,14 @@ FUNC 144c0 51 0 _vcrt_initialize_ptd()
 14501 4 80 71
 14505 5 76 71
 1450a 7 81 71
-FUNC 14528 22 0 _vcrt_uninitialize_ptd()
+FUNC 14528 22 0 __vcrt_uninitialize_ptd()
 14528 4 84 71
 1452c b 85 71
 14537 5 87 71
 1453c 7 88 71
 14543 2 91 71
 14545 5 92 71
-FUNC 14554 46 0 _vcrt_initialize_locks()
+FUNC 14554 46 0 __vcrt_initialize_locks()
 14554 6 25 72
 1455a 2 26 72
 1455c 20 28 72
@@ -3711,9 +3711,9 @@ FUNC 14554 46 0 _vcrt_initialize_locks()
 1458d 5 30 72
 14592 2 31 72
 14594 6 38 72
-FUNC 145ac 19 0 _vcrt_lock(__vcrt_lock_id)
+FUNC 145ac 19 0 __vcrt_lock(__vcrt_lock_id)
 145ac 19 53 72
-FUNC 145cc 37 0 _vcrt_uninitialize_locks()
+FUNC 145cc 37 0 __vcrt_uninitialize_locks()
 145cc 6 41 72
 145d2 8 42 72
 145da 17 44 72
@@ -3721,7 +3721,7 @@ FUNC 145cc 37 0 _vcrt_uninitialize_locks()
 145f7 4 42 72
 145fb 2 48 72
 145fd 6 49 72
-FUNC 14610 19 0 _vcrt_unlock(__vcrt_lock_id)
+FUNC 14610 19 0 __vcrt_unlock(__vcrt_lock_id)
 14610 19 58 72
 FUNC 14630 8 0 __crt_fast_encoded_nullptr_t::operator<void> void *() const
 14630 7 536 22
@@ -3818,7 +3818,7 @@ FUNC 14de4 73 0 try_load_library_from_system_directory(wchar_t const* const)
 14e48 7 143 73
 14e4f 2 146 73
 14e51 6 147 73
-FUNC 14e74 45 0 _vcrt_FlsAlloc(void (*)(void*))
+FUNC 14e74 45 0 __vcrt_FlsAlloc(void (*)(void*))
 14e74 9 312 73
 14e7d 21 313 73
 14e9e 3 315 73
@@ -3826,21 +3826,21 @@ FUNC 14e74 45 0 _vcrt_FlsAlloc(void (*)(void*))
 14ea6 7 315 73
 14ead 5 319 73
 14eb2 7 318 73
-FUNC 14ecc 46 0 _vcrt_FlsFree(unsigned long)
+FUNC 14ecc 46 0 __vcrt_FlsFree(unsigned long)
 14ecc 8 322 73
 14ed4 26 323 73
 14efa 5 329 73
 14eff 7 325 73
 14f06 5 329 73
 14f0b 7 328 73
-FUNC 14f24 46 0 _vcrt_FlsGetValue(unsigned long)
+FUNC 14f24 46 0 __vcrt_FlsGetValue(unsigned long)
 14f24 8 332 73
 14f2c 26 333 73
 14f52 5 339 73
 14f57 7 335 73
 14f5e 5 339 73
 14f63 7 338 73
-FUNC 14f7c 51 0 _vcrt_FlsSetValue(unsigned long, void*)
+FUNC 14f7c 51 0 __vcrt_FlsSetValue(unsigned long, void*)
 14f7c d 342 73
 14f89 7 343 73
 14f90 2 342 73
@@ -3848,7 +3848,7 @@ FUNC 14f7c 51 0 _vcrt_FlsSetValue(unsigned long, void*)
 14fb4 8 345 73
 14fbc 6 348 73
 14fc2 b 349 73
-FUNC 14fe4 61 0 _vcrt_InitializeCriticalSectionEx(_RTL_CRITICAL_SECTION*, unsigned long, unsigned long)
+FUNC 14fe4 61 0 __vcrt_InitializeCriticalSectionEx(_RTL_CRITICAL_SECTION*, unsigned long, unsigned long)
 14fe4 12 356 73
 14ff6 7 357 73
 14ffd 2 356 73
@@ -3858,11 +3858,11 @@ FUNC 14fe4 61 0 _vcrt_InitializeCriticalSectionEx(_RTL_CRITICAL_SECTION*, unsign
 15024 b 359 73
 1502f 6 362 73
 15035 10 363 73
-FUNC 15060 2f 0 _vcrt_initialize_winapi_thunks()
+FUNC 15060 2f 0 __vcrt_initialize_winapi_thunks()
 15060 5 86 73
 15065 24 87 73
 15089 6 93 73
-FUNC 1509c 3e 0 _vcrt_uninitialize_winapi_thunks(bool)
+FUNC 1509c 3e 0 __vcrt_uninitialize_winapi_thunks(bool)
 1509c 9 98 73
 150a5 7 103 73
 150ac 8 105 73
@@ -3877,7 +3877,7 @@ FUNC 150ec 8 0 __crt_fast_encoded_nullptr_t::operator<void __cdecl(void)> void (
 FUNC 150f8 1e 0 __crt_fast_encode_pointer<void (__cdecl*)(void)>(void (* const)())
 150f8 1d 517 22
 15115 1 523 22
-FUNC 15120 f 0 _vcrt_initialize_pure_virtual_call_handler()
+FUNC 15120 f 0 __vcrt_initialize_pure_virtual_call_handler()
 15120 e 21 74
 1512e 1 22 74
 FUNC 15134 16 0 __crt_fast_decode_pointer<void (__cdecl*)(void)>(void (* const)())
@@ -3889,16 +3889,16 @@ FUNC 15150 7 0 __crt_interlocked_exchange_pointer<void __cdecl(void),void (__cde
 FUNC 15158 4 0 __crt_interlocked_read_pointer<void __cdecl(void)>(void (* const*)())
 15158 3 638 22
 1515b 1 642 22
-FUNC 1515c 1a 0 get_purecall_handler()
+FUNC 1515c 1a 0 _get_purecall_handler()
 1515c 19 44 75
 15175 1 45 75
-FUNC 1517c 2e 0 purecall()
+FUNC 1517c 2e 0 _purecall()
 1517c 4 19 75
 15180 19 20 75
 15199 5 21 75
 1519e 6 23 75
 151a4 6 29 75
-FUNC 151b8 37 0 set_purecall_handler(void (*)())
+FUNC 151b8 37 0 _set_purecall_handler(void (*)())
 151b8 7 36 75
 151bf 3 35 75
 151c2 2c 36 75
@@ -4171,14 +4171,14 @@ FUNC 16054 175 0 __FrameHandler4::TryBlockMap::setBuffer(__FrameHandler4::TryBlo
 16116 8c 897 60
 161a2 17 895 60
 161b9 10 899 60
-FUNC 16228 3a 0 CreateFrameInfo(FrameInfo*, void*)
+FUNC 16228 3a 0 _CreateFrameInfo(FrameInfo*, void*)
 16228 9 536 77
 16231 3 537 77
 16234 1c 538 77
 16250 9 539 77
 16259 3 540 77
 1625c 6 541 77
-FUNC 16270 53 0 FindAndUnlinkFrame(FrameInfo*)
+FUNC 16270 53 0 _FindAndUnlinkFrame(FrameInfo*)
 16270 d 552 77
 1627d b 553 77
 16288 b 555 77
@@ -4188,27 +4188,27 @@ FUNC 16270 53 0 FindAndUnlinkFrame(FrameInfo*)
 162a6 8 560 77
 162ae f 567 77
 162bd 6 553 77
-FUNC 162d8 12 0 GetImageBase()
+FUNC 162d8 12 0 _GetImageBase()
 162d8 4 29 77
 162dc 9 30 77
 162e5 5 31 77
-FUNC 162f0 12 0 GetThrowImageBase()
+FUNC 162f0 12 0 _GetThrowImageBase()
 162f0 4 45 77
 162f4 9 46 77
 162fd 5 47 77
-FUNC 16308 18 0 SetImageBase(unsigned long long)
+FUNC 16308 18 0 _SetImageBase(unsigned long long)
 16308 9 34 77
 16311 9 35 77
 1631a 6 36 77
-FUNC 16328 18 0 SetThrowImageBase(unsigned long long)
+FUNC 16328 18 0 _SetThrowImageBase(unsigned long long)
 16328 9 50 77
 16331 9 51 77
 1633a 6 52 77
-FUNC 16348 5 0 _CxxFrameHandler(EHExceptionRecord*, unsigned long long, _CONTEXT*, _xDISPATCHER_CONTEXT*)
+FUNC 16348 5 0 __CxxFrameHandler(EHExceptionRecord*, unsigned long long, _CONTEXT*, _xDISPATCHER_CONTEXT*)
 16348 5 318 77
-FUNC 16350 5 0 _CxxFrameHandler2(EHExceptionRecord*, unsigned long long, _CONTEXT*, _xDISPATCHER_CONTEXT*)
+FUNC 16350 5 0 __CxxFrameHandler2(EHExceptionRecord*, unsigned long long, _CONTEXT*, _xDISPATCHER_CONTEXT*)
 16350 5 308 77
-FUNC 16358 7d 0 _CxxFrameHandler3(EHExceptionRecord*, unsigned long long, _CONTEXT*, _xDISPATCHER_CONTEXT*)
+FUNC 16358 7d 0 __CxxFrameHandler3(EHExceptionRecord*, unsigned long long, _CONTEXT*, _xDISPATCHER_CONTEXT*)
 16358 12 260 77
 1636a b 263 77
 16375 d 265 77
@@ -4216,7 +4216,7 @@ FUNC 16358 7d 0 _CxxFrameHandler3(EHExceptionRecord*, unsigned long long, _CONTE
 1638f 9 269 77
 16398 2d 270 77
 163c5 10 272 77
-FUNC 163f4 a1 0 _CxxFrameHandler4(EHExceptionRecord*, unsigned long long, _CONTEXT*, _xDISPATCHER_CONTEXT*)
+FUNC 163f4 a1 0 __CxxFrameHandler4(EHExceptionRecord*, unsigned long long, _CONTEXT*, _xDISPATCHER_CONTEXT*)
 163f4 10 279 77
 16404 4 280 77
 16408 3 279 77
@@ -5411,15 +5411,15 @@ FUNC 1a978 39 0 __FrameHandler4::HandlerMap::setBuffer(unsigned int)
 FUNC 1a9c0 12 0 std::exception::what() const
 1a9c0 11 91 32
 1a9d1 1 92 32
-FUNC 1a9d8 5 0 _BuildCatchObject(EHExceptionRecord*, void*, _s_HandlerType const*, _s_CatchableType const*)
+FUNC 1a9d8 5 0 __BuildCatchObject(EHExceptionRecord*, void*, _s_HandlerType const*, _s_CatchableType const*)
 1a9d8 5 2017 80
-FUNC 1a9e0 5 0 _BuildCatchObjectHelper(EHExceptionRecord*, void*, _s_HandlerType const*, _s_CatchableType const*)
+FUNC 1a9e0 5 0 __BuildCatchObjectHelper(EHExceptionRecord*, void*, _s_HandlerType const*, _s_CatchableType const*)
 1a9e0 5 1906 80
-FUNC 1a9e8 5 0 _TypeMatch(_s_HandlerType const*, _s_CatchableType const*, _s_ThrowInfo const*)
+FUNC 1a9e8 5 0 __TypeMatch(_s_HandlerType const*, _s_CatchableType const*, _s_ThrowInfo const*)
 1a9e8 5 968 80
-FUNC 1a9f0 7 0 _vcrt_EncodePointer(void* const)
+FUNC 1a9f0 7 0 __vcrt_EncodePointer(void* const)
 1a9f0 7 332 11
-FUNC 1aa10 40 0 CallSettingFrame()
+FUNC 1aa10 40 0 _CallSettingFrame()
 1aa10 4 38 81
 1aa14 5 42 81
 1aa19 5 43 81
@@ -5436,7 +5436,7 @@ FUNC 1aa10 40 0 CallSettingFrame()
 1aa46 5 56 81
 1aa4b 4 57 81
 1aa4f 1 58 81
-FUNC 1aa60 47 0 CallSettingFrameEncoded()
+FUNC 1aa60 47 0 _CallSettingFrameEncoded()
 1aa60 4 88 81
 1aa64 5 92 81
 1aa69 5 93 81
@@ -5481,7 +5481,7 @@ FUNC 1ab30 1b 0 __crt_unique_heap_ptr<char,__crt_public_free_policy>::release()
 1ab39 8 395 22
 1ab41 4 396 22
 1ab45 6 397 22
-FUNC 1ab54 8d 0 _std_exception_copy(__std_exception_data const*, __std_exception_data*)
+FUNC 1ab54 8d 0 __std_exception_copy(__std_exception_data const*, __std_exception_data*)
 1ab54 15 17 82
 1ab69 14 20 82
 1ab7d d 27 82
@@ -5495,13 +5495,13 @@ FUNC 1ab54 8d 0 _std_exception_copy(__std_exception_data const*, __std_exception
 1abc1 6 22 82
 1abc7 4 23 82
 1abcb 16 38 82
-FUNC 1ac04 25 0 _std_exception_destroy(__std_exception_data*)
+FUNC 1ac04 25 0 __std_exception_destroy(__std_exception_data*)
 1ac04 6 43 82
 1ac0a 9 44 82
 1ac13 8 46 82
 1ac1b 8 50 82
 1ac23 6 51 82
-FUNC 1ac34 bf 0 CxxThrowException(void*, _s__ThrowInfo const*)
+FUNC 1ac34 bf 0 _CxxThrowException(void*, _s__ThrowInfo const*)
 1ac34 12 59 83
 1ac46 32 76 83
 1ac78 a 79 83
@@ -5542,7 +5542,7 @@ FUNC 1adfc 3 0 __crt_state_management::get_current_state_index()
 FUNC 1ae00 4 0 __crt_state_management::dual_state_global<void (__cdecl*)(wchar_t const *,wchar_t const *,wchar_t const *,unsigned int,unsigned __int64)>::value()
 1ae00 3 147 180
 1ae03 1 148 180
-FUNC 1ae04 15b 0 _acrt_call_reportfault(int, unsigned long, unsigned long)
+FUNC 1ae04 15b 0 __acrt_call_reportfault(int, unsigned long, unsigned long)
 1ae04 35 143 122
 1ae39 5 145 122
 1ae3e 5 147 122
@@ -5562,19 +5562,19 @@ FUNC 1ae04 15b 0 _acrt_call_reportfault(int, unsigned long, unsigned long)
 1af24 d 202 122
 1af31 7 204 122
 1af38 27 206 122
-FUNC 1afb8 8 0 _acrt_initialize_invalid_parameter_handler(void*)
+FUNC 1afb8 8 0 __acrt_initialize_invalid_parameter_handler(void*)
 1afb8 7 80 122
 1afbf 1 81 122
-FUNC 1afc4 17 0 get_invalid_parameter_handler()
+FUNC 1afc4 17 0 _get_invalid_parameter_handler()
 1afc4 16 273 122
 1afda 1 274 122
-FUNC 1afe0 1a 0 get_thread_local_invalid_parameter_handler()
+FUNC 1afe0 1a 0 _get_thread_local_invalid_parameter_handler()
 1afe0 4 288 122
 1afe4 5 289 122
 1afe9 5 290 122
 1afee 7 295 122
 1aff5 5 296 122
-FUNC 1b000 ae 0 invalid_parameter(wchar_t const* const, wchar_t const* const, wchar_t const* const, const unsigned int, const unsigned long long)
+FUNC 1b000 ae 0 _invalid_parameter(wchar_t const* const, wchar_t const* const, wchar_t const* const, const unsigned int, const unsigned long long)
 1b000 20 97 122
 1b020 5 98 122
 1b025 11 99 122
@@ -5589,15 +5589,15 @@ FUNC 1b000 ae 0 invalid_parameter(wchar_t const* const, wchar_t const* const, wc
 1b08c d 108 122
 1b099 2 109 122
 1b09b 13 112 122
-FUNC 1b0dc 1e 0 invalid_parameter_noinfo()
+FUNC 1b0dc 1e 0 _invalid_parameter_noinfo()
 1b0dc 4 116 122
 1b0e0 15 117 122
 1b0f5 5 118 122
-FUNC 1b104 2f 0 invalid_parameter_noinfo_noreturn()
+FUNC 1b104 2f 0 _invalid_parameter_noinfo_noreturn()
 1b104 4 124 122
 1b108 15 125 122
 1b11d 16 126 122
-FUNC 1b140 47 0 invoke_watson(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, unsigned long long)
+FUNC 1b140 47 0 _invoke_watson(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, unsigned long long)
 1b140 4 215 122
 1b144 f 222 122
 1b153 7 224 122
@@ -5605,7 +5605,7 @@ FUNC 1b140 47 0 invoke_watson(wchar_t const*, wchar_t const*, wchar_t const*, un
 1b16e e 233 122
 1b17c 4 234 122
 1b180 7 233 122
-FUNC 1b198 34 0 set_invalid_parameter_handler(void (*)(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, unsigned long long))
+FUNC 1b198 34 0 _set_invalid_parameter_handler(void (*)(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, unsigned long long))
 1b198 a 265 122
 1b1a2 b 267 122
 1b1ad a 266 122
@@ -5615,20 +5615,20 @@ FUNC 1b198 34 0 set_invalid_parameter_handler(void (*)(wchar_t const*, wchar_t c
 1b1c1 3 266 122
 1b1c4 7 267 122
 1b1cb 1 269 122
-FUNC 1b1dc 25 0 set_thread_local_invalid_parameter_handler(void (*)(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, unsigned long long))
+FUNC 1b1dc 25 0 _set_thread_local_invalid_parameter_handler(void (*)(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, unsigned long long))
 1b1dc 9 279 122
 1b1e5 8 280 122
 1b1ed 7 282 122
 1b1f4 7 283 122
 1b1fb 6 285 122
-FUNC 1b20c 64 0 initterm(void (**)(), void (**)())
+FUNC 1b20c 64 0 _initterm(void (**)(), void (**)())
 1b20c 14 15 255
 1b220 21 16 255
 1b241 8 18 255
 1b249 6 21 255
 1b24f c 16 255
 1b25b 15 23 255
-FUNC 1b28c 3d 0 initterm_e(int (**)(), int (**)())
+FUNC 1b28c 3d 0 _initterm_e(int (**)(), int (**)())
 1b28c 10 34 255
 1b29c 3 35 255
 1b29f a 37 255
@@ -5649,12 +5649,12 @@ FUNC 1b2f0 1d 0 xcptlookup(const unsigned long, __crt_signal_action_t* const)
 1b308 1 70 257
 1b309 3 66 257
 1b30c 1 70 257
-FUNC 1b314 13 0 seh_filter_dll(unsigned long, _EXCEPTION_POINTERS*)
+FUNC 1b314 13 0 _seh_filter_dll(unsigned long, _EXCEPTION_POINTERS*)
 1b314 9 80 257
 1b31d 2 81 257
 1b31f 1 84 257
 1b320 7 83 257
-FUNC 1b32c 182 0 seh_filter_exe(unsigned long, _EXCEPTION_POINTERS*)
+FUNC 1b32c 182 0 _seh_filter_exe(unsigned long, _EXCEPTION_POINTERS*)
 1b32c 19 124 257
 1b345 5 127 257
 1b34a f 128 257
@@ -5825,21 +5825,21 @@ FUNC 1b9a4 5b 0 try_cor_exit_process(const unsigned int)
 1b9dc 5 94 275
 1b9e1 8 97 275
 1b9e9 16 98 275
-FUNC 1ba18 c 0 Exit(int)
+FUNC 1ba18 c 0 _Exit(int)
 1ba18 c 303 275
-FUNC 1ba28 8 0 _acrt_initialize_thread_local_exit_callback(void*)
+FUNC 1ba28 8 0 __acrt_initialize_thread_local_exit_callback(void*)
 1ba28 7 163 275
 1ba2f 1 164 275
-FUNC 1ba34 10 0 c_exit()
+FUNC 1ba34 10 0 _c_exit()
 1ba34 10 318 275
-FUNC 1ba48 d 0 cexit()
+FUNC 1ba48 d 0 _cexit()
 1ba48 d 313 275
-FUNC 1ba58 c 0 exit(int)
+FUNC 1ba58 c 0 _exit(int)
 1ba58 c 298 275
-FUNC 1ba68 7 0 is_c_termination_complete()
+FUNC 1ba68 7 0 _is_c_termination_complete()
 1ba68 6 286 275
 1ba6e 1 287 275
-FUNC 1ba70 3c 0 register_thread_local_exe_atexit_callback(void (*)(void*, unsigned long, void*))
+FUNC 1ba70 3c 0 _register_thread_local_exe_atexit_callback(void (*)(void*, unsigned long, void*))
 1ba70 4 169 275
 1ba74 7 171 275
 1ba7b 3 169 275
@@ -6154,7 +6154,7 @@ FUNC 1c504 16 0 should_copy_another_character(const char)
 FUNC 1c520 3 0 should_copy_another_character(wchar_t)
 1c520 2 91 321
 1c522 1 92 321
-FUNC 1c524 5d 0 _acrt_allocate_buffer_for_argv(unsigned long long, unsigned long long, unsigned long long)
+FUNC 1c524 5d 0 __acrt_allocate_buffer_for_argv(unsigned long long, unsigned long long, unsigned long long)
 1c524 6 271 321
 1c52a 12 272 321
 1c53c e 275 321
@@ -6168,21 +6168,21 @@ FUNC 1c524 5d 0 _acrt_allocate_buffer_for_argv(unsigned long long, unsigned long
 1c56f a 289 321
 1c579 2 282 321
 1c57b 6 290 321
-FUNC 1c598 186 0 configure_narrow_argv(_crt_argv_mode)
+FUNC 1c598 186 0 _configure_narrow_argv(_crt_argv_mode)
 1c598 13 397 321
 1c5ab 2 398 321
 1c5ad 3 397 321
 1c5b0 15b 398 321
 1c70b 13 399 321
-FUNC 1c780 182 0 configure_wide_argv(_crt_argv_mode)
+FUNC 1c780 182 0 _configure_wide_argv(_crt_argv_mode)
 1c780 13 402 321
 1c793 2 403 321
 1c795 3 402 321
 1c798 157 403 321
 1c8ef 13 404 321
-FUNC 1c964 8 0 set_pgmptr(char*)
+FUNC 1c964 8 0 _set_pgmptr(char*)
 1c964 8 229 201
-FUNC 1c970 8 0 set_wpgmptr(wchar_t*)
+FUNC 1c970 8 0 _set_wpgmptr(wchar_t*)
 1c970 8 230 201
 FUNC 1c97c 8 0 __crt_internal_free_policy::operator()<wchar_t>(wchar_t const* const) const
 1c97c 8 335 99
@@ -6460,19 +6460,19 @@ FUNC 1d550 4 0 __crt_state_management::dual_state_global<char * *>::value()
 FUNC 1d554 4 0 __crt_state_management::dual_state_global<wchar_t * *>::value()
 1d554 3 147 180
 1d557 1 148 180
-FUNC 1d558 3b 0 _dcrt_get_or_create_narrow_environment_nolock()
+FUNC 1d558 3b 0 __dcrt_get_or_create_narrow_environment_nolock()
 1d558 4 307 329
 1d55c 15 308 329
 1d571 4 309 329
 1d575 19 308 329
 1d58e 5 309 329
-FUNC 1d5a4 3b 0 _dcrt_get_or_create_wide_environment_nolock()
+FUNC 1d5a4 3b 0 __dcrt_get_or_create_wide_environment_nolock()
 1d5a4 4 312 329
 1d5a8 15 313 329
 1d5bd 4 314 329
 1d5c1 19 313 329
 1d5da 5 314 329
-FUNC 1d5f0 38 0 _dcrt_uninitialize_environments_nolock()
+FUNC 1d5f0 38 0 __dcrt_uninitialize_environments_nolock()
 1d5f0 4 217 329
 1d5f4 c 218 329
 1d600 c 219 329
@@ -6480,23 +6480,23 @@ FUNC 1d5f0 38 0 _dcrt_uninitialize_environments_nolock()
 1d618 7 222 329
 1d61f 4 223 329
 1d623 5 222 329
-FUNC 1d638 8 0 _p__environ()
+FUNC 1d638 8 0 __p__environ()
 1d638 8 30 329
-FUNC 1d644 8 0 _p__wenviron()
+FUNC 1d644 8 0 __p__wenviron()
 1d644 8 31 329
-FUNC 1d650 4e 0 get_initial_narrow_environment()
+FUNC 1d650 4e 0 _get_initial_narrow_environment()
 1d650 4 329 329
 1d654 45 330 329
 1d699 5 331 329
-FUNC 1d6b4 4e 0 get_initial_wide_environment()
+FUNC 1d6b4 4e 0 _get_initial_wide_environment()
 1d6b4 4 334 329
 1d6b8 45 335 329
 1d6fd 5 336 329
-FUNC 1d718 5 0 initialize_narrow_environment()
+FUNC 1d718 5 0 _initialize_narrow_environment()
 1d718 5 194 329
-FUNC 1d720 5 0 initialize_wide_environment()
+FUNC 1d720 5 0 _initialize_wide_environment()
 1d720 5 199 329
-FUNC 1d728 31 0 invoke_watson_if_error(int, wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, unsigned long long)
+FUNC 1d728 31 0 _invoke_watson_if_error(int, wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, unsigned long long)
 1d728 4 1586 201
 1d72c 6 1592 201
 1d732 27 1591 201
@@ -6637,15 +6637,15 @@ FUNC 1dcbc 1b 0 __crt_unique_heap_ptr<void (__cdecl*)(void),__crt_internal_free_
 1dcc5 8 395 99
 1dccd 4 396 99
 1dcd1 6 397 99
-FUNC 1dce0 f 0 crt_at_quick_exit(void (*)())
+FUNC 1dce0 f 0 _crt_at_quick_exit(void (*)())
 1dce0 f 48 333
-FUNC 1dcf4 f 0 crt_atexit(void (*)())
+FUNC 1dcf4 f 0 _crt_atexit(void (*)())
 1dcf4 f 43 333
-FUNC 1dd08 3a 0 execute_onexit_table(_onexit_table_t*)
+FUNC 1dd08 3a 0 _execute_onexit_table(_onexit_table_t*)
 1dd08 b 159 333
 1dd13 2a 160 333
 1dd3d 5 231 333
-FUNC 1dd50 27 0 initialize_onexit_table(_onexit_table_t*)
+FUNC 1dd50 27 0 _initialize_onexit_table(_onexit_table_t*)
 1dd50 5 55 333
 1dd55 3 57 333
 1dd58 1 75 333
@@ -6655,7 +6655,7 @@ FUNC 1dd50 27 0 initialize_onexit_table(_onexit_table_t*)
 1dd6c 4 71 333
 1dd70 4 72 333
 1dd74 3 75 333
-FUNC 1dd80 48 0 register_onexit_function(_onexit_table_t*, int (*)())
+FUNC 1dd80 48 0 _register_onexit_function(_onexit_table_t*, int (*)())
 1dd80 12 83 333
 1dd92 30 84 333
 1ddc2 6 149 333
@@ -6734,18 +6734,18 @@ FUNC 1e04c 27 0 __crt_state_management::dual_state_global<__crt_locale_data *>::
 1e04c 5 156 180
 1e051 1c 157 180
 1e06d 6 161 180
-FUNC 1e07c 13 0 _acrt_initialize()
+FUNC 1e07c 13 0 __acrt_initialize()
 1e07c 13 287 336
-FUNC 1e094 14 0 _acrt_thread_attach()
+FUNC 1e094 14 0 __acrt_thread_attach()
 1e094 4 328 336
 1e098 b 332 336
 1e0a3 5 336 336
-FUNC 1e0b0 10 0 _acrt_thread_detach()
+FUNC 1e0b0 10 0 __acrt_thread_detach()
 1e0b0 4 339 336
 1e0b4 5 341 336
 1e0b9 2 342 336
 1e0bb 5 343 336
-FUNC 1e0c4 35 0 _acrt_uninitialize(bool)
+FUNC 1e0c4 35 0 __acrt_uninitialize(bool)
 1e0c4 4 294 336
 1e0c8 4 300 336
 1e0cc a 302 336
@@ -6755,7 +6755,7 @@ FUNC 1e0c4 35 0 _acrt_uninitialize(bool)
 1e0e2 e 310 336
 1e0f0 4 314 336
 1e0f4 5 310 336
-FUNC 1e108 10 0 _acrt_uninitialize_critical(bool)
+FUNC 1e108 10 0 __acrt_uninitialize_critical(bool)
 1e108 4 317 336
 1e10c 5 318 336
 1e111 2 324 336
@@ -6763,7 +6763,7 @@ FUNC 1e108 10 0 _acrt_uninitialize_critical(bool)
 FUNC 1e11c 12 0 get_terminate_or_default(__acrt_ptd const* const)
 1e11c 11 17 344
 1e12d 1 18 344
-FUNC 1e134 22 0 get_terminate()
+FUNC 1e134 22 0 _get_terminate()
 1e134 4 21 344
 1e138 19 22 344
 1e151 5 23 344
@@ -14622,93 +14622,93 @@ FUNC 3b8fc 103 0 __crt_stdio_output::output_adapter_common<wchar_t,__crt_stdio_o
 3b9d0 2 94 353
 3b9d2 3 98 353
 3b9d5 2a 105 353
-FUNC 3ba40 21 0 _acrt_isleadbyte_l_noupdate(const int, __crt_locale_pointers* const)
+FUNC 3ba40 21 0 __acrt_isleadbyte_l_noupdate(const int, __crt_locale_pointers* const)
 3ba40 1d 810 201
 3ba5d 1 811 201
 3ba5e 2 810 201
 3ba60 1 811 201
-FUNC 3ba6c b 0 _acrt_locale_changed()
+FUNC 3ba6c b 0 __acrt_locale_changed()
 3ba6c a 746 201
 3ba76 1 747 201
-FUNC 3ba7c 18 0 _acrt_locale_get_ctype_array_value(unsigned short const* const, const int, const int)
+FUNC 3ba7c 18 0 __acrt_locale_get_ctype_array_value(unsigned short const* const, const int, const int)
 3ba7c a 91 218
 3ba86 a 93 218
 3ba90 1 97 218
 3ba91 2 96 218
 3ba93 1 97 218
-FUNC 3ba9c 8b 0 _stdio_common_vfprintf(unsigned long long, _iobuf*, char const*, __crt_locale_pointers*, char*)
+FUNC 3ba9c 8b 0 __stdio_common_vfprintf(unsigned long long, _iobuf*, char const*, __crt_locale_pointers*, char*)
 3ba9c 9 60 350
 3baa5 1d 61 350
 3bac2 15 62 350
 3bad7 4a 61 350
 3bb21 6 62 350
-FUNC 3bb4c 8b 0 _stdio_common_vfprintf_p(unsigned long long, _iobuf*, char const*, __crt_locale_pointers*, char*)
+FUNC 3bb4c 8b 0 __stdio_common_vfprintf_p(unsigned long long, _iobuf*, char const*, __crt_locale_pointers*, char*)
 3bb4c 9 104 350
 3bb55 1d 105 350
 3bb72 15 106 350
 3bb87 4a 105 350
 3bbd1 6 106 350
-FUNC 3bbfc 8b 0 _stdio_common_vfprintf_s(unsigned long long, _iobuf*, char const*, __crt_locale_pointers*, char*)
+FUNC 3bbfc 8b 0 __stdio_common_vfprintf_s(unsigned long long, _iobuf*, char const*, __crt_locale_pointers*, char*)
 3bbfc 9 82 350
 3bc05 1d 83 350
 3bc22 15 84 350
 3bc37 4a 83 350
 3bc81 6 84 350
-FUNC 3bcac 8b 0 _stdio_common_vfwprintf(unsigned long long, _iobuf*, wchar_t const*, __crt_locale_pointers*, char*)
+FUNC 3bcac 8b 0 __stdio_common_vfwprintf(unsigned long long, _iobuf*, wchar_t const*, __crt_locale_pointers*, char*)
 3bcac 9 71 350
 3bcb5 1d 72 350
 3bcd2 15 73 350
 3bce7 4a 72 350
 3bd31 6 73 350
-FUNC 3bd5c 8b 0 _stdio_common_vfwprintf_p(unsigned long long, _iobuf*, wchar_t const*, __crt_locale_pointers*, char*)
+FUNC 3bd5c 8b 0 __stdio_common_vfwprintf_p(unsigned long long, _iobuf*, wchar_t const*, __crt_locale_pointers*, char*)
 3bd5c 9 115 350
 3bd65 1d 116 350
 3bd82 15 117 350
 3bd97 4a 116 350
 3bde1 6 117 350
-FUNC 3be0c 8b 0 _stdio_common_vfwprintf_s(unsigned long long, _iobuf*, wchar_t const*, __crt_locale_pointers*, char*)
+FUNC 3be0c 8b 0 __stdio_common_vfwprintf_s(unsigned long long, _iobuf*, wchar_t const*, __crt_locale_pointers*, char*)
 3be0c 9 93 350
 3be15 1d 94 350
 3be32 15 95 350
 3be47 4a 94 350
 3be91 6 95 350
-FUNC 3bebc 134 0 _stdio_common_vsnprintf_s(unsigned long long, char*, unsigned long long, unsigned long long, char const*, __crt_locale_pointers*, char*)
+FUNC 3bebc 134 0 __stdio_common_vsnprintf_s(unsigned long long, char*, unsigned long long, unsigned long long, char const*, __crt_locale_pointers*, char*)
 3bebc 18 390 350
 3bed4 6 391 350
 3beda c 390 350
 3bee6 ef 391 350
 3bfd5 1b 392 350
-FUNC 3c040 143 0 _stdio_common_vsnwprintf_s(unsigned long long, wchar_t*, unsigned long long, unsigned long long, wchar_t const*, __crt_locale_pointers*, char*)
+FUNC 3c040 143 0 __stdio_common_vsnwprintf_s(unsigned long long, wchar_t*, unsigned long long, unsigned long long, wchar_t const*, __crt_locale_pointers*, char*)
 3c040 1d 403 350
 3c05d 3 404 350
 3c060 c 403 350
 3c06c f6 404 350
 3c162 21 405 350
-FUNC 3c1d4 5 0 _stdio_common_vsprintf(unsigned long long, char*, unsigned long long, char const*, __crt_locale_pointers*, char*)
+FUNC 3c1d4 5 0 __stdio_common_vsprintf(unsigned long long, char*, unsigned long long, char const*, __crt_locale_pointers*, char*)
 3c1d4 5 239 350
-FUNC 3c1dc 5 0 _stdio_common_vsprintf_p(unsigned long long, char*, unsigned long long, char const*, __crt_locale_pointers*, char*)
+FUNC 3c1dc 5 0 __stdio_common_vsprintf_p(unsigned long long, char*, unsigned long long, char const*, __crt_locale_pointers*, char*)
 3c1dc 5 416 350
-FUNC 3c1e4 63 0 _stdio_common_vsprintf_s(unsigned long long, char*, unsigned long long, char const*, __crt_locale_pointers*, char*)
+FUNC 3c1e4 63 0 __stdio_common_vsprintf_s(unsigned long long, char*, unsigned long long, char const*, __crt_locale_pointers*, char*)
 3c1e4 9 295 350
 3c1ed 41 296 350
 3c22e 19 297 350
-FUNC 3c260 5 0 _stdio_common_vswprintf(unsigned long long, wchar_t*, unsigned long long, wchar_t const*, __crt_locale_pointers*, char*)
+FUNC 3c260 5 0 __stdio_common_vswprintf(unsigned long long, wchar_t*, unsigned long long, wchar_t const*, __crt_locale_pointers*, char*)
 3c260 5 251 350
-FUNC 3c268 5 0 _stdio_common_vswprintf_p(unsigned long long, wchar_t*, unsigned long long, wchar_t const*, __crt_locale_pointers*, char*)
+FUNC 3c268 5 0 __stdio_common_vswprintf_p(unsigned long long, wchar_t*, unsigned long long, wchar_t const*, __crt_locale_pointers*, char*)
 3c268 5 428 350
-FUNC 3c270 6e 0 _stdio_common_vswprintf_s(unsigned long long, wchar_t*, unsigned long long, wchar_t const*, __crt_locale_pointers*, char*)
+FUNC 3c270 6e 0 __stdio_common_vswprintf_s(unsigned long long, wchar_t*, unsigned long long, wchar_t const*, __crt_locale_pointers*, char*)
 3c270 a 307 350
 3c27a 2 308 350
 3c27c 3 307 350
 3c27f 41 308 350
 3c2c0 1e 309 350
-FUNC 3c2fc 13 0 ctype_fast_check_internal(const unsigned char, const int, __crt_locale_pointers* const)
+FUNC 3c2fc 13 0 _ctype_fast_check_internal(const unsigned char, const int, __crt_locale_pointers* const)
 3c2fc 12 1549 201
 3c30e 1 1550 201
-FUNC 3c314 14 0 isdigit_fast_internal(const unsigned char, __crt_locale_pointers* const)
+FUNC 3c314 14 0 _isdigit_fast_internal(const unsigned char, __crt_locale_pointers* const)
 3c314 13 1557 201
 3c327 1 1558 201
-FUNC 3c330 11 0 tolower_fast_internal(const unsigned char, __crt_locale_pointers* const)
+FUNC 3c330 11 0 _tolower_fast_internal(const unsigned char, __crt_locale_pointers* const)
 3c330 10 1479 201
 3c340 1 1480 201
 FUNC 3c348 24 0 __crt_strtox::is_overflow_condition<unsigned long>(const unsigned int, const unsigned long)
@@ -15083,57 +15083,57 @@ FUNC 3e224 1a0 0 __crt_strtox::wide_character_to_digit(const wchar_t)
 3e3b2 e 85 357
 3e3c0 3 88 357
 3e3c3 1 89 357
-FUNC 3e42c 4 0 _acrt_get_locale_data_prefix(void const* const)
+FUNC 3e42c 4 0 __acrt_get_locale_data_prefix(void const* const)
 3e42c 3 206 218
 3e42f 1 207 218
-FUNC 3e430 19 0 _ascii_iswalpha(const int)
+FUNC 3e430 19 0 __ascii_iswalpha(const int)
 3e430 12 167 218
 3e442 1 168 218
 3e443 5 167 218
 3e448 1 168 218
-FUNC 3e450 e 0 _ascii_toupper(const int)
+FUNC 3e450 e 0 __ascii_toupper(const int)
 3e450 6 158 218
 3e456 5 160 218
 3e45b 2 162 218
 3e45d 1 163 218
-FUNC 3e464 d 0 _ascii_towupper(const int)
+FUNC 3e464 d 0 __ascii_towupper(const int)
 3e464 c 182 218
 3e470 1 183 218
-FUNC 3e474 29 0 atoi64(char const*)
+FUNC 3e474 29 0 _atoi64(char const*)
 3e474 4 51 356
 3e478 20 52 356
 3e498 5 53 356
-FUNC 3e4a8 2d 0 atoi64_l(char const*, __crt_locale_pointers*)
+FUNC 3e4a8 2d 0 _atoi64_l(char const*, __crt_locale_pointers*)
 3e4a8 4 56 356
 3e4ac 6 57 356
 3e4b2 3 56 356
 3e4b5 1b 57 356
 3e4d0 5 58 356
-FUNC 3e4e0 2d 0 atoi_l(char const*, __crt_locale_pointers*)
+FUNC 3e4e0 2d 0 _atoi_l(char const*, __crt_locale_pointers*)
 3e4e0 4 26 356
 3e4e4 6 27 356
 3e4ea 3 26 356
 3e4ed 1b 27 356
 3e508 5 28 356
-FUNC 3e518 2d 0 atol_l(char const*, __crt_locale_pointers*)
+FUNC 3e518 2d 0 _atol_l(char const*, __crt_locale_pointers*)
 3e518 4 36 356
 3e51c 6 37 356
 3e522 3 36 356
 3e525 1b 37 356
 3e540 5 38 356
-FUNC 3e550 2d 0 atoll_l(char const*, __crt_locale_pointers*)
+FUNC 3e550 2d 0 _atoll_l(char const*, __crt_locale_pointers*)
 3e550 4 46 356
 3e554 6 47 356
 3e55a 3 46 356
 3e55d 1b 47 356
 3e578 5 48 356
-FUNC 3e588 61 0 chvalidchk_l(const int, const int, __crt_locale_pointers* const)
+FUNC 3e588 61 0 _chvalidchk_l(const int, const int, __crt_locale_pointers* const)
 3e588 17 218 218
 3e59f c 222 218
 3e5ab 14 224 218
 3e5bf 11 227 218
 3e5d0 19 229 218
-FUNC 3e604 76 0 ischartype_l(const int, const int, __crt_locale_pointers* const)
+FUNC 3e604 76 0 _ischartype_l(const int, const int, __crt_locale_pointers* const)
 3e604 17 239 218
 3e61b c 240 218
 3e627 b 241 218
@@ -15143,41 +15143,41 @@ FUNC 3e604 76 0 ischartype_l(const int, const int, __crt_locale_pointers* const)
 3e64c 4 251 218
 3e650 15 254 218
 3e665 15 255 218
-FUNC 3e698 29 0 wtoi(wchar_t const*)
+FUNC 3e698 29 0 _wtoi(wchar_t const*)
 3e698 4 68 356
 3e69c 20 70 356
 3e6bc 5 71 356
-FUNC 3e6cc 29 0 wtoi64(wchar_t const*)
+FUNC 3e6cc 29 0 _wtoi64(wchar_t const*)
 3e6cc 4 99 356
 3e6d0 20 100 356
 3e6f0 5 101 356
-FUNC 3e700 2d 0 wtoi64_l(wchar_t const*, __crt_locale_pointers*)
+FUNC 3e700 2d 0 _wtoi64_l(wchar_t const*, __crt_locale_pointers*)
 3e700 4 104 356
 3e704 6 105 356
 3e70a 3 104 356
 3e70d 1b 105 356
 3e728 5 106 356
-FUNC 3e738 2d 0 wtoi_l(wchar_t const*, __crt_locale_pointers*)
+FUNC 3e738 2d 0 _wtoi_l(wchar_t const*, __crt_locale_pointers*)
 3e738 4 74 356
 3e73c 6 75 356
 3e742 3 74 356
 3e745 1b 75 356
 3e760 5 76 356
-FUNC 3e770 29 0 wtol(wchar_t const*)
+FUNC 3e770 29 0 _wtol(wchar_t const*)
 3e770 4 79 356
 3e774 20 80 356
 3e794 5 81 356
-FUNC 3e7a4 2d 0 wtol_l(wchar_t const*, __crt_locale_pointers*)
+FUNC 3e7a4 2d 0 _wtol_l(wchar_t const*, __crt_locale_pointers*)
 3e7a4 4 84 356
 3e7a8 6 85 356
 3e7ae 3 84 356
 3e7b1 1b 85 356
 3e7cc 5 86 356
-FUNC 3e7dc 29 0 wtoll(wchar_t const*)
+FUNC 3e7dc 29 0 _wtoll(wchar_t const*)
 3e7dc 4 89 356
 3e7e0 20 90 356
 3e800 5 91 356
-FUNC 3e810 2d 0 wtoll_l(wchar_t const*, __crt_locale_pointers*)
+FUNC 3e810 2d 0 _wtoll_l(wchar_t const*, __crt_locale_pointers*)
 3e810 4 94 356
 3e814 6 95 356
 3e81a 3 94 356
@@ -15233,7 +15233,7 @@ FUNC 3e900 7d 0 strncmp()
 3e975 3 120 359
 3e978 4 121 359
 3e97c 1 122 359
-FUNC 3e9a0 1c 0 set_abort_behavior(unsigned int, unsigned int)
+FUNC 3e9a0 1c 0 _set_abort_behavior(unsigned int, unsigned int)
 3e9a0 6 111 363
 3e9a6 15 112 363
 3e9bb 1 114 363
@@ -15486,19 +15486,19 @@ FUNC 3f574 20 0 try_get_ptd_head()
 FUNC 3f59c 4 0 __crt_state_management::dual_state_global<__crt_locale_data *>::value()
 3f59c 3 147 180
 3f59f 1 148 180
-FUNC 3f5a0 41 0 _acrt_freeptd()
+FUNC 3f5a0 41 0 __acrt_freeptd()
 3f5a0 6 306 366
 3f5a6 18 307 366
 3f5be d 313 366
 3f5cb 10 314 366
 3f5db 6 315 366
-FUNC 3f5f4 d4 0 _acrt_getptd()
+FUNC 3f5f4 d4 0 __acrt_getptd()
 3f5f4 f 282 366
 3f603 9c 283 366
 3f69f 13 284 366
 3f6b2 10 290 366
 3f6c2 6 286 366
-FUNC 3f700 a7 0 _acrt_getptd_head()
+FUNC 3f700 a7 0 __acrt_getptd_head()
 3f700 6 293 366
 3f706 59 294 366
 3f75f 7 297 366
@@ -15507,11 +15507,11 @@ FUNC 3f700 a7 0 _acrt_getptd_head()
 3f798 3 300 366
 3f79b 6 301 366
 3f7a1 6 297 366
-FUNC 3f7d0 cc 0 _acrt_getptd_noexit()
+FUNC 3f7d0 cc 0 __acrt_getptd_noexit()
 3f7d0 f 277 366
 3f7df a4 278 366
 3f883 19 279 366
-FUNC 3f8d0 39 0 _acrt_initialize_ptd()
+FUNC 3f8d0 39 0 __acrt_initialize_ptd()
 3f8d0 4 28 366
 3f8d4 12 29 366
 3f8e6 5 30 366
@@ -15521,26 +15521,26 @@ FUNC 3f8d0 39 0 _acrt_initialize_ptd()
 3f900 2 38 366
 3f902 2 41 366
 3f904 5 42 366
-FUNC 3f918 22 0 _acrt_uninitialize_ptd(bool)
+FUNC 3f918 22 0 __acrt_uninitialize_ptd(bool)
 3f918 4 45 366
 3f91c b 46 366
 3f927 5 48 366
 3f92c 7 49 366
 3f933 2 52 366
 3f935 5 53 366
-FUNC 3f944 7 0 _threadhandle()
+FUNC 3f944 7 0 __threadhandle()
 3f944 7 327 366
-FUNC 3f94c 7 0 _threadid()
+FUNC 3f94c 7 0 __threadid()
 3f94c 7 322 366
 FUNC 3f954 8 0 select_heap(void* const)
 3f954 7 84 367
 3f95b 1 85 367
-FUNC 3f960 3d 0 free_base(void*)
+FUNC 3f960 3d 0 _free_base(void*)
 3f960 a 100 367
 3f96a 16 105 367
 3f980 17 107 367
 3f997 6 109 367
-FUNC 3f9ac 48 0 _acrt_initialize_locks()
+FUNC 3f9ac 48 0 __acrt_initialize_locks()
 3f9ac 6 26 368
 3f9b2 2 27 368
 3f9b4 20 29 368
@@ -15549,9 +15549,9 @@ FUNC 3f9ac 48 0 _acrt_initialize_locks()
 3f9e5 7 31 368
 3f9ec 2 32 368
 3f9ee 6 39 368
-FUNC 3fa08 19 0 _acrt_lock(__acrt_lock_id)
+FUNC 3fa08 19 0 __acrt_lock(__acrt_lock_id)
 3fa08 19 54 368
-FUNC 3fa28 37 0 _acrt_uninitialize_locks(bool)
+FUNC 3fa28 37 0 __acrt_uninitialize_locks(bool)
 3fa28 6 42 368
 3fa2e 8 43 368
 3fa36 17 45 368
@@ -15559,15 +15559,15 @@ FUNC 3fa28 37 0 _acrt_uninitialize_locks(bool)
 3fa53 4 43 368
 3fa57 2 49 368
 3fa59 6 50 368
-FUNC 3fa6c 19 0 _acrt_unlock(__acrt_lock_id)
+FUNC 3fa6c 19 0 __acrt_unlock(__acrt_lock_id)
 3fa6c 19 59 368
-FUNC 3fa8c 1b 0 lock_locales()
+FUNC 3fa8c 1b 0 _lock_locales()
 3fa8c 4 63 368
 3fa90 5 64 368
 3fa95 7 65 368
 3fa9c 4 66 368
 3faa0 7 65 368
-FUNC 3fab0 e 0 unlock_locales()
+FUNC 3fab0 e 0 _unlock_locales()
 3fab0 e 70 368
 FUNC 3fac4 4c 0 get_cached_win_policy<`__acrt_get_begin_thread_init_policy'::`2'::begin_thread_init_policy_properties>(AppPolicyThreadInitializationType)
 3fac4 6 31 369
@@ -15632,23 +15632,23 @@ FUNC 3fc9c 27 0 `__acrt_get_windowing_model_policy'::`2'::windowing_model_policy
 3fcbc 1 176 369
 3fcbd 5 167 369
 3fcc2 1 176 369
-FUNC 3fccc 51 0 _acrt_get_begin_thread_init_policy()
+FUNC 3fccc 51 0 __acrt_get_begin_thread_init_policy()
 3fccc 6 89 369
 3fcd2 45 115 369
 3fd17 6 116 369
-FUNC 3fd34 51 0 _acrt_get_developer_information_policy()
+FUNC 3fd34 51 0 __acrt_get_developer_information_policy()
 3fd34 6 120 369
 3fd3a 45 146 369
 3fd7f 6 147 369
-FUNC 3fd9c 3c 0 _acrt_get_process_end_policy()
+FUNC 3fd9c 3c 0 __acrt_get_process_end_policy()
 3fd9c 6 60 369
 3fda2 30 84 369
 3fdd2 6 85 369
-FUNC 3fde8 6c 0 _acrt_get_windowing_model_policy()
+FUNC 3fde8 6c 0 __acrt_get_windowing_model_policy()
 3fde8 6 151 369
 3fdee 60 184 369
 3fe4e 6 185 369
-FUNC 3fe70 45 0 _acrt_errno_from_os_error(unsigned long)
+FUNC 3fe70 45 0 __acrt_errno_from_os_error(unsigned long)
 3fe70 10 98 370
 3fe80 4 100 370
 3fe84 a 98 370
@@ -15659,38 +15659,38 @@ FUNC 3fe70 45 0 _acrt_errno_from_os_error(unsigned long)
 3feae 1 119 370
 3feaf 5 101 370
 3feb4 1 119 370
-FUNC 3fec8 4e 0 _acrt_errno_map_os_error(unsigned long)
+FUNC 3fec8 4e 0 __acrt_errno_map_os_error(unsigned long)
 3fec8 c 90 370
 3fed4 19 91 370
 3feed 1e 92 370
 3ff0b b 93 370
-FUNC 3ff2c 20 0 _doserrno()
+FUNC 3ff2c 20 0 __doserrno()
 3ff2c 4 182 370
 3ff30 5 183 370
 3ff35 5 184 370
 3ff3a 9 185 370
 3ff43 4 187 370
 3ff47 5 188 370
-FUNC 3ff54 20 0 errno()
+FUNC 3ff54 20 0 _errno()
 3ff54 4 173 370
 3ff58 5 174 370
 3ff5d 5 175 370
 3ff62 9 176 370
 3ff6b 4 178 370
 3ff6f 5 179 370
-FUNC 3ff7c 3b 0 get_doserrno(unsigned long*)
+FUNC 3ff7c 3b 0 _get_doserrno(unsigned long*)
 3ff7c 9 157 370
 3ff85 f 158 370
 3ff94 1b 161 370
 3ffaf 2 162 370
 3ffb1 6 163 370
-FUNC 3ffc8 3b 0 get_errno(int*)
+FUNC 3ffc8 3b 0 _get_errno(int*)
 3ffc8 9 135 370
 3ffd1 f 136 370
 3ffe0 1b 139 370
 3fffb 2 140 370
 3fffd 6 141 370
-FUNC 40014 3a 0 set_doserrno(unsigned long)
+FUNC 40014 3a 0 _set_doserrno(unsigned long)
 40014 8 147 370
 4001c 5 148 370
 40021 5 149 370
@@ -15698,7 +15698,7 @@ FUNC 40014 3a 0 set_doserrno(unsigned long)
 4002d 19 152 370
 40046 2 153 370
 40048 6 154 370
-FUNC 4005c 3a 0 set_errno(int)
+FUNC 4005c 3a 0 _set_errno(int)
 4005c 8 125 370
 40064 5 126 370
 40069 5 127 370
@@ -15706,7 +15706,7 @@ FUNC 4005c 3a 0 set_errno(int)
 40075 19 130 370
 4008e 2 131 370
 40090 6 132 370
-FUNC 400a4 75 0 calloc_base(unsigned long long, unsigned long long)
+FUNC 400a4 75 0 _calloc_base(unsigned long long, unsigned long long)
 400a4 c 23 371
 400b0 13 25 371
 400c3 4 28 371
@@ -16283,9 +16283,9 @@ FUNC 4263c 5 0 strpbrk(char* const, char const* const)
 4263c 5 512 237
 FUNC 42644 5 0 wcspbrk(wchar_t*, wchar_t const*)
 42644 5 547 185
-FUNC 4264c 5 0 _acrt_expand_narrow_argv_wildcards(char**, char***)
+FUNC 4264c 5 0 __acrt_expand_narrow_argv_wildcards(char**, char***)
 4264c 5 385 375
-FUNC 42654 5 0 _acrt_expand_wide_argv_wildcards(wchar_t**, wchar_t***)
+FUNC 42654 5 0 __acrt_expand_wide_argv_wildcards(wchar_t**, wchar_t***)
 42654 5 390 375
 FUNC 4265c 119 0 __acrt_convert_wcs_mbs_cp<wchar_t,char,<lambda_f788ae46380686e8b737efdd8c720d07>,__crt_win32_buffer_no_resizing>(wchar_t const* const, __crt_win32_buffer<char,__crt_win32_buffer_no_resizing>&, __acrt_wcs_to_mbs_cp::__l2::<lambda_f788ae46380686e8b737efdd8c720d07> const&, const unsigned int)
 4265c 14 494 323
@@ -16364,7 +16364,7 @@ FUNC 42a20 5 0 __crt_win32_buffer<char,__crt_win32_buffer_no_resizing>::size(uns
 FUNC 42a28 5 0 __crt_win32_buffer<char,__crt_win32_buffer_no_resizing>::size() const
 42a28 4 258 323
 42a2c 1 259 323
-FUNC 42a30 11e 0 _acrt_GetModuleFileNameA(HINSTANCE__*, char*, unsigned long)
+FUNC 42a30 11e 0 __acrt_GetModuleFileNameA(HINSTANCE__*, char*, unsigned long)
 42a30 31 16 380
 42a61 11 20 380
 42a72 4 26 380
@@ -16567,7 +16567,7 @@ FUNC 43804 4 0 __crt_state_management::dual_state_global<unsigned char *>::value
 FUNC 43808 4 0 __crt_state_management::dual_state_global<__crt_multibyte_data *>::value()
 43808 3 147 180
 4380b 1 148 180
-FUNC 4380c 60 0 _acrt_initialize_multibyte()
+FUNC 4380c 60 0 __acrt_initialize_multibyte()
 4380c 4 895 384
 43810 9 907 384
 43819 e 913 384
@@ -16580,29 +16580,29 @@ FUNC 4380c 60 0 _acrt_initialize_multibyte()
 4385e 7 923 384
 43865 2 926 384
 43867 5 927 384
-FUNC 43884 1c 0 _acrt_update_thread_multibyte_data()
+FUNC 43884 1c 0 __acrt_update_thread_multibyte_data()
 43884 4 361 384
 43888 f 362 384
 43897 4 363 384
 4389b 5 362 384
-FUNC 438a8 8 0 _p__mbcasemap()
+FUNC 438a8 8 0 __p__mbcasemap()
 438a8 7 239 384
 438af 1 240 384
-FUNC 438b4 8 0 _p__mbctype()
+FUNC 438b4 8 0 __p__mbctype()
 438b4 7 234 384
 438bb 1 235 384
-FUNC 438c0 3a 0 getmbcp()
+FUNC 438c0 3a 0 _getmbcp()
 438c0 4 871 384
 438c4 c 873 384
 438d0 10 874 384
 438e0 15 877 384
 438f5 5 878 384
-FUNC 43908 25 0 setmbcp(int)
+FUNC 43908 25 0 _setmbcp(int)
 43908 8 688 384
 43910 13 689 384
 43923 5 690 384
 43928 5 689 384
-FUNC 43938 2b9 0 setmbcp_nolock(int, __crt_multibyte_data*)
+FUNC 43938 2b9 0 _setmbcp_nolock(int, __crt_multibyte_data*)
 43938 26 693 384
 4395e 5 700 384
 43963 c 703 384
@@ -16664,98 +16664,98 @@ FUNC 43d48 75 0 x_ismbbtype_l(__crt_locale_pointers*, unsigned int, int, int)
 43d5c 10 224 385
 43d6c 41 231 385
 43dad 10 233 385
-FUNC 43ddc 15 0 ismbbalnum(unsigned int)
+FUNC 43ddc 15 0 _ismbbalnum(unsigned int)
 43ddc 15 114 385
-FUNC 43df8 19 0 ismbbalnum_l(unsigned int, __crt_locale_pointers*)
+FUNC 43df8 19 0 _ismbbalnum_l(unsigned int, __crt_locale_pointers*)
 43df8 3 107 385
 43dfb 16 109 385
-FUNC 43e18 15 0 ismbbalpha(unsigned int)
+FUNC 43e18 15 0 _ismbbalpha(unsigned int)
 43e18 15 124 385
-FUNC 43e34 19 0 ismbbalpha_l(unsigned int, __crt_locale_pointers*)
+FUNC 43e34 19 0 _ismbbalpha_l(unsigned int, __crt_locale_pointers*)
 43e34 3 117 385
 43e37 16 119 385
-FUNC 43e54 1c 0 ismbbblank(unsigned int)
+FUNC 43e54 1c 0 _ismbbblank(unsigned int)
 43e54 8 164 385
 43e5c 1 165 385
 43e5d 13 164 385
-FUNC 43e78 20 0 ismbbblank_l(unsigned int, __crt_locale_pointers*)
+FUNC 43e78 20 0 _ismbbblank_l(unsigned int, __crt_locale_pointers*)
 43e78 3 157 385
 43e7b 8 159 385
 43e83 1 160 385
 43e84 14 159 385
-FUNC 43ea0 15 0 ismbbgraph(unsigned int)
+FUNC 43ea0 15 0 _ismbbgraph(unsigned int)
 43ea0 15 134 385
-FUNC 43ebc 19 0 ismbbgraph_l(unsigned int, __crt_locale_pointers*)
+FUNC 43ebc 19 0 _ismbbgraph_l(unsigned int, __crt_locale_pointers*)
 43ebc 3 127 385
 43ebf 16 129 385
-FUNC 43edc 12 0 ismbbkalnum(unsigned int)
+FUNC 43edc 12 0 _ismbbkalnum(unsigned int)
 43edc 12 81 385
-FUNC 43ef4 16 0 ismbbkalnum_l(unsigned int, __crt_locale_pointers*)
+FUNC 43ef4 16 0 _ismbbkalnum_l(unsigned int, __crt_locale_pointers*)
 43ef4 3 74 385
 43ef7 13 76 385
-FUNC 43f10 7 0 ismbbkana(unsigned int)
+FUNC 43f10 7 0 _ismbbkana(unsigned int)
 43f10 7 211 385
-FUNC 43f18 65 0 ismbbkana_l(unsigned int, __crt_locale_pointers*)
+FUNC 43f18 65 0 _ismbbkana_l(unsigned int, __crt_locale_pointers*)
 43f18 f 198 385
 43f27 a 200 385
 43f31 13 201 385
 43f44 17 204 385
 43f5b 15 206 385
 43f70 d 207 385
-FUNC 43f98 12 0 ismbbkprint(unsigned int)
+FUNC 43f98 12 0 _ismbbkprint(unsigned int)
 43f98 12 91 385
-FUNC 43fb0 16 0 ismbbkprint_l(unsigned int, __crt_locale_pointers*)
+FUNC 43fb0 16 0 _ismbbkprint_l(unsigned int, __crt_locale_pointers*)
 43fb0 3 84 385
 43fb3 13 86 385
-FUNC 43fcc 12 0 ismbbkpunct(unsigned int)
+FUNC 43fcc 12 0 _ismbbkpunct(unsigned int)
 43fcc 12 101 385
-FUNC 43fe4 16 0 ismbbkpunct_l(unsigned int, __crt_locale_pointers*)
+FUNC 43fe4 16 0 _ismbbkpunct_l(unsigned int, __crt_locale_pointers*)
 43fe4 3 94 385
 43fe7 13 96 385
-FUNC 44000 12 0 ismbblead(unsigned int)
+FUNC 44000 12 0 _ismbblead(unsigned int)
 44000 12 180 385
-FUNC 44018 16 0 ismbblead_l(unsigned int, __crt_locale_pointers*)
+FUNC 44018 16 0 _ismbblead_l(unsigned int, __crt_locale_pointers*)
 44018 3 171 385
 4401b 13 174 385
-FUNC 44034 15 0 ismbbprint(unsigned int)
+FUNC 44034 15 0 _ismbbprint(unsigned int)
 44034 15 144 385
-FUNC 44050 19 0 ismbbprint_l(unsigned int, __crt_locale_pointers*)
+FUNC 44050 19 0 _ismbbprint_l(unsigned int, __crt_locale_pointers*)
 44050 3 137 385
 44053 16 139 385
-FUNC 44070 13 0 ismbbpunct(unsigned int)
+FUNC 44070 13 0 _ismbbpunct(unsigned int)
 44070 13 154 385
-FUNC 44088 17 0 ismbbpunct_l(unsigned int, __crt_locale_pointers*)
+FUNC 44088 17 0 _ismbbpunct_l(unsigned int, __crt_locale_pointers*)
 44088 3 147 385
 4408b 14 149 385
-FUNC 440a4 12 0 ismbbtrail(unsigned int)
+FUNC 440a4 12 0 _ismbbtrail(unsigned int)
 440a4 12 192 385
-FUNC 440bc 16 0 ismbbtrail_l(unsigned int, __crt_locale_pointers*)
+FUNC 440bc 16 0 _ismbbtrail_l(unsigned int, __crt_locale_pointers*)
 440bc 3 183 385
 440bf 13 186 385
-FUNC 440d8 25 0 _acrt_initialize_command_line()
+FUNC 440d8 25 0 __acrt_initialize_command_line()
 440d8 4 62 386
 440dc d 63 386
 440e9 d 64 386
 440f6 2 65 386
 440f8 5 66 386
-FUNC 44108 3 0 _acrt_uninitialize_command_line(bool)
+FUNC 44108 3 0 __acrt_uninitialize_command_line(bool)
 44108 2 70 386
 4410a 1 71 386
-FUNC 4410c 8 0 _p___argc()
+FUNC 4410c 8 0 __p___argc()
 4410c 8 32 386
-FUNC 44118 8 0 _p___argv()
+FUNC 44118 8 0 __p___argv()
 44118 8 33 386
-FUNC 44124 8 0 _p___wargv()
+FUNC 44124 8 0 __p___wargv()
 44124 8 34 386
-FUNC 44130 8 0 _p__acmdln()
+FUNC 44130 8 0 __p__acmdln()
 44130 8 37 386
-FUNC 4413c 8 0 _p__pgmptr()
+FUNC 4413c 8 0 __p__pgmptr()
 4413c 8 35 386
-FUNC 44148 8 0 _p__wcmdln()
+FUNC 44148 8 0 __p__wcmdln()
 44148 8 38 386
-FUNC 44154 8 0 _p__wpgmptr()
+FUNC 44154 8 0 __p__wpgmptr()
 44154 8 36 386
-FUNC 44160 36 0 get_pgmptr(char**)
+FUNC 44160 36 0 _get_pgmptr(char**)
 44160 4 50 386
 44164 5 51 386
 44169 17 55 386
@@ -16763,7 +16763,7 @@ FUNC 44160 36 0 get_pgmptr(char**)
 4418c 3 53 386
 4418f 2 54 386
 44191 5 55 386
-FUNC 441a4 36 0 get_wpgmptr(wchar_t**)
+FUNC 441a4 36 0 _get_wpgmptr(wchar_t**)
 441a4 4 41 386
 441a8 5 42 386
 441ad 17 47 386
@@ -16794,7 +16794,7 @@ FUNC 442f0 55 0 filter_mbtowcs_flags(const unsigned int, const unsigned long)
 44317 28 41 388
 4433f 3 85 388
 44342 3 90 388
-FUNC 4435c 5a 0 _acrt_MultiByteToWideChar(unsigned int, unsigned long, char const*, int, wchar_t*, int)
+FUNC 4435c 5a 0 __acrt_MultiByteToWideChar(unsigned int, unsigned long, char const*, int, wchar_t*, int)
 4435c 53 101 388
 443af 7 103 388
 FUNC 443cc 44 0 filter_wcstomb_flags(const unsigned int, const unsigned long)
@@ -16803,7 +16803,7 @@ FUNC 443cc 44 0 filter_wcstomb_flags(const unsigned int, const unsigned long)
 4440c 1 89 389
 4440d 2 84 389
 4440f 1 89 389
-FUNC 44424 96 0 _acrt_WideCharToMultiByte(unsigned int, unsigned long, wchar_t const*, int, char*, int, char const*, int*)
+FUNC 44424 96 0 __acrt_WideCharToMultiByte(unsigned int, unsigned long, wchar_t const*, int, char*, int, char const*, int*)
 44424 2 101 389
 44426 10 102 389
 44436 58 103 389
@@ -16846,7 +16846,7 @@ FUNC 44594 3 0 `anonymous namespace'::environment_strings_traits::get_invalid_va
 FUNC 44598 8 0 __crt_unique_handle_t<`anonymous namespace'::environment_strings_traits>::is_valid() const
 44598 7 1152 201
 4459f 1 1153 201
-FUNC 445a4 101 0 _dcrt_get_narrow_environment_from_os()
+FUNC 445a4 101 0 __dcrt_get_narrow_environment_from_os()
 445a4 19 76 390
 445bd 6 80 390
 445c3 3 81 390
@@ -16861,7 +16861,7 @@ FUNC 445a4 101 0 _dcrt_get_narrow_environment_from_os()
 4465d 4 117 390
 44661 26 120 390
 44687 1e 121 390
-FUNC 446e8 9f 0 _dcrt_get_wide_environment_from_os()
+FUNC 446e8 9f 0 __dcrt_get_wide_environment_from_os()
 446e8 14 53 390
 446fc 6 54 390
 44702 2 55 390
@@ -17104,13 +17104,13 @@ FUNC 454cc 5 0 strchr(char* const, const int)
 454cc 5 506 237
 FUNC 454d4 5 0 wcschr(wchar_t*, wchar_t)
 454d4 5 541 185
-FUNC 454dc 5 0 _dcrt_set_variable_in_narrow_environment_nolock(char*, int)
+FUNC 454dc 5 0 __dcrt_set_variable_in_narrow_environment_nolock(char*, int)
 454dc 5 364 391
-FUNC 454e4 5 0 _dcrt_set_variable_in_wide_environment_nolock(wchar_t*, int)
+FUNC 454e4 5 0 __dcrt_set_variable_in_wide_environment_nolock(wchar_t*, int)
 454e4 5 372 391
-FUNC 454ec 5 0 recalloc(void*, unsigned long long, unsigned long long)
+FUNC 454ec 5 0 _recalloc(void*, unsigned long long, unsigned long long)
 454ec 5 68 392
-FUNC 454f4 95 0 recalloc_base(void*, unsigned long long, unsigned long long)
+FUNC 454f4 95 0 _recalloc_base(void*, unsigned long long, unsigned long long)
 454f4 1d 27 392
 45511 22 29 392
 45533 11 31 392
@@ -17303,7 +17303,7 @@ FUNC 463f8 73 0 try_load_library_from_system_directory(wchar_t const* const)
 FUNC 46488 8 0 GetCurrentThreadEffectiveToken()
 46488 7 490 234
 4648f 1 491 234
-FUNC 46494 4e 0 _acrt_AppPolicyGetProcessTerminationMethodInternal(AppPolicyProcessTerminationMethod*)
+FUNC 46494 4e 0 __acrt_AppPolicyGetProcessTerminationMethodInternal(AppPolicyProcessTerminationMethod*)
 46494 9 736 393
 4649d 24 737 393
 464c1 a 739 393
@@ -17311,7 +17311,7 @@ FUNC 46494 4e 0 _acrt_AppPolicyGetProcessTerminationMethodInternal(AppPolicyProc
 464d0 7 739 393
 464d7 5 742 393
 464dc 6 743 393
-FUNC 464f8 4e 0 _acrt_AppPolicyGetShowDeveloperDiagnosticInternal(AppPolicyShowDeveloperDiagnostic*)
+FUNC 464f8 4e 0 __acrt_AppPolicyGetShowDeveloperDiagnosticInternal(AppPolicyShowDeveloperDiagnostic*)
 464f8 9 756 393
 46501 24 757 393
 46525 a 759 393
@@ -17319,7 +17319,7 @@ FUNC 464f8 4e 0 _acrt_AppPolicyGetShowDeveloperDiagnosticInternal(AppPolicyShowD
 46534 7 759 393
 4653b 5 762 393
 46540 6 763 393
-FUNC 4655c 4e 0 _acrt_AppPolicyGetThreadInitializationTypeInternal(AppPolicyThreadInitializationType*)
+FUNC 4655c 4e 0 __acrt_AppPolicyGetThreadInitializationTypeInternal(AppPolicyThreadInitializationType*)
 4655c 9 746 393
 46565 24 747 393
 46589 a 749 393
@@ -17327,7 +17327,7 @@ FUNC 4655c 4e 0 _acrt_AppPolicyGetThreadInitializationTypeInternal(AppPolicyThre
 46598 7 749 393
 4659f 5 752 393
 465a4 6 753 393
-FUNC 465c0 4e 0 _acrt_AppPolicyGetWindowingModelInternal(AppPolicyWindowingModel*)
+FUNC 465c0 4e 0 __acrt_AppPolicyGetWindowingModelInternal(AppPolicyWindowingModel*)
 465c0 9 766 393
 465c9 24 767 393
 465ed a 769 393
@@ -17335,14 +17335,14 @@ FUNC 465c0 4e 0 _acrt_AppPolicyGetWindowingModelInternal(AppPolicyWindowingModel
 465fc 7 769 393
 46603 5 772 393
 46608 6 773 393
-FUNC 46624 3a 0 _acrt_AreFileApisANSI()
+FUNC 46624 3a 0 __acrt_AreFileApisANSI()
 46624 4 383 393
 46628 21 384 393
 46649 4 392 393
 4664d 7 386 393
 46654 5 391 393
 46659 5 392 393
-FUNC 4666c dc 0 _acrt_CompareStringEx(wchar_t const*, unsigned long, wchar_t const*, int, wchar_t const*, int, _nlsversioninfo*, void*, long long)
+FUNC 4666c dc 0 __acrt_CompareStringEx(wchar_t const*, unsigned long, wchar_t const*, int, wchar_t const*, int, _nlsversioninfo*, void*, long long)
 4666c 1c 405 393
 46688 7 406 393
 4668f 3 405 393
@@ -17350,13 +17350,13 @@ FUNC 4666c dc 0 _acrt_CompareStringEx(wchar_t const*, unsigned long, wchar_t con
 466af 52 408 393
 46701 32 411 393
 46733 15 412 393
-FUNC 46780 95 0 _acrt_EnumSystemLocalesEx(int (*)(wchar_t*, unsigned long, long long), unsigned long, long long, void*)
+FUNC 46780 95 0 __acrt_EnumSystemLocalesEx(int (*)(wchar_t*, unsigned long, long long), unsigned long, long long, void*)
 46780 1c 438 393
 4679c 24 439 393
 467c0 15 441 393
 467d5 30 444 393
 46805 10 448 393
-FUNC 4683c 48 0 _acrt_FlsAlloc(void (*)(void*))
+FUNC 4683c 48 0 __acrt_FlsAlloc(void (*)(void*))
 4683c 9 451 393
 46845 24 452 393
 46869 3 454 393
@@ -17364,21 +17364,21 @@ FUNC 4683c 48 0 _acrt_FlsAlloc(void (*)(void*))
 46871 7 454 393
 46878 5 458 393
 4687d 7 457 393
-FUNC 46898 46 0 _acrt_FlsFree(unsigned long)
+FUNC 46898 46 0 __acrt_FlsFree(unsigned long)
 46898 8 461 393
 468a0 26 462 393
 468c6 5 468 393
 468cb 7 464 393
 468d2 5 468 393
 468d7 7 467 393
-FUNC 468f0 46 0 _acrt_FlsGetValue(unsigned long)
+FUNC 468f0 46 0 __acrt_FlsGetValue(unsigned long)
 468f0 8 471 393
 468f8 26 472 393
 4691e 5 478 393
 46923 7 474 393
 4692a 5 478 393
 4692f 7 477 393
-FUNC 46948 51 0 _acrt_FlsSetValue(unsigned long, void*)
+FUNC 46948 51 0 __acrt_FlsSetValue(unsigned long, void*)
 46948 d 481 393
 46955 7 482 393
 4695c 2 481 393
@@ -17386,7 +17386,7 @@ FUNC 46948 51 0 _acrt_FlsSetValue(unsigned long, void*)
 46980 8 484 393
 46988 6 487 393
 4698e b 488 393
-FUNC 469b0 b6 0 _acrt_GetDateFormatEx(wchar_t const*, unsigned long, _SYSTEMTIME const*, wchar_t const*, wchar_t*, int, wchar_t const*)
+FUNC 469b0 b6 0 __acrt_GetDateFormatEx(wchar_t const*, unsigned long, _SYSTEMTIME const*, wchar_t const*, wchar_t*, int, wchar_t const*)
 469b0 1c 499 393
 469cc 7 500 393
 469d3 3 499 393
@@ -17394,13 +17394,13 @@ FUNC 469b0 b6 0 _acrt_GetDateFormatEx(wchar_t const*, unsigned long, _SYSTEMTIME
 469f3 32 502 393
 46a25 2c 505 393
 46a51 15 506 393
-FUNC 46a94 39 0 _acrt_GetEnabledXStateFeatures()
+FUNC 46a94 39 0 __acrt_GetEnabledXStateFeatures()
 46a94 4 509 393
 46a98 24 510 393
 46abc 4 516 393
 46ac0 7 512 393
 46ac7 6 515 393
-FUNC 46adc 82 0 _acrt_GetLocaleInfoEx(wchar_t const*, unsigned long, wchar_t*, int)
+FUNC 46adc 82 0 __acrt_GetLocaleInfoEx(wchar_t const*, unsigned long, wchar_t*, int)
 46adc 1c 524 393
 46af8 7 525 393
 46aff 3 524 393
@@ -17408,14 +17408,14 @@ FUNC 46adc 82 0 _acrt_GetLocaleInfoEx(wchar_t const*, unsigned long, wchar_t*, i
 46b22 10 527 393
 46b32 17 530 393
 46b49 15 531 393
-FUNC 46b80 48 0 _acrt_GetSystemTimePreciseAsFileTime(_FILETIME*)
+FUNC 46b80 48 0 __acrt_GetSystemTimePreciseAsFileTime(_FILETIME*)
 46b80 9 534 393
 46b89 27 535 393
 46bb0 5 541 393
 46bb5 7 537 393
 46bbc 5 541 393
 46bc1 7 540 393
-FUNC 46bdc ab 0 _acrt_GetTimeFormatEx(wchar_t const*, unsigned long, _SYSTEMTIME const*, wchar_t const*, wchar_t*, int)
+FUNC 46bdc ab 0 __acrt_GetTimeFormatEx(wchar_t const*, unsigned long, _SYSTEMTIME const*, wchar_t const*, wchar_t*, int)
 46bdc 1c 551 393
 46bf8 7 552 393
 46bff 3 551 393
@@ -17423,7 +17423,7 @@ FUNC 46bdc ab 0 _acrt_GetTimeFormatEx(wchar_t const*, unsigned long, _SYSTEMTIME
 46c1f 27 554 393
 46c46 2c 557 393
 46c72 15 558 393
-FUNC 46cb4 61 0 _acrt_GetUserDefaultLocaleName(wchar_t*, int)
+FUNC 46cb4 61 0 __acrt_GetUserDefaultLocaleName(wchar_t*, int)
 46cb4 c 564 393
 46cc0 7 565 393
 46cc7 3 564 393
@@ -17431,7 +17431,7 @@ FUNC 46cb4 61 0 _acrt_GetUserDefaultLocaleName(wchar_t*, int)
 46ce7 d 567 393
 46cf4 16 570 393
 46d0a b 571 393
-FUNC 46d30 51 0 _acrt_GetXStateFeaturesMask(_CONTEXT*, unsigned long long*)
+FUNC 46d30 51 0 __acrt_GetXStateFeaturesMask(_CONTEXT*, unsigned long long*)
 46d30 d 577 393
 46d3d 7 578 393
 46d44 3 577 393
@@ -17440,7 +17440,7 @@ FUNC 46d30 51 0 _acrt_GetXStateFeaturesMask(_CONTEXT*, unsigned long long*)
 46d6a a 584 393
 46d74 7 580 393
 46d7b 6 583 393
-FUNC 46d98 61 0 _acrt_InitializeCriticalSectionEx(_RTL_CRITICAL_SECTION*, unsigned long, unsigned long)
+FUNC 46d98 61 0 __acrt_InitializeCriticalSectionEx(_RTL_CRITICAL_SECTION*, unsigned long, unsigned long)
 46d98 12 591 393
 46daa 7 592 393
 46db1 2 591 393
@@ -17450,7 +17450,7 @@ FUNC 46d98 61 0 _acrt_InitializeCriticalSectionEx(_RTL_CRITICAL_SECTION*, unsign
 46dd8 b 594 393
 46de3 6 597 393
 46de9 10 598 393
-FUNC 46e14 56 0 _acrt_IsValidLocaleName(wchar_t const*)
+FUNC 46e14 56 0 __acrt_IsValidLocaleName(wchar_t const*)
 46e14 9 601 393
 46e1d 27 602 393
 46e44 5 608 393
@@ -17458,7 +17458,7 @@ FUNC 46e14 56 0 _acrt_IsValidLocaleName(wchar_t const*)
 46e50 e 607 393
 46e5e 5 608 393
 46e63 7 607 393
-FUNC 46e80 70 0 _acrt_LCIDToLocaleName(unsigned long, wchar_t*, int, unsigned long)
+FUNC 46e80 70 0 __acrt_LCIDToLocaleName(unsigned long, wchar_t*, int, unsigned long)
 46e80 1d 636 393
 46e9d 7 637 393
 46ea4 2 636 393
@@ -17466,7 +17466,7 @@ FUNC 46e80 70 0 _acrt_LCIDToLocaleName(unsigned long, wchar_t*, int, unsigned lo
 46ecb b 639 393
 46ed6 5 642 393
 46edb 15 643 393
-FUNC 46f0c dc 0 _acrt_LCMapStringEx(wchar_t const*, unsigned long, wchar_t const*, int, wchar_t*, int, _nlsversioninfo*, void*, long long)
+FUNC 46f0c dc 0 __acrt_LCMapStringEx(wchar_t const*, unsigned long, wchar_t const*, int, wchar_t*, int, _nlsversioninfo*, void*, long long)
 46f0c 1c 621 393
 46f28 7 622 393
 46f2f 3 621 393
@@ -17474,7 +17474,7 @@ FUNC 46f0c dc 0 _acrt_LCMapStringEx(wchar_t const*, unsigned long, wchar_t const
 46f4f 52 624 393
 46fa1 32 627 393
 46fd3 15 628 393
-FUNC 47020 50 0 _acrt_LocaleNameToLCID(wchar_t const*, unsigned long)
+FUNC 47020 50 0 __acrt_LocaleNameToLCID(wchar_t const*, unsigned long)
 47020 c 649 393
 4702c 7 650 393
 47033 3 649 393
@@ -17482,7 +17482,7 @@ FUNC 47020 50 0 _acrt_LocaleNameToLCID(wchar_t const*, unsigned long)
 47056 a 652 393
 47060 5 655 393
 47065 b 656 393
-FUNC 47084 5f 0 _acrt_LocateXStateFeature(_CONTEXT*, unsigned long, unsigned long*)
+FUNC 47084 5f 0 __acrt_LocateXStateFeature(_CONTEXT*, unsigned long, unsigned long*)
 47084 12 663 393
 47096 7 664 393
 4709d 2 663 393
@@ -17493,7 +17493,7 @@ FUNC 47084 5f 0 _acrt_LocateXStateFeature(_CONTEXT*, unsigned long, unsigned lon
 470c7 f 670 393
 470d6 7 666 393
 470dd 6 669 393
-FUNC 470fc 71 0 _acrt_MessageBoxA(HWND__*, char const*, char const*, unsigned int)
+FUNC 470fc 71 0 __acrt_MessageBoxA(HWND__*, char const*, char const*, unsigned int)
 470fc 1d 678 393
 47119 7 679 393
 47120 3 678 393
@@ -17501,7 +17501,7 @@ FUNC 470fc 71 0 _acrt_MessageBoxA(HWND__*, char const*, char const*, unsigned in
 47140 12 681 393
 47152 15 685 393
 47167 6 684 393
-FUNC 4718c 71 0 _acrt_MessageBoxW(HWND__*, wchar_t const*, wchar_t const*, unsigned int)
+FUNC 4718c 71 0 __acrt_MessageBoxW(HWND__*, wchar_t const*, wchar_t const*, unsigned int)
 4718c 1d 693 393
 471a9 7 694 393
 471b0 3 693 393
@@ -17509,19 +17509,19 @@ FUNC 4718c 71 0 _acrt_MessageBoxW(HWND__*, wchar_t const*, wchar_t const*, unsig
 471d0 12 696 393
 471e2 15 700 393
 471f7 6 699 393
-FUNC 4721c 40 0 _acrt_RoInitialize(RO_INIT_TYPE)
+FUNC 4721c 40 0 __acrt_RoInitialize(RO_INIT_TYPE)
 4721c 8 716 393
 47224 24 717 393
 47248 2 719 393
 4724a 5 723 393
 4724f 7 719 393
 47256 6 723 393
-FUNC 4726c 33 0 _acrt_RoUninitialize()
+FUNC 4726c 33 0 __acrt_RoUninitialize()
 4726c 4 726 393
 47270 24 727 393
 47294 6 729 393
 4729a 5 733 393
-FUNC 472ac 4f 0 _acrt_RtlGenRandom(void*, unsigned long)
+FUNC 472ac 4f 0 __acrt_RtlGenRandom(void*, unsigned long)
 472ac c 706 393
 472b8 7 707 393
 472bf 3 706 393
@@ -17530,28 +17530,28 @@ FUNC 472ac 4f 0 _acrt_RtlGenRandom(void*, unsigned long)
 472e4 a 713 393
 472ee 7 709 393
 472f5 6 712 393
-FUNC 47310 42 0 _acrt_SetThreadStackGuarantee(unsigned long*)
+FUNC 47310 42 0 __acrt_SetThreadStackGuarantee(unsigned long*)
 47310 9 776 393
 47319 24 777 393
 4733d 3 779 393
 47340 5 783 393
 47345 7 779 393
 4734c 6 783 393
-FUNC 47364 6d 0 _acrt_can_show_message_box()
+FUNC 47364 6d 0 __acrt_can_show_message_box()
 47364 a 788 393
 4736e 2 789 393
 47370 54 792 393
 473c4 2 796 393
 473c6 b 797 393
-FUNC 473ec 2e 0 _acrt_can_use_vista_locale_apis()
+FUNC 473ec 2e 0 __acrt_can_use_vista_locale_apis()
 473ec 4 800 393
 473f0 25 801 393
 47415 5 802 393
-FUNC 47428 2e 0 _acrt_can_use_xstate_apis()
+FUNC 47428 2e 0 __acrt_can_use_xstate_apis()
 47428 4 824 393
 4742c 25 825 393
 47451 5 826 393
-FUNC 47464 15a 0 _acrt_eagerly_load_locale_apis()
+FUNC 47464 15a 0 __acrt_eagerly_load_locale_apis()
 47464 4 809 393
 47468 1c 810 393
 47484 1f 811 393
@@ -17566,7 +17566,7 @@ FUNC 47464 15a 0 _acrt_eagerly_load_locale_apis()
 4759b 1a 820 393
 475b5 4 821 393
 475b9 5 820 393
-FUNC 47614 78 0 _acrt_get_parent_window()
+FUNC 47614 78 0 __acrt_get_parent_window()
 47614 6 829 393
 4761a 1f 830 393
 47639 5 831 393
@@ -17580,11 +17580,11 @@ FUNC 47614 78 0 _acrt_get_parent_window()
 4767d 7 848 393
 47684 2 839 393
 47686 6 849 393
-FUNC 476ac 31 0 _acrt_initialize_winapi_thunks()
+FUNC 476ac 31 0 __acrt_initialize_winapi_thunks()
 476ac 5 153 393
 476b1 24 154 393
 476d5 8 162 393
-FUNC 476ec c6 0 _acrt_is_interactive()
+FUNC 476ec c6 0 __acrt_is_interactive()
 476ec 19 852 393
 47705 22 853 393
 47727 5 854 393
@@ -17598,7 +17598,7 @@ FUNC 476ec c6 0 _acrt_is_interactive()
 47794 4 879 393
 47798 2 882 393
 4779a 18 883 393
-FUNC 477e4 41 0 _acrt_uninitialize_winapi_thunks(bool)
+FUNC 477e4 41 0 __acrt_uninitialize_winapi_thunks(bool)
 477e4 6 165 393
 477ea 4 167 393
 477ee 7 172 393
@@ -17609,19 +17609,19 @@ FUNC 477e4 41 0 _acrt_uninitialize_winapi_thunks(bool)
 4780d 10 172 393
 4781d 2 185 393
 4781f 6 186 393
-FUNC 47838 8 0 _acrt_getheap()
+FUNC 47838 8 0 __acrt_getheap()
 47838 7 51 396
 4783f 1 52 396
-FUNC 47844 1c 0 _acrt_initialize_heap()
+FUNC 47844 1c 0 __acrt_initialize_heap()
 47844 4 22 396
 47848 6 23 396
 4784e d 24 396
 4785b 5 28 396
-FUNC 47868 b 0 _acrt_uninitialize_heap(bool)
+FUNC 47868 b 0 __acrt_uninitialize_heap(bool)
 47868 8 34 396
 47870 2 35 396
 47872 1 36 396
-FUNC 47878 8 0 get_heap_handle()
+FUNC 47878 8 0 _get_heap_handle()
 47878 7 43 396
 4787f 1 44 396
 FUNC 47884 1b 0 get_std_handle_id(const int)
@@ -17673,7 +17673,7 @@ FUNC 479d0 10c 0 initialize_stdio_handles_nolock()
 47aa7 b 183 397
 47ab2 f 125 397
 47ac1 1b 186 397
-FUNC 47b20 3b 0 _acrt_initialize_lowio()
+FUNC 47b20 3b 0 __acrt_initialize_lowio()
 47b20 6 225 397
 47b26 a 226 397
 47b30 2 227 397
@@ -17684,7 +17684,7 @@ FUNC 47b20 3b 0 _acrt_initialize_lowio()
 47b49 a 243 397
 47b53 2 246 397
 47b55 6 247 397
-FUNC 47b6c 40 0 _acrt_uninitialize_lowio(bool)
+FUNC 47b6c 40 0 __acrt_uninitialize_lowio(bool)
 47b6c a 254 397
 47b76 2 255 397
 47b78 10 257 397
@@ -17692,7 +17692,7 @@ FUNC 47b6c 40 0 _acrt_uninitialize_lowio(bool)
 47b8d 5 261 397
 47b92 d 255 397
 47b9f d 265 397
-FUNC 47bbc 80 0 _acrt_execute_initializers(__acrt_initializer const*, __acrt_initializer const*)
+FUNC 47bbc 80 0 __acrt_execute_initializers(__acrt_initializer const*, __acrt_initializer const*)
 47bbc 15 14 398
 47bd1 5 15 398
 47bd6 3 19 398
@@ -17707,7 +17707,7 @@ FUNC 47bbc 80 0 _acrt_execute_initializers(__acrt_initializer const*, __acrt_ini
 47c26 4 46 398
 47c2a 2 31 398
 47c2c 10 47 398
-FUNC 47c5c 3c 0 _acrt_execute_uninitializers(__acrt_initializer const*, __acrt_initializer const*)
+FUNC 47c5c 3c 0 __acrt_execute_uninitializers(__acrt_initializer const*, __acrt_initializer const*)
 47c5c 10 53 398
 47c6c 5 54 398
 47c71 9 60 398
@@ -17732,24 +17732,24 @@ FUNC 47d08 27 0 __crt_state_management::dual_state_global<int (__cdecl*)(unsigne
 FUNC 47d38 4 0 __crt_state_management::dual_state_global<int (__cdecl*)(unsigned __int64)>::value()
 47d38 3 147 180
 47d3b 1 148 180
-FUNC 47d3c 8 0 _acrt_initialize_new_handler(void*)
+FUNC 47d3c 8 0 __acrt_initialize_new_handler(void*)
 47d3c 7 20 399
 47d43 1 21 399
-FUNC 47d48 2f 0 callnewh(unsigned long long)
+FUNC 47d48 2f 0 _callnewh(unsigned long long)
 47d48 9 76 399
 47d51 5 77 399
 47d56 12 79 399
 47d68 7 82 399
 47d6f 2 80 399
 47d71 6 83 399
-FUNC 47d84 34 0 query_new_handler()
+FUNC 47d84 34 0 _query_new_handler()
 47d84 6 56 399
 47d8a 8 59 399
 47d92 16 62 399
 47da8 7 66 399
 47daf 3 69 399
 47db2 6 70 399
-FUNC 47dc8 59 0 set_new_handler(int (*)(unsigned long long))
+FUNC 47dc8 59 0 _set_new_handler(int (*)(unsigned long long))
 47dc8 d 25 399
 47dd5 8 28 399
 47ddd 1b 31 399
@@ -17848,21 +17848,21 @@ FUNC 480e4 27 0 signal_failed(const int)
 FUNC 48114 4 0 __crt_state_management::dual_state_global<void (__cdecl*)(int)>::value()
 48114 3 147 180
 48117 1 148 180
-FUNC 48118 2e 0 _acrt_get_sigabrt_handler()
+FUNC 48118 2e 0 __acrt_get_sigabrt_handler()
 48118 7 562 400
 4811f 22 563 400
 48141 5 567 400
-FUNC 48154 1d 0 _acrt_initialize_signal_handlers(void*)
+FUNC 48154 1d 0 __acrt_initialize_signal_handlers(void*)
 48154 7 47 400
 4815b 7 48 400
 48162 7 49 400
 48169 7 50 400
 48170 1 51 400
-FUNC 48178 12 0 _fpecode()
+FUNC 48178 12 0 __fpecode()
 48178 4 571 400
 4817c 9 572 400
 48185 5 573 400
-FUNC 48190 12 0 _pxcptinfoptrs()
+FUNC 48190 12 0 __pxcptinfoptrs()
 48190 4 577 400
 48194 9 578 400
 4819d 5 579 400
@@ -17971,13 +17971,13 @@ FUNC 48744 27 0 __crt_state_management::dual_state_global<int (__cdecl*)(_except
 FUNC 48774 4 0 __crt_state_management::dual_state_global<int (__cdecl*)(_exception *)>::value()
 48774 3 147 180
 48777 1 148 180
-FUNC 48778 1d 0 _acrt_has_user_matherr()
+FUNC 48778 1d 0 __acrt_has_user_matherr()
 48778 1c 34 401
 48794 1 35 401
-FUNC 4879c 8 0 _acrt_initialize_user_matherr(void*)
+FUNC 4879c 8 0 __acrt_initialize_user_matherr(void*)
 4879c 7 29 401
 487a3 1 30 401
-FUNC 487a8 2e 0 _acrt_invoke_user_matherr(_exception*)
+FUNC 487a8 2e 0 __acrt_invoke_user_matherr(_exception*)
 487a8 7 41 401
 487af 3 38 401
 487b2 f 41 401
@@ -17985,7 +17985,7 @@ FUNC 487a8 2e 0 _acrt_invoke_user_matherr(_exception*)
 487c6 2 43 401
 487c8 1 46 401
 487c9 d 45 401
-FUNC 487e4 25 0 _setusermatherr(int (*)(_exception*))
+FUNC 487e4 25 0 __setusermatherr(int (*)(_exception*))
 487e4 7 24 401
 487eb 3 23 401
 487ee 1a 24 401
@@ -18120,7 +18120,7 @@ FUNC 48e40 1e 0 __crt_stdio_stream::set_flags(const long) const
 48e40 1e 209 337
 FUNC 48e68 25 0 __crt_stdio_stream::unset_flags(const long) const
 48e68 25 210 337
-FUNC 48e98 7a 0 _acrt_stdio_flush_nolock(_iobuf*)
+FUNC 48e98 7a 0 __acrt_stdio_flush_nolock(_iobuf*)
 48e98 12 218 402
 48eaa 10 221 402
 48eba 5 226 402
@@ -18134,7 +18134,7 @@ FUNC 48e98 7a 0 _acrt_stdio_flush_nolock(_iobuf*)
 48efb 5 246 402
 48f00 2 249 402
 48f02 10 250 402
-FUNC 48f30 4b 0 fflush_nolock(_iobuf*)
+FUNC 48f30 4b 0 _fflush_nolock(_iobuf*)
 48f30 9 185 402
 48f39 5 189 402
 48f3e 5 210 402
@@ -18145,7 +18145,7 @@ FUNC 48f30 4b 0 fflush_nolock(_iobuf*)
 48f6e 4 209 402
 48f72 3 205 402
 48f75 6 210 402
-FUNC 48f90 7 0 flushall()
+FUNC 48f90 7 0 _flushall()
 48f90 7 258 402
 FUNC 48f98 66 0 fflush(_iobuf*)
 48f98 4 158 402
@@ -18156,7 +18156,7 @@ FUNC 48f98 66 0 fflush(_iobuf*)
 48fc3 4 173 402
 48fc7 32 176 402
 48ff9 5 180 402
-FUNC 49018 30 0 _p___mb_cur_max()
+FUNC 49018 30 0 __p___mb_cur_max()
 49018 4 18 403
 4901c 5 19 403
 49021 19 22 403
@@ -18180,7 +18180,7 @@ FUNC 49098 1b 0 __crt_unique_heap_ptr<__crt_stdio_stream_data *,__crt_internal_f
 490a1 8 395 99
 490a9 4 396 99
 490ad 6 397 99
-FUNC 490bc 11f 0 _acrt_initialize_stdio()
+FUNC 490bc 11f 0 __acrt_initialize_stdio()
 490bc 19 60 404
 490d5 11 65 404
 490e6 7 67 404
@@ -18199,10 +18199,10 @@ FUNC 490bc 11f 0 _acrt_initialize_stdio()
 491a9 15 92 404
 491be 2 112 404
 491c0 1b 113 404
-FUNC 49224 11 0 _acrt_iob_func(unsigned int)
+FUNC 49224 11 0 __acrt_iob_func(unsigned int)
 49224 10 24 404
 49234 1 25 404
-FUNC 4923c 5b 0 _acrt_uninitialize_stdio()
+FUNC 4923c 5b 0 __acrt_uninitialize_stdio()
 4923c 6 121 404
 49242 5 122 404
 49247 7 123 404
@@ -18211,7 +18211,7 @@ FUNC 4923c 5b 0 _acrt_uninitialize_stdio()
 4927d c 131 404
 49289 8 132 404
 49291 6 133 404
-FUNC 492b0 47 0 get_stream_buffer_pointers(_iobuf*, char***, char***, int**)
+FUNC 492b0 47 0 _get_stream_buffer_pointers(_iobuf*, char***, char***, int**)
 492b0 4 159 404
 492b4 1c 160 404
 492d0 5 163 404
@@ -18222,9 +18222,9 @@ FUNC 492b0 47 0 get_stream_buffer_pointers(_iobuf*, char***, char***, int**)
 492e9 7 175 404
 492f0 2 178 404
 492f2 5 179 404
-FUNC 49308 b 0 lock_file(_iobuf*)
+FUNC 49308 b 0 _lock_file(_iobuf*)
 49308 b 140 404
-FUNC 49318 b 0 unlock_file(_iobuf*)
+FUNC 49318 b 0 _unlock_file(_iobuf*)
 49318 b 148 404
 FUNC 49328 10 0 __crt_stdio_stream::has_any_buffer() const
 49328 10 221 337
@@ -18232,7 +18232,7 @@ FUNC 4933c c 0 __crt_stdio_stream::has_any_of(const long) const
 4933c c 206 337
 FUNC 4934c c 0 __crt_stdio_stream::has_temporary_buffer() const
 4934c c 218 337
-FUNC 4935c cf 0 _acrt_stdio_begin_temporary_buffering_nolock(_iobuf*)
+FUNC 4935c cf 0 __acrt_stdio_begin_temporary_buffering_nolock(_iobuf*)
 4935c d 37 405
 49369 14 43 405
 4937d f 47 405
@@ -18256,7 +18256,7 @@ FUNC 4935c cf 0 _acrt_stdio_begin_temporary_buffering_nolock(_iobuf*)
 4941c 2 81 405
 4941e 2 52 405
 49420 b 82 405
-FUNC 49460 39 0 _acrt_stdio_end_temporary_buffering_nolock(bool, _iobuf*)
+FUNC 49460 39 0 __acrt_stdio_end_temporary_buffering_nolock(bool, _iobuf*)
 49460 9 96 405
 49469 3 99 405
 4946c 3 93 405
@@ -18266,7 +18266,7 @@ FUNC 49460 39 0 _acrt_stdio_end_temporary_buffering_nolock(bool, _iobuf*)
 49486 9 105 405
 4948f 4 106 405
 49493 6 114 405
-FUNC 494a8 5e 0 malloc_base(unsigned long long)
+FUNC 494a8 5e 0 _malloc_base(unsigned long long)
 494a8 9 24 406
 494b1 6 26 406
 494b7 c 29 406
@@ -18328,113 +18328,113 @@ FUNC 496f4 2e 0 __crt_strtox::parse_integer_from_string<unsigned __int64,wchar_t
 496fd 3 1823 357
 49700 1d 1824 357
 4971d 5 1829 357
-FUNC 49730 2a 0 strtoi64(char const*, char**, int)
+FUNC 49730 2a 0 _strtoi64(char const*, char**, int)
 49730 4 114 407
 49734 21 115 407
 49755 5 116 407
-FUNC 49764 2e 0 strtoi64_l(char const*, char**, int, __crt_locale_pointers*)
+FUNC 49764 2e 0 _strtoi64_l(char const*, char**, int, __crt_locale_pointers*)
 49764 4 144 407
 49768 5 145 407
 4976d 3 144 407
 49770 1d 145 407
 4978d 5 146 407
-FUNC 497a0 2e 0 strtoimax_l(char const*, char**, int, __crt_locale_pointers*)
+FUNC 497a0 2e 0 _strtoimax_l(char const*, char**, int, __crt_locale_pointers*)
 497a0 4 164 407
 497a4 5 165 407
 497a9 3 164 407
 497ac 1d 165 407
 497c9 5 166 407
-FUNC 497dc 2e 0 strtol_l(char const*, char**, int, __crt_locale_pointers*)
+FUNC 497dc 2e 0 _strtol_l(char const*, char**, int, __crt_locale_pointers*)
 497dc 4 77 407
 497e0 5 78 407
 497e5 3 77 407
 497e8 1d 78 407
 49805 5 79 407
-FUNC 49818 2e 0 strtoll_l(char const*, char**, int, __crt_locale_pointers*)
+FUNC 49818 2e 0 _strtoll_l(char const*, char**, int, __crt_locale_pointers*)
 49818 4 154 407
 4981c 5 155 407
 49821 3 154 407
 49824 1d 155 407
 49841 5 156 407
-FUNC 49854 2a 0 strtoui64(char const*, char**, int)
+FUNC 49854 2a 0 _strtoui64(char const*, char**, int)
 49854 4 175 407
 49858 21 176 407
 49879 5 177 407
-FUNC 49888 2e 0 strtoui64_l(char const*, char**, int, __crt_locale_pointers*)
+FUNC 49888 2e 0 _strtoui64_l(char const*, char**, int, __crt_locale_pointers*)
 49888 4 205 407
 4988c 5 206 407
 49891 3 205 407
 49894 1d 206 407
 498b1 5 207 407
-FUNC 498c4 2e 0 strtoul_l(char const*, char**, int, __crt_locale_pointers*)
+FUNC 498c4 2e 0 _strtoul_l(char const*, char**, int, __crt_locale_pointers*)
 498c4 4 98 407
 498c8 5 99 407
 498cd 3 98 407
 498d0 1d 99 407
 498ed 5 100 407
-FUNC 49900 2e 0 strtoull_l(char const*, char**, int, __crt_locale_pointers*)
+FUNC 49900 2e 0 _strtoull_l(char const*, char**, int, __crt_locale_pointers*)
 49900 4 215 407
 49904 5 216 407
 49909 3 215 407
 4990c 1d 216 407
 49929 5 217 407
-FUNC 4993c 2e 0 strtoumax_l(char const*, char**, int, __crt_locale_pointers*)
+FUNC 4993c 2e 0 _strtoumax_l(char const*, char**, int, __crt_locale_pointers*)
 4993c 4 225 407
 49940 5 226 407
 49945 3 225 407
 49948 1d 226 407
 49965 5 227 407
-FUNC 49978 2a 0 wcstoi64(wchar_t const*, wchar_t**, int)
+FUNC 49978 2a 0 _wcstoi64(wchar_t const*, wchar_t**, int)
 49978 4 286 407
 4997c 21 287 407
 4999d 5 288 407
-FUNC 499ac 2e 0 wcstoi64_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
+FUNC 499ac 2e 0 _wcstoi64_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
 499ac 4 316 407
 499b0 5 317 407
 499b5 3 316 407
 499b8 1d 317 407
 499d5 5 318 407
-FUNC 499e8 2e 0 wcstoimax_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
+FUNC 499e8 2e 0 _wcstoimax_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
 499e8 4 336 407
 499ec 5 337 407
 499f1 3 336 407
 499f4 1d 337 407
 49a11 5 338 407
-FUNC 49a24 2e 0 wcstol_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
+FUNC 49a24 2e 0 _wcstol_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
 49a24 4 251 407
 49a28 5 252 407
 49a2d 3 251 407
 49a30 1d 252 407
 49a4d 5 253 407
-FUNC 49a60 2e 0 wcstoll_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
+FUNC 49a60 2e 0 _wcstoll_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
 49a60 4 326 407
 49a64 5 327 407
 49a69 3 326 407
 49a6c 1d 327 407
 49a89 5 328 407
-FUNC 49a9c 2a 0 wcstoui64(wchar_t const*, wchar_t**, int)
+FUNC 49a9c 2a 0 _wcstoui64(wchar_t const*, wchar_t**, int)
 49a9c 4 347 407
 49aa0 21 348 407
 49ac1 5 349 407
-FUNC 49ad0 2e 0 wcstoui64_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
+FUNC 49ad0 2e 0 _wcstoui64_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
 49ad0 4 377 407
 49ad4 5 378 407
 49ad9 3 377 407
 49adc 1d 378 407
 49af9 5 379 407
-FUNC 49b0c 2e 0 wcstoul_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
+FUNC 49b0c 2e 0 _wcstoul_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
 49b0c 4 270 407
 49b10 5 271 407
 49b15 3 270 407
 49b18 1d 271 407
 49b35 5 272 407
-FUNC 49b48 2e 0 wcstoull_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
+FUNC 49b48 2e 0 _wcstoull_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
 49b48 4 387 407
 49b4c 5 388 407
 49b51 3 387 407
 49b54 1d 388 407
 49b71 5 389 407
-FUNC 49b84 2e 0 wcstoumax_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
+FUNC 49b84 2e 0 _wcstoumax_l(wchar_t const*, wchar_t**, int, __crt_locale_pointers*)
 49b84 4 397 407
 49b88 5 398 407
 49b8d 3 397 407
@@ -18488,7 +18488,7 @@ FUNC 49dfc 2a 0 wcstoumax(wchar_t const*, wchar_t**, int)
 49dfc 4 365 407
 49e00 21 366 407
 49e21 5 367 407
-FUNC 49e30 17e 0 mbtowc_l(wchar_t*, char const*, unsigned long long, __crt_locale_pointers*)
+FUNC 49e30 17e 0 _mbtowc_l(wchar_t*, char const*, unsigned long long, __crt_locale_pointers*)
 49e30 14 50 409
 49e44 1d 52 409
 49e61 5 60 409
@@ -18513,14 +18513,14 @@ FUNC 49e30 17e 0 mbtowc_l(wchar_t*, char const*, unsigned long long, __crt_local
 49f97 17 129 409
 FUNC 4a010 8 0 mbtowc(wchar_t*, char const*, unsigned long long)
 4a010 8 137 409
-FUNC 4a01c 72 0 wctomb_l(char*, wchar_t, __crt_locale_pointers*)
+FUNC 4a01c 72 0 _wctomb_l(char*, wchar_t, __crt_locale_pointers*)
 4a01c 10 161 415
 4a02c d 162 415
 4a039 29 165 415
 4a062 c 172 415
 4a06e 13 175 415
 4a081 d 176 415
-FUNC 4a0ac 19c 0 wctomb_s_l(int*, char*, unsigned long long, wchar_t, __crt_locale_pointers*)
+FUNC 4a0ac 19c 0 _wctomb_s_l(int*, char*, unsigned long long, wchar_t, __crt_locale_pointers*)
 4a0ac 1e 36 415
 4a0ca a 38 415
 4a0d4 5 41 415
@@ -18780,12 +18780,12 @@ FUNC 4b170 1d6 0 wcsnlen(wchar_t const*, unsigned long long)
 4b176 6 208 416
 4b17c 1c9 209 416
 4b345 1 210 416
-FUNC 4b3bc 31 0 _acrt_update_locale_info(__acrt_ptd* const, __crt_locale_data** const)
+FUNC 4b3bc 31 0 __acrt_update_locale_info(__acrt_ptd* const, __crt_locale_data** const)
 4b3bc 6 15 419
 4b3c2 1d 16 419
 4b3df 8 18 419
 4b3e7 6 20 419
-FUNC 4b3fc 31 0 _acrt_update_multibyte_info(__acrt_ptd* const, __crt_multibyte_data** const)
+FUNC 4b3fc 31 0 __acrt_update_multibyte_info(__acrt_ptd* const, __crt_multibyte_data** const)
 4b3fc 6 26 419
 4b402 1d 27 419
 4b41f 8 29 419
@@ -18989,7 +18989,7 @@ FUNC 4c114 30 0 shift_bytes(char* const, const unsigned long long, char* const, 
 4c13f 5 38 420
 FUNC 4c150 5 0 strrchr(char* const, const int)
 4c150 5 518 237
-FUNC 4c158 304 0 _acrt_fp_format(double const*, char*, unsigned long long, char*, unsigned long long, int, int, unsigned long long, __crt_locale_pointers*)
+FUNC 4c158 304 0 __acrt_fp_format(double const*, char*, unsigned long long, char*, unsigned long long, int, int, unsigned long long, __crt_locale_pointers*)
 4c158 20 693 420
 4c178 5 694 420
 4c17d 18 741 420
@@ -19015,7 +19015,7 @@ FUNC 4c520 1c 0 fputwc_binary_nolock(const wchar_t, const __crt_stdio_stream)
 4c52e 6 23 421
 4c534 7 25 421
 4c53b 1 26 421
-FUNC 4c544 17c 0 fputwc_nolock(wchar_t, _iobuf*)
+FUNC 4c544 17c 0 _fputwc_nolock(wchar_t, _iobuf*)
 4c544 21 31 421
 4c565 3 35 421
 4c568 6 31 421
@@ -19031,12 +19031,12 @@ FUNC 4c544 17c 0 fputwc_nolock(wchar_t, _iobuf*)
 4c677 2 68 421
 4c679 7 65 421
 4c680 40 69 421
-FUNC 4c720 23 0 fputwchar(wchar_t)
+FUNC 4c720 23 0 _fputwchar(wchar_t)
 4c720 9 113 421
 4c729 10 114 421
 4c739 5 115 421
 4c73e 5 114 421
-FUNC 4c74c 5 0 putwc_nolock(wchar_t, _iobuf*)
+FUNC 4c74c 5 0 _putwc_nolock(wchar_t, _iobuf*)
 4c74c 5 75 421
 FUNC 4c754 5e 0 fputwc(wchar_t, _iobuf*)
 4c754 15 83 421
@@ -19052,23 +19052,23 @@ FUNC 4c7d4 5 0 putwchar(wchar_t)
 4c7d4 5 122 421
 FUNC 4c7dc 7 0 __crt_stdio_stream::lowio_handle() const
 4c7dc 7 225 337
-FUNC 4c7e4 26 0 fileno(_iobuf*)
+FUNC 4c7e4 26 0 _fileno(_iobuf*)
 4c7e4 4 14 422
 4c7e8 1a 17 422
 4c802 3 18 422
 4c805 5 19 422
-FUNC 4c814 16 0 fputc_nolock(int, _iobuf*)
+FUNC 4c814 16 0 _fputc_nolock(int, _iobuf*)
 4c814 4 16 423
 4c818 6 20 423
 4c81e 8 27 423
 4c826 3 28 423
 4c829 1 29 423
-FUNC 4c830 21 0 fputchar(int)
+FUNC 4c830 21 0 _fputchar(int)
 4c830 8 73 423
 4c838 f 74 423
 4c847 5 75 423
 4c84c 5 74 423
-FUNC 4c85c 16 0 putc_nolock(int, _iobuf*)
+FUNC 4c85c 16 0 _putc_nolock(int, _iobuf*)
 4c85c 15 33 423
 4c871 1 34 423
 FUNC 4c878 124 0 fputc(int, _iobuf*)
@@ -19084,10 +19084,10 @@ FUNC 4c9e8 5 0 putc(int, _iobuf*)
 4c9e8 5 66 423
 FUNC 4c9f0 5 0 putchar(int)
 4c9f0 5 82 423
-FUNC 4c9f8 18 0 get_printf_count_output()
+FUNC 4c9f8 18 0 _get_printf_count_output()
 4c9f8 17 34 424
 4ca0f 1 35 424
-FUNC 4ca18 27 0 set_printf_count_output(int)
+FUNC 4ca18 27 0 _set_printf_count_output(int)
 4ca18 17 23 424
 4ca2f f 24 424
 4ca3e 1 26 424
@@ -19307,7 +19307,7 @@ FUNC 4d4dc 1b 0 __crt_unique_heap_ptr<__crt_locale_pointers,__crt_internal_free_
 4d4e5 8 395 99
 4d4ed 4 396 99
 4d4f1 6 397 99
-FUNC 4d500 82 0 _acrt_copy_locale_name(wchar_t const*)
+FUNC 4d500 82 0 __acrt_copy_locale_name(wchar_t const*)
 4d500 12 1398 425
 4d512 5 1402 425
 4d517 d 1405 425
@@ -19318,22 +19318,22 @@ FUNC 4d500 82 0 _acrt_copy_locale_name(wchar_t const*)
 4d55a 2 1410 425
 4d55c 10 1414 425
 4d56c 16 1412 425
-FUNC 4d5a4 c 0 _acrt_set_locale_changed()
+FUNC 4d5a4 c 0 __acrt_set_locale_changed()
 4d5a4 b 56 425
 4d5af 1 57 425
-FUNC 4d5b4 2e 0 _acrt_uninitialize_locale()
+FUNC 4d5b4 2e 0 __acrt_uninitialize_locale()
 4d5b4 7 117 425
 4d5bb 22 118 425
 4d5dd 5 130 425
-FUNC 4d5f0 e 0 _ascii_tolower(const int)
+FUNC 4d5f0 e 0 __ascii_tolower(const int)
 4d5f0 6 149 218
 4d5f6 5 151 218
 4d5fb 2 153 218
 4d5fd 1 154 218
-FUNC 4d604 d 0 _ascii_towlower(const int)
+FUNC 4d604 d 0 __ascii_towlower(const int)
 4d604 c 177 218
 4d610 1 178 218
-FUNC 4d614 a2 0 _lc_lctowcs(wchar_t*, unsigned long long, __crt_locale_strings const*)
+FUNC 4d614 a2 0 __lc_lctowcs(wchar_t*, unsigned long long, __crt_locale_strings const*)
 4d614 1d 1388 425
 4d631 b 1389 425
 4d63c c 1390 425
@@ -19342,7 +19342,7 @@ FUNC 4d614 a2 0 _lc_lctowcs(wchar_t*, unsigned long long, __crt_locale_strings c
 4d66f 1d 1393 425
 4d68c 15 1394 425
 4d6a1 15 1389 425
-FUNC 4d6e0 166 0 _lc_wcstolc(__crt_locale_strings*, wchar_t const*)
+FUNC 4d6e0 166 0 __lc_wcstolc(__crt_locale_strings*, wchar_t const*)
 4d6e0 1b 1323 425
 4d6fb 10 1328 425
 4d70b 9 1330 425
@@ -19367,7 +19367,7 @@ FUNC 4d6e0 166 0 _lc_wcstolc(__crt_locale_strings*, wchar_t const*)
 4d815 3 1369 425
 4d818 19 1384 425
 4d831 15 1366 425
-FUNC 4d8a0 69 0 configthreadlocale(int)
+FUNC 4d8a0 69 0 _configthreadlocale(int)
 4d8a0 8 72 425
 4d8a8 5 86 425
 4d8ad 11 87 425
@@ -19387,7 +19387,7 @@ FUNC 4d924 be 0 _copytlocinfo_nolock(__crt_locale_data*, __crt_locale_data*)
 4d9d4 4 281 425
 4d9d8 5 282 425
 4d9dd 5 284 425
-FUNC 4da14 76 0 create_locale(int, char const*)
+FUNC 4da14 76 0 _create_locale(int, char const*)
 4da14 1d 377 425
 4da31 a 381 425
 4da3b 26 384 425
@@ -19442,7 +19442,7 @@ FUNC 4daa8 47f 0 _expandlocale(wchar_t const*, wchar_t*, unsigned long long, wch
 4def5 5 1300 425
 4defa 18 1196 425
 4df12 15 1276 425
-FUNC 4e048 a2 0 free_locale(__crt_locale_pointers*)
+FUNC 4e048 a2 0 _free_locale(__crt_locale_pointers*)
 4e048 e 152 425
 4e056 3 151 425
 4e059 b 154 425
@@ -19457,7 +19457,7 @@ FUNC 4e048 a2 0 free_locale(__crt_locale_pointers*)
 4e0d2 a 189 425
 4e0dc 8 193 425
 4e0e4 6 195 425
-FUNC 4e114 bb 0 get_current_locale()
+FUNC 4e114 bb 0 _get_current_locale()
 4e114 b 209 425
 4e11f 5 210 425
 4e124 10 212 425
@@ -19476,7 +19476,7 @@ FUNC 4e114 bb 0 get_current_locale()
 4e18c 26 231 425
 4e1b2 15 236 425
 4e1c7 8 237 425
-FUNC 4e200 148 0 wcreate_locale(int, wchar_t const*)
+FUNC 4e200 148 0 _wcreate_locale(int, wchar_t const*)
 4e200 23 339 425
 4e223 14 340 425
 4e237 12 343 425
@@ -19497,7 +19497,7 @@ FUNC 4e200 148 0 wcreate_locale(int, wchar_t const*)
 4e30a 1d 366 425
 4e327 2 341 425
 4e329 1f 367 425
-FUNC 4e39c 65 0 wcscats(wchar_t*, unsigned long long, int, <NoType>)
+FUNC 4e39c 65 0 _wcscats(wchar_t*, unsigned long long, int, <NoType>)
 4e39c 5 1312 425
 4e3a1 12 1306 425
 4e3b3 5 1310 425
@@ -19506,7 +19506,7 @@ FUNC 4e39c 65 0 wcscats(wchar_t*, unsigned long long, int, <NoType>)
 4e3da 8 1312 425
 4e3e2 9 1317 425
 4e3eb 16 1314 425
-FUNC 4e41c a1 0 wsetlocale(int, wchar_t const*)
+FUNC 4e41c a1 0 _wsetlocale(int, wchar_t const*)
 4e41c 11 440 425
 4e42d 5 441 425
 4e432 5 442 425
@@ -19734,16 +19734,16 @@ FUNC 4f5c0 29 0 sync_legacy_variables_lk()
 4f5d5 a 296 425
 4f5df 9 297 425
 4f5e8 1 298 425
-FUNC 4f5f4 2f 0 _pctype_func()
+FUNC 4f5f4 2f 0 __pctype_func()
 4f5f4 4 20 426
 4f5f8 5 22 426
 4f5fd 19 25 426
 4f616 8 26 426
 4f61e 5 27 426
-FUNC 4f630 8 0 _pwctype_func()
+FUNC 4f630 8 0 __pwctype_func()
 4f630 7 16 426
 4f637 1 17 426
-FUNC 4f63c 5 0 iswctype_l(unsigned short, unsigned short, __crt_locale_pointers*)
+FUNC 4f63c 5 0 _iswctype_l(unsigned short, unsigned short, __crt_locale_pointers*)
 4f63c 5 37 427
 FUNC 4f644 6f 0 iswctype(unsigned short, unsigned short)
 4f644 a 41 427
@@ -19756,11 +19756,11 @@ FUNC 4f644 6f 0 iswctype(unsigned short, unsigned short)
 4f69f 7 54 427
 4f6a6 2 52 427
 4f6a8 b 55 427
-FUNC 4f6d0 30 0 isctype(int, int)
+FUNC 4f6d0 30 0 _isctype(int, int)
 4f6d0 10 110 428
 4f6e0 1f 115 428
 4f6ff 1 116 428
-FUNC 4f70c 108 0 isctype_l(int, int, __crt_locale_pointers*)
+FUNC 4f70c 108 0 _isctype_l(int, int, __crt_locale_pointers*)
 4f70c 2d 63 428
 4f739 c 64 428
 4f745 c 66 428
@@ -19776,10 +19776,10 @@ FUNC 4f70c 108 0 isctype_l(int, int, __crt_locale_pointers*)
 4f7c5 14 102 428
 4f7d9 4 105 428
 4f7dd 37 106 428
-FUNC 4f858 18 0 isleadbyte_fast_internal(const unsigned char, __crt_locale_pointers* const)
+FUNC 4f858 18 0 _isleadbyte_fast_internal(const unsigned char, __crt_locale_pointers* const)
 4f858 17 1565 201
 4f86f 1 1566 201
-FUNC 4f878 8b 0 _acrt_add_locale_ref(__crt_locale_data*)
+FUNC 4f878 8b 0 __acrt_add_locale_ref(__crt_locale_data*)
 4f878 4 24 429
 4f87c c 26 429
 4f888 3 28 429
@@ -19795,7 +19795,7 @@ FUNC 4f878 8b 0 _acrt_add_locale_ref(__crt_locale_data*)
 4f8ea 3 57 429
 4f8ed a 46 429
 4f8f7 c 61 429
-FUNC 4f928 176 0 _acrt_free_locale(__crt_locale_data*)
+FUNC 4f928 176 0 __acrt_free_locale(__crt_locale_data*)
 4f928 14 126 429
 4f93c 2c 132 429
 4f968 11 135 429
@@ -19821,25 +19821,25 @@ FUNC 4f928 176 0 _acrt_free_locale(__crt_locale_data*)
 4fa82 3 188 429
 4fa85 14 189 429
 4fa99 5 188 429
-FUNC 4fafc 27 0 _acrt_locale_add_lc_time_reference(__crt_lc_time_data const*)
+FUNC 4fafc 27 0 __acrt_locale_add_lc_time_reference(__crt_lc_time_data const*)
 4fafc 11 317 429
 4fb0d f 322 429
 4fb1c 1 323 429
 4fb1d 5 319 429
 4fb22 1 323 429
-FUNC 4fb2c 36 0 _acrt_locale_free_lc_time_if_unreferenced(__crt_lc_time_data const*)
+FUNC 4fb2c 36 0 __acrt_locale_free_lc_time_if_unreferenced(__crt_lc_time_data const*)
 4fb2c 19 341 429
 4fb45 a 346 429
 4fb4f 5 351 429
 4fb54 8 352 429
 4fb5c 6 353 429
-FUNC 4fb70 25 0 _acrt_locale_release_lc_time_reference(__crt_lc_time_data const*)
+FUNC 4fb70 25 0 __acrt_locale_release_lc_time_reference(__crt_lc_time_data const*)
 4fb70 11 329 429
 4fb81 d 334 429
 4fb8e 1 335 429
 4fb8f 5 331 429
 4fb94 1 335 429
-FUNC 4fba0 a8 0 _acrt_release_locale_ref(__crt_locale_data*)
+FUNC 4fba0 a8 0 __acrt_release_locale_ref(__crt_locale_data*)
 4fba0 4 72 429
 4fba4 9 73 429
 4fbad 9 76 429
@@ -19858,7 +19858,7 @@ FUNC 4fba0 a8 0 _acrt_release_locale_ref(__crt_locale_data*)
 4fc2d a 90 429
 4fc37 c 105 429
 4fc43 5 106 429
-FUNC 4fc74 6c 0 _acrt_update_thread_locale_data()
+FUNC 4fc74 6c 0 __acrt_update_thread_locale_data()
 4fc74 a 268 429
 4fc7e 5 270 429
 4fc83 1d 272 429
@@ -19869,7 +19869,7 @@ FUNC 4fc74 6c 0 _acrt_update_thread_locale_data()
 4fccc 3 294 429
 4fccf b 295 429
 4fcda 6 291 429
-FUNC 4fcfc 65 0 updatetlocinfoEx_nolock(__crt_locale_data**, __crt_locale_data*)
+FUNC 4fcfc 65 0 _updatetlocinfoEx_nolock(__crt_locale_data**, __crt_locale_data*)
 4fcfc d 204 429
 4fd09 a 205 429
 4fd13 3 208 429
@@ -19887,10 +19887,10 @@ FUNC 4fcfc 65 0 updatetlocinfoEx_nolock(__crt_locale_data**, __crt_locale_data*)
 FUNC 4fd7c 4 0 __crt_state_management::dual_state_global<long>::value()
 4fd7c 3 147 180
 4fd7f 1 148 180
-FUNC 4fd80 7 0 query_new_mode()
+FUNC 4fd80 7 0 _query_new_mode()
 4fd80 6 30 430
 4fd86 1 31 430
-FUNC 4fd88 2b 0 set_new_mode(int)
+FUNC 4fd88 2b 0 _set_new_mode(int)
 4fd88 4 20 430
 4fd8c 1a 22 430
 4fda6 8 24 430
@@ -20192,9 +20192,9 @@ FUNC 508d0 3e0 0 strpbrk(char const*, char const*)
 50bc0 c 492 437
 50bcc 2 499 437
 50bce e2 501 437
-FUNC 50da8 8 0 mbsdec(unsigned char const*, unsigned char const*)
+FUNC 50da8 8 0 _mbsdec(unsigned char const*, unsigned char const*)
 50da8 8 108 438
-FUNC 50db4 94 0 mbsdec_l(unsigned char const*, unsigned char const*, __crt_locale_pointers*)
+FUNC 50db4 94 0 _mbsdec_l(unsigned char const*, unsigned char const*, __crt_locale_pointers*)
 50db4 10 44 438
 50dc4 5 48 438
 50dc9 14 101 438
@@ -20217,17 +20217,17 @@ FUNC 50e80 22 0 __crt_scoped_stack_ptr<wchar_t>::~__crt_scoped_stack_ptr<wchar_t
 50e9d 5 457 99
 FUNC 50eac 4 0 __crt_scoped_stack_ptr<wchar_t>::get() const
 50eac 4 459 99
-FUNC 50eb0 e 0 MallocaComputeSize(unsigned long long)
+FUNC 50eb0 e 0 _MallocaComputeSize(unsigned long long)
 50eb0 4 104 131
 50eb4 9 105 131
 50ebd 1 106 131
-FUNC 50ec4 f 0 MarkAllocaS(void*, unsigned int)
+FUNC 50ec4 f 0 _MarkAllocaS(void*, unsigned int)
 50ec4 5 94 131
 50ec9 2 96 131
 50ecb 4 97 131
 50ecf 3 99 131
 50ed2 1 100 131
-FUNC 50ed8 18d 0 _acrt_GetStringTypeA(__crt_locale_pointers*, unsigned long, char const*, int, unsigned short*, int, int)
+FUNC 50ed8 18d 0 __acrt_GetStringTypeA(__crt_locale_pointers*, unsigned long, char const*, int, unsigned short*, int, int)
 50ed8 33 52 439
 50f0b f 53 439
 50f1a 11 64 439
@@ -20242,7 +20242,7 @@ FUNC 50ed8 18d 0 _acrt_GetStringTypeA(__crt_locale_pointers*, unsigned long, cha
 50ff6 4 96 439
 50ffa 45 99 439
 5103f 26 100 439
-FUNC 510c8 1f 0 freea_crt(void*)
+FUNC 510c8 1f 0 _freea_crt(void*)
 510c8 4 308 99
 510cc 5 309 99
 510d1 4 313 99
@@ -20285,7 +20285,7 @@ FUNC 510fc 315 0 __acrt_LCMapStringA_stat(__crt_locale_pointers*, wchar_t const*
 513ef f 194 440
 513fe 11 205 440
 5140f 2 207 440
-FUNC 514d8 96 0 _acrt_LCMapStringA(__crt_locale_pointers*, wchar_t const*, unsigned long, char const*, int, char*, int, int, int)
+FUNC 514d8 96 0 __acrt_LCMapStringA(__crt_locale_pointers*, wchar_t const*, unsigned long, char const*, int, char*, int, int, int)
 514d8 15 221 440
 514ed 10 222 440
 514fd 5f 224 440
@@ -20294,7 +20294,7 @@ FUNC 51594 17 0 initialize_multibyte()
 51594 4 16 442
 51598 e 17 442
 515a6 5 18 442
-FUNC 515b0 4f 0 wcsnicoll(wchar_t const*, wchar_t const*, unsigned long long)
+FUNC 515b0 4f 0 _wcsnicoll(wchar_t const*, wchar_t const*, unsigned long long)
 515b0 4 89 443
 515b4 9 90 443
 515bd 5 93 443
@@ -20306,7 +20306,7 @@ FUNC 515b0 4f 0 wcsnicoll(wchar_t const*, wchar_t const*, unsigned long long)
 515f3 3 101 443
 515f6 4 103 443
 515fa 5 101 443
-FUNC 51614 f0 0 wcsnicoll_l(wchar_t const*, wchar_t const*, unsigned long long, __crt_locale_pointers*)
+FUNC 51614 f0 0 _wcsnicoll_l(wchar_t const*, wchar_t const*, unsigned long long, __crt_locale_pointers*)
 51614 1d 49 443
 51631 5 52 443
 51636 7 54 443
@@ -20321,10 +20321,10 @@ FUNC 51614 f0 0 wcsnicoll_l(wchar_t const*, wchar_t const*, unsigned long long, 
 516ca d 77 443
 516d7 16 81 443
 516ed 17 82 443
-FUNC 51740 15 0 strnicoll(char const*, char const*, unsigned long long)
+FUNC 51740 15 0 _strnicoll(char const*, char const*, unsigned long long)
 51740 d 85 444
 5174d 8 91 444
-FUNC 5175c 100 0 strnicoll_l(char const*, char const*, unsigned long long, __crt_locale_pointers*)
+FUNC 5175c 100 0 _strnicoll_l(char const*, char const*, unsigned long long, __crt_locale_pointers*)
 5175c 1a 47 444
 51776 f 49 444
 51785 c 51 444
@@ -20367,7 +20367,7 @@ FUNC 51a74 25 0 <lambda_7c9dea7b4ca7285d2cdb541a38da6275>::operator()(const unsi
 51a74 4 630 323
 51a78 1c 632 323
 51a94 5 640 323
-FUNC 51aa4 197 0 _acrt_SetEnvironmentVariableA(char const*, char const*)
+FUNC 51aa4 197 0 __acrt_SetEnvironmentVariableA(char const*, char const*)
 51aa4 1f 15 445
 51ac3 3 16 445
 51ac6 6 15 445
@@ -20385,16 +20385,16 @@ FUNC 51aa4 197 0 _acrt_SetEnvironmentVariableA(char const*, char const*)
 51be3 8 35 445
 51beb 31 39 445
 51c1c 1f 40 445
-FUNC 51ca0 5 0 msize(void*)
+FUNC 51ca0 5 0 _msize(void*)
 51ca0 5 40 446
-FUNC 51ca8 39 0 msize_base(void*)
+FUNC 51ca8 39 0 _msize_base(void*)
 51ca8 4 21 446
 51cac 19 23 446
 51cc5 5 26 446
 51cca c 25 446
 51cd6 4 26 446
 51cda 7 25 446
-FUNC 51cf0 7a 0 realloc_base(void*, unsigned long long)
+FUNC 51cf0 7a 0 _realloc_base(void*, unsigned long long)
 51cf0 10 28 447
 51d00 5 30 447
 51d05 a 31 447
@@ -20429,7 +20429,7 @@ FUNC 51de8 87 0 GetTableIndexFromLocaleName(wchar_t const*)
 51e49 5 523 448
 51e4e 8 515 448
 51e56 19 524 448
-FUNC 51e90 f4 0 _acrt_DownlevelLCIDToLocaleName(unsigned long, wchar_t*, int)
+FUNC 51e90 f4 0 __acrt_DownlevelLCIDToLocaleName(unsigned long, wchar_t*, int)
 51e90 1d 571 448
 51ead 14 577 448
 51ec1 15 583 448
@@ -20444,7 +20444,7 @@ FUNC 51e90 f4 0 _acrt_DownlevelLCIDToLocaleName(unsigned long, wchar_t*, int)
 51f57 2 580 448
 51f59 15 604 448
 51f6e 16 600 448
-FUNC 51fc4 af 0 _acrt_DownlevelLocaleNameToLCID(wchar_t const*)
+FUNC 51fc4 af 0 __acrt_DownlevelLocaleNameToLCID(wchar_t const*)
 51fc4 1b 552 448
 51fdf 5 555 448
 51fe4 5a 558 448
@@ -20479,7 +20479,7 @@ FUNC 52100 1b 0 __crt_unique_heap_ptr<__crt_lowio_handle_data,__crt_internal_fre
 52109 8 395 99
 52111 4 396 99
 52115 6 397 99
-FUNC 52124 a5 0 _acrt_lowio_create_handle_array()
+FUNC 52124 a5 0 __acrt_lowio_create_handle_array()
 52124 14 14 449
 52138 d 15 449
 52145 2 19 449
@@ -20498,14 +20498,14 @@ FUNC 52124 a5 0 _acrt_lowio_create_handle_array()
 5219a d 24 449
 521a7 a 43 449
 521b1 18 44 449
-FUNC 521f4 50 0 _acrt_lowio_destroy_handle_array(__crt_lowio_handle_data*)
+FUNC 521f4 50 0 __acrt_lowio_destroy_handle_array(__crt_lowio_handle_data*)
 521f4 14 48 449
 52208 a 52 449
 52212 8 53 449
 5221a 12 55 449
 5222c 8 58 449
 52234 10 59 449
-FUNC 52258 a8 0 _acrt_lowio_ensure_fh_exists(int)
+FUNC 52258 a8 0 __acrt_lowio_ensure_fh_exists(int)
 52258 17 67 449
 5226f 1b 68 449
 5228a 16 98 449
@@ -20522,9 +20522,9 @@ FUNC 52258 a8 0 _acrt_lowio_ensure_fh_exists(int)
 522ed 5 75 449
 522f2 a 94 449
 522fc 4 97 449
-FUNC 5232c 27 0 _acrt_lowio_lock_fh(int)
+FUNC 5232c 27 0 __acrt_lowio_lock_fh(int)
 5232c 27 339 449
-FUNC 5235c bf 0 _acrt_lowio_set_os_handle(int, long long)
+FUNC 5235c bf 0 __acrt_lowio_set_os_handle(int, long long)
 5235c 1f 194 449
 5237b 30 196 449
 523ab a 199 449
@@ -20538,9 +20538,9 @@ FUNC 5235c bf 0 _acrt_lowio_set_os_handle(int, long long)
 523f5 8 216 449
 523fd 3 217 449
 52400 1b 219 449
-FUNC 5244c 27 0 _acrt_lowio_unlock_fh(int)
+FUNC 5244c 27 0 __acrt_lowio_unlock_fh(int)
 5244c 27 347 449
-FUNC 5247c 13e 0 alloc_osfhnd()
+FUNC 5247c 13e 0 _alloc_osfhnd()
 5247c 19 116 449
 52495 a 117 449
 5249f 4 118 449
@@ -20571,7 +20571,7 @@ FUNC 5247c 13e 0 alloc_osfhnd()
 52593 a 184 449
 5259d 3 186 449
 525a0 1a 187 449
-FUNC 5260c ba 0 free_osfhnd(int)
+FUNC 5260c ba 0 _free_osfhnd(int)
 5260c 18 226 449
 52624 37 229 449
 5265b a 232 449
@@ -20585,14 +20585,14 @@ FUNC 5260c ba 0 free_osfhnd(int)
 526a5 8 248 449
 526ad 3 249 449
 526b0 16 251 449
-FUNC 526f4 75 0 get_osfhandle(int)
+FUNC 526f4 75 0 _get_osfhandle(int)
 526f4 4 258 449
 526f8 1a 259 449
 52712 c 260 449
 5271e 23 261 449
 52741 7 263 449
 52748 21 264 449
-FUNC 52788 101 0 open_osfhandle(long long, int)
+FUNC 52788 101 0 _open_osfhandle(long long, int)
 52788 12 272 449
 5279a 7 276 449
 527a1 7 279 449
@@ -20653,7 +20653,7 @@ FUNC 52a50 7 0 <lambda_99fb1378e971ab6e7edea83e3a7a83a2>::operator()() const
 52a50 7 223 338
 FUNC 52a58 7 0 <lambda_a37b2b86f63e897a80ea819b0eb08c01>::operator()() const
 52a58 7 221 338
-FUNC 52a60 91 0 commit(int)
+FUNC 52a60 91 0 _commit(int)
 52a60 b 16 450
 52a6b 12 17 450
 52a7d c 18 450
@@ -20821,10 +20821,10 @@ FUNC 535b8 170 0 write_text_utf8_nolock(const int, char const* const, const unsi
 536d9 8 581 451
 536e1 10 585 451
 536f1 37 589 451
-FUNC 53784 e 0 utf8_no_of_trailbytes(const unsigned char)
+FUNC 53784 e 0 _utf8_no_of_trailbytes(const unsigned char)
 53784 d 47 338
 53791 1 48 338
-FUNC 53798 eb 0 write(int, void const*, unsigned int)
+FUNC 53798 eb 0 _write(int, void const*, unsigned int)
 53798 24 47 451
 537bc 1d 48 451
 537d9 c 49 451
@@ -20839,7 +20839,7 @@ FUNC 53798 eb 0 write(int, void const*, unsigned int)
 53845 7 68 451
 5384c 4 70 451
 53850 33 71 451
-FUNC 538c0 2da 0 write_nolock(int, void const*, unsigned int)
+FUNC 538c0 2da 0 _write_nolock(int, void const*, unsigned int)
 538c0 20 612 451
 538e0 9 614 451
 538e9 5 618 451
@@ -20889,7 +20889,7 @@ FUNC 53c50 33 0 localeconv()
 FUNC 53c90 c 0 __crt_stdio_stream::is_in_use() const
 53c90 b 179 337
 53c9b 1 180 337
-FUNC 53ca0 b1 0 fcloseall()
+FUNC 53ca0 b1 0 _fcloseall()
 53ca0 a 16 453
 53caa 5 17 453
 53caf b 19 453
@@ -20907,7 +20907,7 @@ FUNC 53ca0 b1 0 fcloseall()
 53d46 b 44 453
 FUNC 53d80 c 0 __crt_stdio_stream::has_crt_buffer() const
 53d80 c 216 337
-FUNC 53d90 40 0 _acrt_stdio_free_buffer_nolock(_iobuf*)
+FUNC 53d90 40 0 __acrt_stdio_free_buffer_nolock(_iobuf*)
 53d90 6 16 454
 53d96 3 21 454
 53d99 3 16 454
@@ -20919,59 +20919,59 @@ FUNC 53d90 40 0 _acrt_stdio_free_buffer_nolock(_iobuf*)
 53dc4 3 31 454
 53dc7 3 32 454
 53dca 6 33 454
-FUNC 53de0 5f 0 isatty(int)
+FUNC 53de0 5f 0 _isatty(int)
 53de0 4 15 456
 53de4 12 16 456
 53df6 c 17 456
 53e02 26 19 456
 53e28 10 17 456
 53e38 7 20 456
-FUNC 53e58 2c 0 _iswcsym(unsigned short)
+FUNC 53e58 2c 0 __iswcsym(unsigned short)
 53e58 6 158 457
 53e5e 20 160 457
 53e7e 6 161 457
-FUNC 53e90 2c 0 _iswcsymf(unsigned short)
+FUNC 53e90 2c 0 __iswcsymf(unsigned short)
 53e90 6 168 457
 53e96 20 170 457
 53eb6 6 171 457
-FUNC 53ec8 4b 0 isleadbyte_l(int, __crt_locale_pointers*)
+FUNC 53ec8 4b 0 _isleadbyte_l(int, __crt_locale_pointers*)
 53ec8 9 17 457
 53ed1 a 19 457
 53edb 32 20 457
 53f0d 6 21 457
-FUNC 53f28 a 0 iswalnum_l(unsigned short, __crt_locale_pointers*)
+FUNC 53f28 a 0 _iswalnum_l(unsigned short, __crt_locale_pointers*)
 53f28 a 110 457
-FUNC 53f34 a 0 iswalpha_l(unsigned short, __crt_locale_pointers*)
+FUNC 53f34 a 0 _iswalpha_l(unsigned short, __crt_locale_pointers*)
 53f34 a 30 457
-FUNC 53f40 16 0 iswblank_l(unsigned short, __crt_locale_pointers*)
+FUNC 53f40 16 0 _iswblank_l(unsigned short, __crt_locale_pointers*)
 53f40 b 100 457
 53f4b 1 101 457
 53f4c a 100 457
-FUNC 53f5c a 0 iswcntrl_l(unsigned short, __crt_locale_pointers*)
+FUNC 53f5c a 0 _iswcntrl_l(unsigned short, __crt_locale_pointers*)
 53f5c a 140 457
-FUNC 53f68 2c 0 iswcsym_l(unsigned short, __crt_locale_pointers*)
+FUNC 53f68 2c 0 _iswcsym_l(unsigned short, __crt_locale_pointers*)
 53f68 6 153 457
 53f6e 20 155 457
 53f8e 6 156 457
-FUNC 53fa0 2c 0 iswcsymf_l(unsigned short, __crt_locale_pointers*)
+FUNC 53fa0 2c 0 _iswcsymf_l(unsigned short, __crt_locale_pointers*)
 53fa0 6 163 457
 53fa6 20 165 457
 53fc6 6 166 457
-FUNC 53fd8 a 0 iswdigit_l(unsigned short, __crt_locale_pointers*)
+FUNC 53fd8 a 0 _iswdigit_l(unsigned short, __crt_locale_pointers*)
 53fd8 a 60 457
-FUNC 53fe4 a 0 iswgraph_l(unsigned short, __crt_locale_pointers*)
+FUNC 53fe4 a 0 _iswgraph_l(unsigned short, __crt_locale_pointers*)
 53fe4 a 130 457
-FUNC 53ff0 a 0 iswlower_l(unsigned short, __crt_locale_pointers*)
+FUNC 53ff0 a 0 _iswlower_l(unsigned short, __crt_locale_pointers*)
 53ff0 a 50 457
-FUNC 53ffc a 0 iswprint_l(unsigned short, __crt_locale_pointers*)
+FUNC 53ffc a 0 _iswprint_l(unsigned short, __crt_locale_pointers*)
 53ffc a 120 457
-FUNC 54008 a 0 iswpunct_l(unsigned short, __crt_locale_pointers*)
+FUNC 54008 a 0 _iswpunct_l(unsigned short, __crt_locale_pointers*)
 54008 a 90 457
-FUNC 54014 a 0 iswspace_l(unsigned short, __crt_locale_pointers*)
+FUNC 54014 a 0 _iswspace_l(unsigned short, __crt_locale_pointers*)
 54014 a 80 457
-FUNC 54020 a 0 iswupper_l(unsigned short, __crt_locale_pointers*)
+FUNC 54020 a 0 _iswupper_l(unsigned short, __crt_locale_pointers*)
 54020 a 40 457
-FUNC 5402c a 0 iswxdigit_l(unsigned short, __crt_locale_pointers*)
+FUNC 5402c a 0 _iswxdigit_l(unsigned short, __crt_locale_pointers*)
 5402c a 70 457
 FUNC 54038 4d 0 isleadbyte(int)
 54038 9 23 457
@@ -21187,34 +21187,34 @@ FUNC 54b3c 1b 0 __crt_unique_heap_ptr<long,__crt_internal_free_policy>::release(
 54b45 8 395 99
 54b4d 4 396 99
 54b51 6 397 99
-FUNC 54b60 2f 0 __lc_codepage_func()
+FUNC 54b60 2f 0 ___lc_codepage_func()
 54b60 4 297 459
 54b64 5 303 459
 54b69 19 306 459
 54b82 8 308 459
 54b8a 5 309 459
-FUNC 54b9c 2f 0 __lc_collate_cp_func()
+FUNC 54b9c 2f 0 ___lc_collate_cp_func()
 54b9c 4 312 459
 54ba0 5 318 459
 54ba5 19 321 459
 54bbe 8 323 459
 54bc6 5 324 459
-FUNC 54bd8 32 0 __lc_locale_name_func()
+FUNC 54bd8 32 0 ___lc_locale_name_func()
 54bd8 4 327 459
 54bdc 5 333 459
 54be1 19 336 459
 54bfa b 338 459
 54c05 5 339 459
-FUNC 54c18 2f 0 __mb_cur_max_func()
+FUNC 54c18 2f 0 ___mb_cur_max_func()
 54c18 4 275 459
 54c1c 5 281 459
 54c21 19 284 459
 54c3a 8 286 459
 54c42 5 287 459
-FUNC 54c54 10 0 __mb_cur_max_l_func(__crt_locale_pointers*)
+FUNC 54c54 10 0 ___mb_cur_max_l_func(__crt_locale_pointers*)
 54c54 f 291 459
 54c63 1 294 459
-FUNC 54c68 661 0 _acrt_locale_initialize_ctype(__crt_locale_data*)
+FUNC 54c68 661 0 __acrt_locale_initialize_ctype(__crt_locale_data*)
 54c68 31 54 459
 54c99 28 76 459
 54cc1 11 80 459
@@ -21324,7 +21324,7 @@ FUNC 55550 1c 0 __crt_mbstring::return_illegal_sequence(_Mbstatet*)
 55567 5 140 382
 FUNC 55574 5 0 c32rtomb(char*, char32_t, _Mbstatet*)
 55574 5 16 460
-FUNC 5557c e2 0 _acrt_fp_strflt_to_string(char*, unsigned long long, int, _strflt*)
+FUNC 5557c e2 0 __acrt_fp_strflt_to_string(char*, unsigned long long, int, _strflt*)
 5557c 10 28 461
 5558c 5 29 461
 55591 18 87 461
@@ -21714,7 +21714,7 @@ FUNC 581b0 14d 0 __crt_strtox::shift_left(__crt_strtox::big_integer&, const unsi
 582c5 1e 216 355
 582e3 2 217 355
 582e5 18 250 355
-FUNC 58350 1231 0 _acrt_fltout(_CRT_DOUBLE, unsigned int, _strflt*, char*, unsigned long long)
+FUNC 58350 1231 0 __acrt_fltout(_CRT_DOUBLE, unsigned int, _strflt*, char*, unsigned long long)
 58350 35 271 462
 58385 5 275 462
 5838a f 271 462
@@ -21852,13 +21852,13 @@ FUNC 59f54 79 0 stream_is_at_end_of_file_nolock(const __crt_stdio_stream)
 59fb6 f 48 463
 59fc5 2 45 463
 59fc7 6 49 463
-FUNC 59fec ea 0 _acrt_stdio_flush_and_write_narrow_nolock(int, _iobuf*)
+FUNC 59fec ea 0 __acrt_stdio_flush_and_write_narrow_nolock(int, _iobuf*)
 59fec 14 195 463
 5a000 1f 196 463
 5a01f d 197 463
 5a02c 9a 196 463
 5a0c6 10 197 463
-FUNC 5a110 eb 0 _acrt_stdio_flush_and_write_wide_nolock(int, _iobuf*)
+FUNC 5a110 eb 0 __acrt_stdio_flush_and_write_wide_nolock(int, _iobuf*)
 5a110 14 205 463
 5a124 1f 206 463
 5a143 f 207 463
@@ -21882,7 +21882,7 @@ FUNC 5a27c 1b 0 __crt_unique_heap_ptr<lconv,__crt_internal_free_policy>::release
 5a285 8 395 99
 5a28d 4 396 99
 5a291 6 397 99
-FUNC 5a2a0 10a 0 _acrt_locale_free_monetary(lconv*)
+FUNC 5a2a0 10a 0 __acrt_locale_free_monetary(lconv*)
 5a2a0 e 267 464
 5a2ae 3 266 464
 5a2b1 d 270 464
@@ -21912,7 +21912,7 @@ FUNC 5a2a0 10a 0 _acrt_locale_free_monetary(lconv*)
 5a38f 10 306 464
 5a39f 5 307 464
 5a3a4 6 308 464
-FUNC 5a3ec 533 0 _acrt_locale_initialize_monetary(__crt_locale_data*)
+FUNC 5a3ec 533 0 __acrt_locale_initialize_monetary(__crt_locale_data*)
 5a3ec 1f 64 464
 5a40b 3 69 464
 5a40e 4 72 464
@@ -21989,7 +21989,7 @@ FUNC 5aa6c 34 0 fix_grouping(char*)
 5aa8e 9 249 464
 5aa97 7 250 464
 5aa9e 2 254 464
-FUNC 5aab0 6c 0 _acrt_locale_free_numeric(lconv*)
+FUNC 5aab0 6c 0 __acrt_locale_free_numeric(lconv*)
 5aab0 a 214 465
 5aaba 3 213 465
 5aabd c 217 465
@@ -22003,7 +22003,7 @@ FUNC 5aab0 6c 0 _acrt_locale_free_numeric(lconv*)
 5ab04 d 229 465
 5ab11 5 230 465
 5ab16 6 231 465
-FUNC 5ab38 2e8 0 _acrt_locale_initialize_numeric(__crt_locale_data*)
+FUNC 5ab38 2e8 0 __acrt_locale_initialize_numeric(__crt_locale_data*)
 5ab38 1c 79 465
 5ab54 d 88 465
 5ab61 12 90 465
@@ -22142,7 +22142,7 @@ FUNC 5b4dc 1b 0 __crt_unique_heap_ptr<__crt_lc_time_data,__crt_internal_free_pol
 5b4e5 8 395 99
 5b4ed 4 396 99
 5b4f1 6 397 99
-FUNC 5b500 108 0 _acrt_locale_free_time(__crt_lc_time_data*)
+FUNC 5b500 108 0 __acrt_locale_free_time(__crt_lc_time_data*)
 5b500 18 151 466
 5b518 5 156 466
 5b51d 3 150 466
@@ -22164,7 +22164,7 @@ FUNC 5b500 108 0 _acrt_locale_free_time(__crt_lc_time_data*)
 5b5e0 c 174 466
 5b5ec c 176 466
 5b5f8 10 177 466
-FUNC 5b64c 9c 0 _acrt_locale_initialize_time(__crt_locale_data*)
+FUNC 5b64c 9c 0 __acrt_locale_initialize_time(__crt_locale_data*)
 5b64c f 107 466
 5b65b 2 108 466
 5b65d 3 107 466
@@ -22361,7 +22361,7 @@ FUNC 5c4bc 99 0 TranslateName(__crt_locale_string_table const*, int, wchar_t con
 5c52b 4 330 470
 5c52f 2 343 470
 5c531 24 344 470
-FUNC 5c57c 263 0 _acrt_get_qualified_locale(__crt_locale_strings const*, unsigned int*, __crt_locale_strings*)
+FUNC 5c57c 263 0 __acrt_get_qualified_locale(__crt_locale_strings const*, unsigned int*, __crt_locale_strings*)
 5c57c 26 171 470
 5c5a2 5 173 470
 5c5a7 3 174 470
@@ -22555,7 +22555,7 @@ FUNC 5d29c 7f 0 TranslateName(__crt_locale_string_table const*, int, wchar_t con
 5d2f4 19 255 471
 5d30d a 245 471
 5d317 4 246 471
-FUNC 5d33c 27e 0 _acrt_get_qualified_locale_downlevel(__crt_locale_strings const*, unsigned int*, __crt_locale_strings*)
+FUNC 5d33c 27e 0 __acrt_get_qualified_locale_downlevel(__crt_locale_strings const*, unsigned int*, __crt_locale_strings*)
 5d33c 29 90 471
 5d365 8 94 471
 5d36d 9 100 471
@@ -22594,13 +22594,13 @@ FUNC 5d33c 27e 0 _acrt_get_qualified_locale_downlevel(__crt_locale_strings const
 5d596 7 209 471
 5d59d 2 170 471
 5d59f 1b 210 471
-FUNC 5d65c 7 0 _acrt_GetStringTypeW(unsigned long, wchar_t const*, int, unsigned short*)
+FUNC 5d65c 7 0 __acrt_GetStringTypeW(unsigned long, wchar_t const*, int, unsigned short*)
 5d65c 7 46 473
-FUNC 5d664 15 0 _strncnt(char const*, unsigned long long)
+FUNC 5d664 15 0 __strncnt(char const*, unsigned long long)
 5d664 2 19 474
 5d666 12 21 474
 5d678 1 24 474
-FUNC 5d680 bd 0 _acrt_CompareStringW(wchar_t const*, unsigned long, wchar_t const*, int, wchar_t const*, int)
+FUNC 5d680 bd 0 __acrt_CompareStringW(wchar_t const*, unsigned long, wchar_t const*, int, wchar_t const*, int)
 5d680 24 43 475
 5d6a4 5 49 475
 5d6a9 e 50 475
@@ -22610,7 +22610,7 @@ FUNC 5d680 bd 0 _acrt_CompareStringW(wchar_t const*, unsigned long, wchar_t cons
 5d6de 2d 58 475
 5d70b 17 55 475
 5d722 1b 67 475
-FUNC 5d76c 4b 0 _ascii_wcsnicmp(wchar_t const*, wchar_t const*, unsigned long long)
+FUNC 5d76c 4b 0 __ascii_wcsnicmp(wchar_t const*, wchar_t const*, unsigned long long)
 5d76c 6 92 476
 5d772 5 93 476
 5d777 2 95 476
@@ -22624,18 +22624,18 @@ FUNC 5d76c 4b 0 _ascii_wcsnicmp(wchar_t const*, wchar_t const*, unsigned long lo
 5d7a1 8 109 476
 5d7a9 d 111 476
 5d7b6 1 114 476
-FUNC 5d7cc 26 0 towlower_fast_internal(const unsigned char, __crt_locale_pointers* const)
+FUNC 5d7cc 26 0 _towlower_fast_internal(const unsigned char, __crt_locale_pointers* const)
 5d7cc 12 1522 201
 5d7de f 1524 201
 5d7ed 1 1528 201
 5d7ee 3 1527 201
 5d7f1 1 1528 201
-FUNC 5d7fc 34 0 towlower_internal(const unsigned short, __crt_locale_pointers* const)
+FUNC 5d7fc 34 0 _towlower_internal(const unsigned short, __crt_locale_pointers* const)
 5d7fc a 1535 201
 5d806 24 1537 201
 5d82a 1 1541 201
 5d82b 5 1540 201
-FUNC 5d840 46 0 wcsnicmp(wchar_t const*, wchar_t const*, unsigned long long)
+FUNC 5d840 46 0 _wcsnicmp(wchar_t const*, wchar_t const*, unsigned long long)
 5d840 4 121 476
 5d844 9 122 476
 5d84d 5 125 476
@@ -22646,7 +22646,7 @@ FUNC 5d840 46 0 wcsnicmp(wchar_t const*, wchar_t const*, unsigned long long)
 5d87a 3 131 476
 5d87d 4 132 476
 5d881 5 131 476
-FUNC 5d898 150 0 wcsnicmp_l(wchar_t const*, wchar_t const*, unsigned long long, __crt_locale_pointers*)
+FUNC 5d898 150 0 _wcsnicmp_l(wchar_t const*, wchar_t const*, unsigned long long, __crt_locale_pointers*)
 5d898 26 50 476
 5d8be 5 52 476
 5d8c3 1a 85 476
@@ -22663,7 +22663,7 @@ FUNC 5d898 150 0 wcsnicmp_l(wchar_t const*, wchar_t const*, unsigned long long, 
 5d9a4 10 82 476
 5d9b4 15 84 476
 5d9c9 1f 85 476
-FUNC 5da3c 49 0 _ascii_strnicmp(char const*, char const*, unsigned long long)
+FUNC 5da3c 49 0 __ascii_strnicmp(char const*, char const*, unsigned long long)
 5da3c 6 86 477
 5da42 5 87 477
 5da47 2 89 477
@@ -22677,7 +22677,7 @@ FUNC 5da3c 49 0 _ascii_strnicmp(char const*, char const*, unsigned long long)
 5da6f 8 103 477
 5da77 d 105 477
 5da84 1 108 477
-FUNC 5da98 4f 0 strnicmp(char const*, char const*, unsigned long long)
+FUNC 5da98 4f 0 _strnicmp(char const*, char const*, unsigned long long)
 5da98 4 117 477
 5da9c 9 118 477
 5daa5 5 121 477
@@ -22689,7 +22689,7 @@ FUNC 5da98 4f 0 strnicmp(char const*, char const*, unsigned long long)
 5dadb 3 128 477
 5dade 4 129 477
 5dae2 5 128 477
-FUNC 5dafc ad 0 strnicmp_l(char const*, char const*, unsigned long long, __crt_locale_pointers*)
+FUNC 5dafc ad 0 _strnicmp_l(char const*, char const*, unsigned long long, __crt_locale_pointers*)
 5dafc 18 47 477
 5db14 5 49 477
 5db19 17 76 477
@@ -22750,7 +22750,7 @@ FUNC 5dbd4 35d 0 InternalCompareStringA(__crt_locale_pointers*, wchar_t const*, 
 5df0b 7 137 478
 5df12 2 155 478
 5df14 1d 207 478
-FUNC 5e008 89 0 _acrt_CompareStringA(__crt_locale_pointers*, wchar_t const*, unsigned long, char const*, int, char const*, int, int)
+FUNC 5e008 89 0 __acrt_CompareStringA(__crt_locale_pointers*, wchar_t const*, unsigned long, char const*, int, char const*, int, int)
 5e008 15 219 478
 5e01d 10 220 478
 5e02d 54 222 478
@@ -22776,7 +22776,7 @@ FUNC 5e0f0 a7 0 write_string_to_console(wchar_t const* const)
 5e130 1e 137 479
 5e14e 30 145 479
 5e17e 19 146 479
-FUNC 5e1c0 15d 0 _acrt_report_runtime_error(wchar_t const*)
+FUNC 5e1c0 15d 0 __acrt_report_runtime_error(wchar_t const*)
 5e1c0 1b 151 479
 5e1db 26 159 479
 5e201 27 172 479
@@ -22792,10 +22792,10 @@ FUNC 5e1c0 15d 0 _acrt_report_runtime_error(wchar_t const*)
 5e2e7 8 161 479
 5e2ef 19 198 479
 5e308 15 172 479
-FUNC 5e374 7 0 query_app_type()
+FUNC 5e374 7 0 _query_app_type()
 5e374 6 87 479
 5e37a 1 88 479
-FUNC 5e37c 7 0 set_app_type(_crt_app_type)
+FUNC 5e37c 7 0 _set_app_type(_crt_app_type)
 5e37c 6 82 479
 5e382 1 83 479
 FUNC 5e384 eb 0 common_lseek<long>(const int, const long, const int)
@@ -22870,13 +22870,13 @@ FUNC 5e890 33 0 common_lseek_do_seek_nolock(void* const, const long long, const 
 5e8b3 6 60 480
 5e8b9 5 63 480
 5e8be 5 64 480
-FUNC 5e8d0 5 0 lseek(int, long, int)
+FUNC 5e8d0 5 0 _lseek(int, long, int)
 5e8d0 5 130 480
-FUNC 5e8d8 5 0 lseek_nolock(int, long, int)
+FUNC 5e8d8 5 0 _lseek_nolock(int, long, int)
 5e8d8 5 140 480
-FUNC 5e8e0 5 0 lseeki64(int, long long, int)
+FUNC 5e8e0 5 0 _lseeki64(int, long long, int)
 5e8e0 5 135 480
-FUNC 5e8e8 5 0 lseeki64_nolock(int, long long, int)
+FUNC 5e8e8 5 0 _lseeki64_nolock(int, long long, int)
 5e8e8 5 145 480
 FUNC 5e8f0 40 0 __crt_seh_guarded_call<unsigned short>::operator()<<lambda_0384895ae1aa6ccbfe369a30d6ca2ef7>,<lambda_9e0b6ab72a5b3ae37ad997d08b519f50> &,<lambda_7e22f70504d73c22058e5832bde5914f> >(__acrt_lock_and_call::__l2::<lambda_0384895ae1aa6ccbfe369a30d6ca2ef7>&&, _putwch::__l2::<lambda_9e0b6ab72a5b3ae37ad997d08b519f50>&, __acrt_lock_and_call::__l2::<lambda_7e22f70504d73c22058e5832bde5914f>&&)
 5e8f0 15 198 99
@@ -22901,11 +22901,11 @@ FUNC 5e998 7 0 <lambda_7e22f70504d73c22058e5832bde5914f>::operator()() const
 5e998 7 974 201
 FUNC 5e9a0 b 0 <lambda_9e0b6ab72a5b3ae37ad997d08b519f50>::operator()() const
 5e9a0 b 17 481
-FUNC 5e9b0 3b 0 putwch(wchar_t)
+FUNC 5e9b0 3b 0 _putwch(wchar_t)
 5e9b0 c 14 481
 5e9bc 2a 15 481
 5e9e6 5 19 481
-FUNC 5e9fc 3b 0 putwch_nolock(wchar_t)
+FUNC 5e9fc 3b 0 _putwch_nolock(wchar_t)
 5e9fc 9 22 481
 5ea05 9 23 481
 5ea0e 18 28 481
@@ -23054,7 +23054,7 @@ FUNC 5f214 8f 0 translate_utf16_from_console_nolock(const int, wchar_t* const, c
 5f272 2 71 482
 5f274 21 73 482
 5f295 e 93 482
-FUNC 5f2c8 119 0 read(int, void*, unsigned int)
+FUNC 5f2c8 119 0 _read(int, void*, unsigned int)
 5f2c8 25 378 482
 5f2ed 1d 379 482
 5f30a 14 380 482
@@ -23070,7 +23070,7 @@ FUNC 5f2c8 119 0 read(int, void*, unsigned int)
 5f3a1 7 400 482
 5f3a8 4 402 482
 5f3ac 35 403 482
-FUNC 5f428 456 0 read_nolock(int, void*, unsigned int)
+FUNC 5f428 456 0 _read_nolock(int, void*, unsigned int)
 5f428 22 412 482
 5f44a 1f 413 482
 5f469 17 414 482
@@ -23130,7 +23130,7 @@ FUNC 5f428 456 0 read_nolock(int, void*, unsigned int)
 5f841 7 584 482
 5f848 4 420 482
 5f84c 32 635 482
-FUNC 5f994 83 0 fclose_nolock(_iobuf*)
+FUNC 5f994 83 0 _fclose_nolock(_iobuf*)
 5f994 d 49 483
 5f9a1 1a 52 483
 5f9bb 3 56 483
@@ -23211,7 +23211,7 @@ FUNC 5fd10 179 0 InternalGetLocaleInfoA(__crt_locale_pointers* const, wchar_t co
 5fdea 14 34 485
 5fdfe 65 38 485
 5fe63 26 47 485
-FUNC 5fee8 1c8 0 _acrt_GetLocaleInfoA(__crt_locale_pointers*, int, wchar_t const*, unsigned long, void*)
+FUNC 5fee8 1c8 0 __acrt_GetLocaleInfoA(__crt_locale_pointers*, int, wchar_t const*, unsigned long, void*)
 5fee8 2c 78 485
 5ff14 e 79 485
 5ff22 9 81 485
@@ -23542,7 +23542,7 @@ FUNC 60310 5ab 0 log10()
 608b0 6 597 496
 608b6 4 598 496
 608ba 1 599 496
-FUNC 60a28 66 0 _acrt_stdio_allocate_buffer_nolock(_iobuf*)
+FUNC 60a28 66 0 __acrt_stdio_allocate_buffer_nolock(_iobuf*)
 60a28 a 17 498
 60a32 9 23 498
 60a3b 17 27 498
@@ -23680,109 +23680,109 @@ FUNC 61040 69 0 common_xtox_s<unsigned __int64,wchar_t>(const unsigned long long
 61098 7 120 499
 6109f 5 121 499
 610a4 5 120 499
-FUNC 610c4 31 0 i64toa(long long, char*, int)
+FUNC 610c4 31 0 _i64toa(long long, char*, int)
 610c4 6 231 499
 610ca 12 232 499
 610dc 10 233 499
 610ec 3 234 499
 610ef 6 235 499
-FUNC 61104 21 0 i64toa_s(long long, char*, unsigned long long, int)
+FUNC 61104 21 0 _i64toa_s(long long, char*, unsigned long long, int)
 61104 4 209 499
 61108 f 210 499
 61117 9 211 499
 61120 5 212 499
-FUNC 61130 31 0 i64tow(long long, wchar_t*, int)
+FUNC 61130 31 0 _i64tow(long long, wchar_t*, int)
 61130 6 355 499
 61136 12 356 499
 61148 10 357 499
 61158 3 358 499
 6115b 6 359 499
-FUNC 61170 21 0 i64tow_s(long long, wchar_t*, unsigned long long, int)
+FUNC 61170 21 0 _i64tow_s(long long, wchar_t*, unsigned long long, int)
 61170 4 333 499
 61174 f 334 499
 61183 9 335 499
 6118c 5 336 499
-FUNC 6119c 30 0 itoa(int, char*, int)
+FUNC 6119c 30 0 _itoa(int, char*, int)
 6119c 6 169 499
 611a2 11 170 499
 611b3 10 171 499
 611c3 3 172 499
 611c6 6 173 499
-FUNC 611d8 20 0 itoa_s(int, char*, unsigned long long, int)
+FUNC 611d8 20 0 _itoa_s(int, char*, unsigned long long, int)
 611d8 4 136 499
 611dc e 137 499
 611ea 9 138 499
 611f3 5 139 499
-FUNC 61200 30 0 itow(int, wchar_t*, int)
+FUNC 61200 30 0 _itow(int, wchar_t*, int)
 61200 6 293 499
 61206 11 294 499
 61217 10 295 499
 61227 3 296 499
 6122a 6 297 499
-FUNC 6123c 20 0 itow_s(int, wchar_t*, unsigned long long, int)
+FUNC 6123c 20 0 _itow_s(int, wchar_t*, unsigned long long, int)
 6123c 4 260 499
 61240 e 261 499
 6124e 9 262 499
 61257 5 263 499
-FUNC 61264 30 0 ltoa(long, char*, int)
+FUNC 61264 30 0 _ltoa(long, char*, int)
 61264 6 180 499
 6126a 11 181 499
 6127b 10 182 499
 6128b 3 183 499
 6128e 6 184 499
-FUNC 612a0 20 0 ltoa_s(long, char*, unsigned long long, int)
+FUNC 612a0 20 0 _ltoa_s(long, char*, unsigned long long, int)
 612a0 4 147 499
 612a4 e 148 499
 612b2 9 149 499
 612bb 5 150 499
-FUNC 612c8 30 0 ltow(long, wchar_t*, int)
+FUNC 612c8 30 0 _ltow(long, wchar_t*, int)
 612c8 6 304 499
 612ce 11 305 499
 612df 10 306 499
 612ef 3 307 499
 612f2 6 308 499
-FUNC 61304 20 0 ltow_s(long, wchar_t*, unsigned long long, int)
+FUNC 61304 20 0 _ltow_s(long, wchar_t*, unsigned long long, int)
 61304 4 271 499
 61308 e 272 499
 61316 9 273 499
 6131f 5 274 499
-FUNC 6132c 23 0 ui64toa(unsigned long long, char*, int)
+FUNC 6132c 23 0 _ui64toa(unsigned long long, char*, int)
 6132c 6 242 499
 61332 14 243 499
 61346 3 244 499
 61349 6 245 499
-FUNC 61358 13 0 ui64toa_s(unsigned long long, char*, unsigned long long, int)
+FUNC 61358 13 0 _ui64toa_s(unsigned long long, char*, unsigned long long, int)
 61358 4 220 499
 6135c a 221 499
 61366 5 222 499
-FUNC 61370 23 0 ui64tow(unsigned long long, wchar_t*, int)
+FUNC 61370 23 0 _ui64tow(unsigned long long, wchar_t*, int)
 61370 6 366 499
 61376 14 367 499
 6138a 3 368 499
 6138d 6 369 499
-FUNC 6139c 13 0 ui64tow_s(unsigned long long, wchar_t*, unsigned long long, int)
+FUNC 6139c 13 0 _ui64tow_s(unsigned long long, wchar_t*, unsigned long long, int)
 6139c 4 344 499
 613a0 a 345 499
 613aa 5 346 499
-FUNC 613b4 23 0 ultoa(unsigned long, char*, int)
+FUNC 613b4 23 0 _ultoa(unsigned long, char*, int)
 613b4 6 191 499
 613ba 14 192 499
 613ce 3 193 499
 613d1 6 194 499
-FUNC 613e0 13 0 ultoa_s(unsigned long, char*, unsigned long long, int)
+FUNC 613e0 13 0 _ultoa_s(unsigned long, char*, unsigned long long, int)
 613e0 4 158 499
 613e4 a 159 499
 613ee 5 160 499
-FUNC 613f8 23 0 ultow(unsigned long, wchar_t*, int)
+FUNC 613f8 23 0 _ultow(unsigned long, wchar_t*, int)
 613f8 6 315 499
 613fe 14 316 499
 61412 3 317 499
 61415 6 318 499
-FUNC 61424 13 0 ultow_s(unsigned long, wchar_t*, unsigned long long, int)
+FUNC 61424 13 0 _ultow_s(unsigned long, wchar_t*, unsigned long long, int)
 61424 4 282 499
 61428 a 283 499
 61432 5 284 499
-FUNC 6143c 3e 0 _ascii_wcsicmp(wchar_t const*, wchar_t const*)
+FUNC 6143c 3e 0 __ascii_wcsicmp(wchar_t const*, wchar_t const*)
 6143c 6 79 500
 61442 8 88 500
 6144a 8 89 500
@@ -23793,7 +23793,7 @@ FUNC 6143c 3e 0 _ascii_wcsicmp(wchar_t const*, wchar_t const*)
 6146a 8 90 500
 61472 7 92 500
 61479 1 95 500
-FUNC 6148c 46 0 wcsicmp(wchar_t const*, wchar_t const*)
+FUNC 6148c 46 0 _wcsicmp(wchar_t const*, wchar_t const*)
 6148c 4 101 500
 61490 9 102 500
 61499 5 105 500
@@ -23804,7 +23804,7 @@ FUNC 6148c 46 0 wcsicmp(wchar_t const*, wchar_t const*)
 614c6 3 111 500
 614c9 4 112 500
 614cd 5 111 500
-FUNC 614e4 127 0 wcsicmp_l(wchar_t const*, wchar_t const*, __crt_locale_pointers*)
+FUNC 614e4 127 0 _wcsicmp_l(wchar_t const*, wchar_t const*, __crt_locale_pointers*)
 614e4 1e 44 500
 61502 5 46 500
 61507 1a 73 500
@@ -23824,7 +23824,7 @@ FUNC 61654 35 0 wcscmp(wchar_t const*, wchar_t const*)
 61668 11 36 501
 61679 f 39 501
 61688 1 40 501
-FUNC 61698 bb 0 towlower_l(unsigned short, __crt_locale_pointers*)
+FUNC 61698 bb 0 _towlower_l(unsigned short, __crt_locale_pointers*)
 61698 9 32 502
 616a1 e 35 502
 616af a 40 502
@@ -23837,7 +23837,7 @@ FUNC 61698 bb 0 towlower_l(unsigned short, __crt_locale_pointers*)
 6174e 5 69 502
 FUNC 61784 7 0 towlower(unsigned short)
 61784 7 93 502
-FUNC 6178c 40 0 set_error_mode(int)
+FUNC 6178c 40 0 _set_error_mode(int)
 6178c 4 50 503
 61790 e 51 503
 6179e 8 64 503
@@ -23892,13 +23892,13 @@ FUNC 619d8 8 0 __crt_char_traits<char>::output_debug_string<char const * const &
 619d8 8 109 322
 FUNC 619e4 a 0 __crt_char_traits<wchar_t>::output_debug_string<wchar_t const * const &>(wchar_t const* const&)
 619e4 a 124 322
-FUNC 619f0 a3 0 _acrt_show_narrow_message_box(char const*, char const*, unsigned int)
+FUNC 619f0 a3 0 __acrt_show_narrow_message_box(char const*, char const*, unsigned int)
 619f0 1d 83 504
 61a0d 50 84 504
 61a5d 10 85 504
 61a6d 11 84 504
 61a7e 15 85 504
-FUNC 61abc a4 0 _acrt_show_wide_message_box(wchar_t const*, wchar_t const*, unsigned int)
+FUNC 61abc a4 0 __acrt_show_wide_message_box(wchar_t const*, wchar_t const*, unsigned int)
 61abc 1d 92 504
 61ad9 51 93 504
 61b2a 10 94 504
@@ -23926,18 +23926,18 @@ FUNC 61cac 3b 0 __dcrt_lowio_initialize_console_output()
 61cac 4 20 505
 61cb0 32 21 505
 61ce2 5 29 505
-FUNC 61cf8 52 0 _dcrt_lowio_ensure_console_output_initialized()
+FUNC 61cf8 52 0 __dcrt_lowio_ensure_console_output_initialized()
 61cf8 6 32 505
 61cfe f 33 505
 61d0d 2e 35 505
 61d3b 9 38 505
 61d44 6 43 505
-FUNC 61d60 1c 0 _dcrt_terminate_console_output()
+FUNC 61d60 1c 0 __dcrt_terminate_console_output()
 61d60 4 47 505
 61d64 d 49 505
 61d71 6 51 505
 61d77 5 53 505
-FUNC 61d84 be 0 _dcrt_write_console(void const*, unsigned long, unsigned long*)
+FUNC 61d84 be 0 __dcrt_write_console(void const*, unsigned long, unsigned long*)
 61d84 14 72 505
 61d98 5 73 505
 61d9d 3 72 505
@@ -23985,14 +23985,14 @@ FUNC 61fc0 7e 0 close_os_handle_nolock(const int)
 62029 8 38 506
 62031 2 36 506
 62033 b 39 506
-FUNC 62060 a1 0 close(int)
+FUNC 62060 a1 0 _close(int)
 62060 b 46 506
 6206b 1a 47 506
 62085 c 48 506
 62091 23 49 506
 620b4 2d 51 506
 620e1 20 64 506
-FUNC 6212c bd 0 close_nolock(int)
+FUNC 6212c bd 0 _close_nolock(int)
 6212c d 69 506
 62139 d 70 506
 62146 4 72 506
@@ -24294,24 +24294,24 @@ FUNC 62c2c 30 0 translate_control_denormal_control_to_sse(const __acrt_fenv_abst
 62c55 1 119 508
 62c56 5 113 508
 62c5b 1 119 508
-FUNC 62c68 17 0 _acrt_fenv_expand_round_control(__acrt_fenv_abstract_control)
+FUNC 62c68 17 0 __acrt_fenv_expand_round_control(__acrt_fenv_abstract_control)
 62c68 16 504 508
 62c7e 1 509 508
-FUNC 62c84 9 0 _acrt_fenv_get_common_round_control(__acrt_fenv_abstract_control)
+FUNC 62c84 9 0 __acrt_fenv_get_common_round_control(__acrt_fenv_abstract_control)
 62c84 8 527 508
 62c8c 1 529 508
-FUNC 62c90 f1 0 _acrt_fenv_get_control()
+FUNC 62c90 f1 0 __acrt_fenv_get_control()
 62c90 da 449 508
 62d6a 16 450 508
 62d80 1 451 508
-FUNC 62dc0 b 0 _acrt_fenv_get_fp_status_word_from_exception_mask(__acrt_fenv_abstract_status)
+FUNC 62dc0 b 0 __acrt_fenv_get_fp_status_word_from_exception_mask(__acrt_fenv_abstract_status)
 62dc0 a 490 508
 62dca 1 495 508
-FUNC 62dd0 53 0 _acrt_fenv_get_status()
+FUNC 62dd0 53 0 __acrt_fenv_get_status()
 62dd0 4b 438 508
 62e1b 7 439 508
 62e22 1 440 508
-FUNC 62e38 147 0 _acrt_fenv_set_control(__acrt_fenv_abstract_control)
+FUNC 62e38 147 0 __acrt_fenv_set_control(__acrt_fenv_abstract_control)
 62e38 f 454 508
 62e47 fc 455 508
 62f43 5 456 508
@@ -24321,7 +24321,7 @@ FUNC 62e38 147 0 _acrt_fenv_set_control(__acrt_fenv_abstract_control)
 62f53 5 456 508
 62f58 26 455 508
 62f7e 1 456 508
-FUNC 62fd0 83 0 _acrt_fenv_set_status(__acrt_fenv_abstract_status)
+FUNC 62fd0 83 0 __acrt_fenv_set_status(__acrt_fenv_abstract_status)
 62fd0 2 443 508
 62fd2 80 444 508
 63052 1 445 508
@@ -24355,17 +24355,17 @@ FUNC 6316c 5b 0 _abstract_sw(unsigned int)
 631be 5 388 509
 631c3 3 391 509
 631c6 1 392 509
-FUNC 631e0 6e 0 clearfp(<NoType>)
+FUNC 631e0 6e 0 _clearfp(<NoType>)
 631e0 6 72 509
 631e6 7 75 509
 631ed 5 76 509
 631f2 56 78 509
 63248 6 79 509
-FUNC 6326c 5 0 control87(unsigned int, unsigned int)
+FUNC 6326c 5 0 _control87(unsigned int, unsigned int)
 6326c 5 143 509
-FUNC 63274 9 0 controlfp(unsigned int, unsigned int)
+FUNC 63274 9 0 _controlfp(unsigned int, unsigned int)
 63274 9 165 509
-FUNC 63280 a 0 fpreset(<NoType>)
+FUNC 63280 a 0 _fpreset(<NoType>)
 63280 a 418 509
 FUNC 6328c bf 0 _hw_cw(unsigned int)
 6328c 3 295 509
@@ -24384,14 +24384,14 @@ FUNC 6328c bf 0 _hw_cw(unsigned int)
 63342 6 342 509
 63348 2 350 509
 6334a 1 351 509
-FUNC 6337c 34 0 set_controlfp(unsigned int, unsigned int)
+FUNC 6337c 34 0 _set_controlfp(unsigned int, unsigned int)
 6337c 4 185 509
 63380 d 189 509
 6338d 9 193 509
 63396 c 194 509
 633a2 9 201 509
 633ab 5 202 509
-FUNC 633c0 62 0 statusfp(<NoType>)
+FUNC 633c0 62 0 _statusfp(<NoType>)
 633c0 a 51 509
 633ca 57 53 509
 63421 1 54 509
@@ -24446,7 +24446,7 @@ FUNC 6382c ba 0 _exception_enabled(unsigned int, unsigned long long)
 638c2 a 118 510
 638cc 3 119 510
 638cf 17 123 510
-FUNC 63914 127 0 handle_error(char*, int, unsigned long long, int, int, int, double, double, int)
+FUNC 63914 127 0 _handle_error(char*, int, unsigned long long, int, int, int, double, double, int)
 63914 2b 197 510
 6393f 15 202 510
 63954 2c 205 510
@@ -24459,7 +24459,7 @@ FUNC 63914 127 0 handle_error(char*, int, unsigned long long, int, int, int, dou
 639fd 7 229 510
 63a04 15 231 510
 63a19 22 232 510
-FUNC 63a84 133 0 handle_errorf(char*, int, unsigned long long, int, int, int, float, float, int)
+FUNC 63a84 133 0 _handle_errorf(char*, int, unsigned long long, int, int, int, float, float, int)
 63a84 2b 144 510
 63aaf 15 149 510
 63ac4 2b 152 510
@@ -24472,15 +24472,15 @@ FUNC 63a84 133 0 handle_errorf(char*, int, unsigned long long, int, int, int, fl
 63b79 7 173 510
 63b80 15 175 510
 63b95 22 176 510
-FUNC 63c04 19 0 handle_nan(unsigned long long)
+FUNC 63c04 19 0 _handle_nan(unsigned long long)
 63c04 d 181 510
 63c11 b 182 510
 63c1c 1 184 510
-FUNC 63c24 f 0 handle_nanf(unsigned int)
+FUNC 63c24 f 0 _handle_nanf(unsigned int)
 63c24 4 128 510
 63c28 a 129 510
 63c32 1 131 510
-FUNC 63c40 70 0 _acrt_initialize_fma3(<NoType>)
+FUNC 63c40 70 0 __acrt_initialize_fma3(<NoType>)
 63c40 6 32 513
 63c46 3 37 513
 63c49 15 40 513
@@ -24490,21 +24490,21 @@ FUNC 63c40 70 0 _acrt_initialize_fma3(<NoType>)
 63ca1 7 53 513
 63ca8 2 54 513
 63caa 6 55 513
-FUNC 63ccc 7 0 get_FMA3_enable(<NoType>)
+FUNC 63ccc 7 0 _get_FMA3_enable(<NoType>)
 63ccc 6 26 513
 63cd2 1 27 513
-FUNC 63cd4 17 0 set_FMA3_enable(int)
+FUNC 63cd4 17 0 _set_FMA3_enable(int)
 63cd4 16 16 513
 63cea 1 22 513
-FUNC 63cf0 20 0 log10_special(double, double, unsigned int)
+FUNC 63cf0 20 0 _log10_special(double, double, unsigned int)
 63cf0 4 141 514
 63cf4 17 142 514
 63d0b 5 143 514
-FUNC 63d18 20 0 log10f_special(float, float, unsigned int)
+FUNC 63d18 20 0 _log10f_special(float, float, unsigned int)
 63d18 4 109 514
 63d1c 17 110 514
 63d33 5 111 514
-FUNC 63d40 20 0 log_special(double, double, unsigned int)
+FUNC 63d40 20 0 _log_special(double, double, unsigned int)
 63d40 4 136 514
 63d44 17 137 514
 63d5b 5 138 514
@@ -24515,7 +24515,7 @@ FUNC 63d68 96 0 _log_special_common(double, double, unsigned int, unsigned int, 
 63dac 2d 120 514
 63dd9 1b 132 514
 63df4 a 133 514
-FUNC 63e24 20 0 logf_special(float, float, unsigned int)
+FUNC 63e24 20 0 _logf_special(float, float, unsigned int)
 63e24 4 104 514
 63e28 17 105 514
 63e3f 5 106 514
@@ -24526,7 +24526,7 @@ FUNC 63e4c 9c 0 _logf_special_common(float, float, unsigned int, unsigned int, c
 63e90 2d 88 514
 63ebd 21 100 514
 63ede a 101 514
-FUNC 63f10 87 0 _acrt_LCMapStringW(wchar_t const*, unsigned long, wchar_t const*, int, wchar_t*, int)
+FUNC 63f10 87 0 __acrt_LCMapStringW(wchar_t const*, unsigned long, wchar_t const*, int, wchar_t*, int)
 63f10 1f 53 516
 63f2f 5 57 516
 63f34 b 59 516
@@ -24535,7 +24535,7 @@ FUNC 63f10 87 0 _acrt_LCMapStringW(wchar_t const*, unsigned long, wchar_t const*
 63f46 2 69 516
 63f48 3a 73 516
 63f82 15 74 516
-FUNC 63fb8 9c 0 _acrt_OutputDebugStringA(char const*)
+FUNC 63fb8 9c 0 __acrt_OutputDebugStringA(char const*)
 63fb8 20 14 517
 63fd8 5 15 517
 63fdd 12 19 517
@@ -24544,23 +24544,23 @@ FUNC 63fb8 9c 0 _acrt_OutputDebugStringA(char const*)
 64017 1e 27 517
 64035 9 29 517
 6403e 16 31 517
-FUNC 64090 10 0 get_fpsr()
+FUNC 64090 10 0 _get_fpsr()
 64090 4 6 519
 64094 4 9 519
 64098 3 10 519
 6409b 4 11 519
 6409f 1 12 519
-FUNC 640a0 a 0 set_fpsr()
+FUNC 640a0 a 0 _set_fpsr()
 640a0 4 19 519
 640a4 5 20 519
 640a9 1 21 519
-FUNC 640aa 14 0 fclrf()
+FUNC 640aa 14 0 _fclrf()
 640aa 5 28 519
 640af 5 29 519
 640b4 4 30 519
 640b8 5 31 519
 640bd 1 32 519
-FUNC 640be 1f 0 frnd()
+FUNC 640be 1f 0 _frnd()
 640be 8 43 519
 640c6 2 44 519
 640c8 8 45 519
@@ -24568,7 +24568,7 @@ FUNC 640be 1f 0 frnd()
 640d2 5 47 519
 640d7 5 48 519
 640dc 1 50 519
-FUNC 640f4 43 0 errcode(unsigned int)
+FUNC 640f4 43 0 _errcode(unsigned int)
 640f4 2 995 520
 640f6 5 998 520
 640fb 5 999 520
@@ -24585,7 +24585,7 @@ FUNC 640f4 43 0 errcode(unsigned int)
 64128 c 1010 520
 64134 2 1019 520
 64136 1 1020 520
-FUNC 64148 f1 0 except1(int, int, double, double, unsigned long long)
+FUNC 64148 f1 0 _except1(int, int, double, double, unsigned long long)
 64148 27 251 520
 6416f 25 254 520
 64194 8 268 520
@@ -24597,7 +24597,7 @@ FUNC 64148 f1 0 except1(int, int, double, double, unsigned long long)
 641fc 7 288 520
 64203 12 291 520
 64215 24 292 520
-FUNC 64278 106 0 except2(int, int, double, double, double, unsigned long long)
+FUNC 64278 106 0 _except2(int, int, double, double, double, unsigned long long)
 64278 2b 336 520
 642a3 23 339 520
 642c6 3 352 520
@@ -24621,7 +24621,7 @@ FUNC 643c0 31 0 _get_fname(unsigned int)
 643e4 1 974 520
 643e5 b 971 520
 643f0 1 974 520
-FUNC 64400 267 0 handle_exc(unsigned int, double*, unsigned long long)
+FUNC 64400 267 0 _handle_exc(unsigned int, double*, unsigned long long)
 64400 14 662 520
 64414 24 670 520
 64438 9 676 520
@@ -24668,14 +24668,14 @@ FUNC 64400 267 0 handle_exc(unsigned int, double*, unsigned long long)
 64637 a 802 520
 64641 3 803 520
 64644 23 807 520
-FUNC 64700 5 0 handle_qnan2(double, double)
+FUNC 64700 5 0 _handle_qnan2(double, double)
 64700 4 221 520
 64704 1 224 520
-FUNC 64708 27 0 raise_exc(_FPIEEE_RECORD*, unsigned long long*, int, int, double*, double*)
+FUNC 64708 27 0 _raise_exc(_FPIEEE_RECORD*, unsigned long long*, int, int, double*, double*)
 64708 4 630 520
 6470c 1e 631 520
 6472a 5 632 520
-FUNC 64738 30d 0 raise_exc_ex(_FPIEEE_RECORD*, unsigned long long*, int, int, void*, void*, int)
+FUNC 64738 30d 0 _raise_exc_ex(_FPIEEE_RECORD*, unsigned long long*, int, int, void*, void*, int)
 64738 21 415 520
 64759 a 423 520
 64763 7 424 520
@@ -24752,17 +24752,17 @@ FUNC 64738 30d 0 raise_exc_ex(_FPIEEE_RECORD*, unsigned long long*, int, int, vo
 64a27 2 620 520
 64a29 7 621 520
 64a30 15 623 520
-FUNC 64b08 2a 0 raise_excf(_FPIEEE_RECORD*, unsigned long long*, int, int, float*, float*)
+FUNC 64b08 2a 0 _raise_excf(_FPIEEE_RECORD*, unsigned long long*, int, int, float*, float*)
 64b08 4 639 520
 64b0c 21 640 520
 64b2d 5 641 520
-FUNC 64b3c 2e 0 set_errno_from_matherr(int)
+FUNC 64b3c 2e 0 _set_errno_from_matherr(int)
 64b3c 4 898 520
 64b40 d 899 520
 64b4d d 905 520
 64b5a b 901 520
 64b65 5 908 520
-FUNC 64b78 d4 0 umatherr(int, unsigned int, double, double, double, unsigned long long)
+FUNC 64b78 d4 0 _umatherr(int, unsigned int, double, double, double, unsigned long long)
 64b78 11 844 520
 64b89 7 851 520
 64b90 2 844 520
@@ -24779,14 +24779,14 @@ FUNC 64b78 d4 0 umatherr(int, unsigned int, double, double, double, unsigned lon
 64c36 7 873 520
 64c3d 9 874 520
 64c46 6 877 520
-FUNC 64c84 1d 0 clrfp(<NoType>)
+FUNC 64c84 1d 0 _clrfp(<NoType>)
 64c84 6 59 521
 64c8a 7 62 521
 64c91 3 63 521
 64c94 5 64 521
 64c99 2 66 521
 64c9b 6 67 521
-FUNC 64ca8 7c 0 ctrlfp(unsigned long long, unsigned long long)
+FUNC 64ca8 7c 0 _ctrlfp(unsigned long long, unsigned long long)
 64ca8 15 85 521
 64cbd b 90 521
 64cc8 4 91 521
@@ -24804,14 +24804,14 @@ FUNC 64ca8 7c 0 ctrlfp(unsigned long long, unsigned long long)
 64d0d 5 106 521
 64d12 2 109 521
 64d14 10 110 521
-FUNC 64d44 1f 0 set_statfp(unsigned long long)
+FUNC 64d44 1f 0 _set_statfp(unsigned long long)
 64d44 9 129 521
 64d4d 5 132 521
 64d52 5 134 521
 64d57 2 136 521
 64d59 5 138 521
 64d5e 5 136 521
-FUNC 64d6c 11 0 statfp(<NoType>)
+FUNC 64d6c 11 0 _statfp(<NoType>)
 64d6c 4 35 521
 64d70 5 38 521
 64d75 3 39 521
@@ -24848,9 +24848,9 @@ FUNC 64d84 200 0 _mbstowcs_l_helper(wchar_t*, char const*, unsigned long long, _
 64f46 d 168 523
 64f53 18 172 523
 64f6b 19 176 523
-FUNC 65004 5 0 mbstowcs_l(wchar_t*, char const*, unsigned long long, __crt_locale_pointers*)
+FUNC 65004 5 0 _mbstowcs_l(wchar_t*, char const*, unsigned long long, __crt_locale_pointers*)
 65004 5 187 523
-FUNC 6500c 133 0 mbstowcs_s_l(unsigned long long*, wchar_t*, unsigned long long, char const*, unsigned long long, __crt_locale_pointers*)
+FUNC 6500c 133 0 _mbstowcs_s_l(unsigned long long*, wchar_t*, unsigned long long, char const*, unsigned long long, __crt_locale_pointers*)
 6500c 19 241 523
 65025 12 243 523
 65037 a 246 523
@@ -24890,11 +24890,11 @@ FUNC 651ac 1e 0 mbstowcs_s(unsigned long long*, wchar_t*, unsigned long long, ch
 651ac 4 313 523
 651b0 15 314 523
 651c5 5 315 523
-FUNC 651d4 4e 0 add_exp(double, int)
+FUNC 651d4 4e 0 _add_exp(double, int)
 651d4 6 44 524
 651da 47 45 524
 65221 1 46 524
-FUNC 65238 12e 0 decomp(double, int*)
+FUNC 65238 12e 0 _decomp(double, int*)
 65238 f 89 524
 65247 8 93 524
 6524f 2 95 524
@@ -24922,22 +24922,22 @@ FUNC 65238 12e 0 decomp(double, int*)
 65356 c 118 524
 65362 3 121 524
 65365 1 123 524
-FUNC 653b4 1d 0 get_exp(double)
+FUNC 653b4 1d 0 _get_exp(double)
 653b4 6 35 524
 653ba 11 37 524
 653cb 5 39 524
 653d0 1 40 524
-FUNC 653d8 30 0 set_bexp(double, int)
+FUNC 653d8 30 0 _set_bexp(double, int)
 653d8 6 51 524
 653de 23 54 524
 65401 6 55 524
 65407 1 56 524
-FUNC 65414 38 0 set_exp(double, int)
+FUNC 65414 38 0 _set_exp(double, int)
 65414 6 24 524
 6541a 2b 29 524
 65445 6 30 524
 6544b 1 31 524
-FUNC 6545c 74 0 sptype(double)
+FUNC 6545c 74 0 _sptype(double)
 6545c 6 60 524
 65462 18 61 524
 6547a 5 62 524
@@ -24953,7 +24953,7 @@ FUNC 6545c 74 0 sptype(double)
 654cc 1 70 524
 654cd 2 69 524
 654cf 1 70 524
-FUNC 654f0 44 0 FindPESection(unsigned char*, unsigned long long)
+FUNC 654f0 44 0 _FindPESection(unsigned char*, unsigned long long)
 654f0 4 91 525
 654f4 e 100 525
 65502 11 101 525
@@ -24961,7 +24961,7 @@ FUNC 654f0 44 0 FindPESection(unsigned char*, unsigned long long)
 65525 c 102 525
 65531 2 117 525
 65533 1 118 525
-FUNC 65550 4d 0 IsNonwritableInCurrentImage(void const*)
+FUNC 65550 4d 0 _IsNonwritableInCurrentImage(void const*)
 65550 d 143 525
 6555d 13 158 525
 65570 3 168 525
@@ -24970,7 +24970,7 @@ FUNC 65550 4d 0 IsNonwritableInCurrentImage(void const*)
 65583 d 179 525
 65590 2 187 525
 65592 b 189 525
-FUNC 655b0 2d 0 ValidateImageBase(unsigned char*)
+FUNC 655b0 2d 0 _ValidateImageBase(unsigned char*)
 655b0 a 44 525
 655ba 7 49 525
 655c1 8 50 525
@@ -24983,12 +24983,12 @@ FUNC 655e8 b 0 type_info::~type_info()
 655e8 a 17 526
 655f2 1 18 526
 FUNC 655f8 2b 0 type_info::`scalar deleting destructor'(unsigned int)
-FUNC 65630 1d 0 _GSHandlerCheck(_EXCEPTION_RECORD*, void*, _CONTEXT*, _DISPATCHER_CONTEXT*)
+FUNC 65630 1d 0 __GSHandlerCheck(_EXCEPTION_RECORD*, void*, _CONTEXT*, _DISPATCHER_CONTEXT*)
 65630 4 74 527
 65634 f 82 527
 65643 5 93 527
 65648 5 94 527
-FUNC 65654 5b 0 _GSHandlerCheckCommon(void*, _DISPATCHER_CONTEXT*, _GS_HANDLER_DATA*)
+FUNC 65654 5b 0 __GSHandlerCheckCommon(void*, _DISPATCHER_CONTEXT*, _GS_HANDLER_DATA*)
 65654 2 128 527
 65656 d 142 527
 65663 9 151 527
@@ -25001,7 +25001,7 @@ FUNC 65654 5b 0 _GSHandlerCheckCommon(void*, _DISPATCHER_CONTEXT*, _GS_HANDLER_D
 656a6 3 187 527
 656a9 1 188 527
 656aa 5 187 527
-FUNC 656e0 21 0 _security_check_cookie()
+FUNC 656e0 21 0 __security_check_cookie()
 656e0 7 47 528
 656e7 3 48 528
 656ea 4 49 528
@@ -25010,21 +25010,21 @@ FUNC 656e0 21 0 _security_check_cookie()
 656f6 2 52 528
 656f8 4 62 528
 656fc 5 66 528
-FUNC 65710 85 0 _GSHandlerCheck_SEH(_EXCEPTION_RECORD*, void*, _CONTEXT*, _DISPATCHER_CONTEXT*)
+FUNC 65710 85 0 __GSHandlerCheck_SEH(_EXCEPTION_RECORD*, void*, _CONTEXT*, _DISPATCHER_CONTEXT*)
 65710 19 67 529
 65729 d 79 529
 65736 1c 86 529
 65752 17 99 529
 65769 11 103 529
 6577a 1b 116 529
-FUNC 657b8 34 0 _raise_securityfailure(_EXCEPTION_POINTERS* const)
+FUNC 657b8 34 0 __raise_securityfailure(_EXCEPTION_POINTERS* const)
 657b8 9 140 530
 657c1 8 146 530
 657c9 9 147 530
 657d2 e 160 530
 657e0 5 161 530
 657e5 7 160 530
-FUNC 657fc d1 0 _report_gsfailure(unsigned long long)
+FUNC 657fc d1 0 __report_gsfailure(unsigned long long)
 657fc 9 217 530
 65805 e 218 530
 65813 7 220 530
@@ -25041,11 +25041,11 @@ FUNC 657fc d1 0 _report_gsfailure(unsigned long long)
 658a7 15 294 530
 658bc c 298 530
 658c8 5 299 530
-FUNC 65904 13 0 _report_rangecheckfailure(<NoType>)
+FUNC 65904 13 0 __report_rangecheckfailure(<NoType>)
 65904 4 555 530
 65908 a 556 530
 65912 5 557 530
-FUNC 6591c 9b 0 _report_securityfailure(unsigned long)
+FUNC 6591c 9b 0 __report_securityfailure(unsigned long)
 6591c 8 462 530
 65924 e 463 530
 65932 8 465 530
@@ -25059,7 +25059,7 @@ FUNC 6591c 9b 0 _report_securityfailure(unsigned long)
 6598e 18 535 530
 659a6 c 542 530
 659b2 5 543 530
-FUNC 659e0 10e 0 _report_securityfailureEx(unsigned long, unsigned long, void**)
+FUNC 659e0 10e 0 __report_securityfailureEx(unsigned long, unsigned long, void**)
 659e0 11 338 530
 659f1 e 339 530
 659ff 8 341 530
@@ -25097,7 +25097,7 @@ FUNC 65bbc 71 0 capture_previous_context(_CONTEXT*)
 65be7 5 105 530
 65bec 39 107 530
 65c25 8 122 530
-FUNC 65c60 51 0 _chkstk()
+FUNC 65c60 51 0 __chkstk()
 65c60 4 71 531
 65c64 4 83 531
 65c68 5 84 531
@@ -25260,7 +25260,7 @@ FUNC 65fcc 149 0 strrchr(char const*, int)
 6610a 4 212 534
 6610e 2 213 534
 66110 5 196 534
-FUNC 66168 29 0 local_unwind(void*, void*)
+FUNC 66168 29 0 _local_unwind(void*, void*)
 66168 e 28 535
 66176 16 30 535
 6618c 5 31 535
@@ -25333,7 +25333,7 @@ FUNC 661b0 c7 0 memcmp()
 66273 3 178 536
 66276 1 179 536
 PUBLIC 662ac 0 RtlUnwind
-FUNC 67e10 2 0 guard_dispatch_icall_nop()
+FUNC 67e10 2 0 _guard_dispatch_icall_nop()
 67e10 2 59 45
 FUNC 68e20 17 0 `dllmain_crt_process_attach'::`1'::fin$0
 68e20 9 68 24
