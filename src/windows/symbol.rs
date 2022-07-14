@@ -254,7 +254,6 @@ impl SelectedSymbol {
             // The public name may contain parameter_size info so get it
             if let FuncName::Unknown((name, sps)) = FuncName::get_unknown(fun_name.clone()) {
                 if name == self.name || fun_name == self.name {
-                    self.name = name;
                     self.parameter_size = sps;
                 }
             }
