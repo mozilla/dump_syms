@@ -178,24 +178,7 @@ impl Collector {
                 0,
             );
         } else {
-            let mut prev = None;
-            for line in fun.lines.iter() {
-                if line.line == 0 {
-                    // It's probably better to skip it to avoid to have some links in crash-stats pointing to line 0 in a file
-                    continue;
-                }
-
-                let file_id = source.get_id(fun.compilation_dir, &line.file);
-                let line_info = (line.line, file_id);
-                if prev.as_ref() != Some(&line_info) {
-                    lines.add_line(
-                        line.address as u32,
-                        line.line as u32,
-                        source.get_true_id(file_id),
-                    );
-                    prev = Some(line_info);
-                }
-            }
+            Self::collect_function_without_inlines(fun, &mut lines, source);
         }
 
         // compute line length
@@ -214,6 +197,31 @@ impl Collector {
                 source: lines,
             },
         );
+    }
+
+    fn collect_function_without_inlines<'a>(
+        fun: &Function<'a>,
+        lines: &mut Lines,
+        source: &mut SourceFiles,
+    ) {
+        let mut prev = None;
+        for line in fun.lines.iter() {
+            if line.line == 0 {
+                // It's probably better to skip it to avoid to have some links in crash-stats pointing to line 0 in a file
+                continue;
+            }
+
+            let file_id = source.get_id(fun.compilation_dir, &line.file);
+            let line_info = (line.line, file_id);
+            if prev.as_ref() != Some(&line_info) {
+                lines.add_line(
+                    line.address as u32,
+                    line.line as u32,
+                    source.get_true_id(file_id),
+                );
+                prev = Some(line_info);
+            }
+        }
     }
 
     /// Translate the information in `fun` into calls to `lines.add_line` and `lines.add_inline`.
