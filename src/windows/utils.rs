@@ -4,8 +4,7 @@
 // copied, modified, or distributed except according to those terms.
 
 use std::path::Path;
-use symbolic::debuginfo::pe::PeObject;
-use uuid::Uuid;
+use symbolic::{common::DebugId, debuginfo::pe::PeObject};
 
 #[cfg(feature = "http")]
 use crate::cache::{self, SymbolServer};
@@ -15,23 +14,22 @@ use crate::utils;
 fn try_to_find_pdb(path: &Path, pdb_filename: &str) -> Option<Vec<u8>> {
     // Just check that the file is in the same directory as the PE one
     let pdb = path.with_file_name(pdb_filename);
-    let mut pdb_cab = pdb.clone();
-    pdb_cab.set_extension("pd_");
+    let pdb_cab = pdb.with_extension("pd_");
 
-    for pdb in vec![pdb, pdb_cab].drain(..) {
+    for pdb in vec![pdb, pdb_cab].into_iter() {
         if pdb.is_file() {
             return Some(utils::read_file(pdb));
-        } else {
-            // We try in CWD
-            let mut pdb =
-                std::env::current_dir().expect("Unable to get the current working directory");
-            pdb.set_file_name(pdb_filename);
-            if pdb.is_file() {
-                return Some(utils::read_file(pdb));
-            }
         }
     }
-    None
+
+    // We try in CWD
+    let mut pdb = std::env::current_dir().expect("Unable to get the current working directory");
+    pdb.set_file_name(pdb_filename);
+    if pdb.is_file() {
+        Some(utils::read_file(pdb))
+    } else {
+        None
+    }
 }
 
 #[cfg(feature = "http")]
@@ -73,21 +71,13 @@ pub fn get_pe_pdb_buf<'a>(
             Some((pe, pdb_buf, pdb_name))
         } else {
             // Not here so try symbol server (or cache)
-            let debug_id = get_pe_debug_id(&pe);
+            let debug_id = pe.debug_id().breakpad().to_string();
             let (pdb, pdb_name) = cache::search_file(pdb_name, &debug_id, symbol_server);
             pdb.map(|pdb_buf| (pe, pdb_buf, pdb_name))
         }
     } else {
         None
     }
-}
-
-pub fn get_pe_debug_id(pe: &PeObject) -> String {
-    let mut buf = Uuid::encode_buffer();
-    let debug_id = pe.debug_id();
-    let uuid = debug_id.uuid().as_simple().encode_upper(&mut buf);
-    let appendix = debug_id.appendix();
-    format!("{}{:x}", uuid, appendix)
 }
 
 fn fix_extension(ext: &str) -> &str {
@@ -100,7 +90,7 @@ fn fix_extension(ext: &str) -> &str {
 
 /// Tries to find the PE object for a PDB file, by looking for dll/exe files
 /// in the same directory with a matching debug ID.
-pub(crate) fn find_pe_for_pdb(path: &Path, pdb_debug_id: &str) -> Option<(String, Vec<u8>)> {
+pub(crate) fn find_pe_for_pdb(path: &Path, pdb_debug_id: &DebugId) -> Option<(String, Vec<u8>)> {
     let mut path = path.to_path_buf();
     for ext in vec!["dll", "dl_", "exe", "ex_"].drain(..) {
         path.set_extension(ext);
@@ -111,7 +101,7 @@ pub(crate) fn find_pe_for_pdb(path: &Path, pdb_debug_id: &str) -> Option<(String
                     path.set_extension(fix_extension(ext));
                 }
                 let filename = utils::get_filename(&path);
-                if get_pe_debug_id(&pe) == pdb_debug_id {
+                if &pe.debug_id() == pdb_debug_id {
                     return Some((filename, buf));
                 }
             }

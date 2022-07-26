@@ -6,16 +6,15 @@
 use crossbeam::channel::{bounded, Receiver, Sender};
 use hashbrown::HashMap;
 use log::{error, info};
-use pdb_addr2line::pdb::PDB;
 use std::fmt;
 use std::fs;
-use std::io::Cursor;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use symbolic::common::Arch;
+use symbolic::debuginfo::pdb::PdbObject;
 use symbolic::debuginfo::pe::PeObject;
 
 use crate::common::{self, Dumpable, FileType, Mergeable};
@@ -144,23 +143,54 @@ impl Creator for PDBInfo {
         path: &Path,
         filename: &str,
         mapping: Option<Arc<PathMappings>>,
-        _collect_inlines: bool,
+        collect_inlines: bool,
     ) -> common::Result<Self> {
-        let cursor = Cursor::new(buf);
-        let mut pdb = PDB::open(cursor)?;
-        let dbi = pdb.debug_information()?;
-        let pi = pdb.pdb_information()?;
-        let debug_id = windows::pdb::get_debug_id(&dbi, &pi);
+        let pdb = PdbObject::parse(buf)?;
 
-        let (pe_name, pe_buf) = match windows::utils::find_pe_for_pdb(path, &debug_id) {
-            Some((pe_name, pe_buf)) => (pe_name, Some(pe_buf)),
-            None => ("".to_string(), None),
+        let (pe_name, pe_buf) = match windows::utils::find_pe_for_pdb(path, &pdb.debug_id()) {
+            Some((pe_name, pe_buf)) => (Some(pe_name), Some(pe_buf)),
+            None => (None, None),
         };
         let pe = pe_buf.as_deref().map(|buf| PeObject::parse(buf).unwrap());
 
-        Ok(Self::new(buf, pdb, filename, &pe_name, pe, mapping)?)
+        Self::new(
+            pdb,
+            filename,
+            pe_name.as_deref(),
+            pe,
+            mapping,
+            collect_inlines,
+        )
     }
 
+    #[cfg(feature = "http")]
+    fn get_pe<'a>(
+        conf: &Config<'a>,
+        buf: &[u8],
+        path: &Path,
+        filename: &str,
+        mapping: Option<Arc<PathMappings>>,
+    ) -> common::Result<Self> {
+        let symbol_server = crate::cache::get_sym_servers(conf.symbol_server);
+        let res = windows::utils::get_pe_pdb_buf(path, buf, symbol_server.as_ref());
+
+        if let Some((pe, pdb_buf, pdb_name)) = res {
+            let pdb = PdbObject::parse(&pdb_buf)?;
+            let pdb = Self::new(
+                pdb,
+                &pdb_name,
+                Some(filename),
+                Some(pe),
+                mapping,
+                conf.emit_inlines,
+            )?;
+            Ok(pdb)
+        } else {
+            anyhow::bail!("No pdb file found")
+        }
+    }
+
+    #[cfg(not(feature = "http"))]
     fn get_pe<'a>(
         _conf: &Config<'a>,
         _buf: &[u8],
@@ -168,22 +198,6 @@ impl Creator for PDBInfo {
         _filename: &str,
         _mapping: Option<Arc<PathMappings>>,
     ) -> common::Result<Self> {
-        #[cfg(feature = "http")]
-        {
-            let symbol_server = crate::cache::get_sym_servers(_conf.symbol_server);
-            let res = windows::utils::get_pe_pdb_buf(_path, _buf, symbol_server.as_ref());
-
-            if let Some((pe, pdb_buf, pdb_name)) = res {
-                let cursor = Cursor::new(&pdb_buf);
-                let pdb = PDB::open(cursor)?;
-                let pdb = Self::new(&pdb_buf, pdb, &pdb_name, _filename, Some(pe), _mapping)?;
-                Ok(pdb)
-            } else {
-                anyhow::bail!("No pdb file found")
-            }
-        }
-
-        #[cfg(not(feature = "http"))]
         anyhow::bail!("HTTP symbol retrieval not enabled")
     }
 }

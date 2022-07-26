@@ -3,560 +3,61 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use hashbrown::HashSet;
-use pdb::{
-    AddressMap, BlockSymbol, DebugInformation, FallibleIterator, MachineType, ModuleInfo,
-    PDBInformation, ProcedureSymbol, PublicSymbol, Register, RegisterRelativeSymbol,
-    SectionCharacteristics, SeparatedCodeSymbol, Source, SymbolData, SymbolTable, PDB,
-};
-use pdb_addr2line::pdb;
-use pdb_addr2line::Error;
 use std::fmt::{Display, Formatter};
-use std::io::{Cursor, Write};
+use std::io::Write;
 use std::sync::Arc;
-use symbolic::cfi::AsciiCfiWriter;
-use symbolic::common::Arch;
 use symbolic::debuginfo::{pdb::PdbObject, pe::PeObject, Object};
-use uuid::Uuid;
 
-use super::source::{SourceFiles, SourceLineCollector};
-use super::symbol::{BlockInfo, PDBSymbols, RvaSymbols, SelectedSymbol};
-use super::utils::get_pe_debug_id;
 use crate::common::{self, Dumpable, Mergeable};
+use crate::linux::elf::{ElfInfo, Platform};
 use crate::mapping::PathMappings;
 
-type Result<V> = std::result::Result<V, Error>;
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-enum Cpu {
-    X86,
-    X86_64,
-    Unknown,
-}
-
-impl Display for Cpu {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Cpu::X86 => "x86",
-                Cpu::X86_64 => "x86_64",
-                Cpu::Unknown => "unknown",
-            }
-        )
-    }
-}
-
-#[derive(Debug)]
-pub(super) struct PDBSections {
-    sections: Option<Vec<bool>>,
-}
-
-impl PDBSections {
-    fn new<'a, S: 'a + Source<'a>>(pdb: &mut PDB<'a, S>) -> Self {
-        PDBSections {
-            sections: pdb.sections().ok().and_then(|s| s).map(|sections| {
-                sections
-                    .iter()
-                    .map(|section| Self::has_code(section.characteristics))
-                    .collect()
-            }),
-        }
-    }
-
-    pub(super) fn is_code(&self, section: u16) -> bool {
-        let section = (section - 1) as usize;
-        self.sections
-            .as_ref()
-            .map_or(false, |v| *v.get(section).unwrap_or(&false))
-    }
-
-    pub(super) fn has_code(characteristics: SectionCharacteristics) -> bool {
-        characteristics.executable() || characteristics.execute()
-    }
-
-    pub(super) fn len(&self) -> usize {
-        self.sections.as_ref().map_or(0, |s| s.len())
-    }
-}
-
-#[derive(Debug)]
-pub(super) struct PDBContributions {
-    contributions: Option<Vec<HashSet<u32>>>,
-}
-
-// Some executable sections may contain symbols which are not executable (e.g. string constants)
-// So here we collect all the symbols which are in an exec section and which aren't exec
-impl PDBContributions {
-    fn new(dbi: &DebugInformation, pdb_sections: &PDBSections) -> Self {
-        PDBContributions {
-            contributions: dbi
-                .section_contributions()
-                .ok()
-                .and_then(|mut contributions| {
-                    let mut contribs: Vec<HashSet<u32>> =
-                        vec![HashSet::default(); pdb_sections.len()];
-                    loop {
-                        if let Ok(c) = contributions.next() {
-                            if let Some(contribution) = c {
-                                if pdb_sections.is_code(contribution.offset.section)
-                                    && !PDBSections::has_code(contribution.characteristics)
-                                {
-                                    let section = (contribution.offset.section - 1) as usize;
-                                    contribs[section].insert(contribution.offset.offset);
-                                }
-                            } else {
-                                break;
-                            }
-                        } else {
-                            return None;
-                        }
-                    }
-                    if contribs.is_empty() {
-                        None
-                    } else {
-                        Some(contribs)
-                    }
-                }),
-        }
-    }
-
-    pub(super) fn is_code(&self, section: u16, offset: u32) -> bool {
-        let section = (section - 1) as usize;
-        self.contributions.as_ref().map_or(true, |v| {
-            v.get(section).map_or(true, |o| !o.contains(&offset))
-        })
-    }
-}
-
-struct PDBData<'s> {
-    address_map: AddressMap<'s>,
-}
-
-struct Collector {
-    cpu: Cpu,
-    symbols: RvaSymbols,
-    pdb_sections: PDBSections,
-    pdb_contributions: PDBContributions,
-}
-
-impl Collector {
-    fn add_public_symbol(&mut self, symbol: PublicSymbol, address_map: &AddressMap) {
-        self.symbols.add_public_symbol(
-            symbol,
-            &self.pdb_sections,
-            &self.pdb_contributions,
-            address_map,
-        )
-    }
-
-    fn add_procedure_symbol(
-        &mut self,
-        module_index: usize,
-        symbol: ProcedureSymbol,
-        info: BlockInfo,
-        lines: &SourceLineCollector,
-    ) {
-        self.symbols
-            .add_procedure_symbol(lines, symbol, info, module_index);
-    }
-
-    fn add_symbol(&mut self, symbol: SelectedSymbol, info: BlockInfo) {
-        self.symbols.add_symbol(symbol, info);
-    }
-
-    fn add_reg_rel(&mut self, symbol: RegisterRelativeSymbol) {
-        // TODO: check that's the correct way to know if we've a parameter here
-        // 22 comes from https://github.com/microsoft/microsoft-pdb/blob/master/include/cvconst.h#L436
-        if self.cpu == Cpu::X86 && symbol.register == Register(22 /* EBP */) && symbol.offset > 0 {
-            self.symbols.add_ebp(symbol);
-        }
-    }
-
-    fn close_procedure(&mut self) {
-        self.symbols.close_procedure();
-    }
-
-    fn get_symbol_at(&self, rva: u32) -> Option<&SelectedSymbol> {
-        self.symbols.get_symbol_at(rva)
-    }
-}
-
 pub struct PDBInfo {
-    symbols: PDBSymbols,
-    files: Vec<String>,
-    cpu: Cpu,
-    debug_id: String,
-    pdb_name: String,
-    pe_name: String,
-    code_id: Option<String>,
-    stack: String,
-}
-
-impl Display for PDBInfo {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        writeln!(
-            f,
-            "MODULE windows {} {} {}",
-            self.cpu, self.debug_id, self.pdb_name
-        )?;
-
-        if let Some(code_id) = self.code_id.as_ref() {
-            writeln!(f, "INFO CODE_ID {} {}", code_id, self.pe_name)?;
-        }
-
-        for (n, file_name) in self.files.iter().enumerate() {
-            writeln!(f, "FILE {} {}", n, file_name)?;
-        }
-
-        for (_, sym) in self.symbols.iter() {
-            write!(f, "{}", sym)?;
-        }
-
-        write!(f, "{}", self.stack)?;
-
-        Ok(())
-    }
-}
-
-fn get_cpu(dbi: &DebugInformation) -> Cpu {
-    if let Ok(mt) = dbi.machine_type() {
-        match mt {
-            // Currently breakpad code only uses these machine types
-            // but we've more possibilities:
-            // https://docs.rs/pdb/0.5.0/pdb/enum.MachineType.html
-            MachineType::X86 => Cpu::X86,
-            MachineType::Amd64 | MachineType::Ia64 => Cpu::X86_64,
-            _ => Cpu::Unknown,
-        }
-    } else {
-        Cpu::Unknown
-    }
-}
-
-pub fn get_debug_id(dbi: &DebugInformation, pi: &PDBInformation) -> String {
-    // Here the guid is treated like a 128-bit uuid (PDB >=7.0)
-    let mut buf = Uuid::encode_buffer();
-    let guid = pi.guid.as_simple().encode_upper(&mut buf);
-    let age = dbi.age().unwrap_or(pi.age);
-    format!("{}{:x}", guid, age)
-}
-
-fn get_stack_info(pdb_buf: Option<&[u8]>, pe: Option<PeObject>) -> String {
-    let mut found_unwind_info = false;
-    let mut buf = Vec::new();
-    let writer = Cursor::new(&mut buf);
-
-    let mut cfi_writer = AsciiCfiWriter::new(writer);
-    if let Some(pe) = pe {
-        if pe.has_unwind_info() {
-            cfi_writer.process(&Object::Pe(pe)).unwrap();
-            found_unwind_info = true;
-        }
-    }
-
-    if !found_unwind_info {
-        if let Some(pdb_buf) = pdb_buf {
-            if let Ok(pdb) = PdbObject::parse(pdb_buf) {
-                if pdb.has_unwind_info() {
-                    cfi_writer.process(&Object::Pdb(pdb)).unwrap();
-                }
-            }
-        }
-    }
-
-    String::from_utf8(buf).unwrap()
-}
-
-impl<'s> PDBData<'s> {
-    fn collect_public_symbols(
-        &self,
-        globals: SymbolTable,
-        collector: &mut Collector,
-    ) -> Result<()> {
-        let mut symbols = globals.iter();
-        while let Some(symbol) = symbols.next()? {
-            let symbol = match symbol.parse() {
-                Ok(s) => s,
-                _ => return Ok(()),
-            };
-
-            if let SymbolData::Public(symbol) = symbol {
-                collector.add_public_symbol(symbol, &self.address_map);
-            }
-        }
-
-        Ok(())
-    }
-
-    fn add_block(
-        &self,
-        module_index: usize,
-        module_info: &ModuleInfo,
-        block: BlockSymbol,
-        collector: &mut Collector,
-        lines: &SourceLineCollector,
-    ) -> Result<()> {
-        // When building with PGO, the compiler can split functions into
-        // "hot" and "cold" blocks, and move the "cold" blocks out to separate
-        // pages, so the function can be noncontiguous. To find these blocks,
-        // we have to iterate over all the compilands, and then find blocks
-        // that are children of them. We can then find the lexical parents
-        // of those blocks and print out an extra FUNC line for blocks
-        // that are not contained in their parent functions.
-        let parent = match module_info.symbols_at(block.parent)?.next()? {
-            Some(p) => p,
-            _ => return Ok(()),
-        };
-
-        let parent = match parent.parse() {
-            Ok(p) => p,
-            _ => return Ok(()),
-        };
-
-        let parent = match parent {
-            SymbolData::Procedure(p) => p,
-            _ => return Ok(()),
-        };
-
-        let block_rva = match block.offset.to_rva(&self.address_map) {
-            Some(rva) => rva,
-            _ => return Ok(()),
-        };
-
-        let parent_rva = match parent.offset.to_rva(&self.address_map) {
-            Some(rva) => rva,
-            _ => return Ok(()),
-        };
-
-        if block_rva < parent_rva || block_rva > parent_rva + parent.len {
-            // So the block is outside of its parent procedure
-            collector.add_procedure_symbol(
-                module_index,
-                parent,
-                BlockInfo {
-                    rva: block_rva.0,
-                    offset: block.offset,
-                    len: block.len,
-                },
-                lines,
-            );
-        }
-
-        Ok(())
-    }
-
-    fn add_sepcode(
-        &self,
-        module_index: usize,
-        block: SeparatedCodeSymbol,
-        collector: &mut Collector,
-        lines: &SourceLineCollector,
-    ) {
-        // We can see some sepcode syms in ntdll.dll
-        // As far as I understand, they're pieces of code moved at compilation time.
-        // According to some functions signatures these piece of code can be just
-        // exception filter and exception handling
-        let block_rva = match block.offset.to_rva(&self.address_map) {
-            Some(rva) => rva,
-            _ => return,
-        };
-
-        let parent_rva = match block.parent_offset.to_rva(&self.address_map) {
-            Some(rva) => rva,
-            _ => return,
-        };
-
-        if let Some(parent) = collector.get_symbol_at(parent_rva.0) {
-            if block_rva < parent_rva || block_rva > parent_rva + parent.len {
-                // So the block is outside of its parent procedure
-                let source = lines.collect_source_lines(block.offset, block.len);
-                let sym = SelectedSymbol {
-                    name: parent.name.clone(),
-                    type_index: parent.type_index,
-                    module_index: Some(module_index),
-                    is_public: parent.is_public,
-                    is_multiple: false,
-                    offset: block.offset,
-                    sym_offset: parent.sym_offset,
-                    len: block.len,
-                    parameter_size: parent.parameter_size,
-                    source,
-                    ebp: parent.ebp.clone(),
-                    id: parent.id,
-                };
-                collector.add_symbol(
-                    sym,
-                    BlockInfo {
-                        rva: block_rva.0,
-                        offset: block.offset,
-                        len: block.len,
-                    },
-                );
-            }
-        }
-    }
-
-    fn handle_symbol(
-        &self,
-        symbol: SymbolData,
-        collector: &mut Collector,
-        lines: &SourceLineCollector,
-        module_index: usize,
-        module_info: &ModuleInfo,
-    ) -> Result<()> {
-        match symbol {
-            SymbolData::Procedure(procedure) => {
-                let rva = match procedure.offset.to_rva(&self.address_map) {
-                    Some(rva) => rva,
-                    _ => return Ok(()),
-                };
-
-                collector.add_procedure_symbol(
-                    module_index,
-                    procedure,
-                    BlockInfo {
-                        rva: rva.0,
-                        offset: procedure.offset,
-                        len: procedure.len,
-                    },
-                    lines,
-                );
-            }
-            SymbolData::Block(block) => {
-                self.add_block(module_index, module_info, block, collector, lines)?;
-            }
-            SymbolData::SeparatedCode(block) => {
-                self.add_sepcode(module_index, block, collector, lines);
-            }
-            SymbolData::RegisterRelative(regrel) => {
-                collector.add_reg_rel(regrel);
-            }
-            SymbolData::ScopeEnd => {
-                collector.close_procedure();
-            }
-            _ => {}
-        }
-
-        Ok(())
-    }
-
-    fn collect_functions<'a, S: 'a + Source<'a>>(
-        &self,
-        pdb: &mut PDB<'a, S>,
-        dbi: &DebugInformation,
-        collector: &mut Collector,
-        source_files: &SourceFiles<'s>,
-    ) -> Result<()> {
-        let mut modules = dbi.modules()?.enumerate();
-
-        // We get all the procedures and the labels
-        // Labels correspond to some labelled code we can map with some public symbols (assembly)
-        while let Some((module_index, module)) = modules.next()? {
-            let module_info = match pdb.module_info(&module)? {
-                Some(info) => info,
-                _ => continue,
-            };
-
-            let lines = SourceLineCollector::new(
-                &self.address_map,
-                source_files,
-                module_info.line_program()?,
-            )?;
-
-            let mut symbols = module_info.symbols()?;
-            while let Some(symbol) = symbols.next()? {
-                let symbol = match symbol.parse() {
-                    Ok(s) => s,
-                    _ => continue,
-                };
-
-                self.handle_symbol(symbol, collector, &lines, module_index, &module_info)?;
-            }
-        }
-
-        Ok(())
-    }
+    elf: ElfInfo,
 }
 
 impl PDBInfo {
-    pub fn new<'s, S: pdb::Source<'s> + 's>(
-        pdb_buf: &'s [u8],
-        mut pdb: PDB<'s, S>,
+    pub fn new(
+        pdb: PdbObject,
         pdb_name: &str,
-        pe_name: &str,
+        pe_name: Option<&str>,
         pe: Option<PeObject>,
         mapping: Option<Arc<PathMappings>>,
-    ) -> Result<Self> {
-        let dbi = pdb.debug_information()?;
-        let pi = pdb.pdb_information()?;
-        let frame_table = pdb.frame_table()?;
-        let globals = pdb.global_symbols()?;
-        let pdb_sections = PDBSections::new(&mut pdb);
-        let pdb_contributions = PDBContributions::new(&dbi, &pdb_sections);
-
-        let cpu = get_cpu(&dbi);
-        let debug_id = get_debug_id(&dbi, &pi);
-        let source_files = SourceFiles::new(&mut pdb, mapping)?;
-
-        let pdb_data = PDBData {
-            address_map: pdb.address_map()?,
-        };
-
-        let mut collector = Collector {
-            cpu,
-            symbols: RvaSymbols::default(),
-            pdb_sections,
-            pdb_contributions,
-        };
-
-        pdb_data.collect_functions(&mut pdb, &dbi, &mut collector, &source_files)?;
-        pdb_data.collect_public_symbols(globals, &mut collector)?;
-
-        let context_data = pdb_addr2line::ContextPdbData::try_from_pdb(pdb)?;
-        let formatter = context_data.make_type_formatter()?;
-
-        let code_id = pe
-            .as_ref()
-            .map(|pe| pe.code_id().unwrap().as_str().to_uppercase());
-
-        let stack = get_stack_info(Some(pdb_buf), pe);
-        let symbols =
-            collector
-                .symbols
-                .mv_to_pdb_symbols(formatter, &pdb_data.address_map, frame_table);
-        let symbols = crate::windows::symbol::append_dummy_symbol(symbols, pe_name);
+        collect_inlines: bool,
+    ) -> common::Result<Self> {
+        let pdb = Object::Pdb(pdb);
+        let pe = pe.map(Object::Pe);
+        // let symbols = crate::windows::symbol::append_dummy_symbol(symbols, pe_name);
 
         Ok(PDBInfo {
-            symbols,
-            files: source_files.get_mapping(),
-            cpu,
-            debug_id,
-            pdb_name: String::from(pdb_name),
-            pe_name: String::from(pe_name),
-            code_id,
-            stack,
+            elf: ElfInfo::from_object(
+                &pdb,
+                pdb_name,
+                pe.as_ref(),
+                pe_name,
+                Platform::Win,
+                mapping,
+                collect_inlines,
+            )?,
         })
     }
 }
 
 impl Dumpable for PDBInfo {
-    fn dump<W: Write>(&self, mut writer: W) -> common::Result<()> {
-        write!(writer, "{}", self)?;
-        Ok(())
+    fn dump<W: Write>(&self, writer: W) -> common::Result<()> {
+        self.elf.dump(writer)
     }
 
     fn get_debug_id(&self) -> &str {
-        &self.debug_id
+        self.elf.get_debug_id()
     }
 
     fn get_name(&self) -> &str {
-        &self.pdb_name
+        self.elf.get_name()
     }
 
     fn has_stack(&self) -> bool {
-        !self.stack.is_empty()
+        self.elf.has_stack()
     }
 }
 
@@ -567,68 +68,36 @@ impl Mergeable for PDBInfo {
 }
 
 pub(crate) struct PEInfo {
-    symbols: PDBSymbols,
-    cpu: Cpu,
-    debug_id: String,
-    pdb_name: String,
-    pe_name: String,
-    code_id: Option<String>,
-    stack: String,
+    elf_info: ElfInfo,
 }
 
 impl Display for PEInfo {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        writeln!(
-            f,
-            "MODULE windows {} {} {}",
-            self.cpu, self.debug_id, self.pdb_name
-        )?;
-
-        if let Some(code_id) = self.code_id.as_ref() {
-            writeln!(f, "INFO CODE_ID {} {}", code_id, self.pe_name)?;
-        }
-
-        for (_, sym) in self.symbols.iter() {
-            write!(f, "{}", sym)?;
-        }
-
-        write!(f, "{}", self.stack)?;
-
-        Ok(())
+        self.elf_info.fmt(f)
     }
 }
 
 impl PEInfo {
-    pub fn new(pe_name: &str, pe: PeObject) -> Result<Self> {
-        let cpu = match pe.arch() {
-            Arch::X86 => Cpu::X86,
-            Arch::X86Unknown => Cpu::X86,
-            Arch::Amd64 => Cpu::X86_64,
-            Arch::Amd64h => Cpu::X86_64,
-            Arch::Amd64Unknown => Cpu::X86_64,
-            _ => Cpu::Unknown,
-        };
+    pub fn new(pe_name: &str, pe: PeObject) -> common::Result<Self> {
         let pdb_name = pe.debug_file_name().unwrap_or_default().to_string();
+        let pe = Object::Pe(pe);
         let pdb_name = PEInfo::file_name_only(&pdb_name).to_string();
-
-        let debug_id = get_pe_debug_id(&pe);
-        let code_id = Some(pe.code_id().unwrap().as_str().to_uppercase());
-        let symbols = crate::windows::symbol::symbolic_to_pdb_symbols(
-            pe.symbols(),
-            pe.exception_data(),
-            pe_name,
-        );
-        let symbols = crate::windows::symbol::append_dummy_symbol(symbols, pe_name);
-        let stack = get_stack_info(None, Some(pe));
-
-        Ok(PEInfo {
-            symbols,
-            cpu,
-            debug_id,
-            pdb_name,
-            pe_name: String::from(pe_name),
-            code_id,
-            stack,
+        // let symbols = crate::windows::symbol::symbolic_to_pdb_symbols(
+        //     pe.symbols(),
+        //     pe.exception_data(),
+        //     pe_name,
+        // );
+        // let symbols = crate::windows::symbol::append_dummy_symbol(symbols, pe_name);
+        Ok(Self {
+            elf_info: ElfInfo::from_object(
+                &pe,
+                &pdb_name,
+                None,
+                Some(pe_name),
+                Platform::Win,
+                None,
+                false,
+            )?,
         })
     }
 
@@ -645,19 +114,15 @@ impl Dumpable for PEInfo {
     }
 
     fn get_debug_id(&self) -> &str {
-        &self.debug_id
+        self.elf_info.get_debug_id()
     }
 
     fn get_name(&self) -> &str {
-        if self.pdb_name.is_empty() {
-            return &self.pe_name;
-        }
-
-        &self.pdb_name
+        self.elf_info.get_name()
     }
 
     fn has_stack(&self) -> bool {
-        !self.stack.is_empty()
+        self.elf_info.has_stack()
     }
 }
 
@@ -672,8 +137,9 @@ mod tests {
 
     use bitflags::bitflags;
     use fxhash::{FxHashMap, FxHashSet};
+    use std::collections::HashSet;
     use std::fs::File;
-    use std::io::Read;
+    use std::io::{Cursor, Read};
     use std::path::PathBuf;
     use symbolic::debuginfo::breakpad::{
         BreakpadError, BreakpadFileMap, BreakpadFuncRecord, BreakpadLineRecord, BreakpadObject,
@@ -725,12 +191,11 @@ mod tests {
         )
         .unwrap();
 
-        let pdb_cursor = Cursor::new(&pdb_buf);
-        let pdb = PDB::open(pdb_cursor).unwrap();
+        let pdb = PdbObject::parse(&pdb_buf).unwrap();
 
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
-        let pdb = PDBInfo::new(&pdb_buf, pdb, &pdb_name, name, Some(pe), None).unwrap();
+        let pdb = PDBInfo::new(pdb, &pdb_name, Some(name), Some(pe), None, false).unwrap();
         pdb.dump(cursor).unwrap();
 
         let toks: Vec<_> = name.rsplitn(2, '.').collect();
@@ -761,9 +226,9 @@ mod tests {
             let pe = PEInfo::new(file_name, pe).unwrap();
             pe.dump(cursor).unwrap();
         } else {
-            let pdb_cursor = Cursor::new(&pdb_buf);
-            let pdb = PDB::open(pdb_cursor).unwrap();
-            let pdb = PDBInfo::new(&pdb_buf, pdb, &pdb_name, file_name, Some(pe), mapping).unwrap();
+            let pdb = PdbObject::parse(&pdb_buf).unwrap();
+            let pdb =
+                PDBInfo::new(pdb, &pdb_name, Some(file_name), Some(pe), mapping, false).unwrap();
             pdb.dump(cursor).unwrap();
         }
 
@@ -961,10 +426,15 @@ mod tests {
 
         let file_map_old = old.file_map();
         let file_map_new = new.file_map();
-        let files_old: Vec<_> = file_map_old.values().collect();
-        let files_new: Vec<_> = file_map_new.values().collect();
+        let files_old: HashSet<_> = file_map_old.values().collect();
+        let files_new: HashSet<_> = file_map_new.values().collect();
 
-        assert_eq!(files_new, files_old, "Not the same files");
+        for old_file in &files_old {
+            assert!(files_new.contains(old_file), "Missing path: {}", old_file);
+        }
+        for new_file in &files_new {
+            assert!(files_old.contains(new_file), "Extra path: {}", new_file);
+        }
 
         let mut func_old: Vec<_> = old.func_records().collect();
         let mut func_new: Vec<_> = new.func_records().collect();
@@ -1097,11 +567,11 @@ mod tests {
 
         assert_eq!(
             files[6].replace('\\', "/"),
-            "https://source/abcdef/externalapis/windows/10/sdk/inc/winbase.h"
+            "https://source/abcdef/vctools/crt/vcstartup/src/eh/i386/secchk.c"
         );
         assert_eq!(
             files[7].replace('\\', "/"),
-            "https://source/abcdef/externalapis/windows/10/sdk/inc/winerror.h"
+            "https://source/abcdef/vctools/crt/vcstartup/src/heap/delete_scalar_size.cpp"
         );
         assert_eq!(
             files[files.len() - 1].replace('\\', "/"),
