@@ -6,11 +6,10 @@
 use log::{error, warn};
 use std::collections::btree_map;
 use std::fmt::{Display, Formatter};
-use std::io::{Cursor, Write};
+use std::io::Write;
 use std::sync::Arc;
 use symbolic::cfi::AsciiCfiWriter;
 use symbolic::common::{Language, Name, NameMangling};
-use symbolic::debuginfo::dwarf::DwarfDebugSession;
 use symbolic::debuginfo::{Function, Object, ObjectDebugSession};
 use symbolic::demangle::Demangle;
 
@@ -31,6 +30,46 @@ pub enum Type {
 pub enum Platform {
     Linux,
     Mac,
+    Win,
+}
+
+impl Platform {
+    pub fn is_target(&self) -> bool {
+        match self {
+            Platform::Linux => cfg!(target_os = "linux"),
+            Platform::Mac => cfg!(target_os = "macos"),
+            Platform::Win => cfg!(target_os = "windows"),
+        }
+    }
+
+    pub fn is_absolute_path(&self, path: &str) -> bool {
+        match self {
+            Platform::Linux | Platform::Mac => path.starts_with('/'),
+            Platform::Win => {
+                // Detect "C:\..." and "C:/...".
+                let first_fragment = match path.find(&['/', '\\']) {
+                    Some(first_fragment_len) => &path[..first_fragment_len],
+                    None => path,
+                };
+                first_fragment.ends_with(':')
+            }
+        }
+    }
+
+    pub fn join_paths(&self, left: &str, right: &str) -> String {
+        match self {
+            Platform::Linux | Platform::Mac => {
+                let left = left.trim_end_matches('/');
+                let right = right.trim_start_matches('/');
+                format!("{}/{}", left, right)
+            }
+            Platform::Win => {
+                let left = left.trim_end_matches('\\');
+                let right = right.trim_start_matches('\\');
+                format!("{}\\{}", left, right)
+            }
+        }
+    }
 }
 
 impl Display for Platform {
@@ -38,6 +77,7 @@ impl Display for Platform {
         let p = match self {
             Self::Linux => "Linux",
             Self::Mac => "Mac",
+            Self::Win => "windows",
         };
         write!(f, "{}", p)
     }
@@ -52,6 +92,7 @@ pub struct ElfInfo {
     cpu: &'static str,
     debug_id: String,
     code_id: Option<String>,
+    pe_name: Option<String>,
     stack: String,
     bin_type: Type,
     platform: Platform,
@@ -66,7 +107,9 @@ impl Display for ElfInfo {
         )?;
 
         if let Some(code_id) = self.code_id.as_ref() {
-            writeln!(f, "INFO CODE_ID {}", code_id)?;
+            let pe_name = self.pe_name.as_deref().unwrap_or_default();
+            let line = format!("INFO CODE_ID {} {}", code_id, pe_name);
+            writeln!(f, "{}", line.trim())?;
         }
 
         for (n, file_name) in self.files.get_mapping().iter().enumerate() {
@@ -96,6 +139,7 @@ impl Display for ElfInfo {
 
 #[derive(Debug)]
 pub struct Collector {
+    platform: Platform,
     collect_inlines: bool,
     syms: ElfSymbols,
 }
@@ -404,7 +448,7 @@ impl Collector {
 
     pub fn collect_functions<'a>(
         &mut self,
-        ds: &'a DwarfDebugSession,
+        ds: &'a ObjectDebugSession,
         source: &mut SourceFiles,
         inline_origins: &mut InlineOrigins<'a>,
     ) -> common::Result<()> {
@@ -434,6 +478,8 @@ impl Collector {
                     let sym = e.get_mut();
                     if sym.is_public {
                         sym.is_multiple = true;
+                    } else {
+                        // TODO
                     }
                 }
                 btree_map::Entry::Vacant(e) => {
@@ -455,18 +501,23 @@ impl Collector {
             }
         }
     }
+}
 
-    fn get_stack_info(o: &Object) -> String {
-        let mut buf = Vec::new();
-        let writer = Cursor::new(&mut buf);
+fn get_stack_info(pdb: Option<&Object>, pe: Option<&Object>) -> String {
+    let mut buf = Vec::new();
+    let mut cfi_writer = AsciiCfiWriter::new(&mut buf);
 
-        let mut cfi_writer = AsciiCfiWriter::new(writer);
-        if let Err(e) = cfi_writer.process(o) {
-            error!("CFI: {:?}", e);
+    match (pdb, pe) {
+        (_, Some(pe)) if pe.has_unwind_info() => {
+            cfi_writer.process(pe).unwrap();
         }
-
-        String::from_utf8(buf).unwrap()
+        (Some(pdb), _) if pdb.has_unwind_info() => {
+            cfi_writer.process(pdb).unwrap();
+        }
+        _ => {}
     }
+
+    String::from_utf8(buf).unwrap()
 }
 
 impl ElfInfo {
@@ -478,50 +529,61 @@ impl ElfInfo {
         collect_inlines: bool,
     ) -> common::Result<Self> {
         let o = Object::parse(buf)?;
-        Self::from_object(&o, file_name, platform, mapping, collect_inlines)
+        Self::from_object(
+            &o,
+            file_name,
+            None,
+            None,
+            platform,
+            mapping,
+            collect_inlines,
+        )
     }
 
     pub fn from_object(
-        o: &Object,
-        file_name: &str,
+        main_object: &Object,
+        main_file_name: &str,
+        pe_object: Option<&Object>,
+        pe_file_name: Option<&str>,
         platform: Platform,
         mapping: Option<Arc<PathMappings>>,
         collect_inlines: bool,
     ) -> common::Result<Self> {
         let mut collector = Collector {
+            platform,
             collect_inlines,
             syms: ElfSymbols::default(),
         };
 
-        let ds = o.debug_session()?;
-        let ds = if let ObjectDebugSession::Dwarf(ds) = ds {
-            ds
-        } else {
-            unreachable!();
-        };
-
-        let mut source = SourceFiles::new(mapping);
+        let ds = main_object.debug_session()?;
+        let mut source = SourceFiles::new(mapping, platform);
         let mut inline_origins = InlineOrigins::default();
-        let debug_id = format!("{}", o.debug_id().breakpad());
-        let code_id = o.code_id().map(|c| c.as_str().to_string().to_uppercase());
-        let cpu = o.arch().name();
-        let bin_type = if o.has_debug_info() {
+        let debug_id = format!("{}", main_object.debug_id().breakpad());
+        let code_id = pe_object
+            .and_then(|o| o.code_id())
+            .or_else(|| main_object.code_id())
+            .map(|c| c.as_str().to_string().to_uppercase());
+        let cpu = main_object.arch().name();
+        let bin_type = if main_object.has_debug_info() {
             Type::DebugInfo
         } else {
             Type::Stripped
         };
 
         collector.collect_functions(&ds, &mut source, &mut inline_origins)?;
-        collector.collect_publics(o);
+        collector.collect_publics(main_object);
 
-        let stack = Collector::get_stack_info(o);
-        let symbols =
-            crate::linux::symbol::add_executable_section_symbols(collector.syms, file_name, o);
+        let stack = get_stack_info(Some(main_object), pe_object);
+        let symbols = crate::linux::symbol::add_executable_section_symbols(
+            collector.syms,
+            main_file_name,
+            main_object,
+        );
 
-        let file_name = match o {
-            Object::Elf(elf) => elf.name().unwrap_or(file_name),
-            Object::MachO(macho) => macho.name().unwrap_or(file_name),
-            _ => file_name,
+        let file_name = match (&main_object, &pe_file_name) {
+            (Object::Elf(elf), _) => elf.name().unwrap_or(main_file_name),
+            (Object::MachO(macho), _) => macho.name().unwrap_or(main_file_name),
+            _ => main_file_name,
         };
 
         Ok(Self {
@@ -529,6 +591,7 @@ impl ElfInfo {
             files: source.get_mapping(),
             inline_origins: inline_origins.get_list(),
             file_name: Self::file_name_only(file_name).to_string(),
+            pe_name: pe_file_name.map(ToOwned::to_owned),
             cpu,
             debug_id,
             code_id,

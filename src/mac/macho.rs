@@ -50,6 +50,8 @@ impl MachoInfo {
                 elf: ElfInfo::from_object(
                     &object,
                     file_name,
+                    None,
+                    None,
                     Platform::Mac,
                     mapping,
                     collect_inlines,

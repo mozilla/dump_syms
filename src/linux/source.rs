@@ -13,11 +13,14 @@ use symbolic::debuginfo::FileInfo;
 use crate::mapping::PathMappings;
 use crate::utils;
 
+use super::elf::Platform;
+
 type SliceRef = (*const u8, usize);
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct SourceFiles {
-    ref_to_id: HashMap<PathBuf, u32>,
+    platform: Platform,
+    ref_to_id: HashMap<String, u32>,
     fake_id_to_ref: Vec<(Option<u32>, String)>,
     id_to_ref: Vec<String>,
     cache: HashMap<(SliceRef, SliceRef, SliceRef), u32>,
@@ -26,15 +29,19 @@ pub struct SourceFiles {
 
 #[derive(Debug, Default)]
 pub struct SourceMap {
-    ref_to_id: HashMap<PathBuf, u32>,
+    ref_to_id: HashMap<String, u32>,
     id_to_ref: Vec<String>,
 }
 
 impl SourceFiles {
-    pub(super) fn new(mapping: Option<Arc<PathMappings>>) -> Self {
+    pub(super) fn new(mapping: Option<Arc<PathMappings>>, platform: Platform) -> Self {
         SourceFiles {
             mapping,
-            ..Default::default()
+            platform,
+            ref_to_id: Default::default(),
+            fake_id_to_ref: Default::default(),
+            id_to_ref: Default::default(),
+            cache: Default::default(),
         }
     }
 
@@ -53,24 +60,25 @@ impl SourceFiles {
         }
     }
 
-    fn get_path(compilation_dir: &[u8], file: &FileInfo) -> PathBuf {
-        let dir = Self::path_to_string(file.dir);
+    fn get_path(platform: Platform, compilation_dir: &[u8], file: &FileInfo) -> String {
+        let mut dir = Self::path_to_string(file.dir);
         let name = Self::path_to_string(file.name);
 
-        let path = if file.dir.get(0).map_or(false, |&x| x == b'/') {
-            // file.dir is absolute
-            PathBuf::from(dir).join(name)
-        } else {
+        if !platform.is_absolute_path(&dir) && !compilation_dir.is_empty() {
             let comp_dir = Self::path_to_string(compilation_dir);
-            PathBuf::from(comp_dir).join(dir).join(name)
+            dir = platform.join_paths(&comp_dir, &dir);
         };
+        let path = platform.join_paths(&dir, &name);
 
-        // Try to get the real path and in case we're on the machine where the files have been compiled
-        // else fallback on the basic way to normalize a path
-        if let Ok(path) = fs::canonicalize(&path) {
-            path
+        if platform.is_target() {
+            // Try to get the real path and in case we're on the machine where the files have been compiled
+            // else fallback on the basic way to normalize a path
+            let path = PathBuf::from(path);
+            let path = fs::canonicalize(&path).unwrap_or_else(|_| utils::normalize_path(&path));
+            path.to_string_lossy().to_string()
         } else {
-            utils::normalize_path(&path)
+            // Don't attempt to normalize the path if we're on a different platform.
+            path
         }
     }
 
@@ -87,7 +95,7 @@ impl SourceFiles {
         match self.cache.entry(cache_key) {
             hash_map::Entry::Occupied(e) => *e.get(),
             hash_map::Entry::Vacant(e) => {
-                let path = Self::get_path(compilation_dir, file);
+                let path = Self::get_path(self.platform, compilation_dir, file);
                 let id = match self.ref_to_id.entry(path.clone()) {
                     hash_map::Entry::Occupied(e) => *e.get(),
                     hash_map::Entry::Vacant(e) => {
@@ -103,7 +111,7 @@ impl SourceFiles {
                         } else {
                             None
                         };
-                        let path = new_path.unwrap_or_else(|| path.to_str().unwrap().to_string());
+                        let path = new_path.unwrap_or(path);
                         e.insert(id);
                         self.fake_id_to_ref.push((None, path));
                         id

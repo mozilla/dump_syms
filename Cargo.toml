@@ -32,7 +32,6 @@ hashbrown = { version = "0.11", features = ["serde"] }
 lazy_static = "1.4"
 log = "0.4"
 num_cpus = "1.13"
-pdb-addr2line = "0.10"
 regex = "1.6"
 reqwest = { version = "0.11", optional = true, default-features = false, features = [
     "blocking",
@@ -42,7 +41,7 @@ serde = "1.0"
 serde_json = "1.0"
 sha2 = "0.10"
 simplelog = { version = "0.12", optional = true, features = ["local-offset"] }
-symbolic = { version = "9", features = ["demangle", "cfi"] }
+symbolic = { git = "https://github.com/getsentry/symbolic", rev = "f0dc99bb400da20fed8a7a42d71d8206ffeee536", features = ["demangle", "cfi"] }
 tokio = { version = "1.20", optional = true }
 url = "2.2"
 uuid = "1"
