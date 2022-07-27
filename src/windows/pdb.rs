@@ -542,7 +542,7 @@ impl PDBInfo {
     }
 
     pub fn set_pe(&mut self, pe_name: String, pe: PeObject, pdb_buf: &[u8]) -> bool {
-        if get_pe_debug_id(Some(&pe)).unwrap() == self.debug_id {
+        if get_pe_debug_id(&pe) == self.debug_id {
             self.code_id = Some(pe.code_id().unwrap().as_str().to_uppercase());
             self.pe_name = pe_name;
             if self.stack.is_empty() {
@@ -625,7 +625,7 @@ impl PEInfo {
         let pdb_name = pe.debug_file_name().unwrap_or_default().to_string();
         let pdb_name = PEInfo::file_name_only(&pdb_name).to_string();
 
-        let debug_id = get_pe_debug_id(Some(&pe)).unwrap();
+        let debug_id = get_pe_debug_id(&pe);
         let code_id = Some(pe.code_id().unwrap().as_str().to_uppercase());
         let symbols = crate::windows::symbol::symbolic_to_pdb_symbols(
             pe.symbols(),

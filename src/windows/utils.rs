@@ -74,7 +74,7 @@ pub fn get_pe_pdb_buf<'a>(
             Some((pe, pdb_buf, pdb_name))
         } else {
             // Not here so try symbol server (or cache)
-            let debug_id = get_pe_debug_id(Some(&pe)).unwrap();
+            let debug_id = get_pe_debug_id(&pe);
             let (pdb, pdb_name) = cache::search_file(pdb_name, &debug_id, symbol_server);
             pdb.map(|pdb_buf| (pe, pdb_buf, pdb_name))
         }
@@ -83,16 +83,12 @@ pub fn get_pe_pdb_buf<'a>(
     }
 }
 
-pub fn get_pe_debug_id(pe: Option<&PeObject>) -> Option<String> {
-    if let Some(pe) = pe {
-        let mut buf = Uuid::encode_buffer();
-        let debug_id = pe.debug_id();
-        let uuid = debug_id.uuid().as_simple().encode_upper(&mut buf);
-        let appendix = debug_id.appendix();
-        Some(format!("{}{:x}", uuid, appendix))
-    } else {
-        None
-    }
+pub fn get_pe_debug_id(pe: &PeObject) -> String {
+    let mut buf = Uuid::encode_buffer();
+    let debug_id = pe.debug_id();
+    let uuid = debug_id.uuid().as_simple().encode_upper(&mut buf);
+    let appendix = debug_id.appendix();
+    format!("{}{:x}", uuid, appendix)
 }
 
 fn fix_extension(ext: &str) -> &str {
