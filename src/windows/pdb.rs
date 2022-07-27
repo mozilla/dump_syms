@@ -235,7 +235,7 @@ fn get_cpu(dbi: &DebugInformation) -> Cpu {
     }
 }
 
-fn get_debug_id(dbi: &DebugInformation, pi: PDBInformation) -> String {
+pub fn get_debug_id(dbi: &DebugInformation, pi: &PDBInformation) -> String {
     // Here the guid is treated like a 128-bit uuid (PDB >=7.0)
     let mut buf = Uuid::encode_buffer();
     let guid = pi.guid.as_simple().encode_upper(&mut buf);
@@ -497,7 +497,7 @@ impl PDBInfo {
         let pdb_contributions = PDBContributions::new(&dbi, &pdb_sections);
 
         let cpu = get_cpu(&dbi);
-        let debug_id = get_debug_id(&dbi, pi);
+        let debug_id = get_debug_id(&dbi, &pi);
         let source_files = SourceFiles::new(&mut pdb, mapping)?;
 
         let pdb_data = PDBData {
