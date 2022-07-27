@@ -145,7 +145,11 @@ impl Creator for PDBInfo {
         _collect_inlines: bool,
     ) -> common::Result<Self> {
         let mut pdb = Self::new(buf, filename, "", None, mapping)?;
-        windows::utils::try_to_set_pe(path, &mut pdb, buf);
+        if let Some((pe_name, pe_buf)) =
+            windows::utils::find_pe_for_pdb(path, pdb.get_debug_id())
+        {
+            pdb.set_pe(pe_name, PeObject::parse(&pe_buf).unwrap(), buf);
+        }
         Ok(pdb)
     }
 
