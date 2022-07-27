@@ -9,6 +9,7 @@ use uuid::Uuid;
 
 #[cfg(feature = "http")]
 use crate::cache::{self, SymbolServer};
+use crate::common::Dumpable;
 use crate::utils;
 use crate::windows::pdb::PDBInfo;
 
@@ -111,7 +112,8 @@ pub(crate) fn try_to_set_pe(path: &Path, pdb_info: &mut PDBInfo, pdb_buf: &[u8])
                     path.set_extension(fix_extension(ext));
                 }
                 let filename = utils::get_filename(&path);
-                if pdb_info.set_pe(filename, pe, pdb_buf) {
+                if pdb_info.get_debug_id() == get_pe_debug_id(&pe) {
+                    pdb_info.set_pe(filename, pe, pdb_buf);
                     break;
                 }
             }
