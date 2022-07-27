@@ -6,8 +6,10 @@
 use crossbeam::channel::{bounded, Receiver, Sender};
 use hashbrown::HashMap;
 use log::{error, info};
+use pdb_addr2line::pdb::PDB;
 use std::fmt;
 use std::fs;
+use std::io::Cursor;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -144,10 +146,10 @@ impl Creator for PDBInfo {
         mapping: Option<Arc<PathMappings>>,
         _collect_inlines: bool,
     ) -> common::Result<Self> {
-        let mut pdb = Self::new(buf, filename, "", None, mapping)?;
-        if let Some((pe_name, pe_buf)) =
-            windows::utils::find_pe_for_pdb(path, pdb.get_debug_id())
-        {
+        let cursor = Cursor::new(buf);
+        let pdb = PDB::open(cursor)?;
+        let mut pdb = Self::new(buf, pdb, filename, "", None, mapping)?;
+        if let Some((pe_name, pe_buf)) = windows::utils::find_pe_for_pdb(path, pdb.get_debug_id()) {
             pdb.set_pe(pe_name, PeObject::parse(&pe_buf).unwrap(), buf);
         }
         Ok(pdb)
@@ -166,7 +168,9 @@ impl Creator for PDBInfo {
             let res = windows::utils::get_pe_pdb_buf(_path, _buf, symbol_server.as_ref());
 
             if let Some((pe, pdb_buf, pdb_name)) = res {
-                let pdb = Self::new(&pdb_buf, &pdb_name, _filename, Some(pe), _mapping)?;
+                let cursor = Cursor::new(&pdb_buf);
+                let pdb = PDB::open(cursor)?;
+                let pdb = Self::new(&pdb_buf, pdb, &pdb_name, _filename, Some(pe), _mapping)?;
                 Ok(pdb)
             } else {
                 anyhow::bail!("No pdb file found")
