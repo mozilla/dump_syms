@@ -151,11 +151,14 @@ impl Creator for PDBInfo {
         let dbi = pdb.debug_information()?;
         let pi = pdb.pdb_information()?;
         let debug_id = windows::pdb::get_debug_id(&dbi, &pi);
-        let mut pdb = Self::new(buf, pdb, filename, "", None, mapping)?;
-        if let Some((pe_name, pe_buf)) = windows::utils::find_pe_for_pdb(path, &debug_id) {
-            pdb.set_pe(pe_name, PeObject::parse(&pe_buf).unwrap(), buf);
-        }
-        Ok(pdb)
+
+        let (pe_name, pe_buf) = match windows::utils::find_pe_for_pdb(path, &debug_id) {
+            Some((pe_name, pe_buf)) => (pe_name, Some(pe_buf)),
+            None => ("".to_string(), None),
+        };
+        let pe = pe_buf.as_deref().map(|buf| PeObject::parse(buf).unwrap());
+
+        Ok(Self::new(buf, pdb, filename, &pe_name, pe, mapping)?)
     }
 
     fn get_pe<'a>(

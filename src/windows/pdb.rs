@@ -539,14 +539,6 @@ impl PDBInfo {
             stack,
         })
     }
-
-    pub fn set_pe(&mut self, pe_name: String, pe: PeObject, pdb_buf: &[u8]) {
-        self.code_id = Some(pe.code_id().unwrap().as_str().to_uppercase());
-        self.pe_name = pe_name;
-        if self.stack.is_empty() {
-            self.stack = get_stack_info(Some(pdb_buf), Some(pe));
-        }
-    }
 }
 
 impl Dumpable for PDBInfo {
