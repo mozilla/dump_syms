@@ -9,9 +9,7 @@ use uuid::Uuid;
 
 #[cfg(feature = "http")]
 use crate::cache::{self, SymbolServer};
-use crate::common::Dumpable;
 use crate::utils;
-use crate::windows::pdb::PDBInfo;
 
 #[cfg(feature = "http")]
 fn try_to_find_pdb(path: &Path, pdb_filename: &str) -> Option<Vec<u8>> {
@@ -100,8 +98,9 @@ fn fix_extension(ext: &str) -> &str {
     }
 }
 
-pub(crate) fn try_to_set_pe(path: &Path, pdb_info: &mut PDBInfo, pdb_buf: &[u8]) {
-    // Just check that the file is in the same directory as the PDB one
+/// Tries to find the PE object for a PDB file, by looking for dll/exe files
+/// in the same directory with a matching debug ID.
+pub(crate) fn find_pe_for_pdb(path: &Path, pdb_debug_id: &str) -> Option<(String, Vec<u8>)> {
     let mut path = path.to_path_buf();
     for ext in vec!["dll", "dl_", "exe", "ex_"].drain(..) {
         path.set_extension(ext);
@@ -112,11 +111,11 @@ pub(crate) fn try_to_set_pe(path: &Path, pdb_info: &mut PDBInfo, pdb_buf: &[u8])
                     path.set_extension(fix_extension(ext));
                 }
                 let filename = utils::get_filename(&path);
-                if pdb_info.get_debug_id() == get_pe_debug_id(&pe) {
-                    pdb_info.set_pe(filename, pe, pdb_buf);
-                    break;
+                if get_pe_debug_id(&pe) == pdb_debug_id {
+                    return Some((filename, buf));
                 }
             }
         }
     }
+    None
 }
