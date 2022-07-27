@@ -65,8 +65,8 @@ pub fn get_path_for_sym(file_name: &str, id: &str) -> PathBuf {
     pb.push(id);
 
     let sym_filename = match file_name.rsplit_once('.') {
-        Some((basename, ext)) if ext.to_lowercase() == "pdb" => format!("{basename}.sym"),
-        _ => format!("{file_name}.sym"),
+        Some((basename, ext)) if ext.to_lowercase() == "pdb" => format!("{}.sym", basename),
+        _ => format!("{}.sym", file_name),
     };
     pb.push(sym_filename);
 
