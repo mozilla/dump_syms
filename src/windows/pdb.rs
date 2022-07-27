@@ -481,15 +481,14 @@ impl<'s> PDBData<'s> {
 }
 
 impl PDBInfo {
-    pub fn new(
-        buf: &[u8],
+    pub fn new<'s, S: pdb::Source<'s> + 's>(
+        pdb_buf: &'s [u8],
+        mut pdb: PDB<'s, S>,
         pdb_name: &str,
         pe_name: &str,
         pe: Option<PeObject>,
         mapping: Option<Arc<PathMappings>>,
     ) -> Result<Self> {
-        let cursor = Cursor::new(buf);
-        let mut pdb = PDB::open(cursor)?;
         let dbi = pdb.debug_information()?;
         let pi = pdb.pdb_information()?;
         let frame_table = pdb.frame_table()?;
@@ -522,7 +521,7 @@ impl PDBInfo {
             .as_ref()
             .map(|pe| pe.code_id().unwrap().as_str().to_uppercase());
 
-        let stack = get_stack_info(Some(buf), pe);
+        let stack = get_stack_info(Some(pdb_buf), pe);
         let symbols =
             collector
                 .symbols
@@ -734,9 +733,12 @@ mod tests {
         )
         .unwrap();
 
+        let pdb_cursor = Cursor::new(&pdb_buf);
+        let pdb = PDB::open(pdb_cursor).unwrap();
+
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
-        let pdb = PDBInfo::new(&pdb_buf, &pdb_name, name, Some(pe), None).unwrap();
+        let pdb = PDBInfo::new(&pdb_buf, pdb, &pdb_name, name, Some(pe), None).unwrap();
         pdb.dump(cursor).unwrap();
 
         let toks: Vec<_> = name.rsplitn(2, '.').collect();
@@ -767,7 +769,9 @@ mod tests {
             let pe = PEInfo::new(file_name, pe).unwrap();
             pe.dump(cursor).unwrap();
         } else {
-            let pdb = PDBInfo::new(&pdb_buf, &pdb_name, file_name, Some(pe), mapping).unwrap();
+            let pdb_cursor = Cursor::new(&pdb_buf);
+            let pdb = PDB::open(pdb_cursor).unwrap();
+            let pdb = PDBInfo::new(&pdb_buf, pdb, &pdb_name, file_name, Some(pe), mapping).unwrap();
             pdb.dump(cursor).unwrap();
         }
 
