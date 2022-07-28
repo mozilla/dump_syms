@@ -96,6 +96,7 @@ mod tests {
             mapping_file: None,
             check_cfi: false,
             emit_inlines: false,
+            keep_mangled: false,
         });
 
         action.action(&[tmp_file.to_str().unwrap()]).unwrap();
@@ -130,6 +131,7 @@ mod tests {
             mapping_file: None,
             check_cfi: true,
             emit_inlines: false,
+            keep_mangled: false,
         });
 
         let res = action.action(&[tmp_file.to_str().unwrap()]);
@@ -162,6 +164,7 @@ mod tests {
             mapping_file: None,
             check_cfi: false,
             emit_inlines: false,
+            keep_mangled: false,
         });
 
         action.action(&[tmp_pdb.to_str().unwrap()]).unwrap();
@@ -193,6 +196,7 @@ mod tests {
             mapping_file: None,
             check_cfi: false,
             emit_inlines: false,
+            keep_mangled: false,
         });
 
         action.action(&[full.to_str().unwrap()]).unwrap();
@@ -227,6 +231,7 @@ mod tests {
             mapping_file: None,
             check_cfi: false,
             emit_inlines: true,
+            keep_mangled: false,
         });
 
         action.action(&[full.to_str().unwrap()]).unwrap();
@@ -235,6 +240,41 @@ mod tests {
         let new: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
 
         let basic = PathBuf::from("./test_data/linux/basic.full.inlines.sym");
+        let data = read(basic).unwrap();
+        let basic: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+
+        assert_eq!(basic, new);
+    }
+
+    #[test]
+    fn test_elf_full_mangled() {
+        let tmp_dir = Builder::new().prefix("full").tempdir().unwrap();
+        let full = PathBuf::from("./test_data/linux/basic.full");
+        let tmp_out = tmp_dir.path().join("output.sym");
+
+        let action = Action::Dump(Config {
+            output: tmp_out.clone().into(),
+            symbol_server: None,
+            debug_id: None,
+            code_id: None,
+            arch: common::get_compile_time_arch(),
+            file_type: FileType::Elf,
+            num_jobs: 1,
+            mapping_var: None,
+            mapping_src: None,
+            mapping_dest: None,
+            mapping_file: None,
+            check_cfi: false,
+            emit_inlines: false,
+            keep_mangled: true,
+        });
+
+        action.action(&[full.to_str().unwrap()]).unwrap();
+
+        let data = read(tmp_out).unwrap();
+        let new: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+
+        let basic = PathBuf::from("./test_data/linux/basic.full.mangled.sym");
         let data = read(basic).unwrap();
         let basic: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
 
@@ -262,6 +302,7 @@ mod tests {
             mapping_file: None,
             check_cfi: false,
             emit_inlines: false,
+            keep_mangled: false,
         });
 
         action
@@ -304,6 +345,7 @@ mod tests {
             mapping_file: None,
             check_cfi: false,
             emit_inlines: false,
+            keep_mangled: false,
         });
 
         action

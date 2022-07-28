@@ -31,6 +31,7 @@ impl MachoInfo {
         arch: Arch,
         mapping: Option<Arc<PathMappings>>,
         collect_inlines: bool,
+        keep_mangled: bool,
     ) -> common::Result<Self> {
         // Fat files may contain several objects for different architectures
         // So if there is only one object, then we don't care about the arch (as argument)
@@ -53,6 +54,7 @@ impl MachoInfo {
                     Platform::Mac,
                     mapping,
                     collect_inlines,
+                    keep_mangled,
                 )?,
             })
         } else {

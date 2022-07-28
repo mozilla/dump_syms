@@ -133,6 +133,11 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
                 .help("Whether to emit INLINE and INLINE_ORIGIN directives")
                 .long("inlines"),
         )
+        .arg(
+            Arg::with_name("keep_mangled")
+                .help("Whether to keep function names mangled, INFO MANGLED 1 will also be emitted")
+                .long("keep-mangled"),
+        )
         .get_matches();
 
     let verbosity = match matches.value_of("verbose").unwrap() {
@@ -185,6 +190,7 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
     let arch = matches.value_of("arch").unwrap();
     let check_cfi = matches.is_present("check_cfi");
     let emit_inlines = matches.is_present("inlines");
+    let keep_mangled = matches.is_present("keep_mangled");
     let mapping_var = matches
         .values_of("mapping_var")
         .map(|v| v.collect::<Vec<_>>());
@@ -244,6 +250,7 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
             num_jobs,
             check_cfi,
             emit_inlines,
+            keep_mangled,
             mapping_var,
             mapping_src,
             mapping_dest,

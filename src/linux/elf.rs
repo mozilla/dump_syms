@@ -55,6 +55,7 @@ pub struct ElfInfo {
     stack: String,
     bin_type: Type,
     platform: Platform,
+    keep_mangled: bool,
 }
 
 impl Display for ElfInfo {
@@ -67,6 +68,10 @@ impl Display for ElfInfo {
 
         if let Some(code_id) = self.code_id.as_ref() {
             writeln!(f, "INFO CODE_ID {}", code_id)?;
+        }
+
+        if self.keep_mangled {
+            writeln!(f, "INFO MANGLED 1")?;
         }
 
         for (n, file_name) in self.files.get_mapping().iter().enumerate() {
@@ -97,6 +102,7 @@ impl Display for ElfInfo {
 #[derive(Debug)]
 pub struct Collector {
     collect_inlines: bool,
+    keep_mangled: bool,
     syms: ElfSymbols,
 }
 
@@ -116,12 +122,14 @@ impl Collector {
         println!();
     }
 
-    fn demangle(name: &Name) -> String {
+    fn demangle(name: &Name, keep_mangled: bool) -> String {
         let name = common::fix_symbol_name(name);
+        if keep_mangled {
+            return name.as_str().to_string();
+        }
         if let Language::C = name.language() {
             return name.as_str().to_string();
         }
-
         match name.demangle(DemangleOptions::complete()) {
             Some(demangled) => demangled,
             None => {
@@ -132,7 +140,7 @@ impl Collector {
         }
     }
 
-    fn demangle_str(name: &str) -> String {
+    fn demangle_str(name: &str, keep_mangled: bool) -> String {
         let lang = Name::new(name, NameMangling::Mangled, Language::Unknown).detect_language();
         if lang == Language::Unknown {
             return name.to_string();
@@ -140,6 +148,9 @@ impl Collector {
 
         let name = Name::new(name, NameMangling::Mangled, lang);
         let name = common::fix_symbol_name(&name);
+        if keep_mangled {
+            return name.as_str().to_string();
+        }
 
         match name.demangle(DemangleOptions::complete()) {
             Some(demangled) => demangled,
@@ -187,7 +198,7 @@ impl Collector {
         self.syms.insert(
             fun.address as u32,
             ElfSymbol {
-                name: Self::demangle(&fun.name),
+                name: Self::demangle(&fun.name, self.keep_mangled),
                 is_public: false,
                 is_multiple: false,
                 is_synthetic: false,
@@ -424,6 +435,7 @@ impl Collector {
 
     // This runs after collect_functions.
     fn collect_publics(&mut self, o: &Object) {
+        let keep_mangled = self.keep_mangled;
         for sym in o.symbols() {
             if self.syms.is_inside_symbol(sym.address as u32) {
                 continue;
@@ -439,7 +451,7 @@ impl Collector {
                 btree_map::Entry::Vacant(e) => {
                     let sym_name = sym.name.map_or_else(
                         || "<name omitted>".to_string(),
-                        |n| Self::demangle_str(&n.to_owned()),
+                        |n| Self::demangle_str(&n.to_owned(), keep_mangled),
                     );
                     e.insert(ElfSymbol {
                         name: sym_name,
@@ -476,9 +488,17 @@ impl ElfInfo {
         platform: Platform,
         mapping: Option<Arc<PathMappings>>,
         collect_inlines: bool,
+        keep_mangled: bool,
     ) -> common::Result<Self> {
         let o = Object::parse(buf)?;
-        Self::from_object(&o, file_name, platform, mapping, collect_inlines)
+        Self::from_object(
+            &o,
+            file_name,
+            platform,
+            mapping,
+            collect_inlines,
+            keep_mangled,
+        )
     }
 
     pub fn from_object(
@@ -487,9 +507,11 @@ impl ElfInfo {
         platform: Platform,
         mapping: Option<Arc<PathMappings>>,
         collect_inlines: bool,
+        keep_mangled: bool,
     ) -> common::Result<Self> {
         let mut collector = Collector {
             collect_inlines,
+            keep_mangled,
             syms: ElfSymbols::default(),
         };
 
@@ -535,6 +557,7 @@ impl ElfInfo {
             stack,
             bin_type,
             platform,
+            keep_mangled,
         })
     }
 
