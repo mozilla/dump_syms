@@ -3,54 +3,6 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use hashbrown::{hash_map, HashMap};
-use log::warn;
-use std::collections::BTreeMap;
-use std::fmt::{Display, Formatter};
-use std::rc::Rc;
-use symbolic::common::{Language, Name, NameMangling};
-use symbolic::debuginfo::pe::{ExceptionData, PeSymbolIterator};
-use symbolic::demangle::Demangle;
-
-use crate::common;
-use crate::common::demangle_options;
-use crate::common::LineFinalizer;
-use crate::line::Lines;
-
-/*
-pub(super) fn append_dummy_symbol(mut syms: PDBSymbols, name: &str) -> PDBSymbols {
-    let (rva, len, id) = if let Some((_, last_sym)) = syms.iter().next_back() {
-        (last_sym.rva, last_sym.len, last_sym.id)
-    } else {
-        return syms;
-    };
-
-    let end_rva = if len == 0 { rva + 1 } else { rva + len };
-
-    let name = if name.is_empty() {
-        String::from("<unknown>")
-    } else {
-        format!("<unknown in {}>", name)
-    };
-
-    syms.insert(
-        rva,
-        PDBSymbol {
-            name,
-            is_public: true,
-            is_multiple: false,
-            rva,
-            len: 0,
-            parameter_size: 0,
-            source: Rc::new(Lines::new()),
-            id: id + 1,
-        },
-    );
-
-    syms
-}
-*/
-
 /*
 pub(super) fn symbolic_to_pdb_symbols(
     syms: PeSymbolIterator,
