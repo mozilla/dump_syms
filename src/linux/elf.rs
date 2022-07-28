@@ -599,11 +599,17 @@ impl ElfInfo {
         collector.collect_publics(main_object);
 
         let stack = get_stack_info(Some(main_object), pe_object);
-        let symbols = crate::linux::symbol::add_executable_section_symbols(
-            collector.syms,
-            main_file_name,
-            main_object,
-        );
+        let symbols = match platform {
+            Platform::Linux | Platform::Mac => super::symbol::add_executable_section_symbols(
+                collector.syms,
+                main_file_name,
+                main_object,
+            ),
+            Platform::Win => super::symbol::append_dummy_symbol(
+                collector.syms,
+                pe_file_name.unwrap_or(main_file_name),
+            ),
+        };
 
         let file_name = match (&main_object, &pe_file_name) {
             (Object::Elf(elf), _) => elf.name().unwrap_or(main_file_name),

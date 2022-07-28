@@ -123,6 +123,35 @@ pub(super) fn add_executable_section_symbols(
     syms
 }
 
+pub(super) fn append_dummy_symbol(mut syms: ElfSymbols, name: &str) -> ElfSymbols {
+    let (rva, len) = if let Some((_, last_sym)) = syms.iter().next_back() {
+        (last_sym.rva, last_sym.len)
+    } else {
+        return syms;
+    };
+
+    let rva = if len == 0 { rva + 1 } else { rva + len };
+
+    let name = if name.is_empty() {
+        String::from("<unknown>")
+    } else {
+        format!("<unknown in {}>", name)
+    };
+
+    syms.entry(rva).or_insert(ElfSymbol {
+        name,
+        is_public: true,
+        is_multiple: false,
+        is_synthetic: true,
+        rva,
+        len: 0,
+        parameter_size: 0,
+        source: Lines::new(),
+    });
+
+    syms
+}
+
 #[derive(Clone, Debug)]
 pub struct ParsedWinFuncName {
     pub name: String,
