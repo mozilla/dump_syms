@@ -17,57 +17,6 @@ use crate::common::demangle_options;
 use crate::common::LineFinalizer;
 use crate::line::Lines;
 
-pub enum FuncName {
-    // The undecorated name even in case of failure
-    // (there is a bug somewhere else but the name should be undecorated)
-    Undecorated(String),
-    // The name hasn't been undecorated because the language is unknown
-    Unknown((String, u32)),
-}
-
-impl FuncName {
-    pub fn get_unknown(name: String) -> Self {
-        // https://docs.microsoft.com/en-us/cpp/build/reference/decorated-names?view=vs-2019
-        // __cdecl Leading underscore (_)
-        // __stdcall Leading underscore (_) and a trailing at sign (@) followed by the number of bytes in the parameter list in decimal
-        // __fastcall Leading and trailing at signs (@) followed by a decimal number representing the number of bytes in the parameter list
-
-        if name.is_empty() {
-            return FuncName::Unknown((name, 0));
-        }
-
-        let (first, sub) = name.split_at(1);
-
-        if (first != "_" && first != "@") || sub.find(|c: char| c == ':' || c == '(').is_some() {
-            return FuncName::Unknown((name, 0));
-        }
-
-        let parts: Vec<_> = sub.rsplitn(2, '@').collect();
-        if parts.len() <= 1 {
-            let name = if first == "_" { sub.to_string() } else { name };
-            return FuncName::Unknown((name, 0));
-        }
-
-        if let Ok(stack_param_size) = parts[0].parse::<u32>() {
-            let sps = if first == "@" {
-                // __fastcall: the two first args are put in ECX and EDX
-                if stack_param_size > 8 {
-                    stack_param_size - 8
-                } else {
-                    0
-                }
-            } else {
-                stack_param_size
-            };
-            return FuncName::Unknown((parts[1].to_string(), sps));
-        }
-
-        let name = if first == "_" { sub.to_string() } else { name };
-
-        FuncName::Unknown((name, 0))
-    }
-}
-
 fn is_constant_string(name: &str) -> bool {
     name.starts_with("??_C")
 }
@@ -80,7 +29,7 @@ fn is_constant_number(name: &str) -> bool {
     }
 }
 
-fn filter_public(name: &str) -> bool {
+fn should_skip_symbol(name: &str) -> bool {
     is_constant_string(name) || is_constant_number(name)
 }
 

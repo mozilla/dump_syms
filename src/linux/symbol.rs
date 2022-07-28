@@ -122,3 +122,67 @@ pub(super) fn add_executable_section_symbols(
 
     syms
 }
+
+#[derive(Clone, Debug)]
+pub struct ParsedWinFuncName {
+    pub name: String,
+    pub param_size: Option<u32>,
+}
+
+impl ParsedWinFuncName {
+    pub fn name_only(name: String) -> Self {
+        Self {
+            name,
+            param_size: None,
+        }
+    }
+
+    pub fn parse_unknown(name: &str) -> Self {
+        if name.contains(|c| c == ':' || c == '(') {
+            Self::name_only(name.to_string())
+        } else {
+            Self::parse_c_decorated(name)
+        }
+    }
+
+    /// Call this if c_decorated_name does not contain ':' or '('.
+    pub fn parse_c_decorated(c_decorated_name: &str) -> Self {
+        // https://docs.microsoft.com/en-us/cpp/build/reference/decorated-names?view=vs-2019
+        // __cdecl Leading underscore (_)
+        // __stdcall Leading underscore (_) and a trailing at sign (@) followed by the number of bytes in the parameter list in decimal
+        // __fastcall Leading and trailing at signs (@) followed by a decimal number representing the number of bytes in the parameter list
+        // __vectorcall Two trailing at signs (@@) followed by a decimal number of bytes in the parameter list
+        // > In a 64-bit environment, C or extern "C" functions are only decorated when using the __vectorcall calling convention."
+
+        // Parse __vectorcall.
+        if let Some((name, param_size)) = c_decorated_name.rsplit_once("@@") {
+            if let Ok(param_size) = param_size.parse::<u32>() {
+                return Self {
+                    name: name.to_string(),
+                    param_size: Some(param_size),
+                };
+            }
+        }
+
+        // Parse the other three.
+        if !c_decorated_name.is_empty() {
+            if let ("@" | "_", rest) = c_decorated_name.split_at(1) {
+                if let Some((name, param_size)) = rest.rsplit_once('@') {
+                    if let Ok(param_size) = param_size.parse::<u32>() {
+                        // __stdcall or __fastcall
+                        return Self {
+                            name: name.to_string(),
+                            param_size: Some(param_size),
+                        };
+                    }
+                }
+                if &c_decorated_name[0..1] == "_" {
+                    // __cdecl
+                    return Self::name_only(rest.to_string());
+                }
+            }
+        }
+
+        Self::name_only(c_decorated_name.to_string())
+    }
+}

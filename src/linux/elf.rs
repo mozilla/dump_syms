@@ -14,7 +14,7 @@ use symbolic::debuginfo::{Function, Object, ObjectDebugSession};
 use symbolic::demangle::Demangle;
 
 use super::source::{SourceFiles, SourceMap};
-use super::symbol::{ContainsSymbol, ElfSymbol, ElfSymbols};
+use super::symbol::{ContainsSymbol, ElfSymbol, ElfSymbols, ParsedWinFuncName};
 use crate::common::{self, demangle_options, Dumpable, LineFinalizer, Mergeable};
 use crate::inline_origins::{merge_inline_origins, InlineOrigins};
 use crate::line::{InlineAddressRange, InlineSite, Lines};
@@ -473,20 +473,39 @@ impl Collector {
                 continue;
             }
 
+            let parsed_win_name = if self.platform == Platform::Win {
+                sym.name().map(ParsedWinFuncName::parse_unknown)
+            } else {
+                None
+            };
+
             match self.syms.entry(sym.address as u32) {
                 btree_map::Entry::Occupied(mut e) => {
                     let sym = e.get_mut();
                     if sym.is_public {
                         sym.is_multiple = true;
-                    } else {
-                        // TODO
+                    } else if let Some(parsed_win_name) = parsed_win_name {
+                        // If we have both a symbol and a function at the same address, the function
+                        // may not have parameters but the symbol's mangled name might.
+                        if !sym.name.contains('(') && parsed_win_name.name.starts_with('?') {
+                            // Get the name from the symbol.
+                            sym.name = Self::demangle_str(&parsed_win_name.name);
+                        }
+                        if let Some(size) = parsed_win_name.param_size {
+                            // Get the parameter size from the symbol.
+                            sym.parameter_size = size;
+                        }
                     }
                 }
                 btree_map::Entry::Vacant(e) => {
-                    let sym_name = sym.name.map_or_else(
-                        || "<name omitted>".to_string(),
-                        |n| Self::demangle_str(&n.to_owned()),
-                    );
+                    let sym_name = match (&parsed_win_name, sym.name) {
+                        (Some(name), _) => Self::demangle_str(&name.name),
+                        (None, Some(name)) => Self::demangle_str(&name),
+                        _ => "<name omitted>".to_string(),
+                    };
+                    let parameter_size = parsed_win_name
+                        .and_then(|n| n.param_size)
+                        .unwrap_or_default();
                     e.insert(ElfSymbol {
                         name: sym_name,
                         is_public: true,
@@ -494,7 +513,7 @@ impl Collector {
                         is_synthetic: false,
                         rva: sym.address as u32,
                         len: sym.size as u32,
-                        parameter_size: 0,
+                        parameter_size,
                         source: Lines::default(),
                     });
                 }
