@@ -186,3 +186,19 @@ impl ParsedWinFuncName {
         Self::name_only(c_decorated_name.to_string())
     }
 }
+
+fn is_constant_string(name: &str) -> bool {
+    name.starts_with("??_C")
+}
+
+fn is_constant_number(name: &str) -> bool {
+    if let Some(name) = name.strip_prefix("__") {
+        name.starts_with("real@") || name.starts_with("xmm@") || name.starts_with("ymm@")
+    } else {
+        false
+    }
+}
+
+pub fn should_skip_symbol(name: &str) -> bool {
+    is_constant_string(name) || is_constant_number(name)
+}

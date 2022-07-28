@@ -17,22 +17,6 @@ use crate::common::demangle_options;
 use crate::common::LineFinalizer;
 use crate::line::Lines;
 
-fn is_constant_string(name: &str) -> bool {
-    name.starts_with("??_C")
-}
-
-fn is_constant_number(name: &str) -> bool {
-    if let Some(name) = name.strip_prefix("__") {
-        name.starts_with("real@") || name.starts_with("xmm@") || name.starts_with("ymm@")
-    } else {
-        false
-    }
-}
-
-fn should_skip_symbol(name: &str) -> bool {
-    is_constant_string(name) || is_constant_number(name)
-}
-
 /*
 pub(super) fn append_dummy_symbol(mut syms: PDBSymbols, name: &str) -> PDBSymbols {
     let (rva, len, id) = if let Some((_, last_sym)) = syms.iter().next_back() {
