@@ -3,6 +3,7 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use goblin::pe::exception::ExceptionData;
 use log::{error, warn};
 use std::collections::btree_map;
 use std::fmt::{Display, Formatter};
@@ -526,6 +527,44 @@ impl Collector {
             }
         }
     }
+
+    /// Based on the exception data, collect a synthetic symbol for every function start
+    /// address, if there is no other symbol at that address.
+    // This runs after collect_publics.
+    fn collect_placeholder_functions(&mut self, exception_data: &ExceptionData, module_name: &str) {
+        let name = if module_name.is_empty() {
+            String::from("<unknown>")
+        } else {
+            format!("<unknown in {}>", module_name)
+        };
+
+        for function in exception_data.into_iter().filter_map(|result| result.ok()) {
+            let size = match function.end_address.checked_sub(function.begin_address) {
+                Some(size) => size,
+                None => continue,
+            };
+
+            if self.syms.is_inside_symbol(function.begin_address) {
+                continue;
+            }
+
+            match self.syms.entry(function.begin_address) {
+                btree_map::Entry::Occupied(_) => {}
+                btree_map::Entry::Vacant(e) => {
+                    e.insert(ElfSymbol {
+                        name: name.clone(),
+                        is_public: false,
+                        is_multiple: false,
+                        is_synthetic: true,
+                        rva: function.begin_address,
+                        len: size,
+                        parameter_size: 0,
+                        source: Lines::default(),
+                    });
+                }
+            }
+        }
+    }
 }
 
 fn get_stack_info(pdb: Option<&Object>, pe: Option<&Object>) -> String {
@@ -597,6 +636,15 @@ impl ElfInfo {
 
         collector.collect_functions(&ds, &mut source, &mut inline_origins)?;
         collector.collect_publics(main_object);
+
+        if let Object::Pe(pe) = &main_object {
+            if let Some(exception_data) = pe.exception_data() {
+                collector.collect_placeholder_functions(
+                    exception_data,
+                    pe_file_name.unwrap_or(main_file_name),
+                );
+            }
+        }
 
         let stack = get_stack_info(Some(main_object), pe_object);
         let symbols = match platform {
