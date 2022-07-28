@@ -14,7 +14,7 @@ use symbolic::debuginfo::{Function, Object, ObjectDebugSession};
 use symbolic::demangle::Demangle;
 
 use super::source::{SourceFiles, SourceMap};
-use super::symbol::{ContainsSymbol, ElfSymbol, ElfSymbols, ParsedWinFuncName};
+use super::symbol::{should_skip_symbol, ContainsSymbol, ElfSymbol, ElfSymbols, ParsedWinFuncName};
 use crate::common::{self, demangle_options, Dumpable, LineFinalizer, Mergeable};
 use crate::inline_origins::{merge_inline_origins, InlineOrigins};
 use crate::line::{InlineAddressRange, InlineSite, Lines};
@@ -471,6 +471,12 @@ impl Collector {
         for sym in o.symbols() {
             if self.syms.is_inside_symbol(sym.address as u32) {
                 continue;
+            }
+
+            if let Some(name) = sym.name() {
+                if should_skip_symbol(name) {
+                    continue;
+                }
             }
 
             let parsed_win_name = if self.platform == Platform::Win {
