@@ -7,47 +7,12 @@ use regex::Regex;
 use std::env::consts::ARCH;
 use std::result;
 use symbolic::common::{Arch, Name};
-use symbolic::debuginfo::{peek, FileFormat};
 use symbolic::demangle::DemangleOptions;
 
 pub type Result<T> = result::Result<T, anyhow::Error>;
 
 pub fn demangle_options() -> DemangleOptions {
     DemangleOptions::complete().return_type(false)
-}
-
-pub enum FileType {
-    Pdb,
-    Pe,
-    Elf,
-    Macho,
-    Unknown,
-}
-
-impl FileType {
-    pub fn from_buf(buf: &[u8]) -> Self {
-        match peek(buf, true /* check for fat binary */) {
-            FileFormat::Pdb => Self::Pdb,
-            FileFormat::Pe => Self::Pe,
-            FileFormat::Elf => Self::Elf,
-            FileFormat::MachO => Self::Macho,
-            _ => Self::Unknown,
-        }
-    }
-}
-
-impl std::str::FromStr for FileType {
-    type Err = std::convert::Infallible;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        let s = s.to_lowercase();
-        Ok(match s.as_str() {
-            "pdb" => Self::Pdb,
-            "elf" => Self::Elf,
-            "macho" => Self::Macho,
-            _ => Self::Unknown,
-        })
-    }
 }
 
 pub fn get_compile_time_arch() -> &'static str {

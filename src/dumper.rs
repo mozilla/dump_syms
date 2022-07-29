@@ -16,8 +16,9 @@ use std::thread;
 use symbolic::common::Arch;
 use symbolic::debuginfo::pdb::PdbObject;
 use symbolic::debuginfo::pe::PeObject;
+use symbolic::debuginfo::{peek, FileFormat};
 
-use crate::common::{self, FileType};
+use crate::common;
 use crate::mapping::PathMappings;
 use crate::object_info::ObjectInfo;
 use crate::platform::Platform;
@@ -284,12 +285,12 @@ fn get_object_info(
     symbol_server: Option<&str>,
     emit_inlines: bool,
 ) -> common::Result<ObjectInfo> {
-    let object_info = match FileType::from_buf(&buf) {
-        FileType::Elf => {
+    let object_info = match peek(&buf, true /* check for fat binary */) {
+        FileFormat::Elf => {
             ObjectInfo::from_elf(&buf, filename, Platform::Linux, file_mapping, emit_inlines)?
         }
-        FileType::Pdb => get_pdb_object_info(&buf, path, filename, file_mapping, emit_inlines)?,
-        FileType::Pe => {
+        FileFormat::Pdb => get_pdb_object_info(&buf, path, filename, file_mapping, emit_inlines)?,
+        FileFormat::Pe => {
             if let Ok(pdb_info) = get_pe_pdb_object_info(
                 &buf,
                 path,
@@ -303,10 +304,10 @@ fn get_object_info(
                 get_pe_object_info(&buf, path, filename)?
             }
         }
-        FileType::Macho => {
+        FileFormat::MachO => {
             ObjectInfo::from_macho(&buf, filename, arch, file_mapping, emit_inlines)?
         }
-        FileType::Unknown => anyhow::bail!("Unknown file format"),
+        _ => anyhow::bail!("Unknown file format"),
     };
     Ok(object_info)
 }
