@@ -1,5 +1,193 @@
 MODULE windows x86_64 BD298DA990CD4BF9BE5CE4796D7924C61 ntdll.pdb
 INFO CODE_ID 5D6AA5581AD000 ntdll.dll
+PUBLIC 1000 0 _guard_fids_table
+PUBLIC 2f60 0 NtDllUserStubs
+PUBLIC 3910 0 _newctype
+PUBLIC 3c10 0 wctype
+PUBLIC 3e20 0 _newclmap
+PUBLIC 3fa0 0 _newcumap
+PUBLIC 4120 0 _clocalestr
+PUBLIC 4128 0 _initiallocalestructinfo
+PUBLIC 4140 0 _lookuptable
+PUBLIC 4258 0 d_inf
+PUBLIC 4260 0 d_max
+PUBLIC 4268 0 _lconv_static_decimal
+PUBLIC 426a 0 _lconv_static_null
+PUBLIC 426c 0 _lconv_static_W_decimal
+PUBLIC 4270 0 _lconv_static_W_null
+PUBLIC 4290 0 _lookuptable_s
+PUBLIC 42f8 0 RtlDosPathSeperatorsString
+PUBLIC 4360 0 RtlFreeStringRoutine
+PUBLIC 4368 0 RtlAllocateStringRoutine
+PUBLIC 4370 0 RtlWorkSpaceProcs
+PUBLIC 4398 0 RtlCompressBufferProcs
+PUBLIC 43c0 0 RtlDecompressBufferProcs
+PUBLIC 43e8 0 TppAlpcpCleanupGroupMemberVFuncs
+PUBLIC 4408 0 TppIopCleanupGroupMemberVFuncs
+PUBLIC 4428 0 TppDirectTaskVFuncs
+PUBLIC 4438 0 TppTimerpCleanupGroupMemberVFuncs
+PUBLIC 4458 0 TppTimerpTaskVFuncs
+PUBLIC 4468 0 TppWaitpCleanupGroupMemberVFuncs
+PUBLIC 4488 0 TppWaitpTaskVFuncs
+PUBLIC 4498 0 TppWorkpCleanupGroupMemberVFuncs
+PUBLIC 44b8 0 TppWorkpTaskVFuncs
+PUBLIC 44c8 0 TppSimplepCleanupGroupMemberVFuncs
+PUBLIC 44e8 0 TppSimplepTaskVFuncs
+PUBLIC 44f8 0 RtlpTpWorkTaskCallbacks
+PUBLIC 4508 0 DllLoadFailure
+PUBLIC 4518 0 UserLoaderGuid
+PUBLIC 4528 0 AitAppInfoEvent
+PUBLIC 4538 0 MS_Windows_AIT_Provider
+PUBLIC 4548 0 CurDirDllLoadFailureWarning
+PUBLIC 4558 0 CurDirDllLoadFailureError
+PUBLIC 4568 0 AitProcessEndEvent
+PUBLIC 4578 0 AitFeatureIdUsedEvent
+PUBLIC 45f0 0 SQM_ADD_LEGACYSTREAMROW
+PUBLIC 4600 0 Microsoft_Windows_SQM_Provider
+PUBLIC 4610 0 SQM_SET_DWORD
+PUBLIC 4620 0 SQM_START_SESSION
+PUBLIC 4630 0 SQM_INCREMENT_DWORD
+PUBLIC 4640 0 SQM_SET_STRING
+PUBLIC 4650 0 SQM_ADD_STREAMROW
+PUBLIC 4660 0 SQM_END_SESSION
+PUBLIC 4670 0 SQM_SETIFMAX_DWORD
+PUBLIC 4748 0 RtlpDosCOMDevice
+PUBLIC 4758 0 RtlpWin32NtRoot
+PUBLIC 4768 0 RtlpDosNULDevice
+PUBLIC 4778 0 RtlpSlashSlashDot
+PUBLIC 4788 0 RtlpDosCONDevice
+PUBLIC 4798 0 RtlpEmptyString
+PUBLIC 47a8 0 RtlpDosPRNDevice
+PUBLIC 47b8 0 RtlpDosCONOUTDevice
+PUBLIC 47c8 0 RtlpWin32NtRootSlash
+PUBLIC 47d8 0 RtlpDosLPTDevice
+PUBLIC 47e8 0 RtlpDosDevicesPrefix
+PUBLIC 47f8 0 RtlpDosDevicesUncPrefix
+PUBLIC 4808 0 RtlpDosAUXDevice
+PUBLIC 4818 0 RtlpWin32NtUncRootSlash
+PUBLIC 4828 0 RtlpDosCONINDevice
+PUBLIC 4838 0 RtlpWin32NtUncRoot
+PUBLIC 4a10 0 Wow64EnvironmentThunkTable
+PUBLIC 4b00 0 LdrpLogLevelStateTable
+PUBLIC 4b98 0 LdrpCorExeMainName
+PUBLIC 4ba8 0 LdrpComPlusInstallRootName
+PUBLIC 4bd0 0 LdrpMscoreeDllName
+PUBLIC 4d30 0 LdrpKernel32DllName
+PUBLIC 4d40 0 LdrpKernelbaseDllName
+PUBLIC 4db8 0 LdrpDefaultExtension
+PUBLIC 4dc8 0 SlashSystem32SlashString
+PUBLIC 4dd8 0 RtlpNullString
+PUBLIC 4de8 0 RtlpTheEmptyActivationContextData
+PUBLIC 4e10 0 RtlpTheEmptyActivationContextWrapped
+PUBLIC 52c0 0 RtlProtectedAccess
+PUBLIC 5330 0 LeapYearDayToMonth
+PUBLIC 54a0 0 NormalYearDaysPrecedingMonth
+PUBLIC 54c0 0 SecondsToStartOf1980
+PUBLIC 54c8 0 Magic10000
+PUBLIC 54d0 0 SecondsToStartOf1970
+PUBLIC 54d8 0 LeapYearDaysPrecedingMonth
+PUBLIC 54f8 0 Magic10000000
+PUBLIC 5500 0 Magic86400000
+PUBLIC 5510 0 NormalYearDayToMonth
+PUBLIC 5680 0 RtlpRestrictedMapping
+PUBLIC 5690 0 RtlIsSystemAceType
+PUBLIC 56a0 0 SidHashByteToIndexLookupTable
+PUBLIC 57a0 0 RtlBaseAceType
+PUBLIC 57d0 0 RtlpBitsClearLow
+PUBLIC 5960 0 RtlpIntegerWChars
+PUBLIC 5980 0 RtlpIntegerChars
+PUBLIC 5990 0 RtlCrc32Table
+PUBLIC 5d90 0 RtlpSmMessageInfo
+PUBLIC 5e30 0 RtlpRunTable
+PUBLIC 6620 0 RtlpStatusTable
+PUBLIC 8070 0 M_strAceIdnPrefix
+PUBLIC 8080 0 RtlpUnwindOpSlotTable
+PUBLIC 80b0 0 RtlpSearchWidth
+PUBLIC 8140 0 RtlpBucketBlockSizes
+PUBLIC 8250 0 RtlpLfhBucketIndexMap
+PUBLIC 8660 0 RtlpBucketSizeIndexReuseThreshold
+PUBLIC 8950 0 XpressHighBitIndexTable
+PUBLIC 8a50 0 szDaylightBias
+PUBLIC 8a70 0 szDaylightName
+PUBLIC 8a90 0 szStandardBias
+PUBLIC 8ab0 0 szTimeZonesSlash
+PUBLIC 8ad0 0 szSlashDynamicDst
+PUBLIC 8af0 0 szFirstEntry
+PUBLIC 8b08 0 szStandardName
+PUBLIC 8b28 0 szBias
+PUBLIC 8b38 0 szDaylightStart
+PUBLIC 8b58 0 szLastEntry
+PUBLIC 8b70 0 szStandardStart
+PUBLIC 8b90 0 RtlpRegistryPaths
+PUBLIC 8bc0 0 GuidFormat
+PUBLIC 8c30 0 LZNT1Formats
+PUBLIC 8ce8 0 SystemTraceControlGuid
+PUBLIC 8ec0 0 SbSupportedOsList
+PUBLIC 9230 0 load_config_used
+PUBLIC 9310 0 RtlpMemoryBlockLookasideCriticalRoutines
+PUBLIC 9330 0 RtlpMemoryZoneCriticalRoutines
+PUBLIC 9338 0 RtlDecompressFragmentProcs
+PUBLIC 9360 0 RtlpInterceptorRoutines
+PUBLIC 9378 0 TppJobpCleanupGroupMemberVFuncs
+PUBLIC 9418 0 AppModelRuntimeProviderId
+PUBLIC 9428 0 AppModelLibraryLoadFailureNgenBinary
+PUBLIC 9438 0 AppModelGenericLibraryLoadFailureNoTermination
+PUBLIC 9448 0 AppModelLibraryLoadFailureApplicationBinary
+PUBLIC 9458 0 LdrFatalInitError
+PUBLIC 9468 0 LoaderFatalErrorProc
+PUBLIC 9478 0 AitSystemUsageByExeEvent
+PUBLIC 9488 0 ComponentOnDemand
+PUBLIC 9498 0 AitParentAitFeatureEvent
+PUBLIC 94a8 0 LoaderFatalErrorThread
+PUBLIC 94b8 0 MS_Windows_AeSwitchBack_Provider
+PUBLIC 94c8 0 AeSbCallEvent
+PUBLIC 94d8 0 LoadFailureOperational
+PUBLIC 94e8 0 AppModelLibraryLoadFailureSystemBinary
+PUBLIC 94f8 0 FatalUserCallbackException
+PUBLIC 9508 0 LoadFailure
+PUBLIC 9518 0 AeSbContextUpdateEvent
+PUBLIC 9528 0 DeprecatedDll
+PUBLIC 9538 0 AeSbImplEvent
+PUBLIC 9548 0 AitSystemUsageByDllEvent
+PUBLIC 9558 0 SQM_SET_DWORD64
+PUBLIC 9578 0 SQM_START_SESSION_FOR_PARTNER
+PUBLIC 9588 0 SQM_ADDTOAVERAGE_DWORD
+PUBLIC 9598 0 SQM_SETIFMIN_DWORD
+PUBLIC 95b8 0 LdrpComPlusVersionName
+PUBLIC 95d8 0 LdrpLockMemoryPrivilege
+PUBLIC 9618 0 RtlNtdllName
+PUBLIC 9640 0 NtDllName
+PUBLIC 9738 0 AvrfpAPILookupCallbackName
+PUBLIC 9758 0 VrfcoreDllString
+PUBLIC 9768 0 VerifierDllString
+PUBLIC 9778 0 `SignalStartWerSvc'::`2'::WerSvcTriggerGuid
+PUBLIC 9788 0 WNF_WER_SERVICE_START
+PUBLIC 9950 0 CheckHeapFillPattern
+PUBLIC 9960 0 RtlpBitsClearAnywhere
+PUBLIC 9a60 0 RtlpBitsClearHigh
+PUBLIC 9b90 0 crc64Map1_
+PUBLIC a390 0 crc64Map32_
+PUBLIC e390 0 Crc32Ctrl
+PUBLIC e3c0 0 crc32Mult_
+PUBLIC e5c0 0 crc32Map1_
+PUBLIC edc0 0 crc32Map32_
+PUBLIC 12dc0 0 Crc64Ctrl
+PUBLIC 12df0 0 crc64Mult_
+PUBLIC 12ff0 0 RtlFatIllegalTable
+PUBLIC 13000 0 `RtlpGetUserLocaleName'::`2'::KeyValueName
+PUBLIC 13020 0 `RtlpGetLocaleDataKey'::`2'::KeyPath
+PUBLIC 13030 0 `RtlpGetCustomCultureRegKey'::`2'::ObjAttribute
+PUBLIC 13060 0 `RtlpGetCustomCultureRegKey'::`2'::KeyName
+PUBLIC 13070 0 M_strAceEmailPrefix
+PUBLIC 13100 0 RtlpBitsClearTotal
+PUBLIC 13230 0 ulInvalidTypes
+PUBLIC 134b0 0 RtlpHeapHeaderFieldOffsets
+PUBLIC 136a0 0 XpressHashFunction
+PUBLIC 13ca0 0 szTimeZoneKeyName
+PUBLIC 13cc0 0 szDynamicDaylightDisabled
+PUBLIC 13d08 0 SessionNotificationGuid
+PUBLIC 13d18 0 EtwpOneSecond
+PUBLIC 13d28 0 LoadMUIDllGuid
 FUNC 14600 ec 0 RtlCompressBufferLZNT1
 FUNC 146f4 2e5 0 LZNT1CompressChunk
 PUBLIC 149e0 0 LZNT1FindMatchStandard
@@ -309,7 +497,7 @@ FUNC 29414 fb4 0 LdrpResSearchResourceInsideDirectory
 PUBLIC 2a3d0 0 RtlULongLongAdd
 PUBLIC 2a3f0 0 RtlLCIDToCultureName
 FUNC 2a4d4 13d 0 RtlpMuiRegGetInstalledLanguageIndexByLangId
-FUNC 2a618 36 0 MuiRegAllocArray
+FUNC 2a618 36 0 _MuiRegAllocArray
 FUNC 2a654 f8 0 LdrpLangFallbackListAppendNode
 FUNC 2a754 142 0 LdrpLangFallbackListFindNode
 PUBLIC 2a8a0 0 RtlCultureNameToLCID
@@ -373,7 +561,7 @@ FUNC 350d0 5f3 0 RtlpFindAndCommitPages
 FUNC 356d0 52e 0 RtlFreeHeap
 FUNC 35c10 19f9 0 RtlpFreeHeap
 FUNC 37610 65 0 RtlpIsSubSegmentReuseThresholdExceeded
-PUBLIC m 37680 0 IdnaMemFree
+PUBLIC m 37680 0 RtlDeleteBoundaryDescriptor
 FUNC 376a0 53 0 RtlFreeUnicodeString
 FUNC 376fc 196 0 RtlpFreeUserBlock
 FUNC 37898 5d8 0 RtlpDeCommitFreeBlock
@@ -427,7 +615,7 @@ FUNC 3d4ac 1e5 0 LdrpResolveForwarder
 FUNC 3d698 8f 0 LdrpParseForwarderDescription
 FUNC 3d730 5a 0 LdrpInitializeDllPath
 PUBLIC 3d790 0 LdrpGetDelayloadAPIInfo
-PUBLIC m 3d7f0 0 RtlInitAnsiString
+PUBLIC m 3d7f0 0 RtlInitString
 FUNC 3d82c 1bb 0 TpPostTask
 FUNC 3d9f0 ff 0 TpPostWork
 FUNC 3daf8 f8 0 TppBarrierAdjust
@@ -530,7 +718,7 @@ PUBLIC 44e9c 0 LdrpGenSecurityCookie
 FUNC 44f50 6da 0 RtlGetThreadPreferredUILanguages
 PUBLIC 45630 0 LdrpCreateLangFallbackList
 FUNC 45678 99 0 RtlpMuiRegCreateLanguageList
-FUNC 45718 75 0 SafeAllocBlob
+FUNC 45718 75 0 _SafeAllocBlob
 PUBLIC 45794 0 RtlpMuiRegFreeLanguageList
 PUBLIC 457d4 0 LdrpSetThreadPreferredLangList
 PUBLIC 45920 0 RtlpCreateProcessRegistryInfo
@@ -644,7 +832,7 @@ PUBLIC 513d0 0 DbgPrint
 FUNC 51418 24e 0 vDbgPrintExWithPrefixInternal
 PUBLIC 5166c 0 ResCKeGetBaseFolder
 FUNC 516d0 107 0 ResGetSystemWindowsDirectory
-PUBLIC 517e0 0 long StringCchCatW(unsigned short *,uint64_t,unsigned short const *)
+PUBLIC 517e0 0 StringCchCatW(unsigned short*, uint64_t, unsigned short const*)
 FUNC 51860 4c 0 StringCopyWorkerW
 FUNC 518c0 77 0 RtlExpandEnvironmentStrings_U
 PUBLIC 51940 0 RtlExpandEnvironmentStrings
@@ -1040,7 +1228,7 @@ PUBLIC 6b27c 0 RtlpQueryInformationActivationContextCompatibilityInformation
 PUBLIC 6b340 0 RtlpLocateActivationContextSectionForQuery
 FUNC 6b400 109 0 RtlpCrackActivationContextStringSectionHeader
 PUBLIC 6b510 0 LdrpMakePermanentImageCommit
-PUBLIC m 6b590 0 RtlInitializeConditionVariable
+PUBLIC m 6b590 0 RtlInitializeSRWLock
 PUBLIC 6b5a0 0 RtlGetDaclSecurityDescriptor
 FUNC 6b600 15e 0 LdrLockLoaderLock
 FUNC 6b764 61 0 LdrpTryAcquireLoaderLock
@@ -1054,7 +1242,7 @@ FUNC 6bb50 11a 0 RtlImpersonateSelfEx
 PUBLIC 6bc70 0 RtlDosPathNameToNtPathName_U
 PUBLIC 6bca0 0 LdrGetDllHandleByMapping
 FUNC 6bd58 9b 0 RtlpMuiRegGetInstalledLangInfoIndex
-PUBLIC m 6be00 0 RtlpCompareActivationContextGuidSectionEntryByGuid
+PUBLIC m 6be00 0 RtlpSearchProtectedPolicyEntry
 PUBLIC 6be20 0 RtlTimeToSecondsSince1980
 PUBLIC 6be70 0 RtlTimeToElapsedTimeFields
 FUNC 6bf04 58 0 TimeToDaysAndFraction
@@ -1327,7 +1515,7 @@ PUBLIC 75a04 0 LdrpLogError
 FUNC 75a60 3d 0 RtlAddAccessDeniedObjectAce
 PUBLIC 75ab0 0 WinSqmSetIfMaxDWORD
 PUBLIC 75ad0 0 RtlCheckTokenMembership
-PUBLIC m 75af0 0 RtlWow64CallFunction64
+PUBLIC m 75af0 0 RtlWow64EnableFsRedirection
 PUBLIC 75b00 0 RtlEqualComputerName
 PUBLIC 75b10 0 TpCallbackReleaseMutexOnCompletion
 PUBLIC 75b44 0 LdrpCfgProcessLoadConfig
@@ -1527,7 +1715,7 @@ PUBLIC 81b44 0 _raise_securityfailure
 PUBLIC 81b70 0 _report_gsfailure
 PUBLIC 81cc0 0 _report_rangecheckfailure
 PUBLIC 81cd8 0 _report_securityfailure
-PUBLIC m 81d70 0 LdrQueryModuleInfoLocalLoaderLock32
+PUBLIC m 81d70 0 _misaligned_access
 PUBLIC 81d90 0 _C_specific_handler
 PUBLIC 81f50 0 _isascii
 PUBLIC 81f70 0 _iscsym
@@ -1569,7 +1757,7 @@ PUBLIC 827e0 0 memicmp
 PUBLIC 82800 0 snprintf
 PUBLIC 828b0 0 snwprintf
 PUBLIC 82990 0 splitpath
-FUNC 82a20 277 0 splitpath_helper
+FUNC 82a20 277 0 _splitpath_helper
 PUBLIC 82ca0 0 _ascii_stricmp
 PUBLIC 82ce0 0 stricmp
 PUBLIC 82cf0 0 strlwr
@@ -1691,7 +1879,7 @@ PUBLIC 87494 0 _except_validate_jump_buffer
 PUBLIC 874e0 0 _pctype_func
 FUNC 874f0 230 0 strtoxq
 PUBLIC 87730 0 strtoi64
-PUBLIC m 87760 0 flsbuf
+PUBLIC m 87760 0 flsbuf_s
 PUBLIC 87770 0 output_l
 FUNC 87fb4 46 0 write_char
 FUNC 88000 51 0 write_multi_char
@@ -1703,8 +1891,8 @@ FUNC 88aac 85 0 write_string
 PUBLIC 88b40 0 wchartodigit
 PUBLIC 88cdc 0 control87
 PUBLIC 88f74 0 controlfp
-FUNC 88f84 65 0 call_matherr
-FUNC 88ff0 b9 0 exception_enabled
+FUNC 88f84 65 0 _call_matherr
+FUNC 88ff0 b9 0 _exception_enabled
 PUBLIC 890b0 0 handle_error
 PUBLIC 891e0 0 _remainder_piby2
 PUBLIC 896c0 0 RaiseException
@@ -1726,7 +1914,7 @@ PUBLIC 8a1d0 0 mbstrlen
 PUBLIC 8a210 0 pow_special
 FUNC 8a314 1ba 0 ReadString
 FUNC 8a4d4 15b 0 ReadStringDelimited
-FUNC 8a638 25 0 inc
+FUNC 8a638 25 0 _inc
 PUBLIC 8a670 0 input_l
 PUBLIC 8af78 0 get_printf_count_output
 PUBLIC 8afa0 0 wctomb_s_l
@@ -1734,7 +1922,7 @@ PUBLIC 8b058 0 wctomb_s
 PUBLIC 8b074 0 fputwc_nolock
 PUBLIC 8b0d0 0 set_fpsr
 PUBLIC 8b0da 0 fclrf
-PUBLIC m 8b100 0 CsrIdentifyAlertableThread
+PUBLIC m 8b100 0 LdrSetAppCompatDllRedirectionCallback
 PUBLIC 8b110 0 ungetc_nolock
 PUBLIC 8b1b4 0 flswbuf
 PUBLIC 8b1c4 0 getbuf
@@ -1783,7 +1971,7 @@ PUBLIC 8cbd0 0 wcsncat_s
 PUBLIC 8cce0 0 wcsncpy_s
 PUBLIC 8cdf0 0 wcstok_s
 PUBLIC 8cee0 0 output_s
-PUBLIC m 8d770 0 safecrt_mbtowc
+PUBLIC m 8d770 0 mbtowc
 PUBLIC 8d7d0 0 safecrt_wctomb_s
 PUBLIC 8d8b0 0 soutput_s
 FUNC 8d990 47 0 write_char
@@ -1791,7 +1979,7 @@ FUNC 8d9e0 51 0 write_multi_char
 FUNC 8da40 6a 0 write_string
 FUNC 8dab0 1ab 0 ReadString
 FUNC 8dc70 16e 0 ReadStringDelimited
-FUNC 8ddf0 25 0 inc
+FUNC 8ddf0 25 0 _inc
 PUBLIC 8de20 0 input_s
 PUBLIC 8e700 0 sinput_s
 PUBLIC 8e770 0 swoutput_s
@@ -1801,9 +1989,9 @@ FUNC 8f1b0 4a 0 write_multi_char
 FUNC 8f200 62 0 write_string
 FUNC 8f270 236 0 ReadString
 FUNC 8f4b0 1cf 0 ReadStringDelimited
-FUNC 8f690 45 0 hextodec
+FUNC 8f690 45 0 _hextodec
 PUBLIC 8f6e0 0 swinput_s
-FUNC 8f750 50 0 whiteout
+FUNC 8f750 50 0 _whiteout
 PUBLIC 8f7b0 0 winput_s
 PUBLIC m 90180 0 filbuf
 PUBLIC 90190 0 fgetwc_nolock
@@ -1870,103 +2058,103 @@ PUBLIC 90720 0 NtdllStaticWndProcWorker
 PUBLIC 90730 0 NtdllImeWndProcWorker
 PUBLIC 90740 0 NtdllGhostWndProcWorker
 PUBLIC 90750 0 NtdllCtfHookProcWorker
-PUBLIC m 90760 0 NtWorkerFactoryWorkerReady
-PUBLIC m 90770 0 NtAcceptConnectPort
+PUBLIC m 90760 0 ZwWorkerFactoryWorkerReady
+PUBLIC m 90770 0 ZwAcceptConnectPort
 PUBLIC m 90780 0 NtMapUserPhysicalPagesScatter
-PUBLIC m 90790 0 NtWaitForSingleObject
+PUBLIC m 90790 0 ZwWaitForSingleObject
 PUBLIC m 907a0 0 NtCallbackReturn
-PUBLIC m 907b0 0 NtReadFile
-PUBLIC m 907c0 0 NtDeviceIoControlFile
-PUBLIC m 907d0 0 NtWriteFile
+PUBLIC m 907b0 0 ZwReadFile
+PUBLIC m 907c0 0 ZwDeviceIoControlFile
+PUBLIC m 907d0 0 ZwWriteFile
 PUBLIC m 907e0 0 NtRemoveIoCompletion
 PUBLIC m 907f0 0 NtReleaseSemaphore
 PUBLIC m 90800 0 NtReplyWaitReceivePort
-PUBLIC m 90810 0 NtReplyPort
-PUBLIC m 90820 0 NtSetInformationThread
+PUBLIC m 90810 0 ZwReplyPort
+PUBLIC m 90820 0 ZwSetInformationThread
 PUBLIC m 90830 0 NtSetEvent
-PUBLIC m 90840 0 NtClose
+PUBLIC m 90840 0 ZwClose
 PUBLIC m 90850 0 NtQueryObject
-PUBLIC m 90860 0 NtQueryInformationFile
-PUBLIC m 90870 0 NtOpenKey
+PUBLIC m 90860 0 ZwQueryInformationFile
+PUBLIC m 90870 0 ZwOpenKey
 PUBLIC m 90880 0 NtEnumerateValueKey
 PUBLIC m 90890 0 NtFindAtom
-PUBLIC m 908a0 0 NtQueryDefaultLocale
+PUBLIC m 908a0 0 ZwQueryDefaultLocale
 PUBLIC m 908b0 0 NtQueryKey
-PUBLIC m 908c0 0 NtQueryValueKey
+PUBLIC m 908c0 0 ZwQueryValueKey
 PUBLIC m 908d0 0 NtAllocateVirtualMemory
-PUBLIC m 908e0 0 NtQueryInformationProcess
+PUBLIC m 908e0 0 ZwQueryInformationProcess
 PUBLIC m 908f0 0 NtWaitForMultipleObjects32
 PUBLIC m 90900 0 NtWriteFileGather
-PUBLIC m 90910 0 NtSetInformationProcess
+PUBLIC m 90910 0 ZwSetInformationProcess
 PUBLIC m 90920 0 NtCreateKey
 PUBLIC m 90930 0 NtFreeVirtualMemory
 PUBLIC m 90940 0 NtImpersonateClientOfPort
 PUBLIC m 90950 0 NtReleaseMutant
-PUBLIC m 90960 0 NtQueryInformationToken
+PUBLIC m 90960 0 ZwQueryInformationToken
 PUBLIC m 90970 0 NtRequestWaitReplyPort
 PUBLIC m 90980 0 NtQueryVirtualMemory
-PUBLIC m 90990 0 NtOpenThreadToken
+PUBLIC m 90990 0 ZwOpenThreadToken
 PUBLIC m 909a0 0 NtQueryInformationThread
-PUBLIC m 909b0 0 NtOpenProcess
+PUBLIC m 909b0 0 ZwOpenProcess
 PUBLIC m 909c0 0 NtSetInformationFile
 PUBLIC m 909d0 0 NtMapViewOfSection
 PUBLIC m 909e0 0 NtAccessCheckAndAuditAlarm
-PUBLIC m 909f0 0 NtUnmapViewOfSection
+PUBLIC m 909f0 0 ZwUnmapViewOfSection
 PUBLIC m 90a00 0 NtReplyWaitReceivePortEx
 PUBLIC m 90a10 0 NtTerminateProcess
 PUBLIC m 90a20 0 NtSetEventBoostPriority
 PUBLIC m 90a30 0 NtReadFileScatter
-PUBLIC m 90a40 0 NtOpenThreadTokenEx
-PUBLIC m 90a50 0 NtOpenProcessTokenEx
-PUBLIC m 90a60 0 NtQueryPerformanceCounter
-PUBLIC m 90a70 0 NtEnumerateKey
-PUBLIC m 90a80 0 NtOpenFile
+PUBLIC m 90a40 0 ZwOpenThreadTokenEx
+PUBLIC m 90a50 0 ZwOpenProcessTokenEx
+PUBLIC m 90a60 0 ZwQueryPerformanceCounter
+PUBLIC m 90a70 0 ZwEnumerateKey
+PUBLIC m 90a80 0 ZwOpenFile
 PUBLIC m 90a90 0 NtDelayExecution
-PUBLIC m 90aa0 0 NtQueryDirectoryFile
-PUBLIC m 90ab0 0 NtQuerySystemInformation
-PUBLIC m 90ac0 0 NtOpenSection
+PUBLIC m 90aa0 0 ZwQueryDirectoryFile
+PUBLIC m 90ab0 0 ZwQuerySystemInformation
+PUBLIC m 90ac0 0 ZwOpenSection
 PUBLIC m 90ad0 0 NtQueryTimer
 PUBLIC m 90ae0 0 NtFsControlFile
-PUBLIC m 90af0 0 NtWriteVirtualMemory
+PUBLIC m 90af0 0 ZwWriteVirtualMemory
 PUBLIC m 90b00 0 NtCloseObjectAuditAlarm
 PUBLIC m 90b10 0 NtDuplicateObject
 PUBLIC m 90b20 0 NtQueryAttributesFile
-PUBLIC m 90b30 0 NtClearEvent
+PUBLIC m 90b30 0 ZwClearEvent
 PUBLIC m 90b40 0 NtReadVirtualMemory
-PUBLIC m 90b50 0 NtOpenEvent
-PUBLIC m 90b60 0 NtAdjustPrivilegesToken
-PUBLIC m 90b70 0 NtDuplicateToken
+PUBLIC m 90b50 0 ZwOpenEvent
+PUBLIC m 90b60 0 ZwAdjustPrivilegesToken
+PUBLIC m 90b70 0 ZwDuplicateToken
 PUBLIC m 90b80 0 NtContinue
 PUBLIC m 90b90 0 NtQueryDefaultUILanguage
-PUBLIC m 90ba0 0 NtQueueApcThread
+PUBLIC m 90ba0 0 ZwQueueApcThread
 PUBLIC m 90bb0 0 NtYieldExecution
 PUBLIC m 90bc0 0 NtAddAtom
 PUBLIC m 90bd0 0 NtCreateEvent
 PUBLIC m 90be0 0 NtQueryVolumeInformationFile
-PUBLIC m 90bf0 0 NtCreateSection
+PUBLIC m 90bf0 0 ZwCreateSection
 PUBLIC m 90c00 0 NtFlushBuffersFile
-PUBLIC m 90c10 0 NtApphelpCacheControl
+PUBLIC m 90c10 0 ZwApphelpCacheControl
 PUBLIC m 90c20 0 NtCreateProcessEx
-PUBLIC m 90c30 0 NtCreateThread
-PUBLIC m 90c40 0 NtIsProcessInJob
+PUBLIC m 90c30 0 ZwCreateThread
+PUBLIC m 90c40 0 ZwIsProcessInJob
 PUBLIC m 90c50 0 NtProtectVirtualMemory
-PUBLIC m 90c60 0 NtQuerySection
+PUBLIC m 90c60 0 ZwQuerySection
 PUBLIC m 90c70 0 NtResumeThread
-PUBLIC m 90c80 0 NtTerminateThread
-PUBLIC m 90c90 0 NtReadRequestData
+PUBLIC m 90c80 0 ZwTerminateThread
+PUBLIC m 90c90 0 ZwReadRequestData
 PUBLIC m 90ca0 0 NtCreateFile
-PUBLIC m 90cb0 0 NtQueryEvent
+PUBLIC m 90cb0 0 ZwQueryEvent
 PUBLIC m 90cc0 0 NtWriteRequestData
 PUBLIC m 90cd0 0 NtOpenDirectoryObject
 PUBLIC m 90ce0 0 NtAccessCheckByTypeAndAuditAlarm
 PUBLIC m 90cf0 0 NtQuerySystemTime
-PUBLIC m 90d00 0 NtWaitForMultipleObjects
-PUBLIC m 90d10 0 NtSetInformationObject
+PUBLIC m 90d00 0 ZwWaitForMultipleObjects
+PUBLIC m 90d10 0 ZwSetInformationObject
 PUBLIC m 90d20 0 NtCancelIoFile
-PUBLIC m 90d30 0 NtTraceEvent
-PUBLIC m 90d40 0 NtPowerInformation
+PUBLIC m 90d30 0 ZwTraceEvent
+PUBLIC m 90d40 0 ZwPowerInformation
 PUBLIC m 90d50 0 NtSetValueKey
-PUBLIC m 90d60 0 NtCancelTimer
+PUBLIC m 90d60 0 ZwCancelTimer
 PUBLIC m 90d70 0 NtSetTimer
 PUBLIC m 90d80 0 NtAccessCheck
 PUBLIC m 90d90 0 NtAccessCheckByType
@@ -1975,343 +2163,343 @@ PUBLIC m 90db0 0 NtAccessCheckByTypeResultListAndAuditAlarm
 PUBLIC m 90dc0 0 NtAccessCheckByTypeResultListAndAuditAlarmByHandle
 PUBLIC m 90dd0 0 NtAddAtomEx
 PUBLIC m 90de0 0 NtAddBootEntry
-PUBLIC m 90df0 0 NtAddDriverEntry
-PUBLIC m 90e00 0 NtAdjustGroupsToken
+PUBLIC m 90df0 0 ZwAddDriverEntry
+PUBLIC m 90e00 0 ZwAdjustGroupsToken
 PUBLIC m 90e10 0 NtAdjustTokenClaimsAndDeviceGroups
 PUBLIC m 90e20 0 NtAlertResumeThread
-PUBLIC m 90e30 0 NtAlertThread
+PUBLIC m 90e30 0 ZwAlertThread
 PUBLIC m 90e40 0 NtAlertThreadByThreadId
 PUBLIC m 90e50 0 NtAllocateLocallyUniqueId
-PUBLIC m 90e60 0 NtAllocateReserveObject
+PUBLIC m 90e60 0 ZwAllocateReserveObject
 PUBLIC m 90e70 0 NtAllocateUserPhysicalPages
 PUBLIC m 90e80 0 NtAllocateUuids
 PUBLIC m 90e90 0 NtAlpcAcceptConnectPort
-PUBLIC m 90ea0 0 NtAlpcCancelMessage
-PUBLIC m 90eb0 0 NtAlpcConnectPort
-PUBLIC m 90ec0 0 NtAlpcConnectPortEx
-PUBLIC m 90ed0 0 NtAlpcCreatePort
+PUBLIC m 90ea0 0 ZwAlpcCancelMessage
+PUBLIC m 90eb0 0 ZwAlpcConnectPort
+PUBLIC m 90ec0 0 ZwAlpcConnectPortEx
+PUBLIC m 90ed0 0 ZwAlpcCreatePort
 PUBLIC m 90ee0 0 NtAlpcCreatePortSection
 PUBLIC m 90ef0 0 NtAlpcCreateResourceReserve
-PUBLIC m 90f00 0 NtAlpcCreateSectionView
-PUBLIC m 90f10 0 NtAlpcCreateSecurityContext
-PUBLIC m 90f20 0 NtAlpcDeletePortSection
-PUBLIC m 90f30 0 NtAlpcDeleteResourceReserve
+PUBLIC m 90f00 0 ZwAlpcCreateSectionView
+PUBLIC m 90f10 0 ZwAlpcCreateSecurityContext
+PUBLIC m 90f20 0 ZwAlpcDeletePortSection
+PUBLIC m 90f30 0 ZwAlpcDeleteResourceReserve
 PUBLIC m 90f40 0 NtAlpcDeleteSectionView
 PUBLIC m 90f50 0 NtAlpcDeleteSecurityContext
-PUBLIC m 90f60 0 NtAlpcDisconnectPort
-PUBLIC m 90f70 0 NtAlpcImpersonateClientOfPort
-PUBLIC m 90f80 0 NtAlpcOpenSenderProcess
-PUBLIC m 90f90 0 NtAlpcOpenSenderThread
+PUBLIC m 90f60 0 ZwAlpcDisconnectPort
+PUBLIC m 90f70 0 ZwAlpcImpersonateClientOfPort
+PUBLIC m 90f80 0 ZwAlpcOpenSenderProcess
+PUBLIC m 90f90 0 ZwAlpcOpenSenderThread
 PUBLIC m 90fa0 0 NtAlpcQueryInformation
 PUBLIC m 90fb0 0 NtAlpcQueryInformationMessage
-PUBLIC m 90fc0 0 NtAlpcRevokeSecurityContext
+PUBLIC m 90fc0 0 ZwAlpcRevokeSecurityContext
 PUBLIC m 90fd0 0 NtAlpcSendWaitReceivePort
-PUBLIC m 90fe0 0 NtAlpcSetInformation
+PUBLIC m 90fe0 0 ZwAlpcSetInformation
 PUBLIC m 90ff0 0 NtAreMappedFilesTheSame
-PUBLIC m 91000 0 NtAssignProcessToJobObject
+PUBLIC m 91000 0 ZwAssignProcessToJobObject
 PUBLIC m 91010 0 NtAssociateWaitCompletionPacket
 PUBLIC m 91020 0 NtCancelIoFileEx
 PUBLIC m 91030 0 NtCancelSynchronousIoFile
 PUBLIC m 91040 0 NtCancelTimer2
 PUBLIC m 91050 0 NtCancelWaitCompletionPacket
-PUBLIC m 91060 0 NtCommitComplete
+PUBLIC m 91060 0 ZwCommitComplete
 PUBLIC m 91070 0 NtCommitEnlistment
 PUBLIC m 91080 0 NtCommitTransaction
-PUBLIC m 91090 0 NtCompactKeys
+PUBLIC m 91090 0 ZwCompactKeys
 PUBLIC m 910a0 0 NtCompareTokens
-PUBLIC m 910b0 0 NtCompleteConnectPort
-PUBLIC m 910c0 0 NtCompressKey
+PUBLIC m 910b0 0 ZwCompleteConnectPort
+PUBLIC m 910c0 0 ZwCompressKey
 PUBLIC m 910d0 0 NtConnectPort
-PUBLIC m 910e0 0 NtCreateDebugObject
-PUBLIC m 910f0 0 NtCreateDirectoryObject
+PUBLIC m 910e0 0 ZwCreateDebugObject
+PUBLIC m 910f0 0 ZwCreateDirectoryObject
 PUBLIC m 91100 0 NtCreateDirectoryObjectEx
-PUBLIC m 91110 0 NtCreateEnlistment
+PUBLIC m 91110 0 ZwCreateEnlistment
 PUBLIC m 91120 0 NtCreateEventPair
 PUBLIC m 91130 0 NtCreateIRTimer
-PUBLIC m 91140 0 NtCreateIoCompletion
+PUBLIC m 91140 0 ZwCreateIoCompletion
 PUBLIC m 91150 0 NtCreateJobObject
 PUBLIC m 91160 0 NtCreateJobSet
 PUBLIC m 91170 0 NtCreateKeyTransacted
 PUBLIC m 91180 0 NtCreateKeyedEvent
-PUBLIC m 91190 0 NtCreateLowBoxToken
+PUBLIC m 91190 0 ZwCreateLowBoxToken
 PUBLIC m 911a0 0 NtCreateMailslotFile
-PUBLIC m 911b0 0 NtCreateMutant
-PUBLIC m 911c0 0 NtCreateNamedPipeFile
-PUBLIC m 911d0 0 NtCreatePagingFile
+PUBLIC m 911b0 0 ZwCreateMutant
+PUBLIC m 911c0 0 ZwCreateNamedPipeFile
+PUBLIC m 911d0 0 ZwCreatePagingFile
 PUBLIC m 911e0 0 NtCreatePort
 PUBLIC m 911f0 0 NtCreatePrivateNamespace
-PUBLIC m 91200 0 NtCreateProcess
+PUBLIC m 91200 0 ZwCreateProcess
 PUBLIC m 91210 0 NtCreateProfile
 PUBLIC m 91220 0 NtCreateProfileEx
-PUBLIC m 91230 0 NtCreateResourceManager
-PUBLIC m 91240 0 NtCreateSemaphore
+PUBLIC m 91230 0 ZwCreateResourceManager
+PUBLIC m 91240 0 ZwCreateSemaphore
 PUBLIC m 91250 0 NtCreateSymbolicLinkObject
-PUBLIC m 91260 0 NtCreateThreadEx
+PUBLIC m 91260 0 ZwCreateThreadEx
 PUBLIC m 91270 0 NtCreateTimer
-PUBLIC m 91280 0 NtCreateTimer2
-PUBLIC m 91290 0 NtCreateToken
-PUBLIC m 912a0 0 NtCreateTokenEx
-PUBLIC m 912b0 0 NtCreateTransaction
+PUBLIC m 91280 0 ZwCreateTimer2
+PUBLIC m 91290 0 ZwCreateToken
+PUBLIC m 912a0 0 ZwCreateTokenEx
+PUBLIC m 912b0 0 ZwCreateTransaction
 PUBLIC m 912c0 0 NtCreateTransactionManager
-PUBLIC m 912d0 0 NtCreateUserProcess
-PUBLIC m 912e0 0 NtCreateWaitCompletionPacket
-PUBLIC m 912f0 0 NtCreateWaitablePort
-PUBLIC m 91300 0 NtCreateWnfStateName
-PUBLIC m 91310 0 NtCreateWorkerFactory
-PUBLIC m 91320 0 NtDebugActiveProcess
-PUBLIC m 91330 0 NtDebugContinue
-PUBLIC m 91340 0 NtDeleteAtom
-PUBLIC m 91350 0 NtDeleteBootEntry
+PUBLIC m 912d0 0 ZwCreateUserProcess
+PUBLIC m 912e0 0 ZwCreateWaitCompletionPacket
+PUBLIC m 912f0 0 ZwCreateWaitablePort
+PUBLIC m 91300 0 ZwCreateWnfStateName
+PUBLIC m 91310 0 ZwCreateWorkerFactory
+PUBLIC m 91320 0 ZwDebugActiveProcess
+PUBLIC m 91330 0 ZwDebugContinue
+PUBLIC m 91340 0 ZwDeleteAtom
+PUBLIC m 91350 0 ZwDeleteBootEntry
 PUBLIC m 91360 0 NtDeleteDriverEntry
-PUBLIC m 91370 0 NtDeleteFile
-PUBLIC m 91380 0 NtDeleteKey
+PUBLIC m 91370 0 ZwDeleteFile
+PUBLIC m 91380 0 ZwDeleteKey
 PUBLIC m 91390 0 NtDeleteObjectAuditAlarm
-PUBLIC m 913a0 0 NtDeletePrivateNamespace
+PUBLIC m 913a0 0 ZwDeletePrivateNamespace
 PUBLIC m 913b0 0 NtDeleteValueKey
-PUBLIC m 913c0 0 NtDeleteWnfStateData
+PUBLIC m 913c0 0 ZwDeleteWnfStateData
 PUBLIC m 913d0 0 NtDeleteWnfStateName
-PUBLIC m 913e0 0 NtDisableLastKnownGood
+PUBLIC m 913e0 0 ZwDisableLastKnownGood
 PUBLIC m 913f0 0 NtDisplayString
-PUBLIC m 91400 0 NtDrawText
-PUBLIC m 91410 0 NtEnableLastKnownGood
-PUBLIC m 91420 0 NtEnumerateBootEntries
+PUBLIC m 91400 0 ZwDrawText
+PUBLIC m 91410 0 ZwEnableLastKnownGood
+PUBLIC m 91420 0 ZwEnumerateBootEntries
 PUBLIC m 91430 0 NtEnumerateDriverEntries
-PUBLIC m 91440 0 NtEnumerateSystemEnvironmentValuesEx
-PUBLIC m 91450 0 NtEnumerateTransactionObject
-PUBLIC m 91460 0 NtExtendSection
+PUBLIC m 91440 0 ZwEnumerateSystemEnvironmentValuesEx
+PUBLIC m 91450 0 ZwEnumerateTransactionObject
+PUBLIC m 91460 0 ZwExtendSection
 PUBLIC m 91470 0 NtFilterBootOption
 PUBLIC m 91480 0 NtFilterToken
 PUBLIC m 91490 0 NtFilterTokenEx
 PUBLIC m 914a0 0 NtFlushBuffersFileEx
-PUBLIC m 914b0 0 NtFlushInstallUILanguage
-PUBLIC m 914c0 0 NtFlushInstructionCache
+PUBLIC m 914b0 0 ZwFlushInstallUILanguage
+PUBLIC m 914c0 0 ZwFlushInstructionCache
 PUBLIC m 914d0 0 NtFlushKey
 PUBLIC m 914e0 0 NtFlushProcessWriteBuffers
 PUBLIC m 914f0 0 NtFlushVirtualMemory
-PUBLIC m 91500 0 NtFlushWriteBuffer
+PUBLIC m 91500 0 ZwFlushWriteBuffer
 PUBLIC m 91510 0 NtFreeUserPhysicalPages
-PUBLIC m 91520 0 NtFreezeRegistry
+PUBLIC m 91520 0 ZwFreezeRegistry
 PUBLIC m 91530 0 NtFreezeTransactions
-PUBLIC m 91540 0 NtGetCachedSigningLevel
-PUBLIC m 91550 0 NtGetCompleteWnfStateSubscription
+PUBLIC m 91540 0 ZwGetCachedSigningLevel
+PUBLIC m 91550 0 ZwGetCompleteWnfStateSubscription
 PUBLIC m 91560 0 NtGetContextThread
 PUBLIC m 91570 0 NtGetCurrentProcessorNumber
 PUBLIC m 91580 0 NtGetDevicePowerState
 PUBLIC m 91590 0 NtGetMUIRegistryInfo
-PUBLIC m 915a0 0 NtGetNextProcess
+PUBLIC m 915a0 0 ZwGetNextProcess
 PUBLIC m 915b0 0 NtGetNextThread
 PUBLIC m 915c0 0 NtGetNlsSectionPtr
-PUBLIC m 915d0 0 NtGetNotificationResourceManager
+PUBLIC m 915d0 0 ZwGetNotificationResourceManager
 PUBLIC m 915e0 0 NtGetWriteWatch
 PUBLIC m 915f0 0 NtImpersonateAnonymousToken
 PUBLIC m 91600 0 NtImpersonateThread
-PUBLIC m 91610 0 NtInitializeNlsFiles
-PUBLIC m 91620 0 NtInitializeRegistry
-PUBLIC m 91630 0 NtInitiatePowerAction
+PUBLIC m 91610 0 ZwInitializeNlsFiles
+PUBLIC m 91620 0 ZwInitializeRegistry
+PUBLIC m 91630 0 ZwInitiatePowerAction
 PUBLIC m 91640 0 NtIsSystemResumeAutomatic
-PUBLIC m 91650 0 NtIsUILanguageComitted
-PUBLIC m 91660 0 NtListenPort
+PUBLIC m 91650 0 ZwIsUILanguageComitted
+PUBLIC m 91660 0 ZwListenPort
 PUBLIC m 91670 0 NtLoadDriver
-PUBLIC m 91680 0 NtLoadKey
+PUBLIC m 91680 0 ZwLoadKey
 PUBLIC m 91690 0 NtLoadKey2
-PUBLIC m 916a0 0 NtLoadKeyEx
+PUBLIC m 916a0 0 ZwLoadKeyEx
 PUBLIC m 916b0 0 NtLockFile
-PUBLIC m 916c0 0 NtLockProductActivationKeys
+PUBLIC m 916c0 0 ZwLockProductActivationKeys
 PUBLIC m 916d0 0 NtLockRegistryKey
-PUBLIC m 916e0 0 NtLockVirtualMemory
-PUBLIC m 916f0 0 NtMakePermanentObject
-PUBLIC m 91700 0 NtMakeTemporaryObject
-PUBLIC m 91710 0 NtMapCMFModule
-PUBLIC m 91720 0 NtMapUserPhysicalPages
-PUBLIC m 91730 0 NtModifyBootEntry
+PUBLIC m 916e0 0 ZwLockVirtualMemory
+PUBLIC m 916f0 0 ZwMakePermanentObject
+PUBLIC m 91700 0 ZwMakeTemporaryObject
+PUBLIC m 91710 0 ZwMapCMFModule
+PUBLIC m 91720 0 ZwMapUserPhysicalPages
+PUBLIC m 91730 0 ZwModifyBootEntry
 PUBLIC m 91740 0 NtModifyDriverEntry
-PUBLIC m 91750 0 NtNotifyChangeDirectoryFile
+PUBLIC m 91750 0 ZwNotifyChangeDirectoryFile
 PUBLIC m 91760 0 NtNotifyChangeKey
-PUBLIC m 91770 0 NtNotifyChangeMultipleKeys
-PUBLIC m 91780 0 NtNotifyChangeSession
-PUBLIC m 91790 0 NtOpenEnlistment
+PUBLIC m 91770 0 ZwNotifyChangeMultipleKeys
+PUBLIC m 91780 0 ZwNotifyChangeSession
+PUBLIC m 91790 0 ZwOpenEnlistment
 PUBLIC m 917a0 0 NtOpenEventPair
-PUBLIC m 917b0 0 NtOpenIoCompletion
-PUBLIC m 917c0 0 NtOpenJobObject
-PUBLIC m 917d0 0 NtOpenKeyEx
+PUBLIC m 917b0 0 ZwOpenIoCompletion
+PUBLIC m 917c0 0 ZwOpenJobObject
+PUBLIC m 917d0 0 ZwOpenKeyEx
 PUBLIC m 917e0 0 NtOpenKeyTransacted
 PUBLIC m 917f0 0 NtOpenKeyTransactedEx
-PUBLIC m 91800 0 NtOpenKeyedEvent
-PUBLIC m 91810 0 NtOpenMutant
+PUBLIC m 91800 0 ZwOpenKeyedEvent
+PUBLIC m 91810 0 ZwOpenMutant
 PUBLIC m 91820 0 NtOpenObjectAuditAlarm
-PUBLIC m 91830 0 NtOpenPrivateNamespace
-PUBLIC m 91840 0 NtOpenProcessToken
-PUBLIC m 91850 0 NtOpenResourceManager
+PUBLIC m 91830 0 ZwOpenPrivateNamespace
+PUBLIC m 91840 0 ZwOpenProcessToken
+PUBLIC m 91850 0 ZwOpenResourceManager
 PUBLIC m 91860 0 NtOpenSemaphore
 PUBLIC m 91870 0 NtOpenSession
 PUBLIC m 91880 0 NtOpenSymbolicLinkObject
 PUBLIC m 91890 0 NtOpenThread
 PUBLIC m 918a0 0 NtOpenTimer
 PUBLIC m 918b0 0 NtOpenTransaction
-PUBLIC m 918c0 0 NtOpenTransactionManager
+PUBLIC m 918c0 0 ZwOpenTransactionManager
 PUBLIC m 918d0 0 NtPlugPlayControl
 PUBLIC m 918e0 0 NtPrePrepareComplete
-PUBLIC m 918f0 0 NtPrePrepareEnlistment
+PUBLIC m 918f0 0 ZwPrePrepareEnlistment
 PUBLIC m 91900 0 NtPrepareComplete
 PUBLIC m 91910 0 NtPrepareEnlistment
 PUBLIC m 91920 0 NtPrivilegeCheck
-PUBLIC m 91930 0 NtPrivilegeObjectAuditAlarm
+PUBLIC m 91930 0 ZwPrivilegeObjectAuditAlarm
 PUBLIC m 91940 0 NtPrivilegedServiceAuditAlarm
-PUBLIC m 91950 0 NtPropagationComplete
-PUBLIC m 91960 0 NtPropagationFailed
+PUBLIC m 91950 0 ZwPropagationComplete
+PUBLIC m 91960 0 ZwPropagationFailed
 PUBLIC m 91970 0 NtPulseEvent
 PUBLIC m 91980 0 NtQueryBootEntryOrder
-PUBLIC m 91990 0 NtQueryBootOptions
+PUBLIC m 91990 0 ZwQueryBootOptions
 PUBLIC m 919a0 0 NtQueryDebugFilterState
 PUBLIC m 919b0 0 NtQueryDirectoryObject
-PUBLIC m 919c0 0 NtQueryDriverEntryOrder
+PUBLIC m 919c0 0 ZwQueryDriverEntryOrder
 PUBLIC m 919d0 0 NtQueryEaFile
-PUBLIC m 919e0 0 NtQueryFullAttributesFile
-PUBLIC m 919f0 0 NtQueryInformationAtom
-PUBLIC m 91a00 0 NtQueryInformationEnlistment
-PUBLIC m 91a10 0 NtQueryInformationJobObject
-PUBLIC m 91a20 0 NtQueryInformationPort
-PUBLIC m 91a30 0 NtQueryInformationResourceManager
+PUBLIC m 919e0 0 ZwQueryFullAttributesFile
+PUBLIC m 919f0 0 ZwQueryInformationAtom
+PUBLIC m 91a00 0 ZwQueryInformationEnlistment
+PUBLIC m 91a10 0 ZwQueryInformationJobObject
+PUBLIC m 91a20 0 ZwQueryInformationPort
+PUBLIC m 91a30 0 ZwQueryInformationResourceManager
 PUBLIC m 91a40 0 NtQueryInformationTransaction
-PUBLIC m 91a50 0 NtQueryInformationTransactionManager
+PUBLIC m 91a50 0 ZwQueryInformationTransactionManager
 PUBLIC m 91a60 0 NtQueryInformationWorkerFactory
-PUBLIC m 91a70 0 NtQueryInstallUILanguage
-PUBLIC m 91a80 0 NtQueryIntervalProfile
-PUBLIC m 91a90 0 NtQueryIoCompletion
+PUBLIC m 91a70 0 ZwQueryInstallUILanguage
+PUBLIC m 91a80 0 ZwQueryIntervalProfile
+PUBLIC m 91a90 0 ZwQueryIoCompletion
 PUBLIC m 91aa0 0 NtQueryLicenseValue
 PUBLIC m 91ab0 0 NtQueryMultipleValueKey
 PUBLIC m 91ac0 0 NtQueryMutant
-PUBLIC m 91ad0 0 NtQueryOpenSubKeys
-PUBLIC m 91ae0 0 NtQueryOpenSubKeysEx
-PUBLIC m 91af0 0 NtQueryPortInformationProcess
-PUBLIC m 91b00 0 NtQueryQuotaInformationFile
+PUBLIC m 91ad0 0 ZwQueryOpenSubKeys
+PUBLIC m 91ae0 0 ZwQueryOpenSubKeysEx
+PUBLIC m 91af0 0 ZwQueryPortInformationProcess
+PUBLIC m 91b00 0 ZwQueryQuotaInformationFile
 PUBLIC m 91b10 0 NtQuerySecurityAttributesToken
-PUBLIC m 91b20 0 NtQuerySecurityObject
+PUBLIC m 91b20 0 ZwQuerySecurityObject
 PUBLIC m 91b30 0 NtQuerySemaphore
-PUBLIC m 91b40 0 NtQuerySymbolicLinkObject
-PUBLIC m 91b50 0 NtQuerySystemEnvironmentValue
-PUBLIC m 91b60 0 NtQuerySystemEnvironmentValueEx
-PUBLIC m 91b70 0 NtQuerySystemInformationEx
+PUBLIC m 91b40 0 ZwQuerySymbolicLinkObject
+PUBLIC m 91b50 0 ZwQuerySystemEnvironmentValue
+PUBLIC m 91b60 0 ZwQuerySystemEnvironmentValueEx
+PUBLIC m 91b70 0 ZwQuerySystemInformationEx
 PUBLIC m 91b80 0 NtQueryTimerResolution
 PUBLIC m 91b90 0 NtQueryWnfStateData
-PUBLIC m 91ba0 0 NtQueryWnfStateNameInformation
-PUBLIC m 91bb0 0 NtQueueApcThreadEx
+PUBLIC m 91ba0 0 ZwQueryWnfStateNameInformation
+PUBLIC m 91bb0 0 ZwQueueApcThreadEx
 PUBLIC m 91bc0 0 NtRaiseException
-PUBLIC m 91bd0 0 NtRaiseHardError
+PUBLIC m 91bd0 0 ZwRaiseHardError
 PUBLIC m 91be0 0 NtReadOnlyEnlistment
 PUBLIC m 91bf0 0 NtRecoverEnlistment
 PUBLIC m 91c00 0 NtRecoverResourceManager
-PUBLIC m 91c10 0 NtRecoverTransactionManager
-PUBLIC m 91c20 0 NtRegisterProtocolAddressInformation
-PUBLIC m 91c30 0 NtRegisterThreadTerminatePort
-PUBLIC m 91c40 0 NtReleaseKeyedEvent
-PUBLIC m 91c50 0 NtReleaseWorkerFactoryWorker
+PUBLIC m 91c10 0 ZwRecoverTransactionManager
+PUBLIC m 91c20 0 ZwRegisterProtocolAddressInformation
+PUBLIC m 91c30 0 ZwRegisterThreadTerminatePort
+PUBLIC m 91c40 0 ZwReleaseKeyedEvent
+PUBLIC m 91c50 0 ZwReleaseWorkerFactoryWorker
 PUBLIC m 91c60 0 NtRemoveIoCompletionEx
 PUBLIC m 91c70 0 NtRemoveProcessDebug
-PUBLIC m 91c80 0 NtRenameKey
-PUBLIC m 91c90 0 NtRenameTransactionManager
-PUBLIC m 91ca0 0 NtReplaceKey
-PUBLIC m 91cb0 0 NtReplacePartitionUnit
-PUBLIC m 91cc0 0 NtReplyWaitReplyPort
-PUBLIC m 91cd0 0 NtRequestPort
+PUBLIC m 91c80 0 ZwRenameKey
+PUBLIC m 91c90 0 ZwRenameTransactionManager
+PUBLIC m 91ca0 0 ZwReplaceKey
+PUBLIC m 91cb0 0 ZwReplacePartitionUnit
+PUBLIC m 91cc0 0 ZwReplyWaitReplyPort
+PUBLIC m 91cd0 0 ZwRequestPort
 PUBLIC m 91ce0 0 NtResetEvent
 PUBLIC m 91cf0 0 NtResetWriteWatch
-PUBLIC m 91d00 0 NtRestoreKey
+PUBLIC m 91d00 0 ZwRestoreKey
 PUBLIC m 91d10 0 NtResumeProcess
 PUBLIC m 91d20 0 NtRollbackComplete
-PUBLIC m 91d30 0 NtRollbackEnlistment
+PUBLIC m 91d30 0 ZwRollbackEnlistment
 PUBLIC m 91d40 0 NtRollbackTransaction
-PUBLIC m 91d50 0 NtRollforwardTransactionManager
-PUBLIC m 91d60 0 NtSaveKey
-PUBLIC m 91d70 0 NtSaveKeyEx
+PUBLIC m 91d50 0 ZwRollforwardTransactionManager
+PUBLIC m 91d60 0 ZwSaveKey
+PUBLIC m 91d70 0 ZwSaveKeyEx
 PUBLIC m 91d80 0 NtSaveMergedKeys
-PUBLIC m 91d90 0 NtSecureConnectPort
+PUBLIC m 91d90 0 ZwSecureConnectPort
 PUBLIC m 91da0 0 NtSerializeBoot
 PUBLIC m 91db0 0 NtSetBootEntryOrder
-PUBLIC m 91dc0 0 NtSetBootOptions
+PUBLIC m 91dc0 0 ZwSetBootOptions
 PUBLIC m 91dd0 0 NtSetCachedSigningLevel
-PUBLIC m 91de0 0 NtSetContextThread
+PUBLIC m 91de0 0 ZwSetContextThread
 PUBLIC m 91df0 0 NtSetDebugFilterState
-PUBLIC m 91e00 0 NtSetDefaultHardErrorPort
-PUBLIC m 91e10 0 NtSetDefaultLocale
+PUBLIC m 91e00 0 ZwSetDefaultHardErrorPort
+PUBLIC m 91e10 0 ZwSetDefaultLocale
 PUBLIC m 91e20 0 NtSetDefaultUILanguage
-PUBLIC m 91e30 0 NtSetDriverEntryOrder
+PUBLIC m 91e30 0 ZwSetDriverEntryOrder
 PUBLIC m 91e40 0 NtSetEaFile
-PUBLIC m 91e50 0 NtSetHighEventPair
+PUBLIC m 91e50 0 ZwSetHighEventPair
 PUBLIC m 91e60 0 NtSetHighWaitLowEventPair
-PUBLIC m 91e70 0 NtSetIRTimer
-PUBLIC m 91e80 0 NtSetInformationDebugObject
-PUBLIC m 91e90 0 NtSetInformationEnlistment
+PUBLIC m 91e70 0 ZwSetIRTimer
+PUBLIC m 91e80 0 ZwSetInformationDebugObject
+PUBLIC m 91e90 0 ZwSetInformationEnlistment
 PUBLIC m 91ea0 0 NtSetInformationJobObject
 PUBLIC m 91eb0 0 NtSetInformationKey
-PUBLIC m 91ec0 0 NtSetInformationResourceManager
-PUBLIC m 91ed0 0 NtSetInformationToken
-PUBLIC m 91ee0 0 NtSetInformationTransaction
+PUBLIC m 91ec0 0 ZwSetInformationResourceManager
+PUBLIC m 91ed0 0 ZwSetInformationToken
+PUBLIC m 91ee0 0 ZwSetInformationTransaction
 PUBLIC m 91ef0 0 NtSetInformationTransactionManager
 PUBLIC m 91f00 0 NtSetInformationVirtualMemory
-PUBLIC m 91f10 0 NtSetInformationWorkerFactory
-PUBLIC m 91f20 0 NtSetIntervalProfile
+PUBLIC m 91f10 0 ZwSetInformationWorkerFactory
+PUBLIC m 91f20 0 ZwSetIntervalProfile
 PUBLIC m 91f30 0 NtSetIoCompletion
 PUBLIC m 91f40 0 NtSetIoCompletionEx
 PUBLIC m 91f50 0 NtSetLdtEntries
 PUBLIC m 91f60 0 NtSetLowEventPair
 PUBLIC m 91f70 0 NtSetLowWaitHighEventPair
 PUBLIC m 91f80 0 NtSetQuotaInformationFile
-PUBLIC m 91f90 0 NtSetSecurityObject
+PUBLIC m 91f90 0 ZwSetSecurityObject
 PUBLIC m 91fa0 0 NtSetSystemEnvironmentValue
 PUBLIC m 91fb0 0 NtSetSystemEnvironmentValueEx
 PUBLIC m 91fc0 0 NtSetSystemInformation
 PUBLIC m 91fd0 0 NtSetSystemPowerState
 PUBLIC m 91fe0 0 NtSetSystemTime
-PUBLIC m 91ff0 0 NtSetThreadExecutionState
+PUBLIC m 91ff0 0 ZwSetThreadExecutionState
 PUBLIC m 92000 0 NtSetTimer2
 PUBLIC m 92010 0 NtSetTimerEx
-PUBLIC m 92020 0 NtSetTimerResolution
-PUBLIC m 92030 0 NtSetUuidSeed
+PUBLIC m 92020 0 ZwSetTimerResolution
+PUBLIC m 92030 0 ZwSetUuidSeed
 PUBLIC m 92040 0 NtSetVolumeInformationFile
-PUBLIC m 92050 0 NtSetWnfProcessNotificationEvent
+PUBLIC m 92050 0 ZwSetWnfProcessNotificationEvent
 PUBLIC m 92060 0 NtShutdownSystem
 PUBLIC m 92070 0 NtShutdownWorkerFactory
 PUBLIC m 92080 0 NtSignalAndWaitForSingleObject
 PUBLIC m 92090 0 NtSinglePhaseReject
 PUBLIC m 920a0 0 NtStartProfile
 PUBLIC m 920b0 0 NtStopProfile
-PUBLIC m 920c0 0 NtSubscribeWnfStateChange
+PUBLIC m 920c0 0 ZwSubscribeWnfStateChange
 PUBLIC m 920d0 0 NtSuspendProcess
-PUBLIC m 920e0 0 NtSuspendThread
+PUBLIC m 920e0 0 ZwSuspendThread
 PUBLIC m 920f0 0 NtSystemDebugControl
-PUBLIC m 92100 0 NtTerminateJobObject
+PUBLIC m 92100 0 ZwTerminateJobObject
 PUBLIC m 92110 0 NtTestAlert
 PUBLIC m 92120 0 NtThawRegistry
 PUBLIC m 92130 0 NtThawTransactions
-PUBLIC m 92140 0 NtTraceControl
-PUBLIC m 92150 0 NtTranslateFilePath
+PUBLIC m 92140 0 ZwTraceControl
+PUBLIC m 92150 0 ZwTranslateFilePath
 PUBLIC m 92160 0 NtUmsThreadYield
 PUBLIC m 92170 0 NtUnloadDriver
-PUBLIC m 92180 0 NtUnloadKey
-PUBLIC m 92190 0 NtUnloadKey2
+PUBLIC m 92180 0 ZwUnloadKey
+PUBLIC m 92190 0 ZwUnloadKey2
 PUBLIC m 921a0 0 NtUnloadKeyEx
 PUBLIC m 921b0 0 NtUnlockFile
 PUBLIC m 921c0 0 NtUnlockVirtualMemory
-PUBLIC m 921d0 0 NtUnmapViewOfSectionEx
-PUBLIC m 921e0 0 NtUnsubscribeWnfStateChange
+PUBLIC m 921d0 0 ZwUnmapViewOfSectionEx
+PUBLIC m 921e0 0 ZwUnsubscribeWnfStateChange
 PUBLIC m 921f0 0 NtUpdateWnfStateData
 PUBLIC m 92200 0 NtVdmControl
-PUBLIC m 92210 0 NtWaitForAlertByThreadId
+PUBLIC m 92210 0 ZwWaitForAlertByThreadId
 PUBLIC m 92220 0 NtWaitForDebugEvent
-PUBLIC m 92230 0 NtWaitForKeyedEvent
+PUBLIC m 92230 0 ZwWaitForKeyedEvent
 PUBLIC m 92240 0 NtWaitForWorkViaWorkerFactory
 PUBLIC m 92250 0 NtWaitHighEventPair
-PUBLIC m 92260 0 NtWaitLowEventPair
+PUBLIC m 92260 0 ZwWaitLowEventPair
 PUBLIC 92280 0 DbgBreakPoint
 PUBLIC 92290 0 DbgUserBreakPoint
-PUBLIC m 922a0 0 DbgBreakPointWithStatus
+PUBLIC m 922a0 0 RtlpBreakWithStatusInstruction
 PUBLIC 922a2 0 DbgBreakPointWithStatusEnd
 PUBLIC 922b0 0 DebugPrint
 PUBLIC 922d0 0 DebugPrompt
 PUBLIC 922f0 0 DebugService2
 PUBLIC 92310 0 FirstEntrySList
-PUBLIC m 92320 0 ExpInterlockedPopEntrySList
+PUBLIC m 92320 0 RtlInterlockedPopEntrySList
 PUBLIC 92325 0 ExpInterlockedPopEntrySListResume
 PUBLIC 92339 0 ExpInterlockedPopEntrySListFault
 PUBLIC 92342 0 ExpInterlockedPopEntrySListEnd
@@ -2378,7 +2566,7 @@ FUNC 9f3a0 95 0 WerEscalationReadImageVersionInfoForModuleBaseSafe$filt$0
 FUNC 9f43b 16 0 TpCheckTerminateWorker$filt$0
 FUNC 9f457 28 0 RtlpTpTimerCallback$fin$0
 FUNC 9f485 16 0 LdrGetDllHandleByName$filt$0
-FUNC 9f4a1 1e 0 LdrpInitialize$filt$0
+FUNC 9f4a1 1e 0 _LdrpInitialize$filt$0
 FUNC 9f4c5 8b 0 RtlQueueWorkItem$fin$0
 FUNC 9f556 1f 0 RtlPcToFileHeader$fin$0
 FUNC 9f57b 7c 0 RtlpTpWorkCallback$fin$0
@@ -2545,7 +2733,7 @@ FUNC a1411 1b 0 TppPoolpFree$fin$0
 FUNC a1432 1d 0 LdrEnumerateLoadedModules$fin$0
 FUNC a1455 4f 0 LdrQueryProcessModuleInformationEx$fin$0
 FUNC a14aa 88 0 LdrpProtectedCopyMemory$filt$0
-FUNC m a1538 2c 0 control87$filt$0
+FUNC m a1538 2c 0 _control87$filt$0
 FUNC a156a 18 0 LdrResolveDelayLoadedAPI$fin$0
 FUNC a1590 f2 0 LdrpFindOrMapDll$fin$0
 FUNC a1682 20 0 RtlCompressBufferLZNT1
@@ -2594,7 +2782,7 @@ FUNC a221c e1 0 RtlVerifyVersionInfo
 FUNC a22fe 1b 0 RtlpVerCompare
 FUNC a231a 4a 0 RtlpTpTimerCallback
 FUNC a2364 b 0 LdrpInitialize
-FUNC a2370 2ff 0 LdrpInitialize
+FUNC a2370 2ff 0 _LdrpInitialize
 FUNC a2670 66 0 TppTimerpExecuteCallback
 FUNC a26d6 37 0 TppTimerQueueExpiration
 FUNC a270e 6d 0 TppSingleTimerExpiration
@@ -2699,10 +2887,10 @@ FUNC a5092 5 0 EtwpCreateRegGuidsContext
 FUNC a5098 64 0 RtlpTestHookInitialize
 FUNC a50fc a 0 RtlpExtendFrontEndUsageArray
 FUNC a5106 f9 0 EtwpEventApiCallback
-FUNC a5200 90 0 RtlpMuiRegDeserializeRegistryInfo
+FUNC a5200 90 0 _RtlpMuiRegDeserializeRegistryInfo
 FUNC a5290 a7 0 RtlpMuiRegCreateAndLoadRegistryInfo
-FUNC a5338 43 0 RtlpMuiRegAddNeutralToInstalled
-FUNC a537c 1d 0 RtlpMuiRegAddNeutralLanguage
+FUNC a5338 43 0 _RtlpMuiRegAddNeutralToInstalled
+FUNC a537c 1d 0 _RtlpMuiRegAddNeutralLanguage
 FUNC a539a 2d 0 RtlpMuiRegGetLanguageSpec
 FUNC a53c8 12b 0 RtlpPopulateLanguageConfigList
 FUNC a54f4 c4 0 RtlpLoadUserUIByPolicy
@@ -2930,7 +3118,7 @@ FUNC afcfe 14 0 RtlAllocateAndInitializeSid
 FUNC afd12 2f 0 RtlEnumerateBoundaryDescriptorEntries
 FUNC afd42 7 0 RtlCreateBoundaryDescriptor
 FUNC afd4a d7 0 WinSqmAddToStream
-FUNC afe22 6c 0 WinSqmDWORDEvent
+FUNC afe22 6c 0 _WinSqmDWORDEvent
 FUNC afe8e 8b 0 WinSqmSetString
 FUNC aff1a 1ed 0 WinSqmEscalationManagerAcquire
 FUNC b0108 64 0 RegisterWinSqmProvider
@@ -2949,9 +3137,9 @@ FUNC b05cc b9 0 ResCKeDirectoryOpenMapping
 FUNC b0686 1f7 0 LdrpGetMUIFromCMFSegment
 FUNC b087e b 0 RtlNtStatusToDosError
 FUNC b088a 78 0 vDbgPrintExWithPrefixInternal
-FUNC b0902 7 0 ResGetSystemWindowsDirectory
+FUNC b0902 7 0 _ResGetSystemWindowsDirectory
 FUNC b090a 16 0 RtlExpandEnvironmentStrings_U
-FUNC b0920 a 0 ResQueryValueKey
+FUNC b0920 a 0 _ResQueryValueKey
 FUNC b092a 1a 0 AitpIsEnabledNt
 FUNC b0944 44 0 AitpDoFirstTelemetryHitSetupWorker
 FUNC b0988 41 0 AitpDoFirstTelemetryHitSetup
@@ -3471,7 +3659,7 @@ PUBLIC c4754 0 LdrpFatalExceptionFilter
 PUBLIC c47f0 0 LdrpGenericExceptionFilter
 PUBLIC c4940 0 RtlComputePrivatizedDllName_U
 PUBLIC c4cd4 0 StringCbPrintfW
-PUBLIC m c4d60 0 RtlCloneMemoryStream
+PUBLIC m c4d60 0 RtlStatMemoryStream
 PUBLIC c4d6c 0 LdrForkMrdata
 PUBLIC c4da0 0 LdrInitializeMrdata
 PUBLIC c4e04 0 LdrpLocateMrdata
@@ -3574,7 +3762,7 @@ PUBLIC cc0c0 0 SetAssertBufferPtrinPeb
 PUBLIC cc130 0 ShipAssert
 FUNC cc229 20 0 ShipAssert$filt$0
 PUBLIC cc250 0 ShipAssertGetBufferInfo
-PUBLIC m cc280 0 ShipAssertMsgA
+PUBLIC m cc280 0 ShipAssertMsgW
 PUBLIC cc28c 0 HashStringToDwordCaseInsensitiveLen
 PUBLIC cc2f0 0 SqmEscalationCallback
 PUBLIC cc598 0 StringCchPrintfW
@@ -3654,8 +3842,8 @@ PUBLIC d081c 0 RtlpQueryAssemblyInformationActivationContextDetailedInformation
 PUBLIC d0aac 0 RtlpQueryFilesInAssemblyInformationActivationContextDetailedInformation
 PUBLIC d0d34 0 RtlpQueryInformationActivationContextManifestResourceName
 PUBLIC d0df0 0 RtlpGetAssemblyStorageMapRootLocation
-PUBLIC d0fcc 0 long InsertModuleFunctions<struct _IMAGE_THUNK_DATA32,unsigned long,-2147483648>(struct _IMPORTTABLEP_IMPORTTABLEP_SORTED_LIST_ENTRY *,void *,struct _IMAGE_NT_HEADERS64*,struct _IMAGE_IMPORT_DESCRIPTOR & const *)
-PUBLIC d108c 0 long InsertModuleFunctions<struct _IMAGE_THUNK_DATA64,uint64_t,0>(struct _IMPORTTABLEP_IMPORTTABLEP_SORTED_LIST_ENTRY *,void *,struct _IMAGE_NT_HEADERS64*,struct _IMAGE_IMPORT_DESCRIPTOR & const *)
+PUBLIC d0fcc 0 InsertModuleFunctions<_IMAGE_THUNK_DATA32, unsigned long, -2147483648>(_IMPORTTABLEP_IMPORTTABLEP_SORTED_LIST_ENTRY*, void*, _IMAGE_NT_HEADERS64*, _IMAGE_IMPORT_DESCRIPTOR& const*)
+PUBLIC d108c 0 InsertModuleFunctions<_IMAGE_THUNK_DATA64, uint64_t, 0>(_IMPORTTABLEP_IMPORTTABLEP_SORTED_LIST_ENTRY*, void*, _IMAGE_NT_HEADERS64*, _IMAGE_IMPORT_DESCRIPTOR& const*)
 PUBLIC d115c 0 ImportTablepHashCanonicalLists
 PUBLIC d1244 0 ImportTablepInsertFunctionSorted
 PUBLIC d12c4 0 ImportTablepInsertModuleSorted
@@ -3850,7 +4038,7 @@ PUBLIC dea98 0 RtlpMuiRegGetLanginfoTypeNSpec
 PUBLIC deb00 0 RtlpSetInstallLanguage
 PUBLIC defac 0 RtlpSetMachineUILanguagesImmediate
 PUBLIC df120 0 RtlpSetPreferredUILanguages
-FUNC dfd88 37 0 MuiRegAllocArray
+FUNC dfd88 37 0 _MuiRegAllocArray
 PUBLIC dfdd0 0 RtlCmDecodeMemIoResource
 PUBLIC dfe40 0 RtlCmEncodeMemIoResource
 PUBLIC dff30 0 RtlFindClosestEncodableLength
@@ -4136,14 +4324,14 @@ PUBLIC f0324 0 RtlpMuiRegAddBaseLanguage
 PUBLIC f066c 0 RtlpMuiRegInitAnyLanguage
 PUBLIC f0738 0 RtlpMuiRegInitLIPLanguage
 PUBLIC f0988 0 RtlpMuiRegInitPartialLanguage
-FUNC f09e0 2d9 0 RtlpMuiRegLoadInstalled
+FUNC f09e0 2d9 0 _RtlpMuiRegLoadInstalled
 PUBLIC f0cc0 0 RtlpMuiRegPopulateBaseLanguages
 PUBLIC f1144 0 RtlpMuiRegValidateAndGetInstallFallbackBase
-FUNC f11e8 3c0 0 RtlpMuiRegValidateInstalled
-FUNC f15b0 23f 0 RtlpMuiRegValidateLIPLanguage
-FUNC f17f8 146 0 RtlpMuiRegValidatePartialLanguage
+FUNC f11e8 3c0 0 _RtlpMuiRegValidateInstalled
+FUNC f15b0 23f 0 _RtlpMuiRegValidateLIPLanguage
+FUNC f17f8 146 0 _RtlpMuiRegValidatePartialLanguage
 PUBLIC f1944 0 RtlpRemovePendingDeleteLanguages
-FUNC f1ab4 4b 0 SafeReallocBlob
+FUNC f1ab4 4b 0 _SafeReallocBlob
 PUBLIC f1b10 0 RtlpNtMakeTemporaryKey
 PUBLIC f1b20 0 RtlpDebugPageHeapCreate
 PUBLIC f1b90 0 RtlpDebugPageHeapDestroy
@@ -4367,7 +4555,7 @@ PUBLIC 102c48 0 TppReportExceptionFilter
 PUBLIC 102c6c 0 TppTerminateProcess
 PUBLIC 102c80 0 TppETWCallbackCancel
 PUBLIC 102d04 0 TppETWCallbackDequeue
-PUBLIC m 102d7c 0 RtlpTpETWCallbackStart
+PUBLIC m 102d7c 0 TppETWCallbackStart
 PUBLIC 102df4 0 TppETWPoolClose
 PUBLIC 102e4c 0 TppETWPoolCreate
 PUBLIC 102ea4 0 TppETWPoolThreadMax
@@ -4389,8 +4577,8 @@ PUBLIC 103444 0 RtlpTpIoDllProcessUnloads
 PUBLIC 103520 0 RtlpExitThread
 PUBLIC 103540 0 RtlpStartThread
 PUBLIC 103580 0 RtlTpETWCallbackDequeue
-PUBLIC m 1035f8 0 RtlpTpETWCallbackEnqueue
-PUBLIC m 103670 0 RtlpTpETWCallbackStop
+PUBLIC m 1035f8 0 TppETWCallbackEnqueue
+PUBLIC m 103670 0 TppETWCallbackStop
 PUBLIC 1036e8 0 SbpTraceContextUpdate
 PUBLIC 1037c0 0 SbExecuteProcedure
 PUBLIC 1037f8 0 SbpLookup
@@ -4439,10 +4627,10 @@ PUBLIC 107d58 0 ResCRuntimeGetResourceDataEx
 PUBLIC 107fac 0 ResCRuntimeGetSegmentDataEx
 PUBLIC 10826c 0 ResCRuntimeUnmapSegment
 PUBLIC 1082f4 0 ResCRuntimeViewLoadCultureMap
-PUBLIC 1083c8 0 int GetEntryIndex<struct _RESCDIRECTORY *,struct _RESCDENTRY *,0>(struct _RESCDIRECTORY *,struct _RESCACHEID,unsigned int)
-PUBLIC 108458 0 int GetFirstEntryIndex<struct _RESCDIRECTORY *,struct _RESCDENTRY *,0>(struct _RESCDIRECTORY *,struct _RESCACHEID)
-PUBLIC 10853c 0 int RecurseValidate<struct _RESCDIRECTORY *>(struct _RESCDIRECTORY *,int,unsigned char *)
-PUBLIC 10871c 0 int Validate<struct _RESCDIRECTORY *,struct _RESCDENTRY *>(struct _RESCDIRECTORY *)
+PUBLIC 1083c8 0 GetEntryIndex<_RESCDIRECTORY*, _RESCDENTRY*, 0>(_RESCDIRECTORY*, _RESCACHEID, unsigned int)
+PUBLIC 108458 0 GetFirstEntryIndex<_RESCDIRECTORY*, _RESCDENTRY*, 0>(_RESCDIRECTORY*, _RESCACHEID)
+PUBLIC 10853c 0 RecurseValidate<_RESCDIRECTORY*>(_RESCDIRECTORY*, int, unsigned char*)
+PUBLIC 10871c 0 Validate<_RESCDIRECTORY*, _RESCDENTRY*>(_RESCDIRECTORY*)
 PUBLIC 108828 0 ResCDirectoryFree
 PUBLIC 108950 0 ResCDirectoryGetEntry
 PUBLIC 1089c0 0 ResCDirectoryGetEntryCopyAndIndex
@@ -4460,7 +4648,7 @@ PUBLIC 108fc0 0 RtlpDiskSpeedInitialize
 PUBLIC 1090bc 0 RtlpGetVolumeHandle
 PUBLIC 1091d8 0 RtlpQueryDiskSpacePolicy
 PUBLIC 1093d0 0 RtlpQueryDiskSpeedPolicy
-PUBLIC 109430 0 long StringCchPrintfW(unsigned short *,uint64_t,unsigned short const *,...)
+PUBLIC 109430 0 StringCchPrintfW(unsigned short*, uint64_t, unsigned short const*, ...)
 PUBLIC 1094b4 0 BaseFormatObjectAttributes
 PUBLIC 10954c 0 BaseGetNamedObjectDirectory
 PUBLIC 109768 0 BaseIsThisAConsoleName
@@ -4483,7 +4671,7 @@ PUBLIC 10a5f8 0 ResCreateSecurityDescriptor
 PUBLIC 10a918 0 ResFindClose
 PUBLIC 10a9c0 0 ResFindFirstFileExW
 PUBLIC 10adbc 0 ResFindNextFileW
-FUNC 10afb6 21 0 ResFindNextFileW$fin$0
+FUNC 10afb6 21 0 _ResFindNextFileW$fin$0
 PUBLIC 10afe0 0 ResGetFileAttributesEx
 PUBLIC 10b10c 0 ResGetFileAttributesW
 PUBLIC 10b1d4 0 ResGetFileSizeEx
@@ -4505,9 +4693,9 @@ PUBLIC 10c3b8 0 ResCFreeCultureMap
 PUBLIC 10c494 0 ResCGetCultureID
 PUBLIC 10c54c 0 ResCLoadCultureMap
 PUBLIC 10c5f0 0 ResCReloadCultureMap
-PUBLIC m 10c694 0 int InitStack<int>(void * *,unsigned int)
-PUBLIC 10c72c 0 void ReleaseStack<unsigned int>(void *)
-PUBLIC m 10c77c 0 int StackPush<int>(int,void *)
+PUBLIC m 10c694 0 InitStack<unsigned int>(void**, unsigned int)
+PUBLIC 10c72c 0 ReleaseStack<unsigned int>(void*)
+PUBLIC m 10c77c 0 StackPush<int>(int, void*)
 PUBLIC 10c844 0 ResCDirectoryCreateAndPopulate
 PUBLIC 10c8e8 0 ResCDirectoryGetSize
 PUBLIC 10c934 0 ResCDirectoryPopulate
@@ -4517,6 +4705,7 @@ PUBLIC 10cbfc 0 ResCHitsCreateAndPopulate
 PUBLIC 10cc9c 0 ResCHitsPopulate
 PUBLIC 10cd10 0 ResCSegmentCreateAndPopulate
 PUBLIC 10cdb0 0 ResCSegmentPopulate
+PUBLIC 11bc80 0 setjmpexused
 PUBLIC 12d010 0 RtlAllocateMemoryBlockLookaside
 PUBLIC 12d150 0 RtlFreeMemoryBlockLookaside
 PUBLIC 12d180 0 RtlAllocateMemoryZone
