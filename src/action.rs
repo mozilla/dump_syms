@@ -7,7 +7,7 @@ use std::path::PathBuf;
 
 use dump_syms::common::{self, FileType};
 use dump_syms::elf::ElfInfo;
-use dump_syms::mac::macho::MachoInfo;
+use dump_syms::mac::macho::{print_macho_architectures, MachoInfo};
 use dump_syms::utils;
 use dump_syms::windows::pdb::PDBInfo;
 
@@ -37,7 +37,7 @@ impl Action<'_> {
                 let filename = utils::get_filename(&path);
 
                 let buf = utils::read_file(&path);
-                MachoInfo::print_architectures(&buf, filename)
+                print_macho_architectures(&buf, filename)
             }
         }
     }
@@ -56,7 +56,7 @@ impl Action<'_> {
                     let filename = utils::get_filename(&path);
 
                     let buf = utils::read_file(&path);
-                    MachoInfo::print_architectures(&buf, filename)?;
+                    print_macho_architectures(&buf, filename)?;
                 }
                 Ok(())
             }
