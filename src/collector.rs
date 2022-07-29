@@ -359,7 +359,7 @@ impl Collector {
         Ok(())
     }
 
-    // This runs after collect_functions.
+    // This runs after collect_functions / collect_placeholder_functions.
     pub fn collect_publics(&mut self, o: &Object) {
         for sym in o.symbols() {
             if self.syms.is_inside_symbol(sym.address as u32) {
@@ -422,7 +422,7 @@ impl Collector {
 
     /// Based on the exception data, collect a synthetic symbol for every function start
     /// address, if there is no other symbol at that address.
-    // This runs after collect_publics.
+    // This runs between collect_functions and collect_publics.
     pub fn collect_placeholder_functions(
         &mut self,
         exception_data: &ExceptionData,

@@ -120,7 +120,6 @@ impl ObjectInfo {
         };
 
         collector.collect_functions(&ds, &mut source, &mut inline_origins)?;
-        collector.collect_publics(main_object);
 
         if let Object::Pe(pe) = &main_object {
             if let Some(exception_data) = pe.exception_data() {
@@ -130,6 +129,8 @@ impl ObjectInfo {
                 );
             }
         }
+
+        collector.collect_publics(main_object);
 
         let stack = get_stack_info(Some(main_object), pe_object);
         let symbols = match platform {
