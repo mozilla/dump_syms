@@ -7,10 +7,13 @@
 pub mod cache;
 pub mod common;
 pub mod dumper;
+pub mod elf;
 pub mod inline_origins;
 mod line;
-pub mod linux;
+mod lines;
 pub mod mac;
 pub mod mapping;
+mod source;
+mod symbol;
 pub mod utils;
 pub mod windows;

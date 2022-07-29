@@ -10,7 +10,7 @@ use symbolic::common::Arch;
 use symbolic::debuginfo::Archive;
 
 use crate::common::{self, Dumpable, Mergeable};
-use crate::linux::elf::{ElfInfo, Platform};
+use crate::elf::{ElfInfo, Platform};
 use crate::mapping::PathMappings;
 
 #[derive(Debug)]

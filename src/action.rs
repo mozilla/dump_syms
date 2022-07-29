@@ -6,7 +6,7 @@
 use std::path::PathBuf;
 
 use dump_syms::common::{self, FileType};
-use dump_syms::linux::elf::ElfInfo;
+use dump_syms::elf::ElfInfo;
 use dump_syms::mac::macho::MachoInfo;
 use dump_syms::utils;
 use dump_syms::windows::pdb::PDBInfo;
