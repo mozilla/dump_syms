@@ -89,25 +89,6 @@ fn get_stack_info(pdb: Option<&Object>, pe: Option<&Object>) -> String {
 }
 
 impl ElfInfo {
-    pub(crate) fn new(
-        buf: &[u8],
-        file_name: &str,
-        platform: Platform,
-        mapping: Option<Arc<PathMappings>>,
-        collect_inlines: bool,
-    ) -> common::Result<Self> {
-        let o = Object::parse(buf)?;
-        Self::from_object(
-            &o,
-            file_name,
-            None,
-            None,
-            platform,
-            mapping,
-            collect_inlines,
-        )
-    }
-
     pub fn from_object(
         main_object: &Object,
         main_file_name: &str,
