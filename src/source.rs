@@ -11,9 +11,8 @@ use std::sync::Arc;
 use symbolic::debuginfo::FileInfo;
 
 use crate::mapping::PathMappings;
+use crate::platform::Platform;
 use crate::utils;
-
-use super::elf::Platform;
 
 type SliceRef = (*const u8, usize);
 

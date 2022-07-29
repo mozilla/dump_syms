@@ -5,6 +5,7 @@
 
 #[cfg(feature = "http")]
 pub mod cache;
+pub mod collector;
 pub mod common;
 pub mod dumper;
 pub mod elf;
@@ -13,6 +14,7 @@ mod line;
 mod lines;
 pub mod mac;
 pub mod mapping;
+pub mod platform;
 mod source;
 mod symbol;
 pub mod utils;

@@ -9,8 +9,9 @@ use std::sync::Arc;
 use symbolic::debuginfo::{pdb::PdbObject, pe::PeObject, Object};
 
 use crate::common::{self, Dumpable, Mergeable};
-use crate::elf::{ElfInfo, Platform};
+use crate::elf::ElfInfo;
 use crate::mapping::PathMappings;
+use crate::platform::Platform;
 
 pub struct PDBInfo {
     elf: ElfInfo,

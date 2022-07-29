@@ -18,9 +18,10 @@ use symbolic::debuginfo::pdb::PdbObject;
 use symbolic::debuginfo::pe::PeObject;
 
 use crate::common::{self, Dumpable, FileType, Mergeable};
-use crate::elf::{ElfInfo, Platform};
+use crate::elf::ElfInfo;
 use crate::mac::macho::MachoInfo;
 use crate::mapping::PathMappings;
+use crate::platform::Platform;
 use crate::utils;
 use crate::windows::{self, pdb::PDBInfo, pdb::PEInfo};
 

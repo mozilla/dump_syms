@@ -10,8 +10,9 @@ use symbolic::common::Arch;
 use symbolic::debuginfo::Archive;
 
 use crate::common::{self, Dumpable, Mergeable};
-use crate::elf::{ElfInfo, Platform};
+use crate::elf::ElfInfo;
 use crate::mapping::PathMappings;
+use crate::platform::Platform;
 
 #[derive(Debug)]
 pub struct MachoInfo {

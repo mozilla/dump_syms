@@ -11,7 +11,7 @@ use symbolic::debuginfo::Object;
 use crate::line::Lines;
 
 #[derive(Clone, Debug, Default)]
-pub(super) struct ElfSymbol {
+pub struct ElfSymbol {
     pub name: String,
     pub is_public: bool,
     pub is_multiple: bool,
@@ -22,7 +22,7 @@ pub(super) struct ElfSymbol {
     pub source: Lines,
 }
 
-pub(super) type ElfSymbols = BTreeMap<u32, ElfSymbol>;
+pub type ElfSymbols = BTreeMap<u32, ElfSymbol>;
 
 pub trait ContainsSymbol {
     fn is_inside_symbol(&self, rva: u32) -> bool;
