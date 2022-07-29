@@ -9,7 +9,7 @@ use std::sync::Arc;
 use symbolic::debuginfo::{pdb::PdbObject, pe::PeObject, Object};
 
 use crate::common::{self, Dumpable, Mergeable};
-use crate::linux::elf::{ElfInfo, Platform};
+use crate::elf::{ElfInfo, Platform};
 use crate::mapping::PathMappings;
 
 pub struct PDBInfo {
