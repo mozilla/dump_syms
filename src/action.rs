@@ -6,7 +6,7 @@
 use std::path::PathBuf;
 
 use dump_syms::common;
-use dump_syms::mac::macho::print_macho_architectures;
+use dump_syms::mac::print_macho_architectures;
 use dump_syms::utils;
 
 use dump_syms::dumper::{self, Config};
