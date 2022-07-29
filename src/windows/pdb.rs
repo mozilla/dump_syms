@@ -80,7 +80,7 @@ impl PEInfo {
     pub fn new(pe_name: &str, pe: PeObject) -> common::Result<Self> {
         let pdb_name = pe.debug_file_name().unwrap_or_default().to_string();
         let pe = Object::Pe(pe);
-        let pdb_name = PEInfo::file_name_only(&pdb_name).to_string();
+        let pdb_name = win_path_file_name(&pdb_name).to_string();
         Ok(Self {
             elf_info: ElfInfo::from_object(
                 &pe,
@@ -93,11 +93,11 @@ impl PEInfo {
             )?,
         })
     }
+}
 
-    fn file_name_only(pdb_name: &str) -> &str {
-        let index = pdb_name.rfind('\\').map_or(0, |i| i + 1);
-        &pdb_name[index..pdb_name.len()]
-    }
+fn win_path_file_name(pdb_name: &str) -> &str {
+    let index = pdb_name.rfind('\\').map_or(0, |i| i + 1);
+    &pdb_name[index..]
 }
 
 impl Dumpable for PEInfo {
