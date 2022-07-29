@@ -12,7 +12,7 @@ use std::panic;
 mod action;
 
 use action::Action;
-use dump_syms::common::{self, FileType};
+use dump_syms::common;
 use dump_syms::dumper;
 
 fn main() {
@@ -81,7 +81,7 @@ fn main() {
         )
         .arg(
             Arg::with_name("type")
-                .help("Debug file type, can be elf, macho or pdb")
+                .help("Ignored, listed for compatibility only")
                 .short("t")
                 .long("type")
                 .default_value("")
@@ -200,26 +200,6 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
     } else {
         num_cpus::get()
     };
-    let typ = matches.value_of("type").unwrap();
-    let file_type = if filenames.len() >= 2 {
-        if typ.is_empty() {
-            eprintln!(
-                "Since there are several files to dump, the type must be specified with --type"
-            );
-            std::process::exit(1);
-        } else {
-            let t: common::FileType = typ.parse().unwrap();
-            match t {
-                FileType::Elf | FileType::Macho | FileType::Pdb => t,
-                _ => {
-                    eprintln!("Type must be one of the values: elf, macho or pdb");
-                    std::process::exit(1);
-                }
-            }
-        }
-    } else {
-        FileType::Unknown
-    };
 
     let action = if matches.is_present("list_arch") {
         Action::ListArch
@@ -240,7 +220,6 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
             debug_id,
             code_id,
             arch,
-            file_type,
             num_jobs,
             check_cfi,
             emit_inlines,

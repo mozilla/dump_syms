@@ -65,7 +65,6 @@ mod tests {
     use tempfile::Builder;
 
     use super::*;
-    use dump_syms::common::FileType;
 
     #[test]
     fn test_missing_pe() {
@@ -82,7 +81,6 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: common::get_compile_time_arch(),
-            file_type: FileType::Pdb,
             num_jobs: 1,
             mapping_var: None,
             mapping_src: None,
@@ -116,7 +114,6 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: common::get_compile_time_arch(),
-            file_type: FileType::Pdb,
             num_jobs: 1,
             mapping_var: None,
             mapping_src: None,
@@ -148,7 +145,6 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: common::get_compile_time_arch(),
-            file_type: FileType::Pdb,
             num_jobs: 1,
             mapping_var: None,
             mapping_src: None,
@@ -179,7 +175,6 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: common::get_compile_time_arch(),
-            file_type: FileType::Elf,
             num_jobs: 1,
             mapping_var: None,
             mapping_src: None,
@@ -213,7 +208,6 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: common::get_compile_time_arch(),
-            file_type: FileType::Elf,
             num_jobs: 1,
             mapping_var: None,
             mapping_src: None,
@@ -248,7 +242,6 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: common::get_compile_time_arch(),
-            file_type: FileType::Elf,
             num_jobs: 2,
             mapping_var: None,
             mapping_src: None,
@@ -290,7 +283,6 @@ mod tests {
             debug_id: None,
             code_id: None,
             arch: common::get_compile_time_arch(),
-            file_type: FileType::Elf,
             num_jobs: 2,
             mapping_var: None,
             mapping_src: None,
