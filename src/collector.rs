@@ -69,7 +69,7 @@ impl Collector {
         }
     }
 
-    pub fn demangle_str(name: &str) -> String {
+    fn demangle_str(name: &str) -> String {
         let lang = Name::new(name, NameMangling::Mangled, Language::Unknown).detect_language();
         if lang == Language::Unknown {
             return name.to_string();
