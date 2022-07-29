@@ -81,12 +81,6 @@ impl PEInfo {
         let pdb_name = pe.debug_file_name().unwrap_or_default().to_string();
         let pe = Object::Pe(pe);
         let pdb_name = PEInfo::file_name_only(&pdb_name).to_string();
-        // let symbols = crate::windows::symbol::symbolic_to_pdb_symbols(
-        //     pe.symbols(),
-        //     pe.exception_data(),
-        //     pe_name,
-        // );
-        // let symbols = crate::windows::symbol::append_dummy_symbol(symbols, pe_name);
         Ok(Self {
             elf_info: ElfInfo::from_object(
                 &pe,
