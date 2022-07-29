@@ -27,7 +27,6 @@ impl PDBInfo {
     ) -> common::Result<Self> {
         let pdb = Object::Pdb(pdb);
         let pe = pe.map(Object::Pe);
-        // let symbols = crate::windows::symbol::append_dummy_symbol(symbols, pe_name);
 
         Ok(PDBInfo {
             elf: ElfInfo::from_object(
