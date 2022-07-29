@@ -12,6 +12,7 @@ pub mod elf;
 pub mod inline_origins;
 mod line;
 mod lines;
+pub mod linux;
 pub mod mac;
 pub mod mapping;
 pub mod platform;
