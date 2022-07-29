@@ -10,7 +10,6 @@ pub mod common;
 pub mod dumper;
 pub mod inline_origins;
 mod line;
-mod lines;
 pub mod linux;
 pub mod mac;
 pub mod mapping;

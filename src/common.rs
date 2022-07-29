@@ -50,10 +50,6 @@ impl std::str::FromStr for FileType {
     }
 }
 
-pub(crate) trait LineFinalizer<M> {
-    fn finalize(&mut self, sym_rva: u32, sym_len: u32, map: &M);
-}
-
 pub fn get_compile_time_arch() -> &'static str {
     use Arch::*;
 
