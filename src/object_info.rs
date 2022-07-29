@@ -11,9 +11,9 @@ use symbolic::cfi::AsciiCfiWriter;
 use symbolic::debuginfo::Object;
 
 use super::source::{SourceFiles, SourceMap};
-use super::symbol::{ContainsSymbol, ElfSymbols};
+use super::symbol::{ContainsSymbol, Symbols};
 use crate::collector::Collector;
-use crate::common::{self, Dumpable, Mergeable};
+use crate::common;
 use crate::inline_origins::{merge_inline_origins, InlineOrigins};
 use crate::mapping::PathMappings;
 use crate::platform::Platform;
@@ -25,8 +25,8 @@ pub enum Type {
 }
 
 #[derive(Debug)]
-pub struct ElfInfo {
-    symbols: ElfSymbols,
+pub struct ObjectInfo {
+    symbols: Symbols,
     files: SourceMap,
     inline_origins: Vec<String>,
     file_name: String,
@@ -39,7 +39,7 @@ pub struct ElfInfo {
     platform: Platform,
 }
 
-impl Display for ElfInfo {
+impl Display for ObjectInfo {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         writeln!(
             f,
@@ -88,7 +88,7 @@ fn get_stack_info(pdb: Option<&Object>, pe: Option<&Object>) -> String {
     String::from_utf8(buf).unwrap()
 }
 
-impl ElfInfo {
+impl ObjectInfo {
     pub fn from_object(
         main_object: &Object,
         main_file_name: &str,
@@ -101,7 +101,7 @@ impl ElfInfo {
         let mut collector = Collector {
             platform,
             collect_inlines,
-            syms: ElfSymbols::default(),
+            syms: Symbols::default(),
         };
 
         let ds = main_object.debug_session()?;
@@ -168,10 +168,8 @@ impl ElfInfo {
     fn file_name_only(file_name: &str) -> &str {
         file_name.rsplit('/').next().unwrap_or(file_name)
     }
-}
 
-impl Mergeable for ElfInfo {
-    fn merge(left: ElfInfo, right: ElfInfo) -> common::Result<ElfInfo> {
+    pub fn merge(left: ObjectInfo, right: ObjectInfo) -> common::Result<ObjectInfo> {
         anyhow::ensure!(
             left.debug_id == right.debug_id,
             "The files don't have the same debug id: {} and {}",
@@ -262,23 +260,21 @@ impl Mergeable for ElfInfo {
 
         Ok(left)
     }
-}
 
-impl Dumpable for ElfInfo {
-    fn dump<W: Write>(&self, mut writer: W) -> common::Result<()> {
+    pub fn dump<W: Write>(&self, mut writer: W) -> common::Result<()> {
         write!(writer, "{}", self)?;
         Ok(())
     }
 
-    fn get_debug_id(&self) -> &str {
+    pub fn get_debug_id(&self) -> &str {
         &self.debug_id
     }
 
-    fn get_name(&self) -> &str {
+    pub fn get_name(&self) -> &str {
         &self.file_name
     }
 
-    fn has_stack(&self) -> bool {
+    pub fn has_stack(&self) -> bool {
         !self.stack.is_empty()
     }
 }

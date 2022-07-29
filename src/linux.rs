@@ -7,12 +7,12 @@ use std::sync::Arc;
 use symbolic::debuginfo::Object;
 
 use crate::common;
-use crate::elf::ElfInfo;
 use crate::mapping::PathMappings;
+use crate::object_info::ObjectInfo;
 use crate::platform::Platform;
 
-impl ElfInfo {
-    pub fn new(
+impl ObjectInfo {
+    pub fn from_elf(
         buf: &[u8],
         file_name: &str,
         platform: Platform,
