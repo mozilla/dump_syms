@@ -494,7 +494,7 @@ impl Collector {
                     } else if let Some(parsed_win_name) = parsed_win_name {
                         // If we have both a symbol and a function at the same address, the function
                         // may not have parameters but the symbol's mangled name might.
-                        if !sym.name.contains('(') && parsed_win_name.name.starts_with('?') {
+                        if !sym.name.contains('(') {
                             // Get the name from the symbol.
                             sym.name = Self::demangle_str(&parsed_win_name.name);
                         }
