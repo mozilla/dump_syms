@@ -65,23 +65,23 @@ impl MachoInfo {
             );
         }
     }
+}
 
-    /// Print on screen the cpu arch for the different objects present in the fat file
-    pub fn print_architectures(buf: &[u8], file_name: String) -> common::Result<()> {
-        let archive = Archive::parse(buf)?;
-        let archs = archive
-            .objects()
-            .map(|o| o.unwrap().arch().name())
-            .collect::<Vec<_>>();
-        println!(
-            "{} contains the following architecture{}:",
-            file_name,
-            if archs.len() == 1 { "" } else { "s" }
-        );
-        println!("{}", archs.join(", "));
+/// Print on screen the cpu arch for the different objects present in the fat file
+pub fn print_macho_architectures(buf: &[u8], file_name: String) -> common::Result<()> {
+    let archive = Archive::parse(buf)?;
+    let archs = archive
+        .objects()
+        .map(|o| o.unwrap().arch().name())
+        .collect::<Vec<_>>();
+    println!(
+        "{} contains the following architecture{}:",
+        file_name,
+        if archs.len() == 1 { "" } else { "s" }
+    );
+    println!("{}", archs.join(", "));
 
-        Ok(())
-    }
+    Ok(())
 }
 
 impl Mergeable for MachoInfo {
