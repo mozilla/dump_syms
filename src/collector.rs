@@ -12,7 +12,7 @@ use symbolic::demangle::Demangle;
 
 use super::source::SourceFiles;
 use super::symbol::{should_skip_symbol, ContainsSymbol, ParsedWinFuncName, Symbol, Symbols};
-use crate::common::{self, demangle_options, LineFinalizer};
+use crate::common::{self, demangle_options};
 use crate::inline_origins::InlineOrigins;
 use crate::line::{InlineAddressRange, InlineSite, Lines};
 use crate::platform::Platform;
@@ -119,7 +119,7 @@ impl Collector {
         }
 
         // compute line length
-        lines.finalize(fun.address as u32, fun.size as u32, &());
+        lines.finalize(fun.address as u32, fun.size as u32);
 
         self.syms.insert(
             fun.address as u32,

@@ -178,7 +178,12 @@ impl Lines {
             .push(address_range);
     }
 
-    pub(crate) fn compute_len(&mut self, sym_rva: u32, sym_len: u32) {
+    pub fn finalize(&mut self, sym_rva: u32, sym_len: u32) {
+        self.ensure_order();
+        self.compute_len(sym_rva, sym_len);
+    }
+
+    fn compute_len(&mut self, sym_rva: u32, sym_len: u32) {
         // The length (in the binary) of the line is not in the pdb but we can infer it:
         // RVA     LINE NUMBER
         // 0x0001  10  <= the size of line 10 is 0x000B - 0x0001
@@ -212,7 +217,7 @@ impl Lines {
     ///
     /// Must be called before invoking the `Display` implementation and
     /// before calling `compute_len`.
-    pub(crate) fn ensure_order(&mut self) {
+    fn ensure_order(&mut self) {
         if !self.are_lines_sorted {
             // Sort the lines.
             self.lines.sort_by_key(|x| x.rva);
