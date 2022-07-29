@@ -5,11 +5,9 @@
 
 use std::path::PathBuf;
 
-use dump_syms::common::{self, FileType};
-use dump_syms::elf::ElfInfo;
-use dump_syms::mac::macho::{print_macho_architectures, MachoInfo};
+use dump_syms::common;
+use dump_syms::mac::macho::print_macho_architectures;
 use dump_syms::utils;
-use dump_syms::windows::pdb::PDBInfo;
 
 use dump_syms::dumper::{self, Config};
 
@@ -44,12 +42,7 @@ impl Action<'_> {
 
     fn several_files(&self, filenames: &[&str]) -> common::Result<()> {
         match self {
-            Self::Dump(config) => match config.file_type {
-                FileType::Elf => dumper::several_files::<ElfInfo>(config, filenames),
-                FileType::Macho => dumper::several_files::<MachoInfo>(config, filenames),
-                FileType::Pdb => dumper::several_files::<PDBInfo>(config, filenames),
-                _ => Ok(()),
-            },
+            Self::Dump(config) => dumper::several_files(config, filenames),
             Self::ListArch => {
                 for f in filenames {
                     let path = PathBuf::from(f);
@@ -72,6 +65,7 @@ mod tests {
     use tempfile::Builder;
 
     use super::*;
+    use dump_syms::common::FileType;
 
     #[test]
     fn test_missing_pe() {

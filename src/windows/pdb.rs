@@ -3,22 +3,16 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use std::fmt::{Display, Formatter};
-use std::io::Write;
 use std::sync::Arc;
 use symbolic::debuginfo::{pdb::PdbObject, pe::PeObject, Object};
 
-use crate::common::{self, Dumpable, Mergeable};
-use crate::elf::ElfInfo;
+use crate::common;
 use crate::mapping::PathMappings;
+use crate::object_info::ObjectInfo;
 use crate::platform::Platform;
 
-pub struct PDBInfo {
-    elf: ElfInfo,
-}
-
-impl PDBInfo {
-    pub fn new(
+impl ObjectInfo {
+    pub fn from_pdb(
         pdb: PdbObject,
         pdb_name: &str,
         pe_name: Option<&str>,
@@ -29,101 +23,36 @@ impl PDBInfo {
         let pdb = Object::Pdb(pdb);
         let pe = pe.map(Object::Pe);
 
-        Ok(PDBInfo {
-            elf: ElfInfo::from_object(
-                &pdb,
-                pdb_name,
-                pe.as_ref(),
-                pe_name,
-                Platform::Win,
-                mapping,
-                collect_inlines,
-            )?,
-        })
-    }
-}
-
-impl Dumpable for PDBInfo {
-    fn dump<W: Write>(&self, writer: W) -> common::Result<()> {
-        self.elf.dump(writer)
+        ObjectInfo::from_object(
+            &pdb,
+            pdb_name,
+            pe.as_ref(),
+            pe_name,
+            Platform::Win,
+            mapping,
+            collect_inlines,
+        )
     }
 
-    fn get_debug_id(&self) -> &str {
-        self.elf.get_debug_id()
-    }
-
-    fn get_name(&self) -> &str {
-        self.elf.get_name()
-    }
-
-    fn has_stack(&self) -> bool {
-        self.elf.has_stack()
-    }
-}
-
-impl Mergeable for PDBInfo {
-    fn merge(_left: PDBInfo, _right: PDBInfo) -> common::Result<PDBInfo> {
-        anyhow::bail!("PDB merge not implemented")
-    }
-}
-
-pub(crate) struct PEInfo {
-    elf_info: ElfInfo,
-}
-
-impl Display for PEInfo {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        self.elf_info.fmt(f)
-    }
-}
-
-impl PEInfo {
-    pub fn new(pe_name: &str, pe: PeObject) -> common::Result<Self> {
+    pub fn from_pe(pe_name: &str, pe: PeObject) -> common::Result<Self> {
         let pdb_name = pe.debug_file_name().unwrap_or_default().to_string();
         let pe = Object::Pe(pe);
         let pdb_name = win_path_file_name(&pdb_name).to_string();
-        Ok(Self {
-            elf_info: ElfInfo::from_object(
-                &pe,
-                &pdb_name,
-                None,
-                Some(pe_name),
-                Platform::Win,
-                None,
-                false,
-            )?,
-        })
+        ObjectInfo::from_object(
+            &pe,
+            &pdb_name,
+            None,
+            Some(pe_name),
+            Platform::Win,
+            None,
+            false,
+        )
     }
 }
 
 fn win_path_file_name(pdb_name: &str) -> &str {
     let index = pdb_name.rfind('\\').map_or(0, |i| i + 1);
     &pdb_name[index..]
-}
-
-impl Dumpable for PEInfo {
-    fn dump<W: Write>(&self, mut writer: W) -> common::Result<()> {
-        write!(writer, "{}", self)?;
-        Ok(())
-    }
-
-    fn get_debug_id(&self) -> &str {
-        self.elf_info.get_debug_id()
-    }
-
-    fn get_name(&self) -> &str {
-        self.elf_info.get_name()
-    }
-
-    fn has_stack(&self) -> bool {
-        self.elf_info.has_stack()
-    }
-}
-
-impl Mergeable for PEInfo {
-    fn merge(_left: PEInfo, _right: PEInfo) -> common::Result<PEInfo> {
-        anyhow::bail!("PE merge not implemented")
-    }
 }
 
 #[cfg(test)]
@@ -189,7 +118,7 @@ mod tests {
 
         let mut output = Vec::new();
         let cursor = Cursor::new(&mut output);
-        let pdb = PDBInfo::new(pdb, &pdb_name, Some(name), Some(pe), None, false).unwrap();
+        let pdb = ObjectInfo::from_pdb(pdb, &pdb_name, Some(name), Some(pe), None, false).unwrap();
         pdb.dump(cursor).unwrap();
 
         let toks: Vec<_> = name.rsplitn(2, '.').collect();
@@ -217,12 +146,13 @@ mod tests {
         let cursor = Cursor::new(&mut output);
 
         if pdb_buf.is_empty() {
-            let pe = PEInfo::new(file_name, pe).unwrap();
+            let pe = ObjectInfo::from_pe(file_name, pe).unwrap();
             pe.dump(cursor).unwrap();
         } else {
             let pdb = PdbObject::parse(&pdb_buf).unwrap();
             let pdb =
-                PDBInfo::new(pdb, &pdb_name, Some(file_name), Some(pe), mapping, false).unwrap();
+                ObjectInfo::from_pdb(pdb, &pdb_name, Some(file_name), Some(pe), mapping, false)
+                    .unwrap();
             pdb.dump(cursor).unwrap();
         }
 

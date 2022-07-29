@@ -22,13 +22,13 @@ pub struct ElfSymbol {
     pub source: Lines,
 }
 
-pub type ElfSymbols = BTreeMap<u32, ElfSymbol>;
+pub type Symbols = BTreeMap<u32, ElfSymbol>;
 
 pub trait ContainsSymbol {
     fn is_inside_symbol(&self, rva: u32) -> bool;
 }
 
-impl ContainsSymbol for ElfSymbols {
+impl ContainsSymbol for Symbols {
     fn is_inside_symbol(&self, rva: u32) -> bool {
         let last = self.range((Included(0), Excluded(rva))).next_back();
         last.map_or(false, |last| rva < (last.1.rva + last.1.len))
@@ -94,10 +94,10 @@ impl ElfSymbol {
 }
 
 pub(super) fn add_executable_section_symbols(
-    mut syms: ElfSymbols,
+    mut syms: Symbols,
     name: &str,
     object: &Object,
-) -> ElfSymbols {
+) -> Symbols {
     let object = goblin::Object::parse(object.data());
     if let Ok(goblin::Object::Elf(elf)) = object {
         for header in elf.section_headers {
@@ -123,7 +123,7 @@ pub(super) fn add_executable_section_symbols(
     syms
 }
 
-pub(super) fn append_dummy_symbol(mut syms: ElfSymbols, name: &str) -> ElfSymbols {
+pub(super) fn append_dummy_symbol(mut syms: Symbols, name: &str) -> Symbols {
     let (rva, len) = if let Some((_, last_sym)) = syms.iter().next_back() {
         (last_sym.rva, last_sym.len)
     } else {

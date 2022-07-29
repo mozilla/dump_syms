@@ -11,7 +11,7 @@ use symbolic::debuginfo::{Function, Object, ObjectDebugSession};
 use symbolic::demangle::Demangle;
 
 use super::source::SourceFiles;
-use super::symbol::{should_skip_symbol, ContainsSymbol, ElfSymbol, ElfSymbols, ParsedWinFuncName};
+use super::symbol::{should_skip_symbol, ContainsSymbol, ElfSymbol, ParsedWinFuncName, Symbols};
 use crate::common::{self, demangle_options, LineFinalizer};
 use crate::inline_origins::InlineOrigins;
 use crate::line::{InlineAddressRange, InlineSite, Lines};
@@ -34,7 +34,7 @@ pub enum Type {
 pub struct Collector {
     pub platform: Platform,
     pub collect_inlines: bool,
-    pub syms: ElfSymbols,
+    pub syms: Symbols,
 }
 
 impl Collector {

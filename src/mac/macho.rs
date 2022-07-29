@@ -3,30 +3,17 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use std::fmt::{Display, Formatter};
-use std::io::Write;
 use std::sync::Arc;
 use symbolic::common::Arch;
 use symbolic::debuginfo::Archive;
 
-use crate::common::{self, Dumpable, Mergeable};
-use crate::elf::ElfInfo;
+use crate::common;
 use crate::mapping::PathMappings;
+use crate::object_info::ObjectInfo;
 use crate::platform::Platform;
 
-#[derive(Debug)]
-pub struct MachoInfo {
-    elf: ElfInfo,
-}
-
-impl Display for MachoInfo {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.elf)
-    }
-}
-
-impl MachoInfo {
-    pub fn new(
+impl ObjectInfo {
+    pub fn from_macho(
         buf: &[u8],
         file_name: &str,
         arch: Arch,
@@ -47,17 +34,15 @@ impl MachoInfo {
         };
 
         if let Some(object) = object {
-            Ok(Self {
-                elf: ElfInfo::from_object(
-                    &object,
-                    file_name,
-                    None,
-                    None,
-                    Platform::Mac,
-                    mapping,
-                    collect_inlines,
-                )?,
-            })
+            ObjectInfo::from_object(
+                &object,
+                file_name,
+                None,
+                None,
+                Platform::Mac,
+                mapping,
+                collect_inlines,
+            )
         } else {
             anyhow::bail!(
                 "Cannot find a valid object for architecture {} in file {}",
@@ -83,31 +68,4 @@ pub fn print_macho_architectures(buf: &[u8], file_name: String) -> common::Resul
     println!("{}", archs.join(", "));
 
     Ok(())
-}
-
-impl Mergeable for MachoInfo {
-    fn merge(left: MachoInfo, right: MachoInfo) -> common::Result<MachoInfo> {
-        Ok(MachoInfo {
-            elf: ElfInfo::merge(left.elf, right.elf)?,
-        })
-    }
-}
-
-impl Dumpable for MachoInfo {
-    fn dump<W: Write>(&self, mut writer: W) -> common::Result<()> {
-        write!(writer, "{}", self.elf)?;
-        Ok(())
-    }
-
-    fn get_debug_id(&self) -> &str {
-        self.elf.get_debug_id()
-    }
-
-    fn get_name(&self) -> &str {
-        self.elf.get_name()
-    }
-
-    fn has_stack(&self) -> bool {
-        self.elf.has_stack()
-    }
 }

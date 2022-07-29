@@ -17,13 +17,12 @@ use symbolic::common::Arch;
 use symbolic::debuginfo::pdb::PdbObject;
 use symbolic::debuginfo::pe::PeObject;
 
-use crate::common::{self, Dumpable, FileType, Mergeable};
-use crate::elf::ElfInfo;
-use crate::mac::macho::MachoInfo;
+use crate::common::{self, FileType};
 use crate::mapping::PathMappings;
+use crate::object_info::ObjectInfo;
 use crate::platform::Platform;
 use crate::utils;
-use crate::windows::{self, pdb::PDBInfo, pdb::PEInfo};
+use crate::windows;
 
 /// Different locations for file output
 #[derive(Clone)]
@@ -90,143 +89,76 @@ pub struct Config<'a> {
     pub mapping_file: Option<&'a str>,
 }
 
-pub trait Creator: Mergeable + Dumpable + Sized {
-    fn get_dbg(
-        arch: Arch,
-        buf: &[u8],
-        path: &Path,
-        filename: &str,
-        mapping: Option<Arc<PathMappings>>,
-        collect_inlines: bool,
-    ) -> common::Result<Self>;
+fn get_pdb_object_info(
+    buf: &[u8],
+    path: &Path,
+    filename: &str,
+    mapping: Option<Arc<PathMappings>>,
+    collect_inlines: bool,
+) -> common::Result<ObjectInfo> {
+    let pdb = PdbObject::parse(buf)?;
 
-    fn get_pe<'a>(
-        _conf: &Config<'a>,
-        _buf: &[u8],
-        _path: &Path,
-        _filename: &str,
-        _mapping: Option<Arc<PathMappings>>,
-    ) -> common::Result<Self> {
-        anyhow::bail!("Not implemented")
-    }
+    let (pe_name, pe_buf) = match windows::utils::find_pe_for_pdb(path, &pdb.debug_id()) {
+        Some((pe_name, pe_buf)) => (Some(pe_name), Some(pe_buf)),
+        None => (None, None),
+    };
+    let pe = pe_buf.as_deref().map(|buf| PeObject::parse(buf).unwrap());
+
+    ObjectInfo::from_pdb(
+        pdb,
+        filename,
+        pe_name.as_deref(),
+        pe,
+        mapping,
+        collect_inlines,
+    )
 }
 
-impl Creator for ElfInfo {
-    fn get_dbg(
-        _arch: Arch,
-        buf: &[u8],
-        _path: &Path,
-        filename: &str,
-        mapping: Option<Arc<PathMappings>>,
-        collect_inlines: bool,
-    ) -> common::Result<Self> {
-        Self::new(buf, filename, Platform::Linux, mapping, collect_inlines)
-    }
-}
+#[cfg(feature = "http")]
+fn get_pe_pdb_object_info(
+    buf: &[u8],
+    path: &Path,
+    filename: &str,
+    mapping: Option<Arc<PathMappings>>,
+    symbol_server: Option<&str>,
+    emit_inlines: bool,
+) -> common::Result<ObjectInfo> {
+    let symbol_server = crate::cache::get_sym_servers(symbol_server);
+    let res = windows::utils::get_pe_pdb_buf(path, buf, symbol_server.as_ref());
 
-impl Creator for MachoInfo {
-    fn get_dbg(
-        arch: Arch,
-        buf: &[u8],
-        _path: &Path,
-        filename: &str,
-        mapping: Option<Arc<PathMappings>>,
-        collect_inlines: bool,
-    ) -> common::Result<Self> {
-        Self::new(buf, filename, arch, mapping, collect_inlines)
-    }
-}
-
-impl Creator for PDBInfo {
-    fn get_dbg(
-        _arch: Arch,
-        buf: &[u8],
-        path: &Path,
-        filename: &str,
-        mapping: Option<Arc<PathMappings>>,
-        collect_inlines: bool,
-    ) -> common::Result<Self> {
-        let pdb = PdbObject::parse(buf)?;
-
-        let (pe_name, pe_buf) = match windows::utils::find_pe_for_pdb(path, &pdb.debug_id()) {
-            Some((pe_name, pe_buf)) => (Some(pe_name), Some(pe_buf)),
-            None => (None, None),
-        };
-        let pe = pe_buf.as_deref().map(|buf| PeObject::parse(buf).unwrap());
-
-        Self::new(
+    if let Some((pe, pdb_buf, pdb_name)) = res {
+        let pdb = PdbObject::parse(&pdb_buf)?;
+        let pdb = ObjectInfo::from_pdb(
             pdb,
-            filename,
-            pe_name.as_deref(),
-            pe,
+            &pdb_name,
+            Some(filename),
+            Some(pe),
             mapping,
-            collect_inlines,
-        )
-    }
-
-    #[cfg(feature = "http")]
-    fn get_pe<'a>(
-        conf: &Config<'a>,
-        buf: &[u8],
-        path: &Path,
-        filename: &str,
-        mapping: Option<Arc<PathMappings>>,
-    ) -> common::Result<Self> {
-        let symbol_server = crate::cache::get_sym_servers(conf.symbol_server);
-        let res = windows::utils::get_pe_pdb_buf(path, buf, symbol_server.as_ref());
-
-        if let Some((pe, pdb_buf, pdb_name)) = res {
-            let pdb = PdbObject::parse(&pdb_buf)?;
-            let pdb = Self::new(
-                pdb,
-                &pdb_name,
-                Some(filename),
-                Some(pe),
-                mapping,
-                conf.emit_inlines,
-            )?;
-            Ok(pdb)
-        } else {
-            anyhow::bail!("No pdb file found")
-        }
-    }
-
-    #[cfg(not(feature = "http"))]
-    fn get_pe<'a>(
-        _conf: &Config<'a>,
-        _buf: &[u8],
-        _path: &Path,
-        _filename: &str,
-        _mapping: Option<Arc<PathMappings>>,
-    ) -> common::Result<Self> {
-        anyhow::bail!("HTTP symbol retrieval not enabled")
+            emit_inlines,
+        )?;
+        Ok(pdb)
+    } else {
+        anyhow::bail!("No pdb file found")
     }
 }
 
-impl Creator for PEInfo {
-    fn get_dbg(
-        _arch: Arch,
-        _buf: &[u8],
-        _path: &Path,
-        _filename: &str,
-        _mapping: Option<Arc<PathMappings>>,
-        _collect_inlines: bool,
-    ) -> common::Result<Self> {
-        anyhow::bail!("Not implemented")
-    }
+#[cfg(not(feature = "http"))]
+fn get_pe_pdb_object_info<'a>(
+    buf: &[u8],
+    path: &Path,
+    filename: &str,
+    mapping: Option<Arc<PathMappings>>,
+    symbol_server: Option<&str>,
+    emit_inlines: bool,
+) -> common::Result<ObjectInfo> {
+    anyhow::bail!("HTTP symbol retrieval not enabled")
+}
 
-    fn get_pe<'a>(
-        _conf: &Config<'a>,
-        buf: &[u8],
-        path: &Path,
-        filename: &str,
-        _mapping: Option<Arc<PathMappings>>,
-    ) -> common::Result<Self> {
-        let pe = PeObject::parse(buf)
-            .unwrap_or_else(|_| panic!("Unable to parse the PE file {}", path.to_str().unwrap()));
-        let pe = Self::new(filename, pe)?;
-        Ok(pe)
-    }
+fn get_pe_object_info(buf: &[u8], path: &Path, filename: &str) -> common::Result<ObjectInfo> {
+    let pe = PeObject::parse(buf)
+        .unwrap_or_else(|_| panic!("Unable to parse the PE file {}", path.to_str().unwrap()));
+    let pe = ObjectInfo::from_pe(filename, pe)?;
+    Ok(pe)
 }
 
 #[inline]
@@ -244,8 +176,8 @@ pub fn get_writer_for_sym(fo: &FileOutput) -> std::io::BufWriter<Box<dyn std::io
     std::io::BufWriter::new(output)
 }
 
-fn store<D: Dumpable>(output: &Output, check_cfi: bool, dumpable: D) -> common::Result<()> {
-    anyhow::ensure!(!check_cfi || dumpable.has_stack(), "No CFI data");
+fn store(output: &Output, check_cfi: bool, object_info: ObjectInfo) -> common::Result<()> {
+    anyhow::ensure!(!check_cfi || object_info.has_stack(), "No CFI data");
 
     let sym_store_path = |dir: &Path| -> Option<PathBuf> {
         if dir.to_str()?.is_empty() {
@@ -255,8 +187,8 @@ fn store<D: Dumpable>(output: &Output, check_cfi: bool, dumpable: D) -> common::
         let mut pb = PathBuf::new();
         pb.push(dir);
         pb.push(utils::get_path_for_sym(
-            dumpable.get_name(),
-            dumpable.get_debug_id(),
+            object_info.get_name(),
+            object_info.get_debug_id(),
         ));
         Some(pb)
     };
@@ -275,14 +207,14 @@ fn store<D: Dumpable>(output: &Output, check_cfi: bool, dumpable: D) -> common::
 
         let fo = FileOutput::Path(store);
         let output = get_writer_for_sym(&fo);
-        dumpable.dump(output)?;
+        object_info.dump(output)?;
 
         info!("Store symbols at {}", fo);
     }
 
     if let Some(file) = foutput {
         let writer = get_writer_for_sym(file);
-        dumpable.dump(writer)?;
+        object_info.dump(writer)?;
 
         info!("Write symbols at {}", file);
     }
@@ -322,7 +254,8 @@ pub fn single_file(config: &Config, filename: &str) -> common::Result<()> {
     let filename = utils::get_filename(path);
 
     let (buf, filename) = get_from_id(config, path, filename)?;
-    let file_mapping = PathMappings::new(
+
+    let path_mappings = PathMappings::new(
         &config.mapping_var,
         &config.mapping_src,
         &config.mapping_dest,
@@ -330,74 +263,71 @@ pub fn single_file(config: &Config, filename: &str) -> common::Result<()> {
     )?
     .map(Arc::new);
     let arch = Arch::from_str(config.arch)?;
+    let object_info = get_object_info(
+        buf,
+        path,
+        &filename,
+        path_mappings,
+        arch,
+        config.symbol_server,
+        config.emit_inlines,
+    )?;
+    store(&config.output, config.check_cfi, object_info)
+}
 
-    match FileType::from_buf(&buf) {
-        FileType::Elf => store(
-            &config.output,
-            config.check_cfi,
-            ElfInfo::get_dbg(
-                arch,
-                &buf,
-                path,
-                &filename,
-                file_mapping,
-                config.emit_inlines,
-            )?,
-        ),
-        FileType::Pdb => store(
-            &config.output,
-            config.check_cfi,
-            PDBInfo::get_dbg(
-                arch,
-                &buf,
-                path,
-                &filename,
-                file_mapping,
-                config.emit_inlines,
-            )?,
-        ),
+/// Detects the object format based on the bytes in the file.
+fn get_object_info(
+    buf: Vec<u8>,
+    path: &Path,
+    filename: &str,
+    file_mapping: Option<Arc<PathMappings>>,
+    arch: Arch,
+    symbol_server: Option<&str>,
+    emit_inlines: bool,
+) -> common::Result<ObjectInfo> {
+    let object_info = match FileType::from_buf(&buf) {
+        FileType::Elf => {
+            ObjectInfo::from_elf(&buf, filename, Platform::Linux, file_mapping, emit_inlines)?
+        }
+        FileType::Pdb => get_pdb_object_info(&buf, path, filename, file_mapping, emit_inlines)?,
         FileType::Pe => {
-            if let Ok(pdb_info) = PDBInfo::get_pe(config, &buf, path, &filename, file_mapping) {
-                store(&config.output, config.check_cfi, pdb_info)
+            if let Ok(pdb_info) = get_pe_pdb_object_info(
+                &buf,
+                path,
+                filename,
+                file_mapping,
+                symbol_server,
+                emit_inlines,
+            ) {
+                pdb_info
             } else {
-                store(
-                    &config.output,
-                    config.check_cfi,
-                    PEInfo::get_pe(config, &buf, path, &filename, None)?,
-                )
+                get_pe_object_info(&buf, path, filename)?
             }
         }
-        FileType::Macho => store(
-            &config.output,
-            config.check_cfi,
-            MachoInfo::get_dbg(
-                arch,
-                &buf,
-                path,
-                &filename,
-                file_mapping,
-                config.emit_inlines,
-            )?,
-        ),
+        FileType::Macho => {
+            ObjectInfo::from_macho(&buf, filename, arch, file_mapping, emit_inlines)?
+        }
         FileType::Unknown => anyhow::bail!("Unknown file format"),
-    }
+    };
+    Ok(object_info)
 }
 
-enum JobType<D: Dumpable> {
+#[allow(clippy::large_enum_variant)]
+enum JobType {
     Get,
-    Dump(D),
+    Dump(ObjectInfo),
 }
 
-struct JobItem<D: Dumpable> {
+struct JobItem {
     file: String,
-    typ: JobType<D>,
+    typ: JobType,
     mapping: Option<Arc<PathMappings>>,
     collect_inlines: bool,
 }
 
-fn send_store_jobs<T: Creator>(
-    sender: &Sender<Option<JobItem<T>>>,
-    results: &mut HashMap<String, T>,
+fn send_store_jobs(
+    sender: &Sender<Option<JobItem>>,
+    results: &mut HashMap<String, ObjectInfo>,
     num_threads: usize,
     output: Output,
     check_cfi: bool,
@@ -423,7 +353,7 @@ fn send_store_jobs<T: Creator>(
     Ok(())
 }
 
-fn poison_queue<T: Dumpable>(sender: &Sender<Option<JobItem<T>>>, num_threads: usize) {
+fn poison_queue(sender: &Sender<Option<JobItem>>, num_threads: usize) {
     // Poison the receiver.
     for _ in 0..num_threads {
         sender.send(None).unwrap();
@@ -431,11 +361,11 @@ fn poison_queue<T: Dumpable>(sender: &Sender<Option<JobItem<T>>>, num_threads: u
 }
 
 #[allow(clippy::too_many_arguments)]
-fn consumer<T: Creator>(
+fn consumer(
     arch: Arch,
-    sender: Sender<Option<JobItem<T>>>,
-    receiver: Receiver<Option<JobItem<T>>>,
-    results: Arc<Mutex<HashMap<String, T>>>,
+    sender: Sender<Option<JobItem>>,
+    receiver: Receiver<Option<JobItem>>,
+    results: Arc<Mutex<HashMap<String, ObjectInfo>>>,
     counter: Arc<AtomicUsize>,
     num_threads: usize,
     output: Output,
@@ -459,15 +389,12 @@ fn consumer<T: Creator>(
                 let filename = utils::get_filename(&path);
                 let buf = utils::read_file(&path);
 
-                let info = T::get_dbg(arch, &buf, &path, &filename, mapping, collect_inlines)
-                    .map_err(|e| {
-                        poison_queue(&sender, num_threads);
-                        e
-                    })?;
+                let info =
+                    get_object_info(buf, &path, &filename, mapping, arch, None, collect_inlines)?;
 
                 let mut results = results.lock().unwrap();
                 let info = if let Some(prev) = results.remove(info.get_debug_id()) {
-                    T::merge(info, prev).map_err(|e| {
+                    ObjectInfo::merge(info, prev).map_err(|e| {
                         poison_queue(&sender, num_threads);
                         e
                     })?
@@ -502,10 +429,7 @@ fn consumer<T: Creator>(
     Ok(())
 }
 
-pub fn several_files<T: 'static + Creator + std::marker::Send>(
-    config: &Config,
-    filenames: &[&str],
-) -> common::Result<()> {
+pub fn several_files(config: &Config, filenames: &[&str]) -> common::Result<()> {
     let file_mapping = PathMappings::new(
         &config.mapping_var,
         &config.mapping_src,
@@ -533,7 +457,7 @@ pub fn several_files<T: 'static + Creator + std::marker::Send>(
         let t = thread::Builder::new()
             .name(format!("dump-syms {}", i))
             .spawn(move || {
-                consumer::<T>(
+                consumer(
                     arch, sender, receiver, results, counter, num_jobs, output, check_cfi,
                 )
             })

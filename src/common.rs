@@ -5,7 +5,6 @@
 
 use regex::Regex;
 use std::env::consts::ARCH;
-use std::io::Write;
 use std::result;
 use symbolic::common::{Arch, Name};
 use symbolic::debuginfo::{peek, FileFormat};
@@ -49,19 +48,6 @@ impl std::str::FromStr for FileType {
             _ => Self::Unknown,
         })
     }
-}
-
-pub trait Dumpable {
-    fn dump<W: Write>(&self, writer: W) -> Result<()>;
-    fn get_name(&self) -> &str;
-    fn get_debug_id(&self) -> &str;
-    fn has_stack(&self) -> bool;
-}
-
-pub trait Mergeable {
-    fn merge(left: Self, right: Self) -> Result<Self>
-    where
-        Self: Sized;
 }
 
 pub(crate) trait LineFinalizer<M> {
