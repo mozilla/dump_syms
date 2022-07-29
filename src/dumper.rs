@@ -79,7 +79,6 @@ pub struct Config<'a> {
     pub debug_id: Option<&'a str>,
     pub code_id: Option<&'a str>,
     pub arch: &'a str,
-    pub file_type: FileType,
     pub num_jobs: usize,
     pub check_cfi: bool,
     pub emit_inlines: bool,
