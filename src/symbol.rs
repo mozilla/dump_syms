@@ -11,7 +11,7 @@ use symbolic::debuginfo::Object;
 use crate::line::Lines;
 
 #[derive(Clone, Debug, Default)]
-pub struct ElfSymbol {
+pub struct Symbol {
     pub name: String,
     pub is_public: bool,
     pub is_multiple: bool,
@@ -22,7 +22,7 @@ pub struct ElfSymbol {
     pub source: Lines,
 }
 
-pub type Symbols = BTreeMap<u32, ElfSymbol>;
+pub type Symbols = BTreeMap<u32, Symbol>;
 
 pub trait ContainsSymbol {
     fn is_inside_symbol(&self, rva: u32) -> bool;
@@ -35,7 +35,7 @@ impl ContainsSymbol for Symbols {
     }
 }
 
-impl Display for ElfSymbol {
+impl Display for Symbol {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         if self.is_public {
             writeln!(
@@ -64,7 +64,7 @@ impl Display for ElfSymbol {
     }
 }
 
-impl ElfSymbol {
+impl Symbol {
     pub(super) fn remap_lines(&mut self, file_remapping: Option<&[u32]>) {
         if let Some(file_remapping) = file_remapping {
             for line in self.source.lines.iter_mut() {
@@ -106,7 +106,7 @@ pub(super) fn add_executable_section_symbols(
                 let section_name = elf.shdr_strtab.get_at(header.sh_name).unwrap_or("unknown");
                 let symbol_name = format!("<{} ELF section in {}>", section_name, name);
                 let rva = header.sh_addr as u32;
-                syms.entry(rva).or_insert(ElfSymbol {
+                syms.entry(rva).or_insert(Symbol {
                     name: symbol_name,
                     is_public: true,
                     is_multiple: false,
@@ -138,7 +138,7 @@ pub(super) fn append_dummy_symbol(mut syms: Symbols, name: &str) -> Symbols {
         format!("<unknown in {}>", name)
     };
 
-    syms.entry(rva).or_insert(ElfSymbol {
+    syms.entry(rva).or_insert(Symbol {
         name,
         is_public: true,
         is_multiple: false,

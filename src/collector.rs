@@ -11,7 +11,7 @@ use symbolic::debuginfo::{Function, Object, ObjectDebugSession};
 use symbolic::demangle::Demangle;
 
 use super::source::SourceFiles;
-use super::symbol::{should_skip_symbol, ContainsSymbol, ElfSymbol, ParsedWinFuncName, Symbols};
+use super::symbol::{should_skip_symbol, ContainsSymbol, ParsedWinFuncName, Symbol, Symbols};
 use crate::common::{self, demangle_options, LineFinalizer};
 use crate::inline_origins::InlineOrigins;
 use crate::line::{InlineAddressRange, InlineSite, Lines};
@@ -123,7 +123,7 @@ impl Collector {
 
         self.syms.insert(
             fun.address as u32,
-            ElfSymbol {
+            Symbol {
                 name: Self::demangle(&fun.name),
                 is_public: false,
                 is_multiple: false,
@@ -405,7 +405,7 @@ impl Collector {
                     let parameter_size = parsed_win_name
                         .and_then(|n| n.param_size)
                         .unwrap_or_default();
-                    e.insert(ElfSymbol {
+                    e.insert(Symbol {
                         name: sym_name,
                         is_public: true,
                         is_multiple: false,
@@ -447,7 +447,7 @@ impl Collector {
             match self.syms.entry(function.begin_address) {
                 btree_map::Entry::Occupied(_) => {}
                 btree_map::Entry::Vacant(e) => {
-                    e.insert(ElfSymbol {
+                    e.insert(Symbol {
                         name: name.clone(),
                         is_public: false,
                         is_multiple: false,
