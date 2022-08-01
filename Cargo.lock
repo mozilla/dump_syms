@@ -962,9 +962,9 @@ dependencies = [
 
 [[package]]
 name = "pdb-addr2line"
-version = "0.10.0"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c069b9d166cf307aee30483997b0f02bc9a7603a4717d26af1357a93fac1ab17"
+checksum = "81f35bfde893b961482493f7828cd01693cf18179475efa8cc557db21c4824cc"
 dependencies = [
  "bitflags",
  "elsa",
