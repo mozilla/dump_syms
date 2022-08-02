@@ -1,6 +1,6 @@
 # dump_syms
 
-[![Task Status](https://community-tc.services.mozilla.com/api/github/v1/repository/mozilla/dump_syms/master/badge.svg)](https://community-tc.services.mozilla.com/api/github/v1/repository/mozilla/dump_syms/master/latest)
+[![Task Status](https://community-tc.services.mozilla.com/api/github/v1/repository/mozilla/dump_syms/main/badge.svg)](https://community-tc.services.mozilla.com/api/github/v1/repository/mozilla/dump_syms/main/latest)
 [![codecov](https://codecov.io/gh/calixteman/dump_syms/branch/master/graph/badge.svg)](https://codecov.io/gh/calixteman/dump_syms)
 
 dump_syms is a command-line utility for parsing the debugging information the
