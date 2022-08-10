@@ -25,12 +25,12 @@ impl Platform {
         match self {
             Platform::Linux | Platform::Mac => path.starts_with('/'),
             Platform::Win => {
-                // Detect "C:\..." and "C:/...".
+                // Detect "/...", "\...", "C:\..." and "C:/...".
                 let first_fragment = match path.find(&['/', '\\']) {
                     Some(first_fragment_len) => &path[..first_fragment_len],
                     None => path,
                 };
-                first_fragment.ends_with(':')
+                first_fragment.is_empty() || first_fragment.ends_with(':')
             }
         }
     }
@@ -43,9 +43,21 @@ impl Platform {
                 format!("{}/{}", left, right)
             }
             Platform::Win => {
-                let left = left.trim_end_matches('\\');
-                let right = right.trim_start_matches('\\');
-                format!("{}\\{}", left, right)
+                // We need to support both Linux-style paths and Windows-style paths.
+                // That's because Platform::Win is used for all PDB files, even for
+                // PDB files for build that were (cross-)compiled on a Linux machine;
+                // those contain Linux paths.
+                let left = left.trim_end_matches(&['/', '\\']);
+                let right = right.trim_start_matches(&['/', '\\']);
+
+                // If `left` happens to be an absolute Linux-style path, use `/` as
+                // the separator. This covers the PDB-on-Linux case we care about; all
+                // the paths in such a PDB appear to be absolute paths.
+                if left.starts_with('/') {
+                    format!("{}/{}", left, right)
+                } else {
+                    format!("{}\\{}", left, right)
+                }
             }
         }
     }
@@ -59,5 +71,95 @@ impl Display for Platform {
             Self::Win => "windows",
         };
         write!(f, "{}", p)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::platform::Platform;
+
+    #[test]
+    fn test_linux() {
+        assert!(Platform::Linux.is_absolute_path("/home/test/filename"));
+        assert!(!Platform::Linux.is_absolute_path("test/filename"));
+        assert!(!Platform::Linux.is_absolute_path("../test/filename"));
+
+        assert_eq!(
+            &Platform::Linux.join_paths("/home/test/", "filename"),
+            "/home/test/filename"
+        );
+        assert_eq!(
+            &Platform::Linux.join_paths("/home/test", "filename"),
+            "/home/test/filename"
+        );
+        assert_eq!(
+            &Platform::Linux.join_paths("/home/test/", "test2/filename"),
+            "/home/test/test2/filename"
+        );
+        assert_eq!(
+            &Platform::Linux.join_paths("/home/test/", "/test2/filename"),
+            "/home/test/test2/filename"
+        );
+        assert_eq!(
+            &Platform::Linux.join_paths("/home/test", "/test2/filename"),
+            "/home/test/test2/filename"
+        );
+    }
+
+    #[test]
+    fn test_win() {
+        assert!(Platform::Win.is_absolute_path("/home/test/filename"));
+        assert!(Platform::Win.is_absolute_path(r"D:\Users\test\filename"));
+        assert!(Platform::Win.is_absolute_path(r"\\netshare\test\filename"));
+        assert!(Platform::Win.is_absolute_path(r"E:/Users/test/filename"));
+        assert!(!Platform::Win.is_absolute_path("../test/filename"));
+        assert!(!Platform::Win.is_absolute_path("test/filename"));
+        assert!(!Platform::Win.is_absolute_path(r"..\test\filename"));
+        assert!(!Platform::Win.is_absolute_path(r"test\filename"));
+
+        assert_eq!(
+            &Platform::Win.join_paths(r"C:\Users\test\", "filename"),
+            r"C:\Users\test\filename"
+        );
+        assert_eq!(
+            &Platform::Win.join_paths(r"C:\Users\test", r"filename"),
+            r"C:\Users\test\filename"
+        );
+        assert_eq!(
+            &Platform::Win.join_paths(r"C:\Users\test", r"test2\filename"),
+            r"C:\Users\test\test2\filename"
+        );
+        assert_eq!(
+            &Platform::Win.join_paths(r"C:\Users\test", r"\test2\filename"),
+            r"C:\Users\test\test2\filename"
+        );
+        assert_eq!(
+            &Platform::Win.join_paths(r"C:\Users\test", r"\test2\filename"),
+            r"C:\Users\test\test2\filename"
+        );
+
+        // Make sure that if the left side is an absolute Linux path, / is used as the separator.
+        // This is needed to recover the correct paths from PDB files for Windows builds that
+        // were compiled on a Linux machine; those PDB files contain Linux paths.
+        assert_eq!(
+            &Platform::Win.join_paths("/home/test/", "filename"),
+            "/home/test/filename"
+        );
+        assert_eq!(
+            &Platform::Win.join_paths("/home/test", "filename"),
+            "/home/test/filename"
+        );
+        assert_eq!(
+            &Platform::Win.join_paths("/home/test/", "test2/filename"),
+            "/home/test/test2/filename"
+        );
+        assert_eq!(
+            &Platform::Win.join_paths("/home/test/", "/test2/filename"),
+            "/home/test/test2/filename"
+        );
+        assert_eq!(
+            &Platform::Win.join_paths("/home/test", "/test2/filename"),
+            "/home/test/test2/filename"
+        );
     }
 }
