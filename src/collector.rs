@@ -17,7 +17,7 @@ use crate::inline_origins::InlineOrigins;
 use crate::line::{InlineAddressRange, InlineSite, Lines};
 use crate::platform::Platform;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Type {
     Stripped,
     DebugInfo,
