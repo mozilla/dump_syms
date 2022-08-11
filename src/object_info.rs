@@ -3,6 +3,7 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use log::error;
 use std::collections::btree_map;
 use std::fmt::{Display, Formatter};
 use std::io::Write;
@@ -75,14 +76,14 @@ fn get_stack_info(pdb: Option<&Object>, pe: Option<&Object>) -> String {
     let mut buf = Vec::new();
     let mut cfi_writer = AsciiCfiWriter::new(&mut buf);
 
-    match (pdb, pe) {
-        (_, Some(pe)) if pe.has_unwind_info() => {
-            cfi_writer.process(pe).unwrap();
-        }
-        (Some(pdb), _) if pdb.has_unwind_info() => {
-            cfi_writer.process(pdb).unwrap();
-        }
-        _ => {}
+    let result = match (pdb, pe) {
+        (_, Some(pe)) if pe.has_unwind_info() => cfi_writer.process(pe),
+        (Some(pdb), _) if pdb.has_unwind_info() => cfi_writer.process(pdb),
+        _ => Ok(()),
+    };
+
+    if let Err(e) = result {
+        error!("CFI: {:?}", e);
     }
 
     String::from_utf8(buf).unwrap()
