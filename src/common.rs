@@ -3,6 +3,7 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use once_cell::sync::Lazy;
 use regex::Regex;
 use std::env::consts::ARCH;
 use std::result;
@@ -38,9 +39,7 @@ pub(crate) fn normalize_anonymous_namespace(text: &str) -> String {
 }
 
 pub(crate) fn fix_symbol_name<'a>(name: &'a Name<'a>) -> Name<'a> {
-    lazy_static::lazy_static! {
-        static ref LLVM_NNN: Regex = Regex::new(r"\.llvm\.[0-9]+$").unwrap();
-    }
+    static LLVM_NNN: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.llvm\.[0-9]+$").unwrap());
     let fixed = LLVM_NNN.replace(name.as_str(), "");
     let fixed = normalize_anonymous_namespace(&fixed);
 
