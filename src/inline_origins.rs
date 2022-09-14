@@ -1,6 +1,6 @@
 use log::warn;
 use symbolic::common::{Language, Name};
-use symbolic::demangle::{Demangle, DemangleOptions};
+use symbolic::demangle::Demangle;
 
 use std::collections::HashMap;
 
@@ -35,7 +35,7 @@ impl<'a> InlineOrigins<'a> {
             return name.as_str().to_string();
         }
 
-        match name.demangle(DemangleOptions::complete()) {
+        match name.demangle(common::demangle_options()) {
             Some(demangled) => demangled,
             None => {
                 let aname = name.as_str();
@@ -68,4 +68,30 @@ pub fn merge_inline_origins(left: &mut Vec<String>, right: Vec<String>) -> Vec<u
     let offset = left.len() as u32;
     left.extend(right.into_iter());
     (offset..(offset + count)).collect()
+}
+
+#[cfg(test)]
+mod test {
+    use symbolic::common::{Language, Name, NameMangling};
+
+    use super::InlineOrigins;
+
+    #[test]
+    fn test_demangle() {
+        // Make sure that the return types are not part of the demangled inline name.
+        // There should be no "void " in front of "draw_depth_span".
+        let mut inline_origins = InlineOrigins::default();
+        let _ = inline_origins.get_id(&Name::new(
+            "_ZL15draw_depth_spanIjEvjPT_R11DepthCursor",
+            NameMangling::Mangled,
+            Language::Cpp,
+        ));
+        assert_eq!(
+            inline_origins.get_list(),
+            vec![
+                "draw_depth_span<unsigned int>(unsigned int, unsigned int*, DepthCursor&)"
+                    .to_string()
+            ]
+        );
+    }
 }
