@@ -39,8 +39,13 @@ pub(crate) fn normalize_anonymous_namespace(text: &str) -> String {
 }
 
 pub(crate) fn fix_symbol_name<'a>(name: &'a Name<'a>) -> Name<'a> {
-    static LLVM_NNN: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.llvm\.[0-9]+$").unwrap());
-    let fixed = LLVM_NNN.replace(name.as_str(), "");
+    static COMPILER_NNN: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(
+            r"((\.(cold|constprop|llvm|localalias|lto_priv|isra|part|str)(\.[0-9]+)?)|( ?\[clone[^\]]*\] ?))+$",
+        )
+        .unwrap()
+    });
+    let fixed = COMPILER_NNN.replace(name.as_str(), "");
     let fixed = normalize_anonymous_namespace(&fixed);
 
     Name::new(fixed, name.mangling(), name.language())
@@ -56,15 +61,26 @@ mod tests {
         let name = Name::new("hello", NameMangling::Mangled, Language::Unknown);
         assert_eq!(name, fix_symbol_name(&name));
 
-        let name = Name::new(
+        let test_names = [
             "hello.llvm.1234567890",
+            "hello.str.158.llvm.1786438672924483777",
+            "hello [clone .constprop.0] [clone .isra.0] [clone .cold]",
+            "hello.localalias",
+            "hello.constprop.0.isra.0",
+        ];
+
+        for test_name in test_names {
+            let test_name = Name::new(test_name, NameMangling::Mangled, Language::Unknown);
+            assert_eq!(name, fix_symbol_name(&test_name));
+        }
+
+        // Check that we don't strip labels we don't know about
+        let test_name = Name::new(
+            "hello [clone foo][bar]",
             NameMangling::Mangled,
             Language::Unknown,
         );
-        assert_eq!(
-            Name::new("hello", NameMangling::Mangled, Language::Unknown),
-            fix_symbol_name(&name)
-        );
+        assert_eq!("hello [clone foo][bar]", fix_symbol_name(&test_name));
     }
 
     #[test]
