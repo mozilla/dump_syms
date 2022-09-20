@@ -30,14 +30,14 @@ fn main() {
         .arg(
             Arg::with_name("output")
                 .help("Output file or - for stdout")
-                .short("o")
+                .short('o')
                 .long("output")
                 .takes_value(true),
         )
         .arg(
             Arg::with_name("store")
                 .help("Store output file as FILENAME.pdb/DEBUG_ID/FILENAME.sym in the given directory")
-                .short("s")
+                .short('s')
                 .long("store")
                 .takes_value(true),
         )
@@ -74,7 +74,7 @@ fn main() {
         .arg(
             Arg::with_name("arch")
                 .help("Set the architecture to select in fat binaries")
-                .short("a")
+                .short('a')
                 .long("arch")
                 .default_value(common::get_compile_time_arch())
                 .takes_value(true),
@@ -82,7 +82,7 @@ fn main() {
         .arg(
             Arg::with_name("type")
                 .help("Ignored, listed for compatibility only")
-                .short("t")
+                .short('t')
                 .long("type")
                 .default_value("")
                 .takes_value(true),
@@ -94,7 +94,7 @@ fn main() {
         .arg(
             Arg::with_name("num_jobs")
                 .help("Number of jobs")
-                .short("j")
+                .short('j')
                 .value_name("NUMBER")
                 .default_value("")
                 .takes_value(true),
