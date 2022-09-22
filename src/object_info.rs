@@ -59,6 +59,11 @@ impl Display for ObjectInfo {
         }
 
         for (n, function_name) in self.inline_origins.iter().enumerate() {
+            let function_name = if function_name.is_empty() {
+                "<name omitted>"
+            } else {
+                function_name
+            };
             writeln!(f, "INLINE_ORIGIN {} {}", n, function_name)?;
         }
 
