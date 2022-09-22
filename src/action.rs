@@ -307,4 +307,37 @@ mod tests {
 
         assert_eq!(basic, new);
     }
+
+    #[test]
+    fn test_elf_dwz_with_inlines() {
+        let tmp_dir = Builder::new().prefix("dwz").tempdir().unwrap();
+        let full = PathBuf::from("./test_data/linux/basic.dwz");
+        let tmp_out = tmp_dir.path().join("output.sym");
+
+        let action = Action::Dump(Config {
+            output: tmp_out.clone().into(),
+            symbol_server: None,
+            debug_id: None,
+            code_id: None,
+            arch: common::get_compile_time_arch(),
+            num_jobs: 1,
+            mapping_var: None,
+            mapping_src: None,
+            mapping_dest: None,
+            mapping_file: None,
+            check_cfi: false,
+            emit_inlines: true,
+        });
+
+        action.action(&[full.to_str().unwrap()]).unwrap();
+
+        let data = read(tmp_out).unwrap();
+        let new: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+
+        let basic = PathBuf::from("./test_data/linux/basic.dwz.inlines.sym");
+        let data = read(basic).unwrap();
+        let basic: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+
+        assert_eq!(basic, new);
+    }
 }
