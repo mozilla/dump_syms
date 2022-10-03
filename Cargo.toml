@@ -42,7 +42,7 @@ serde_json = "1.0"
 sha2 = "0.10"
 simplelog = { version = "0.12", optional = true, features = ["local-offset"] }
 symbolic = { version = "9.1", features = ["demangle", "cfi"] }
-tokio = { version = "1.20", optional = true }
+tokio = { version = "1.21", optional = true }
 url = "2.2"
 uuid = "1"
 
