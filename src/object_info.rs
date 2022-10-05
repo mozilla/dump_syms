@@ -138,6 +138,12 @@ impl ObjectInfo {
 
         collector.collect_publics(main_object);
 
+        if let Some(buf) = super::symbol::get_compressed_minidebuginfo(main_object) {
+            if let Ok(o) = Object::parse(&buf) {
+                collector.collect_publics(&o);
+            }
+        }
+
         let stack = get_stack_info(Some(main_object), pe_object);
         let symbols = match platform {
             Platform::Linux | Platform::Mac => super::symbol::add_executable_section_symbols(

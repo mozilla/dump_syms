@@ -152,6 +152,27 @@ pub(super) fn append_dummy_symbol(mut syms: Symbols, name: &str) -> Symbols {
     syms
 }
 
+// Get separated debugging information into .gnu_debugdata section.
+// See https://sourceware.org/gdb/onlinedocs/gdb/MiniDebugInfo.html.
+pub(super) fn get_compressed_minidebuginfo(object: &Object) -> Option<Vec<u8>> {
+    let data = object.data();
+    let object = goblin::Object::parse(data);
+    if let Ok(goblin::Object::Elf(elf)) = object {
+        for header in elf.section_headers {
+            if let Some(section_name) = elf.shdr_strtab.get_at(header.sh_name) {
+                if section_name == ".gnu_debugdata" {
+                    let (start, length) = (header.sh_offset as usize, header.sh_size as usize);
+                    let mut buf: &[u8] = &data[start..(start + length)];
+                    let mut out: Vec<u8> = Vec::new();
+                    lzma_rs::xz_decompress(&mut buf, &mut out).ok()?;
+                    return Some(out);
+                }
+            }
+        }
+    }
+    None
+}
+
 #[derive(Clone, Debug)]
 pub struct ParsedWinFuncName {
     pub name: String,
