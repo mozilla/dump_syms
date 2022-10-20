@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [2.0.1] - 2022-10-20
+
 ### Added
 
 - Several labels added by compilers are stripped from the symbols
@@ -68,7 +70,8 @@ The crate can be used to build a stand-alone executable or as a library to
 provide symbol-file generation in other tools.
 
 <!-- next-url -->
-[unreleased]: https://github.com/mozilla/dump_syms/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/mozilla/dump_syms/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/mozilla/dump_syms/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/mozilla/dump_syms/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/mozilla/dump_syms/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/mozilla/dump_syms/compare/cab687047df228587473fbc9a33e2ff2fd2d8c2e...v1.0.0
