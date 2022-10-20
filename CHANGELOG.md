@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Added
+
+- Several labels added by compilers are stripped from the symbols
+
+### Changed
+
+- Use the last version of the cpp_demangle crate for better results
+
+### Fixed
+
+- Function names are properly demangled even when inlined
+- Emit an <unknown> symbol when an inline function doesn't have a name (this
+  can happen with debug information that has been split with tools like dwz),
+  this avoids emitting INLINE_ORIGIN directives without a name
+
+## [2.0.0] - 2022-08-18
+
 Major release, adds support for inlined functions in symbol files and fixes a
 large number of issues.
 
@@ -32,7 +49,8 @@ large number of issues.
 ## [1.0.1] - 2022-05-25
 
 ### Fixes
-* Fixed dumping when HTTP support is disabled.
+
+- Fixed dumping when HTTP support is disabled.
 
 ## [1.0.0] - 2022-05-24
 
@@ -50,6 +68,7 @@ The crate can be used to build a stand-alone executable or as a library to
 provide symbol-file generation in other tools.
 
 <!-- next-url -->
-[Unreleased]: https://github.com/mozilla/dump_syms/compare/v1.0.1...HEAD
+[unreleased]: https://github.com/mozilla/dump_syms/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/mozilla/dump_syms/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/mozilla/dump_syms/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/mozilla/dump_syms/compare/cab687047df228587473fbc9a33e2ff2fd2d8c2e...v1.0.0
