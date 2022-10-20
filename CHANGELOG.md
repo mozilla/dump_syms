@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+Minor release with only the changes of the previous release, but this time in
+the right repository.
+
 ## [2.0.1] - 2022-10-20
 
 ### Added
