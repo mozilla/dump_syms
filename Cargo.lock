@@ -773,6 +773,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
+name = "leb128"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67"
+
+[[package]]
 name = "libc"
 version = "0.2.135"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1366,9 +1372,9 @@ checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "symbolic"
-version = "9.2.1"
+version = "10.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e615680e415ddd25876cb34b40d90cf92011ae7e37d6a829f4dc341f19da0c32"
+checksum = "6ac9c95ed15a30cf9af78319a583ab6a674e76fb8c34679a793b7911631567d1"
 dependencies = [
  "symbolic-cfi",
  "symbolic-common",
@@ -1378,9 +1384,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-cfi"
-version = "9.2.1"
+version = "10.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92a25e8af18f2579fdf29fae869d135f50453b3dccb3f6b30788d118d4ac7693"
+checksum = "eda91ecf589bb823d1db1475d688ca15975d71c29936e3b95daf7f4a01c4b7d5"
 dependencies = [
  "symbolic-common",
  "symbolic-debuginfo",
@@ -1389,9 +1395,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-common"
-version = "9.2.1"
+version = "10.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "800963ba330b09a2ae4a4f7c6392b81fbc2784099a98c1eac68c3437aa9382b2"
+checksum = "ac457d054f793cedfde6f32d21d692b8351cfec9084fefd0470c0373f6d799bc"
 dependencies = [
  "debugid",
  "memmap2",
@@ -1401,9 +1407,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-debuginfo"
-version = "9.2.1"
+version = "10.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "35cce13a1f8c1869ac469b73f70884859f0ee5d147293d265c095f7991f9afca"
+checksum = "f519696a9a2296c5ef1df810bf5caf430c1cec9460ca12b64ea7da19d6c3f395"
 dependencies = [
  "bitvec",
  "dmsort",
@@ -1425,6 +1431,7 @@ dependencies = [
  "serde_json",
  "smallvec",
  "symbolic-common",
+ "symbolic-ppdb",
  "thiserror",
  "wasmparser",
  "zip",
@@ -1432,15 +1439,28 @@ dependencies = [
 
 [[package]]
 name = "symbolic-demangle"
-version = "9.2.1"
+version = "10.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b940a1fdbc72bb3369e38714efe6cd332dbbe46d093cf03d668b9ac390d1ad0"
+checksum = "48808b846eef84e0ac06365dc620f028ae632355e5dcffc007bf1b2bf5eab17b"
 dependencies = [
  "cc",
  "cpp_demangle",
  "msvc-demangler",
  "rustc-demangle",
  "symbolic-common",
+]
+
+[[package]]
+name = "symbolic-ppdb"
+version = "10.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb97abb53c6b72d3dbabde661fa1c75918da581b4e94db231dca222e4af39367"
+dependencies = [
+ "indexmap",
+ "symbolic-common",
+ "thiserror",
+ "uuid",
+ "watto",
 ]
 
 [[package]]
@@ -1761,6 +1781,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b62c8d843f4423efee314dc75a1049886deba3214f7e7f9ff0e4e58b4d618581"
 dependencies = [
  "indexmap",
+]
+
+[[package]]
+name = "watto"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6746b5315e417144282a047ebb82260d45c92d09bf653fa9ec975e3809be942b"
+dependencies = [
+ "leb128",
+ "thiserror",
 ]
 
 [[package]]
