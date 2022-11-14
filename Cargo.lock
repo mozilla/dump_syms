@@ -180,9 +180,9 @@ dependencies = [
 
 [[package]]
 name = "cpp_demangle"
-version = "0.3.6"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e5e1b7ef3ffe798d70bfa2a69c66b96313fdec472d4d48ebb7cb69ae1c569b7f"
+checksum = "b446fd40bcc17eddd6a4a78f24315eb90afdb3334999ddfd4909985c47722442"
 dependencies = [
  "cfg-if",
 ]
@@ -348,7 +348,7 @@ dependencies = [
  "dirs",
  "futures",
  "fxhash",
- "goblin",
+ "goblin 0.5.4",
  "hashbrown",
  "log",
  "lzma-rs",
@@ -581,6 +581,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "goblin"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "572564d6cba7d09775202c8e7eebc4d534d5ae36578ab402fb21e182a0ac9505"
+dependencies = [
+ "log",
+ "plain",
+ "scroll",
+]
+
+[[package]]
 name = "h2"
 version = "0.3.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -771,6 +782,12 @@ name = "lazycell"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
+
+[[package]]
+name = "leb128"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67"
 
 [[package]]
 name = "libc"
@@ -1366,9 +1383,9 @@ checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "symbolic"
-version = "9.2.1"
+version = "10.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e615680e415ddd25876cb34b40d90cf92011ae7e37d6a829f4dc341f19da0c32"
+checksum = "ab4dac8fb8ea91e6cd6935ed34220f0c559fe4c8e010a3237415d8ac61746da5"
 dependencies = [
  "symbolic-cfi",
  "symbolic-common",
@@ -1378,9 +1395,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-cfi"
-version = "9.2.1"
+version = "10.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92a25e8af18f2579fdf29fae869d135f50453b3dccb3f6b30788d118d4ac7693"
+checksum = "6da324450157034a3de59fe2a892ffa58f6ec6852e1723b9eb91a3ccbb786454"
 dependencies = [
  "symbolic-common",
  "symbolic-debuginfo",
@@ -1389,9 +1406,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-common"
-version = "9.2.1"
+version = "10.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "800963ba330b09a2ae4a4f7c6392b81fbc2784099a98c1eac68c3437aa9382b2"
+checksum = "492875918a6bcbae753a5fc6f39bc87566fc3c25182e76d7f128ef1c8a2375c6"
 dependencies = [
  "debugid",
  "memmap2",
@@ -1401,9 +1418,9 @@ dependencies = [
 
 [[package]]
 name = "symbolic-debuginfo"
-version = "9.2.1"
+version = "10.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "35cce13a1f8c1869ac469b73f70884859f0ee5d147293d265c095f7991f9afca"
+checksum = "1e308a705c38b930758c57ead68d3af6c8ba3f39bd0fdcb69d86a6d11e47f495"
 dependencies = [
  "bitvec",
  "dmsort",
@@ -1412,7 +1429,7 @@ dependencies = [
  "fallible-iterator",
  "flate2",
  "gimli",
- "goblin",
+ "goblin 0.6.0",
  "lazy_static",
  "lazycell",
  "nom",
@@ -1425,6 +1442,7 @@ dependencies = [
  "serde_json",
  "smallvec",
  "symbolic-common",
+ "symbolic-ppdb",
  "thiserror",
  "wasmparser",
  "zip",
@@ -1432,15 +1450,28 @@ dependencies = [
 
 [[package]]
 name = "symbolic-demangle"
-version = "9.2.1"
+version = "10.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b940a1fdbc72bb3369e38714efe6cd332dbbe46d093cf03d668b9ac390d1ad0"
+checksum = "214d3a420108471222e55268ef502ba0fc89cfd4de876ff26105c560729127af"
 dependencies = [
  "cc",
  "cpp_demangle",
  "msvc-demangler",
  "rustc-demangle",
  "symbolic-common",
+]
+
+[[package]]
+name = "symbolic-ppdb"
+version = "10.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df9ed49e7493446437ce0a86f4e3aae69b5d53c7feca960d00c4de3fabfefb2a"
+dependencies = [
+ "indexmap",
+ "symbolic-common",
+ "thiserror",
+ "uuid",
+ "watto",
 ]
 
 [[package]]
@@ -1756,11 +1787,21 @@ checksum = "1c38c045535d93ec4f0b4defec448e4291638ee608530863b1e2ba115d4fff7f"
 
 [[package]]
 name = "wasmparser"
-version = "0.90.0"
+version = "0.94.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b62c8d843f4423efee314dc75a1049886deba3214f7e7f9ff0e4e58b4d618581"
+checksum = "cdac7e1d98d70913ae3b4923dd7419c8ea7bdfd4c44a240a0ba305d929b7f191"
 dependencies = [
  "indexmap",
+]
+
+[[package]]
+name = "watto"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6746b5315e417144282a047ebb82260d45c92d09bf653fa9ec975e3809be942b"
+dependencies = [
+ "leb128",
+ "thiserror",
 ]
 
 [[package]]
