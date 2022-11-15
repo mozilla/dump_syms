@@ -155,7 +155,7 @@ fn search_in_cache(
     file_name: &str,
 ) -> Option<PathBuf> {
     for cache in servers.iter().filter_map(|x| x.cache.as_ref()) {
-        let path = PathBuf::from(cache).join(base).join(id).join(&file_name);
+        let path = PathBuf::from(cache).join(base).join(id).join(file_name);
         if path.exists() {
             return Some(path);
         }
@@ -170,7 +170,7 @@ fn get_jobs(servers: &[SymbolServer], id: &str, base: &Path, file_name: &str) ->
         let path = server
             .cache
             .as_ref()
-            .map(|cache| PathBuf::from(cache).join(base).join(id).join(&file_name));
+            .map(|cache| PathBuf::from(cache).join(base).join(id).join(file_name));
         let job = Job::new(
             path.clone(),
             format!("{}/{}/{}/{}", server.server, file_name, id, file_name),
