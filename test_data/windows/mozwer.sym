@@ -1,5 +1,6 @@
 MODULE windows x86_64 5A9EC5FA8DE834784C4C44205044422E1 mozwer.pdb
 INFO CODE_ID 5FDB6A2871000 mozwer.dll
+INFO GENERATOR mozilla/dump_syms XYZ
 FUNC 1000 94 0 OutOfProcessExceptionEventCallback
 FUNC 10a0 267 0 OutOfProcessExceptionEventSignatureCallback
 FUNC 1310 64 0 <unknown in mozwer.dll>

@@ -1,5 +1,6 @@
 MODULE Linux x86_64 20AD60B0B4C68177552708AA192E77390 basic.minidebuginfo
 INFO CODE_ID B060AD20C6B47781552708AA192E7739FAC7C84A
+INFO GENERATOR mozilla/dump_syms XYZ
 PUBLIC 1000 0 _init
 PUBLIC 1020 0 <.plt ELF section in basic.minidebuginfo>
 PUBLIC 1030 0 <.plt.got ELF section in basic.minidebuginfo>

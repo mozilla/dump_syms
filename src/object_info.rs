@@ -54,6 +54,12 @@ impl Display for ObjectInfo {
             writeln!(f, "{}", line.trim())?;
         }
 
+        writeln!(
+            f,
+            "INFO GENERATOR mozilla/dump_syms {}",
+            env!("CARGO_PKG_VERSION")
+        )?;
+
         for (n, file_name) in self.files.get_mapping().iter().enumerate() {
             writeln!(f, "FILE {} {}", n, file_name)?;
         }

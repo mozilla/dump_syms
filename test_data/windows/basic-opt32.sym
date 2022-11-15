@@ -1,5 +1,6 @@
 MODULE windows x86 94F6190AFB2346CD9408A1DA5A33CEA72 basic-opt32.pdb
 INFO CODE_ID 5DDC1E9F6C000 basic-opt32.dll
+INFO GENERATOR mozilla/dump_syms XYZ
 FILE 0 C:\Users\Calixte\dump_syms\test_data\basic.cpp
 FILE 1 d:\agent\_work\3\s\src\vctools\crt\vcstartup\src\heap\delete_scalar_size.cpp
 FILE 2 d:\agent\_work\3\s\src\vctools\crt\vcstartup\src\startup\dll_dllmain.cpp
