@@ -66,6 +66,32 @@ mod tests {
 
     use super::*;
 
+    // Read and process the input so it can be compared with the output
+    fn read_input(input_path: &str) -> Vec<String> {
+        let generator_re = Regex::new(r"INFO GENERATOR mozilla/dump_syms XYZ\n").unwrap();
+        let generator_string = format!(
+            "INFO GENERATOR mozilla/dump_syms {}\n",
+            env!("CARGO_PKG_VERSION")
+        );
+        let basic = PathBuf::from(input_path);
+        let data = read(basic).unwrap();
+        let data = String::from_utf8(data).unwrap();
+        let data = generator_re.replace(&data, generator_string);
+        data.split(|c: char| c == '\n')
+            .skip(1)
+            .map(String::from)
+            .collect()
+    }
+
+    fn read_output(output_path: &PathBuf) -> Vec<String> {
+        let data = read(output_path).unwrap();
+        let data = String::from_utf8(data).unwrap();
+        data.split(|c: char| c == '\n')
+            .skip(1)
+            .map(String::from)
+            .collect()
+    }
+
     #[test]
     fn test_missing_pe() {
         let tmp_dir = Builder::new().prefix("no_pe").tempdir().unwrap();
@@ -186,12 +212,8 @@ mod tests {
 
         action.action(&[full.to_str().unwrap()]).unwrap();
 
-        let data = read(tmp_out).unwrap();
-        let new: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
-
-        let basic = PathBuf::from("./test_data/linux/basic.full.sym");
-        let data = read(basic).unwrap();
-        let basic: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+        let new = read_output(&tmp_out);
+        let basic = read_input("./test_data/linux/basic.full.sym");
 
         assert_eq!(basic, new);
     }
@@ -219,12 +241,8 @@ mod tests {
 
         action.action(&[full.to_str().unwrap()]).unwrap();
 
-        let data = read(tmp_out).unwrap();
-        let new: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
-
-        let basic = PathBuf::from("./test_data/linux/basic.full.inlines.sym");
-        let data = read(basic).unwrap();
-        let basic: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+        let new = read_output(&tmp_out);
+        let basic = read_input("./test_data/linux/basic.full.inlines.sym");
 
         assert_eq!(basic, new);
     }
@@ -248,24 +266,24 @@ mod tests {
             mapping_dest: None,
             mapping_file: None,
             check_cfi: false,
-            emit_inlines: false,
+            emit_inlines: true,
         });
 
         action
             .action(&[stripped.to_str().unwrap(), dbg.to_str().unwrap()])
             .unwrap();
 
-        let re = Regex::new(r"<procedure linkage table[^>]*>").unwrap();
-        let data = read(tmp_out).unwrap();
-        let data = String::from_utf8(data).unwrap();
-        let data = re.replace_all(&data, "<procedure linkage table>");
-        let new: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
-
-        let basic = PathBuf::from("./test_data/linux/basic.dbg.sym");
-        let data = read(basic).unwrap();
-        let data = String::from_utf8(data).unwrap();
-        let data = re.replace_all(&data, "<procedure linkage table>");
-        let basic: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
+        let re = Regex::new(r"<\.plt[\.a-zA-Z]* ELF section in [^>]*>").unwrap();
+        let new = read_output(&tmp_out);
+        let new: Vec<_> = new
+            .into_iter()
+            .map(|s| re.replace(&s, "<.plt ELF section in>").to_string())
+            .collect();
+        let basic = read_input("./test_data/linux/basic.full.inlines.sym");
+        let basic: Vec<_> = basic
+            .into_iter()
+            .map(|s| re.replace(&s, "<.plt ELF section in>").to_string())
+            .collect();
 
         assert_eq!(basic, new);
     }
@@ -296,14 +314,8 @@ mod tests {
             .action(&[dbg.to_str().unwrap(), stripped.to_str().unwrap()])
             .unwrap();
 
-        let data = read(tmp_out).unwrap();
-        let data = String::from_utf8(data).unwrap();
-        let new: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
-
-        let basic = PathBuf::from("./test_data/linux/basic.dbg.sym");
-        let data = read(basic).unwrap();
-        let data = String::from_utf8(data).unwrap();
-        let basic: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
+        let new = read_output(&tmp_out);
+        let basic = read_input("./test_data/linux/basic.dbg.sym");
 
         assert_eq!(basic, new);
     }
@@ -331,12 +343,8 @@ mod tests {
 
         action.action(&[full.to_str().unwrap()]).unwrap();
 
-        let data = read(tmp_out).unwrap();
-        let new: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
-
-        let basic = PathBuf::from("./test_data/linux/basic.dwz.inlines.sym");
-        let data = read(basic).unwrap();
-        let basic: Vec<_> = data.split(|c| *c == b'\n').skip(1).collect();
+        let new = read_output(&tmp_out);
+        let basic = read_input("./test_data/linux/basic.dwz.inlines.sym");
 
         assert_eq!(basic, new);
     }
@@ -364,14 +372,8 @@ mod tests {
 
         action.action(&[minidebuginfo.to_str().unwrap()]).unwrap();
 
-        let data = read(tmp_out).unwrap();
-        let data = String::from_utf8(data).unwrap();
-        let new: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
-
-        let basic = PathBuf::from("./test_data/linux/basic.minidebuginfo.sym");
-        let data = read(basic).unwrap();
-        let data = String::from_utf8(data).unwrap();
-        let basic: Vec<_> = data.split(|c: char| c == '\n').skip(1).collect();
+        let new = read_output(&tmp_out);
+        let basic = read_input("./test_data/linux/basic.minidebuginfo.sym");
 
         assert_eq!(basic, new);
     }

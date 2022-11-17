@@ -1,5 +1,6 @@
 MODULE windows x86 34060D222DBB44E5AA72243CE8326C2F2 basic32.pdb
 INFO CODE_ID 5DDC1E9A6C000 basic32.dll
+INFO GENERATOR mozilla/dump_syms XYZ
 FILE 0 C:\Users\Calixte\dump_syms\test_data\basic.cpp
 FILE 1 C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include\xstring
 FILE 2 C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include\xmemory0

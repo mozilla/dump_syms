@@ -26,7 +26,7 @@ impl Platform {
             Platform::Linux | Platform::Mac => path.starts_with('/'),
             Platform::Win => {
                 // Detect "/...", "\...", "C:\..." and "C:/...".
-                let first_fragment = match path.find(&['/', '\\']) {
+                let first_fragment = match path.find(['/', '\\']) {
                     Some(first_fragment_len) => &path[..first_fragment_len],
                     None => path,
                 };
@@ -48,7 +48,7 @@ impl Platform {
                 // PDB files for build that were (cross-)compiled on a Linux machine;
                 // those contain Linux paths.
                 let left = left.trim_end_matches(&['/', '\\']);
-                let right = right.trim_start_matches(&['/', '\\']);
+                let right = right.trim_start_matches(['/', '\\']);
 
                 // If `left` happens to be an absolute Linux-style path, use `/` as
                 // the separator. This covers the PDB-on-Linux case we care about; all

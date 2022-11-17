@@ -237,7 +237,7 @@ fn get_from_id(
         };
     }
 
-    Ok((utils::read_file(&path), filename))
+    Ok((utils::read_file(path), filename))
 }
 
 #[cfg(not(feature = "http"))]
