@@ -27,7 +27,7 @@ clap = { version = "3", optional = true, features = ["cargo"] }
 crossbeam = "0.8.2"
 dirs = "4.0"
 futures = { version = "0.3", optional = true }
-goblin = "0.5.1" # Keep in sync with symbolic-debuginfo
+goblin = "0.6" # Keep in sync with symbolic-debuginfo
 hashbrown = { version = "0.12", features = ["serde"] }
 log = "0.4"
 lzma-rs = "0.2.0"
@@ -42,7 +42,7 @@ serde = "1.0"
 serde_json = "1.0"
 sha2 = "0.10"
 simplelog = { version = "0.12", optional = true, features = ["local-offset"] }
-symbolic = { version = "9.2", features = ["demangle", "cfi"] }
+symbolic = { version = "10", features = ["demangle", "cfi"] }
 tokio = { version = "1.21", optional = true }
 url = "2.2"
 uuid = "1"
