@@ -338,7 +338,7 @@ checksum = "f0bc8fbe9441c17c9f46f75dfe27fa1ddb6c68a461ccaed0481419219d4f10d3"
 
 [[package]]
 name = "dump_syms"
-version = "2.0.2"
+version = "2.1.0"
 dependencies = [
  "anyhow",
  "bitflags",
