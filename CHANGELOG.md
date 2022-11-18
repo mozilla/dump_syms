@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 
 ## [Unreleased] - ReleaseDate
+
+### Added
+
+- The program version is now included in the .sym file under a `INFO GENERATOR`
+  line. This line can be used to identify which version of dump_syms was used
+  to produce a .sym file and will be ignored by most legacy tools.
+
+### Changed
+
+- Use the last version of the symbolic, goblin and cpp_demangle crates for
+  improved output and better compatibility
+
 ## [2.0.2] - 2022-10-20
 
 Minor release with only the changes of the previous release, but this time in
