@@ -3,6 +3,7 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use clap::ArgAction;
 use clap::{crate_authors, crate_version, App, Arg};
 use log::error;
 use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
@@ -15,125 +16,145 @@ use action::Action;
 use dump_syms::common;
 use dump_syms::dumper;
 
-fn main() {
-    let matches = App::new("dump_syms")
-        .version(crate_version!())
-        .author(crate_authors!("\n"))
-        .about("Dump debug symbols to breakpad symbols")
-        .arg(
-            Arg::with_name("filenames")
-                .help("Files to dump (.dll, .exe, .pdb, .pd_, .so, .dbg)")
-                .required(true)
-                .multiple(true)
-                .takes_value(true)
-        )
-        .arg(
-            Arg::with_name("output")
-                .help("Output file or - for stdout")
-                .short('o')
-                .long("output")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("store")
-                .help("Store output file as FILENAME.pdb/DEBUG_ID/FILENAME.sym in the given directory")
-                .short('s')
-                .long("store")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("debug_id")
-                .help("Get the pdb file passed as argument from the cache or from symbol server using the debug id")
-                .long("debug-id")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("code_id")
-                .help("Get the dll/exe file passed as argument from the cache or from symbol server using the code id")
-                .long("code-id")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("symbol-server")
-                .help("Symbol Server configuration\n(e.g. \"SRV*c:\\symcache\\*https://symbols.mozilla.org/\")\nIt can be in file $HOME/.dump_syms/config too.")
-                .long("symbol-server")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("check_cfi")
-                .help("Fail if there are no CFI data")
-                .long("check-cfi")
-        )
-        .arg(
-            Arg::with_name("verbose")
-                .help("Set the level of verbosity (off, error (default), warn, info, debug, trace)")
-                .long("verbose")
-                .default_value("error")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("arch")
-                .help("Set the architecture to select in fat binaries")
-                .short('a')
-                .long("arch")
-                .default_value(common::get_compile_time_arch())
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("type")
-                .help("Ignored, listed for compatibility only")
-                .short('t')
-                .long("type")
-                .default_value("")
-                .takes_value(true),
-        ).arg(
-            Arg::with_name("list_arch")
-                .help("List the architectures present in the fat binaries")
-                .long("list-arch")
-        )
-        .arg(
-            Arg::with_name("num_jobs")
-                .help("Number of jobs")
-                .short('j')
-                .value_name("NUMBER")
-                .default_value("")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("mapping_var")
-                .help("A pair var=value such as rev=123abcd")
-                .long("mapping-var")
-                .multiple(true)
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("mapping_src")
-                .help("Regex to match a path with capturing groups")
-                .long("mapping-src")
-                .multiple(true)
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("mapping_dest")
-                .help(r#"A replacement string using groups, variables (set with --mapping-var), special variable like DIGEST or digest.
+fn cli() -> App<'static> {
+    App::new("dump_syms")
+    .version(crate_version!())
+    .author(crate_authors!("\n"))
+    .about("Dump debug symbols to breakpad symbols")
+    .arg(
+        Arg::with_name("filenames")
+            .help("Files to dump (.dll, .exe, .pdb, .pd_, .so, .dbg)")
+            .required(true)
+            .multiple(true)
+            .takes_value(true)
+            .action(ArgAction::StoreValue)
+    )
+    .arg(
+        Arg::with_name("output")
+            .help("Output file or - for stdout")
+            .short('o')
+            .long("output")
+            .takes_value(true)
+            .action(ArgAction::StoreValue),
+    )
+    .arg(
+        Arg::with_name("store")
+            .help("Store output file as FILENAME.pdb/DEBUG_ID/FILENAME.sym in the given directory")
+            .short('s')
+            .long("store")
+            .takes_value(true)
+            .action(ArgAction::StoreValue),
+    )
+    .arg(
+        Arg::with_name("debug_id")
+            .help("Get the pdb file passed as argument from the cache or from symbol server using the debug id")
+            .long("debug-id")
+            .takes_value(true)
+            .action(ArgAction::StoreValue),
+    )
+    .arg(
+        Arg::with_name("code_id")
+            .help("Get the dll/exe file passed as argument from the cache or from symbol server using the code id")
+            .long("code-id")
+            .takes_value(true)
+            .action(ArgAction::StoreValue),
+    )
+    .arg(
+        Arg::with_name("symbol-server")
+            .help("Symbol Server configuration\n(e.g. \"SRV*c:\\symcache\\*https://symbols.mozilla.org/\")\nIt can be in file $HOME/.dump_syms/config too.")
+            .long("symbol-server")
+            .takes_value(true)
+            .action(ArgAction::StoreValue),
+    )
+    .arg(
+        Arg::with_name("check_cfi")
+            .help("Fail if there are no CFI data")
+            .long("check-cfi")
+            .action(ArgAction::StoreValue)
+    )
+    .arg(
+        Arg::with_name("verbose")
+            .help("Set the level of verbosity (off, error (default), warn, info, debug, trace)")
+            .long("verbose")
+            .default_value("error")
+            .takes_value(true)
+            .action(ArgAction::StoreValue),
+    )
+    .arg(
+        Arg::with_name("arch")
+            .help("Set the architecture to select in fat binaries")
+            .short('a')
+            .long("arch")
+            .default_value(common::get_compile_time_arch())
+            .takes_value(true)
+            .action(ArgAction::StoreValue),
+    )
+    .arg(
+        Arg::with_name("type")
+            .help("Ignored, listed for compatibility only")
+            .short('t')
+            .long("type")
+            .default_value("")
+            .takes_value(true)
+            .action(ArgAction::StoreValue),
+    ).arg(
+        Arg::with_name("list_arch")
+            .help("List the architectures present in the fat binaries")
+            .long("list-arch")
+            .action(ArgAction::StoreValue)
+    )
+    .arg(
+        Arg::with_name("num_jobs")
+            .help("Number of jobs")
+            .short('j')
+            .value_name("NUMBER")
+            .default_value("")
+            .takes_value(true)
+            .action(ArgAction::StoreValue),
+    )
+    .arg(
+        Arg::with_name("mapping_var")
+            .help("A pair var=value such as rev=123abcd")
+            .long("mapping-var")
+            .multiple(true)
+            .takes_value(true)
+            .action(ArgAction::StoreValue),
+    )
+    .arg(
+        Arg::with_name("mapping_src")
+            .help("Regex to match a path with capturing groups")
+            .long("mapping-src")
+            .multiple(true)
+            .takes_value(true)
+            .action(ArgAction::StoreValue),
+    )
+    .arg(
+        Arg::with_name("mapping_dest")
+            .help(r#"A replacement string using groups, variables (set with --mapping-var), special variable like DIGEST or digest.
 For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapping-dest="https://my.source.org/{rev}/{digest}/{1}" a path like "/foo/bar/myfile.cpp" will be transformed into "https://my.source.org/123abc/sha512_of_myfile.cpp/myfile.cpp"
 "#)
-                .long("mapping-dest")
-                .multiple(true)
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("mapping_file")
-                .help("A json file containing mapping")
-                .long("mapping-file")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("inlines")
-                .help("Whether to emit INLINE and INLINE_ORIGIN directives")
-                .long("inlines"),
-        )
-        .get_matches();
+            .long("mapping-dest")
+            .multiple(true)
+            .takes_value(true)
+            .action(ArgAction::StoreValue),
+    )
+    .arg(
+        Arg::with_name("mapping_file")
+            .help("A json file containing mapping")
+            .long("mapping-file")
+            .takes_value(true)
+            .action(ArgAction::StoreValue),
+    )
+    .arg(
+        Arg::with_name("inlines")
+            .help("Whether to emit INLINE and INLINE_ORIGIN directives")
+            .long("inlines")
+            .action(ArgAction::StoreValue),
+    )
+}
+
+fn main() {
+    let matches = cli().get_matches();
 
     let verbosity = match matches.value_of("verbose").unwrap() {
         "off" => LevelFilter::Off,
@@ -234,4 +255,9 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
         eprintln!("{}", e);
         std::process::exit(1);
     }
+}
+
+#[test]
+fn verify_cli() {
+    cli().debug_assert();
 }
