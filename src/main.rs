@@ -26,39 +26,33 @@ fn cli() -> Command {
             .help("Files to dump (.dll, .exe, .pdb, .pd_, .so, .dbg)")
             .required(true)
             .num_args(1..)
-            .action(ArgAction::Set)
     )
     .arg(
         Arg::new("output")
             .help("Output file or - for stdout")
             .short('o')
             .long("output")
-            .action(ArgAction::Set),
     )
     .arg(
         Arg::new("store")
             .help("Store output file as FILENAME.pdb/DEBUG_ID/FILENAME.sym in the given directory")
             .short('s')
             .long("store")
-            .action(ArgAction::Set),
     )
     .arg(
         Arg::new("debug_id")
             .help("Get the pdb file passed as argument from the cache or from symbol server using the debug id")
             .long("debug-id")
-            .action(ArgAction::Set),
     )
     .arg(
         Arg::new("code_id")
             .help("Get the dll/exe file passed as argument from the cache or from symbol server using the code id")
             .long("code-id")
-            .action(ArgAction::Set),
     )
     .arg(
         Arg::new("symbol-server")
             .help("Symbol Server configuration\n(e.g. \"SRV*c:\\symcache\\*https://symbols.mozilla.org/\")\nIt can be in file $HOME/.dump_syms/config too.")
             .long("symbol-server")
-            .action(ArgAction::Set),
     )
     .arg(
         Arg::new("check_cfi")
@@ -71,7 +65,6 @@ fn cli() -> Command {
             .help("Set the level of verbosity (off, error (default), warn, info, debug, trace)")
             .long("verbose")
             .default_value("error")
-            .action(ArgAction::Set),
     )
     .arg(
         Arg::new("arch")
@@ -79,7 +72,6 @@ fn cli() -> Command {
             .short('a')
             .long("arch")
             .default_value(common::get_compile_time_arch())
-            .action(ArgAction::Set),
     )
     .arg(
         Arg::new("type")
@@ -87,7 +79,6 @@ fn cli() -> Command {
             .short('t')
             .long("type")
             .default_value("")
-            .action(ArgAction::Set),
     ).arg(
         Arg::new("list_arch")
             .help("List the architectures present in the fat binaries")
@@ -100,19 +91,18 @@ fn cli() -> Command {
             .short('j')
             .value_name("NUMBER")
             .default_value("")
-            .action(ArgAction::Set),
     )
     .arg(
         Arg::new("mapping_var")
             .help("A pair var=value such as rev=123abcd")
             .long("mapping-var")
-            .action(ArgAction::Append),
+            .action(ArgAction::Append)
     )
     .arg(
         Arg::new("mapping_src")
             .help("Regex to match a path with capturing groups")
             .long("mapping-src")
-            .action(ArgAction::Append),
+            .action(ArgAction::Append)
     )
     .arg(
         Arg::new("mapping_dest")
@@ -120,19 +110,18 @@ fn cli() -> Command {
 For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapping-dest="https://my.source.org/{rev}/{digest}/{1}" a path like "/foo/bar/myfile.cpp" will be transformed into "https://my.source.org/123abc/sha512_of_myfile.cpp/myfile.cpp"
 "#)
             .long("mapping-dest")
-            .action(ArgAction::Append),
+            .action(ArgAction::Append)
     )
     .arg(
         Arg::new("mapping_file")
             .help("A json file containing mapping")
             .long("mapping-file")
-            .action(ArgAction::Set),
     )
     .arg(
         Arg::new("inlines")
             .help("Whether to emit INLINE and INLINE_ORIGIN directives")
             .long("inlines")
-            .action(ArgAction::SetTrue),
+            .action(ArgAction::SetTrue)
     )
 }
 
