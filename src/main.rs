@@ -16,7 +16,7 @@ use action::Action;
 use dump_syms::common;
 use dump_syms::dumper;
 
-fn cli() -> Command<'static> {
+fn cli() -> Command {
     Command::new("dump_syms")
     .version(crate_version!())
     .author(crate_authors!("\n"))
@@ -25,8 +25,7 @@ fn cli() -> Command<'static> {
         Arg::new("filenames")
             .help("Files to dump (.dll, .exe, .pdb, .pd_, .so, .dbg)")
             .required(true)
-            .multiple_values(true)
-            .takes_value(true)
+            .num_args(1..)
             .action(ArgAction::Set)
     )
     .arg(
@@ -34,7 +33,6 @@ fn cli() -> Command<'static> {
             .help("Output file or - for stdout")
             .short('o')
             .long("output")
-            .takes_value(true)
             .action(ArgAction::Set),
     )
     .arg(
@@ -42,28 +40,24 @@ fn cli() -> Command<'static> {
             .help("Store output file as FILENAME.pdb/DEBUG_ID/FILENAME.sym in the given directory")
             .short('s')
             .long("store")
-            .takes_value(true)
             .action(ArgAction::Set),
     )
     .arg(
         Arg::new("debug_id")
             .help("Get the pdb file passed as argument from the cache or from symbol server using the debug id")
             .long("debug-id")
-            .takes_value(true)
             .action(ArgAction::Set),
     )
     .arg(
         Arg::new("code_id")
             .help("Get the dll/exe file passed as argument from the cache or from symbol server using the code id")
             .long("code-id")
-            .takes_value(true)
             .action(ArgAction::Set),
     )
     .arg(
         Arg::new("symbol-server")
             .help("Symbol Server configuration\n(e.g. \"SRV*c:\\symcache\\*https://symbols.mozilla.org/\")\nIt can be in file $HOME/.dump_syms/config too.")
             .long("symbol-server")
-            .takes_value(true)
             .action(ArgAction::Set),
     )
     .arg(
@@ -77,7 +71,6 @@ fn cli() -> Command<'static> {
             .help("Set the level of verbosity (off, error (default), warn, info, debug, trace)")
             .long("verbose")
             .default_value("error")
-            .takes_value(true)
             .action(ArgAction::Set),
     )
     .arg(
@@ -86,7 +79,6 @@ fn cli() -> Command<'static> {
             .short('a')
             .long("arch")
             .default_value(common::get_compile_time_arch())
-            .takes_value(true)
             .action(ArgAction::Set),
     )
     .arg(
@@ -95,7 +87,6 @@ fn cli() -> Command<'static> {
             .short('t')
             .long("type")
             .default_value("")
-            .takes_value(true)
             .action(ArgAction::Set),
     ).arg(
         Arg::new("list_arch")
@@ -109,21 +100,18 @@ fn cli() -> Command<'static> {
             .short('j')
             .value_name("NUMBER")
             .default_value("")
-            .takes_value(true)
             .action(ArgAction::Set),
     )
     .arg(
         Arg::new("mapping_var")
             .help("A pair var=value such as rev=123abcd")
             .long("mapping-var")
-            .takes_value(true)
             .action(ArgAction::Append),
     )
     .arg(
         Arg::new("mapping_src")
             .help("Regex to match a path with capturing groups")
             .long("mapping-src")
-            .takes_value(true)
             .action(ArgAction::Append),
     )
     .arg(
@@ -132,14 +120,12 @@ fn cli() -> Command<'static> {
 For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapping-dest="https://my.source.org/{rev}/{digest}/{1}" a path like "/foo/bar/myfile.cpp" will be transformed into "https://my.source.org/123abc/sha512_of_myfile.cpp/myfile.cpp"
 "#)
             .long("mapping-dest")
-            .takes_value(true)
             .action(ArgAction::Append),
     )
     .arg(
         Arg::new("mapping_file")
             .help("A json file containing mapping")
             .long("mapping-file")
-            .takes_value(true)
             .action(ArgAction::Set),
     )
     .arg(
