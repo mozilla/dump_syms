@@ -50,7 +50,7 @@ fn cli() -> Command {
             .long("code-id")
     )
     .arg(
-        Arg::new("symbol-server")
+        Arg::new("symbol_server")
             .help("Symbol Server configuration\n(e.g. \"SRV*c:\\symcache\\*https://symbols.mozilla.org/\")\nIt can be in file $HOME/.dump_syms/config too.")
             .long("symbol-server")
     )
@@ -172,7 +172,7 @@ fn main() {
     let output = matches.get_one::<String>("output").map(String::as_str);
     let filenames = to_vec(matches.get_many::<String>("filenames").unwrap());
     let symbol_server = matches
-        .get_one::<String>("symbol-server")
+        .get_one::<String>("symbol_server")
         .map(String::as_str);
     let store = matches.get_one::<String>("store").map(String::as_str);
     let debug_id = matches.get_one::<String>("debug_id").map(String::as_str);
