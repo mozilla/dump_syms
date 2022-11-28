@@ -18,7 +18,7 @@ impl<'a> InlineOrigins<'a> {
             return *index;
         }
 
-        let s = Self::demangle(name);
+        let s = Self::demangle_and_sanitize(name);
         let index = self.demangled_names.len() as u32;
         self.demangled_names.push(s);
         self.index_for_mangled_name.insert(name.clone(), index);
@@ -27,6 +27,15 @@ impl<'a> InlineOrigins<'a> {
 
     pub fn get_list(self) -> Vec<String> {
         self.demangled_names
+    }
+
+    fn demangle_and_sanitize(name: &Name) -> String {
+        let mut name = Self::demangle(name);
+
+        // Remove control characters such as \n.
+        name.retain(|c| !c.is_ascii_control());
+
+        name
     }
 
     fn demangle(name: &Name) -> String {
@@ -92,6 +101,22 @@ mod test {
                 "draw_depth_span<unsigned int>(unsigned int, unsigned int*, DepthCursor&)"
                     .to_string()
             ]
+        );
+    }
+
+    #[test]
+    fn test_bad_chars() {
+        // Make sure that there are no characters in the function name
+        // which mess up the .sym format, such as line breaks.
+        let mut inline_origins = InlineOrigins::default();
+        let _ = inline_origins.get_id(&Name::new(
+            "\n\u{fffd}\u{fffd}P\u{fffd}",
+            NameMangling::Mangled,
+            Language::Cpp,
+        ));
+        assert_eq!(
+            inline_origins.get_list(),
+            vec!["\u{fffd}\u{fffd}P\u{fffd}".to_string()]
         );
     }
 }
