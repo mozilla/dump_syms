@@ -3,8 +3,8 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use hashbrown::{hash_map, HashMap};
 use log::error;
+use std::collections::{hash_map, HashMap};
 use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
