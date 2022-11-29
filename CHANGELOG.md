@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+### Changed
+
+- Use the last version of the symbolic crates and update to clap 4
+
+### Fixed
+
+- INLINE_ORIGIN names could contain line-breaks if the debuginfo contained them.
+  These caused parsing the .sym file to fail so they're now stripped before
+  emitting them.
+
 ## [2.1.0] - 2022-11-18
 
 ### Added
