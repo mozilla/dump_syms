@@ -163,7 +163,7 @@ mod tests {
         let tmp_out = tmp_dir.path().join("output.sym");
 
         copy(basic64_pdb, &tmp_pdb).unwrap();
-        copy(basic64_dll, &tmp_dll).unwrap();
+        copy(basic64_dll, tmp_dll).unwrap();
 
         let action = Action::Dump(Config {
             output: tmp_out.clone().into(),
