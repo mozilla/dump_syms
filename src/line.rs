@@ -8,7 +8,7 @@ use std::{
     fmt::{self, Debug, Display, Formatter},
 };
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, PartialEq, Eq)]
 pub(crate) struct Line {
     // rva stands for relative virtual address
     pub(crate) rva: u32,
@@ -184,12 +184,16 @@ impl Lines {
     }
 
     fn compute_len(&mut self, sym_rva: u32, sym_len: u32) {
-        // The length (in the binary) of the line is not in the pdb but we can infer it:
+        // The length (in the binary) of the line is not in the pdb but we can infer it
+        // based on the rva of the next line. For the last line, we can infer it because
+        // we know the length of the function symbol, and we are only concerned with the
+        // line records of a single function here:
+        //
         // RVA     LINE NUMBER
         // 0x0001  10  <= the size of line 10 is 0x000B - 0x0001
         // 0x000B  11
         // ...
-        // 0x002A  15 <= the size of line 15 is sym length - (0x002A - 0x0001)
+        // 0x002A  15 <= the size of line 15 is (0x0001 + sym length) - 0x002A
 
         if self.lines.is_empty() {
             return;
@@ -210,7 +214,11 @@ impl Lines {
             .zip(lens.iter())
             .for_each(|(line, len)| line.len = *len);
 
-        last.len = sym_len - (last.rva - sym_rva);
+        if let Some(function_end_rva) = sym_rva.checked_add(sym_len) {
+            if last.rva < function_end_rva {
+                last.len = function_end_rva - last.rva;
+            }
+        }
     }
 
     /// Makes sure that `self.lines` and `self.inlines` are sorted.
@@ -236,5 +244,52 @@ impl Lines {
                 }
             })
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    /// Test for https://github.com/mozilla/dump_syms/issues/527
+    #[test]
+    fn no_overflow_when_lines_spill_out_of_function() {
+        let function_sym_len = 0x9;
+        let mut lines = Lines::new();
+        lines.add_line(0x10, 100, 0);
+        lines.add_line(0x18, 102, 0);
+        lines.add_line(0x14, 101, 0);
+        lines.add_line(0x1c, 103, 0);
+        lines.finalize(0x10, function_sym_len); // function ends at 0x19
+
+        assert_eq!(
+            lines.lines,
+            vec![
+                Line {
+                    rva: 0x10,
+                    len: 0x4,
+                    num: 100,
+                    file_id: 0
+                },
+                Line {
+                    rva: 0x14,
+                    len: 0x4,
+                    num: 101,
+                    file_id: 0
+                },
+                Line {
+                    rva: 0x18,
+                    len: 0x4, // This len is questionable (we could also limit it to 0x1, i.e. 0x19 - 0x18), but it doesn't really matter
+                    num: 102,
+                    file_id: 0
+                },
+                Line {
+                    rva: 0x1c,
+                    len: 0, // 0x1c > 0x19, so we don't compute a len for this last line record.
+                    num: 103,
+                    file_id: 0
+                },
+            ]
+        );
     }
 }
