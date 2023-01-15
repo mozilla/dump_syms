@@ -60,8 +60,8 @@ impl SourceFiles {
     }
 
     fn get_path(platform: Platform, compilation_dir: &[u8], file: &FileInfo) -> String {
-        let mut dir = file.dir_str().to_string();
-        let name = file.name_str();
+        let mut dir = Self::path_to_string(file.dir);
+        let name = Self::path_to_string(file.name);
 
         if !platform.is_absolute_path(&dir) && !compilation_dir.is_empty() {
             let comp_dir = Self::path_to_string(compilation_dir);
