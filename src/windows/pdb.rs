@@ -428,6 +428,11 @@ mod tests {
     }
 
     #[test]
+    fn test_basic32_dwarf() {
+        test_file("basic32-dwarf", TestFlags::ALL);
+    }
+
+    #[test]
     fn test_basic32_min() {
         test_file("basic32-min", TestFlags::ALL);
     }
@@ -435,6 +440,11 @@ mod tests {
     #[test]
     fn test_basic64() {
         test_file("basic64", TestFlags::ALL);
+    }
+
+    #[test]
+    fn test_basic64_dwarf() {
+        test_file("basic64-dwarf", TestFlags::ALL);
     }
 
     #[test]

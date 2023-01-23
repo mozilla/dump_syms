@@ -1,0 +1,514 @@
+MODULE windows x86_64 000000000000000000000000000000000 basic64-dwarf.dll
+INFO CODE_ID 63CF138F21000 basic64-dwarf.dll
+INFO GENERATOR mozilla/dump_syms 2.1.1
+FILE 0 /mxe/tmp-gcc-x86_64-w64-mingw32.static/gcc-11.3.0.build_/mingw-w64-v10.0.0/mingw-w64-crt/crt/crtdll.c
+FILE 1 /mxe/tmp-gcc-x86_64-w64-mingw32.static/gcc-11.3.0.build_/mingw-w64-v10.0.0/mingw-w64-crt/crt/gccmain.c
+FILE 2 /mxe/tmp-gcc-x86_64-w64-mingw32.static/gcc-11.3.0.build_/mingw-w64-v10.0.0/mingw-w64-crt/crt/tlssup.c
+FILE 3 /mxe/tmp-gcc-x86_64-w64-mingw32.static/gcc-11.3.0.build_/mingw-w64-v10.0.0/mingw-w64-crt/crt/pseudo-reloc.c
+FILE 4 /mxe/tmp-gcc-x86_64-w64-mingw32.static/gcc-11.3.0.build_/mingw-w64-v10.0.0/mingw-w64-crt/crt/tlsthrd.c
+FILE 5 /mxe/tmp-gcc-x86_64-w64-mingw32.static/gcc-11.3.0.build_/mingw-w64-v10.0.0/mingw-w64-crt/crt/pesect.c
+FILE 6 /mxe/tmp-gcc-x86_64-w64-mingw32.static/gcc-11.3.0.build_/mingw-w64-v10.0.0/mingw-w64-crt/crt/CRT_fp10.c
+FILE 7 /mxe/tmp-gcc-x86_64-w64-mingw32.static/gcc-11.3.0.build_/mingw-w64-v10.0.0/mingw-w64-crt/crt/dllentry.c
+FILE 8 /mxe/tmp-gcc-x86_64-w64-mingw32.static/gcc-11.3.0.build_/mingw-w64-v10.0.0/mingw-w64-crt/crt/dllmain.c
+FILE 9 /mxe/tmp-gcc-x86_64-w64-mingw32.static/gcc-11.3.0.build_/mingw-w64-v10.0.0/mingw-w64-crt/stdio/acrt_iob_func.c
+FILE 10 /mxe/tmp-gcc-x86_64-w64-mingw32.static/gcc-11.3.0.build_/mingw-w64-v10.0.0/mingw-w64-crt/misc/onexit_table.c
+FUNC 1000 c 0 pre_c_init
+1000 c 64 0
+FUNC 1010 1ef 0 _CRT_INIT
+1010 12 68 0
+1022 4 69 0
+1026 6 71 0
+102c 2 74 0
+102e 4 71 0
+1032 a 72 0
+103c 8 120 0
+1044 6 72 0
+104a 15 122 0
+105f 10 120 0
+106f 12 124 0
+1081 a 126 0
+108b 5 135 0
+1090 10 136 0
+10a0 9 76 0
+10a9 14 79 0
+10bd 2 82 0
+10bf 7 90 0
+10c6 a 82 0
+10d0 9 85 0
+10d9 7 90 0
+10e0 8 82 0
+10e8 5 83 0
+10ed 2 80 0
+10ef 12 92 0
+1101 a 96 0
+110b b 102 0
+1116 8 107 0
+111e f 111 0
+112d d 113 0
+113a 7 115 0
+1141 5 135 0
+1146 12 136 0
+1158 5 135 0
+115d 13 136 0
+1170 c 130 0
+117c 6 131 0
+1182 3 132 0
+1185 5 135 0
+118a 6 132 0
+1190 10 87 0
+11a0 10 109 0
+11b0 e 100 0
+11be 6 98 0
+11c4 c 100 0
+11d0 13 104 0
+11e3 d 105 0
+11f0 f 94 0
+FUNC 1200 144 0 __DllMainCRTStartup
+1200 c 160 0
+120c 7 163 0
+1213 3 160 0
+1216 2 163 0
+1218 6 160 0
+121e e 164 0
+122c 5 169 0
+1231 d 185 0
+123e e 194 0
+124c 9 195 0
+1255 3 194 0
+1258 9 195 0
+1261 3 196 0
+1264 3 201 0
+1267 6 199 0
+126d 13 201 0
+1280 5 169 0
+1285 5 170 0
+128a 9 172 0
+1293 5 170 0
+1298 5 172 0
+129d 4 173 0
+12a1 11 175 0
+12b2 4 176 0
+12b6 6 183 0
+12bc 5 184 0
+12c1 13 185 0
+12d4 4 186 0
+12d8 d 188 0
+12e5 d 189 0
+12f2 d 190 0
+12ff 9 192 0
+1308 8 185 0
+1310 10 192 0
+1320 c 178 0
+132c 13 185 0
+133f 5 192 0
+FUNC 1350 12 0 DllMainCRTStartup
+1350 d 148 0
+135d 5 155 0
+FUNC 1370 f 0 atexit
+1370 3 205 0
+1373 c 206 0
+FUNC 1380 c 0 <unknown in basic64-dwarf.dll>
+FUNC 1390 1 0 <unknown in basic64-dwarf.dll>
+FUNC 13a0 15 0 Z5test1Pi
+FUNC 13b5 d 0 Z5test2ij
+FUNC 13c2 14 0 Z5test3ijs
+FUNC 13d6 18 0 Z5test4ijtPd
+FUNC 13ee 19 0 Z5test5PijtPKdNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+FUNC 1407 13 0 Z5test6PKdRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEOS6_
+FUNC 141a f 0 Z5test7PFvijtPdE
+FUNC 1429 f 0 Z5test8PFiPFvijtPdEE
+FUNC 1438 f 0 Z5test9PFiPFiPFvijtPdEEE
+FUNC 1447 f 0 Z6test10RPc
+FUNC 1456 1b 0 Z10test_arrayPcPA34_iPA34_A56_NSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEPA34_A56_A78_Pd
+FUNC 1471 1b 0 Z23test_array_empty_structP5EmptyPA34_S_PA34_A56_S_PA34_A56_A78_S_
+FUNC 1490 3a 0 __do_global_dtors
+1490 4 21 1
+1494 14 24 1
+14a8 2 26 1
+14aa b 27 1
+14b5 4 24 1
+14b9 7 27 1
+14c0 5 24 1
+14c5 5 29 1
+FUNC 14d0 6a 0 __do_global_ctors
+14d0 6 33 1
+14d6 c 34 1
+14e2 5 37 1
+14e7 19 42 1
+1500 2 44 1
+1502 9 42 1
+150b 7 47 1
+1512 6 48 1
+1518 8 47 1
+1520 1a 39 1
+FUNC 1540 1f 0 __main
+1540 a 55 1
+154a 6 60 1
+1550 a 57 1
+155a 5 58 1
+FUNC 1560 2f 0 __dyn_tls_dtor
+1560 4 137 2
+1564 9 143 2
+156d 13 168 2
+1580 5 166 2
+1585 a 168 2
+FUNC 1590 81 0 __dyn_tls_init
+1590 6 77 2
+1596 c 82 2
+15a2 6 83 2
+15a8 5 85 2
+15ad 5 87 2
+15b2 e 101 2
+15c0 2b 76 2
+15eb 15 101 2
+1600 5 88 2
+1605 c 101 2
+FUNC 1620 3 0 __tlregdtor
+1620 3 133 2
+FUNC 1630 6a 0 __report_error
+1630 a 85 3
+163a 5 148 3
+163f 5 150 3
+1644 f 85 3
+1653 5 148 3
+1658 1f 150 3
+1677 1d 151 3
+1694 6 157 3
+FUNC 16a0 162 0 mark_section_writable
+16a0 8 184 3
+16a8 7 189 3
+16af 3 184 3
+16b2 1e 189 3
+16d0 8 191 3
+16d8 13 192 3
+16eb d 189 3
+16f8 b 195 3
+1703 9 196 3
+170c 16 201 3
+1722 6 202 3
+1728 8 203 3
+1730 6 205 3
+1736 b 203 3
+1741 5 205 3
+1746 5 203 3
+174b f 205 3
+175a 7 212 3
+1761 5 213 3
+1766 3 212 3
+1769 5 213 3
+176e 7 228 3
+1775 b 230 3
+1780 3 219 3
+1783 5 220 3
+1788 5 221 3
+178d f 219 3
+179c e 220 3
+17aa 4 221 3
+17ae a 222 3
+17b8 6 226 3
+17be 7 225 3
+17c5 2 226 3
+17c7 9 225 3
+17d0 7 189 3
+17d7 1b 207 3
+17f2 10 198 3
+FUNC 1810 335 0 _pei386_runtime_relocator
+1810 15 485 3
+1825 a 491 3
+182f 11 511 3
+1840 a 493 3
+184a 5 495 3
+184f 17 496 3
+1866 e 500 3
+1874 a 497 3
+187e f 496 3
+188d 143 500 3
+19d0 58 509 3
+1a28 11d 500 3
+FUNC 1b50 71 0 __mingwthr_run_key_dtors
+1b50 b 99 4
+1b5b 10 105 4
+1b6b 1d 107 4
+1b88 7 109 4
+1b8f 2 110 4
+1b91 9 112 4
+1b9a 9 113 4
+1ba3 4 115 4
+1ba7 5 107 4
+1bac 3 118 4
+1baf b 119 4
+1bba 7 118 4
+FUNC 1bd0 81 0 ___w64_mingwthr_add_key_dtor
+1bd0 9 43 4
+1bd9 6 46 4
+1bdf 5 43 4
+1be4 4 46 4
+1be8 10 62 4
+1bf8 12 48 4
+1c0a 5 49 4
+1c0f 7 55 4
+1c16 2 52 4
+1c18 4 53 4
+1c1c 9 55 4
+1c25 7 57 4
+1c2c 3 60 4
+1c2f 7 58 4
+1c36 4 57 4
+1c3a 6 60 4
+1c40 2 61 4
+1c42 a 62 4
+1c4c 5 50 4
+FUNC 1c60 89 0 ___w64_mingwthr_remove_key_dtor
+1c60 7 66 4
+1c67 6 70 4
+1c6d 2 66 4
+1c6f 4 70 4
+1c73 d 96 4
+1c80 10 73 4
+1c90 7 76 4
+1c97 5 78 4
+1c9c 4 75 4
+1ca0 b 78 4
+1cab 4 80 4
+1caf 4 83 4
+1cb3 2 80 4
+1cb5 5 82 4
+1cba 4 85 4
+1cbe 5 87 4
+1cc3 9 94 4
+1ccc 14 96 4
+1ce0 9 83 4
+FUNC 1cf0 e2 0 __mingw_TLScallback
+1cf0 5 125 4
+1cf5 b 126 4
+1d00 e 129 4
+1d0e a 131 4
+1d18 10 157 4
+1d28 5 126 4
+1d2d 13 153 4
+1d40 5 150 4
+1d45 b 157 4
+1d50 a 134 4
+1d5a b 135 4
+1d65 13 138 4
+1d78 7 140 4
+1d7f 5 141 4
+1d84 5 138 4
+1d89 7 146 4
+1d90 b 144 4
+1d9b a 145 4
+1da5 b 146 4
+1db0 10 134 4
+1dc0 12 130 4
+FUNC 1de0 2c 0 _ValidateImageBase
+1de0 2 32 5
+1de2 7 31 5
+1de9 f 24 5
+1df8 8 40 5
+1e00 b 24 5
+1e0b 1 40 5
+FUNC 1e10 48 0 _FindPESection
+1e10 7 51 5
+1e17 9 53 5
+1e20 18 54 5
+1e38 c 57 5
+1e44 8 58 5
+1e4c 4 55 5
+1e50 5 54 5
+1e55 2 61 5
+1e57 1 62 5
+FUNC 1e60 9f 0 _FindPESectionByName
+1e60 b 68 5
+1e6b b 75 5
+1e76 7 79 5
+1e7d 3 76 5
+1e80 1e 79 5
+1e9e 9 84 5
+1ea7 19 85 5
+1ec0 4 86 5
+1ec4 5 85 5
+1ec9 15 88 5
+1ede 12 92 5
+1ef0 3 76 5
+1ef3 c 92 5
+FUNC 1f00 78 0 __mingw_GetSectionForAddress
+1f00 7 104 5
+1f07 2 105 5
+1f09 17 104 5
+1f20 8 109 5
+1f28 9 104 5
+1f31 5 108 5
+1f36 3 107 5
+1f39 3c 108 5
+1f75 2 105 5
+1f77 1 109 5
+FUNC 1f80 39 0 __mingw_GetSectionCount
+1f80 7 118 5
+1f87 3 119 5
+1f8a 16 118 5
+1fa0 8 124 5
+1fa8 8 118 5
+1fb0 5 123 5
+1fb5 4 124 5
+FUNC 1fc0 6b 0 _FindPESectionExec
+1fc0 7 138 5
+1fc7 2 139 5
+1fc9 17 138 5
+1fe0 8 155 5
+1fe8 8 138 5
+1ff0 9 143 5
+1ff9 17 144 5
+2010 6 147 5
+2016 5 149 5
+201b 4 151 5
+201f 4 145 5
+2023 5 144 5
+2028 2 139 5
+202a 1 155 5
+FUNC 2030 36 0 _GetPEImageBase
+2030 7 164 5
+2037 3 165 5
+203a 16 164 5
+2050 8 167 5
+2058 a 166 5
+2062 4 167 5
+FUNC 2070 89 0 _IsNonwritableInCurrentImage
+2070 7 179 5
+2077 2 180 5
+2079 17 179 5
+2090 8 186 5
+2098 9 179 5
+20a1 3 181 5
+20a4 41 182 5
+20e5 2 180 5
+20e7 9 186 5
+20f0 8 185 5
+20f8 1 186 5
+FUNC 2100 be 0 __mingw_enum_import_library_names
+2100 7 201 5
+2107 3 202 5
+210a 18 201 5
+2122 e 230 5
+2130 9 201 5
+2139 7 206 5
+2140 4 207 5
+2144 42 210 5
+2186 3 202 5
+2189 7 230 5
+2190 3 214 5
+2193 5 215 5
+2198 3 225 5
+219b 4 226 5
+219f 10 220 5
+21af 4 223 5
+21b3 7 224 5
+21ba 4 230 5
+FUNC 21c0 3 0 _fpreset
+21c0 2 19 6
+21c2 1 24 6
+FUNC 2210 6 0 DllEntryPoint
+2210 6 18 7
+FUNC 2220 6 0 DllMain
+2220 6 10 8
+FUNC 2230 1f 0 __acrt_iob_func
+2230 7 10 9
+2237 12 11 9
+2249 6 12 9
+FUNC 2250 25 0 _initialize_onexit_table
+2250 5 17 10
+2255 2 19 10
+2257 17 18 10
+226e 1 20 10
+226f 5 17 10
+2274 1 20 10
+FUNC 2280 d7 0 _register_onexit_function
+2280 e 23 10
+228e 9 24 10
+2297 a 26 10
+22a1 6 28 10
+22a7 d 38 10
+22b4 4 50 10
+22b8 5 51 10
+22bd 7 50 10
+22c4 5 51 10
+22c9 2 52 10
+22cb d 53 10
+22d8 10 39 10
+22e8 c 40 10
+22f4 5 41 10
+22f9 3 45 10
+22fc 4 46 10
+2300 10 47 10
+2310 15 29 10
+2325 5 30 10
+232a 4 34 10
+232e 10 35 10
+233e 7 24 10
+2345 a 31 10
+234f 8 32 10
+FUNC 2360 71 0 _execute_onexit_table
+2360 b 56 10
+236b a 59 10
+2375 3 60 10
+2378 4 61 10
+237c 10 62 10
+238c 5 63 10
+2391 7 62 10
+2398 5 63 10
+239d 5 65 10
+23a2 9 67 10
+23ab 8 68 10
+23b3 2 69 10
+23b5 9 67 10
+23be 8 71 10
+23c6 b 73 10
+FUNC 24a0 5 0 <unknown in basic64-dwarf.dll>
+STACK CFI INIT 1000 c .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 1010 1ef .cfa: $rsp 96 + $r13: .cfa 16 - ^ $r12: .cfa 24 - ^ $rbp: .cfa 32 - ^ $rdi: .cfa 40 - ^ $rsi: .cfa 48 - ^ $rbx: .cfa 56 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1200 144 .cfa: $rsp 80 + $r14: .cfa 16 - ^ $r13: .cfa 24 - ^ $r12: .cfa 32 - ^ $rsi: .cfa 40 - ^ $rbx: .cfa 48 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1350 12 .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 1370 f .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 1380 c .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 1390 1 .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 13a0 15 .cfa: $rbp 16 + $rbp: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 13b5 d .cfa: $rbp 16 + $rbp: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 13c2 14 .cfa: $rbp 16 + $rbp: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 13d6 18 .cfa: $rbp 16 + $rbp: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 13ee 19 .cfa: $rbp 16 + $rbp: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1407 13 .cfa: $rbp 16 + $rbp: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 141a f .cfa: $rbp 16 + $rbp: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1429 f .cfa: $rbp 16 + $rbp: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1438 f .cfa: $rbp 16 + $rbp: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1447 f .cfa: $rbp 16 + $rbp: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1456 1b .cfa: $rbp 16 + $rbp: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1471 1b .cfa: $rbp 16 + $rbp: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1490 3a .cfa: $rsp 48 + .ra: .cfa 8 - ^
+STACK CFI INIT 14d0 6a .cfa: $rsp 64 + $rsi: .cfa 16 - ^ $rbx: .cfa 24 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1540 1f .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 1560 2f .cfa: $rsp 48 + .ra: .cfa 8 - ^
+STACK CFI INIT 1590 81 .cfa: $rsp 64 + $rsi: .cfa 16 - ^ $rbx: .cfa 24 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1620 3 .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 1630 6a .cfa: $rsp 80 + $r12: .cfa 16 - ^ $rbx: .cfa 24 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 16a0 162 .cfa: $rsp 112 + $r12: .cfa 16 - ^ $rsi: .cfa 24 - ^ $rbx: .cfa 32 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1810 335 .cfa: $rbp 80 + $rbp: .cfa 16 - ^ $r15: .cfa 24 - ^ $r14: .cfa 32 - ^ $r13: .cfa 40 - ^ $r12: .cfa 48 - ^ $rdi: .cfa 56 - ^ $rsi: .cfa 64 - ^ $rbx: .cfa 72 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1b50 71 .cfa: $rsp 80 + $r13: .cfa 16 - ^ $r12: .cfa 24 - ^ $rdi: .cfa 32 - ^ $rsi: .cfa 40 - ^ $rbx: .cfa 48 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1bd0 81 .cfa: $rsp 80 + $r12: .cfa 16 - ^ $rdi: .cfa 24 - ^ $rsi: .cfa 32 - ^ $rbx: .cfa 40 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1c60 89 .cfa: $rsp 64 + $r12: .cfa 16 - ^ $rbx: .cfa 24 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1cf0 e2 .cfa: $rsp 48 + $rbx: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1de0 2c .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 1e10 48 .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 1e60 9f .cfa: $rsp 64 + $r12: .cfa 16 - ^ $rsi: .cfa 24 - ^ $rbx: .cfa 32 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 1f00 78 .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 1f80 39 .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 1fc0 6b .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 2030 36 .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 2070 89 .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 2100 be .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 21c0 3 .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 2210 6 .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 2220 6 .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 2230 1f .cfa: $rsp 48 + $rbx: .cfa 16 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 2250 25 .cfa: $rsp 8 + .ra: .cfa 8 - ^
+STACK CFI INIT 2280 d7 .cfa: $rsp 80 + $rbp: .cfa 16 - ^ $rdi: .cfa 24 - ^ $rsi: .cfa 32 - ^ $rbx: .cfa 40 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 2360 71 .cfa: $rsp 64 + $r12: .cfa 16 - ^ $rsi: .cfa 24 - ^ $rbx: .cfa 32 - ^ .ra: .cfa 8 - ^
+STACK CFI INIT 24a0 5 .cfa: $rsp 8 + .ra: .cfa 8 - ^
