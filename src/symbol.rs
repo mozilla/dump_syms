@@ -123,35 +123,6 @@ pub(super) fn add_executable_section_symbols(
     syms
 }
 
-pub(super) fn append_dummy_symbol(mut syms: Symbols, name: &str) -> Symbols {
-    let (rva, len) = if let Some((_, last_sym)) = syms.iter().next_back() {
-        (last_sym.rva, last_sym.len)
-    } else {
-        return syms;
-    };
-
-    let rva = if len == 0 { rva + 1 } else { rva + len };
-
-    let name = if name.is_empty() {
-        String::from("<unknown>")
-    } else {
-        format!("<unknown in {}>", name)
-    };
-
-    syms.entry(rva).or_insert(Symbol {
-        name,
-        is_public: true,
-        is_multiple: false,
-        is_synthetic: true,
-        rva,
-        len: 0,
-        parameter_size: 0,
-        source: Lines::new(),
-    });
-
-    syms
-}
-
 // Get separated debugging information into .gnu_debugdata section.
 // See https://sourceware.org/gdb/onlinedocs/gdb/MiniDebugInfo.html.
 pub(super) fn get_compressed_minidebuginfo(object: &Object) -> Option<Vec<u8>> {
