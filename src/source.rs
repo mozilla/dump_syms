@@ -60,8 +60,8 @@ impl SourceFiles {
     }
 
     fn get_path(platform: Platform, compilation_dir: &[u8], file: &FileInfo) -> String {
-        let mut dir = Self::path_to_string(file.dir);
-        let name = Self::path_to_string(file.name);
+        let mut dir = file.dir_str().to_string();
+        let name = file.name_str();
 
         if !platform.is_absolute_path(&dir) && !compilation_dir.is_empty() {
             let comp_dir = Self::path_to_string(compilation_dir);
@@ -87,8 +87,8 @@ impl SourceFiles {
         // so just use a cache based on the string pointers.
         let cache_key = (
             Self::cast_ptr(compilation_dir),
-            Self::cast_ptr(file.dir),
-            Self::cast_ptr(file.name),
+            Self::cast_ptr(file.dir_str().as_bytes()),
+            Self::cast_ptr(file.name_str().as_bytes()),
         );
 
         match self.cache.entry(cache_key) {
