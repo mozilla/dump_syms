@@ -463,6 +463,7 @@ FUNC 2360 71 0 _execute_onexit_table
 23be 8 71 10
 23c6 b 73 10
 FUNC 24a0 5 0 <unknown in basic64-dwarf.dll>
+PUBLIC 24a5 0 <unknown>
 STACK CFI INIT 1000 c .cfa: $rsp 8 + .ra: .cfa 8 - ^
 STACK CFI INIT 1010 1ef .cfa: $rsp 96 + $r13: .cfa 16 - ^ $r12: .cfa 24 - ^ $rbp: .cfa 32 - ^ $rdi: .cfa 40 - ^ $rsi: .cfa 48 - ^ $rbx: .cfa 56 - ^ .ra: .cfa 8 - ^
 STACK CFI INIT 1200 144 .cfa: $rsp 80 + $r14: .cfa 16 - ^ $r13: .cfa 24 - ^ $r12: .cfa 32 - ^ $rsi: .cfa 40 - ^ $rbx: .cfa 48 - ^ .ra: .cfa 8 - ^
