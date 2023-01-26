@@ -10,6 +10,8 @@ use symbolic::debuginfo::Object;
 
 use crate::line::Lines;
 
+const PDB_MAGIC: u64 = 7381245236781214029;
+
 #[derive(Clone, Debug, Default)]
 pub struct Symbol {
     pub name: String,
@@ -99,26 +101,60 @@ pub(super) fn add_executable_section_symbols(
     object: &Object,
 ) -> Symbols {
     let object = goblin::Object::parse(object.data());
-    if let Ok(goblin::Object::Elf(elf)) = object {
-        for header in elf.section_headers {
-            if header.is_executable() {
-                let name = if name.is_empty() { "unknown" } else { name };
-                let section_name = elf.shdr_strtab.get_at(header.sh_name).unwrap_or("unknown");
-                let symbol_name = format!("<{} ELF section in {}>", section_name, name);
-                let rva = header.sh_addr as u32;
-                syms.entry(rva).or_insert(Symbol {
-                    name: symbol_name,
-                    is_public: true,
-                    is_multiple: false,
-                    is_synthetic: true,
-                    rva,
-                    len: 0,
-                    parameter_size: 0,
-                    source: Lines::new(),
-                });
+    match object {
+        Ok(goblin::Object::Elf(elf)) => {
+            for header in elf.section_headers {
+                if header.is_executable() {
+                    let name = if name.is_empty() { "unknown" } else { name };
+                    let section_name = elf.shdr_strtab.get_at(header.sh_name).unwrap_or("unknown");
+                    let symbol_name = format!("<{} ELF section in {}>", section_name, name);
+                    let rva = header.sh_addr as u32;
+                    syms.entry(rva).or_insert(Symbol {
+                        name: symbol_name,
+                        is_public: true,
+                        is_multiple: false,
+                        is_synthetic: true,
+                        rva,
+                        len: 0,
+                        parameter_size: 0,
+                        source: Lines::new(),
+                    });
+                }
             }
         }
+        Ok(goblin::Object::PE(_)) | Ok(goblin::Object::Unknown(PDB_MAGIC)) => {
+            syms = append_dummy_symbol_pe_pdb(syms, name);
+        }
+        _ => (),
     }
+    syms
+}
+
+fn append_dummy_symbol_pe_pdb(mut syms: Symbols, name: &str) -> Symbols {
+    let (rva, len) = if let Some((_, last_sym)) = syms.iter().next_back() {
+        (last_sym.rva, last_sym.len)
+    } else {
+        return syms;
+    };
+
+    let rva = if len == 0 { rva + 1 } else { rva + len };
+
+    let name = if name.is_empty() {
+        String::from("<unknown>")
+    } else {
+        format!("<unknown in {}>", name)
+    };
+
+    syms.entry(rva).or_insert(Symbol {
+        name,
+        is_public: true,
+        is_multiple: false,
+        is_synthetic: true,
+        rva,
+        len: 0,
+        parameter_size: 0,
+        source: Lines::new(),
+    });
 
     syms
 }
