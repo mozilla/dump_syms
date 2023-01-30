@@ -35,7 +35,7 @@ impl ObjectInfo {
     }
 
     pub fn from_pe(pe_name: &str, pe: PeObject) -> common::Result<Self> {
-        let pdb_name = pe.debug_file_name().unwrap_or_default().to_string();
+        let pdb_name = pe.debug_file_name().unwrap_or(pe_name.into()).to_string();
         let pe = Object::Pe(pe);
         let pdb_name = win_path_file_name(&pdb_name).to_string();
         ObjectInfo::from_object(
