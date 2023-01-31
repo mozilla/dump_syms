@@ -44,9 +44,9 @@ impl Collector {
         println!("{}Address: 0x{:x}", level, fun.address);
         println!("{}Size: 0x{:x}", level, fun.size);
         for line in fun.lines.iter() {
-            println!("{}Line: {:?}", level, line);
+            println!("{level}Line: {line:?}");
         }
-        println!("{}Inlinees:", level);
+        println!("{level}Inlinees:");
         for f in fun.inlinees.iter() {
             Self::debug_function(f, "  ".to_string() + &level);
         }
@@ -136,8 +136,8 @@ impl Collector {
         );
     }
 
-    fn collect_function_without_inlines<'a>(
-        fun: &Function<'a>,
+    fn collect_function_without_inlines(
+        fun: &Function<'_>,
         lines: &mut Lines,
         source: &mut SourceFiles,
     ) {
@@ -431,7 +431,7 @@ impl Collector {
         let name = if module_name.is_empty() {
             String::from("<unknown>")
         } else {
-            format!("<unknown in {}>", module_name)
+            format!("<unknown in {module_name}>")
         };
 
         for function in exception_data.into_iter().filter_map(|result| result.ok()) {

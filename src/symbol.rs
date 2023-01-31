@@ -107,7 +107,7 @@ pub(super) fn add_executable_section_symbols(
                 if header.is_executable() {
                     let name = if name.is_empty() { "unknown" } else { name };
                     let section_name = elf.shdr_strtab.get_at(header.sh_name).unwrap_or("unknown");
-                    let symbol_name = format!("<{} ELF section in {}>", section_name, name);
+                    let symbol_name = format!("<{section_name} ELF section in {name}>");
                     let rva = header.sh_addr as u32;
                     syms.entry(rva).or_insert(Symbol {
                         name: symbol_name,
@@ -142,7 +142,7 @@ fn append_dummy_symbol_pe_pdb(mut syms: Symbols, name: &str) -> Symbols {
     let name = if name.is_empty() {
         String::from("<unknown>")
     } else {
-        format!("<unknown in {}>", name)
+        format!("<unknown in {name}>")
     };
 
     syms.entry(rva).or_insert(Symbol {

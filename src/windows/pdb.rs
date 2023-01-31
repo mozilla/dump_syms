@@ -110,7 +110,7 @@ mod tests {
         let (pe, pdb_buf, pdb_name) = crate::windows::utils::get_pe_pdb_buf(
             &PathBuf::from("."),
             &pe_buf,
-            crate::cache::get_sym_servers(Some(&format!("SRV*~/symcache*{}", MS))).as_ref(),
+            crate::cache::get_sym_servers(Some(&format!("SRV*~/symcache*{MS}"))).as_ref(),
         )
         .unwrap();
 
@@ -138,7 +138,7 @@ mod tests {
         let (pe, pdb_buf, pdb_name) = crate::windows::utils::get_pe_pdb_buf(
             &path,
             &pe_buf,
-            crate::cache::get_sym_servers(Some(&format!("SRV*~/symcache*{}", MS))).as_ref(),
+            crate::cache::get_sym_servers(Some(&format!("SRV*~/symcache*{MS}"))).as_ref(),
         )
         .unwrap_or_else(|| (PeObject::parse(&pe_buf).unwrap(), vec![], "".to_string()));
 
@@ -225,10 +225,10 @@ mod tests {
                 }
             }
 
-            let diff: Vec<_> = diff.iter().map(|x| format!("0x{:x}", x)).collect();
+            let diff: Vec<_> = diff.iter().map(|x| format!("0x{x:x}")).collect();
             let values: Vec<_> = diff_value
                 .iter()
-                .map(|(a, n, o)| format!("At 0x{:x}: new {}, old: {}", a, n, o))
+                .map(|(a, n, o)| format!("At 0x{a:x}: new {n}, old: {o}"))
                 .collect();
             panic!(
                 "Not the same number of FUNC (new: {}, old: {}):\n - Diff keys: {:?}\n - Diff values: {:?}",
@@ -354,10 +354,14 @@ mod tests {
         let files_new: HashSet<_> = file_map_new.values().collect();
 
         for old_file in &files_old {
-            assert!(files_new.contains(old_file), "Missing path: {}", old_file);
+            assert!(
+                files_new.contains(old_file),
+                "{}",
+                "Missing path: {old_file}"
+            );
         }
         for new_file in &files_new {
-            assert!(files_old.contains(new_file), "Extra path: {}", new_file);
+            assert!(files_old.contains(new_file), "{}", "Extra path: {new_file}");
         }
 
         let mut func_old: Vec<_> = old.func_records().collect();
@@ -470,7 +474,7 @@ mod tests {
     #[test]
     fn test_ntdll() {
         test_file(
-            &format!("{}/ntdll.dll/5D6AA5581AD000/ntdll.dll", MS),
+            &format!("{MS}/ntdll.dll/5D6AA5581AD000/ntdll.dll"),
             TestFlags::NO_MULTIPLICITY,
         );
     }
@@ -478,7 +482,7 @@ mod tests {
     #[test]
     fn test_oleaut32() {
         test_file(
-            &format!("{}/oleaut32.dll/BCDE805BC4000/oleaut32.dll", MS),
+            &format!("{MS}/oleaut32.dll/BCDE805BC4000/oleaut32.dll"),
             TestFlags::NO_MULTIPLICITY,
         );
     }
