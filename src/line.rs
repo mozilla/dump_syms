@@ -215,9 +215,18 @@ impl Lines {
             .for_each(|(line, len)| line.len = *len);
 
         if let Some(function_end_rva) = sym_rva.checked_add(sym_len) {
-            if last.rva < function_end_rva {
-                last.len = function_end_rva - last.rva;
+            // because this is last line, so we can infer a reasonable value in this func
+            if last.rva > function_end_rva {
+                if lines.len() > 1 {
+                    // calcuate last using previouse
+                    let prev = &lines[lines.len() - 1];
+                    last.rva = prev.rva + prev.len;
+                } else {
+                    // only one line
+                    last.rva = sym_rva
+                }
             }
+            last.len = function_end_rva - last.rva;
         }
     }
 
