@@ -41,9 +41,9 @@ fn get_digest(file: &Path, uppercase: bool) -> common::Result<String> {
     let data = utils::read(file)?;
     let sha = Sha512::digest(data);
     Ok(if uppercase {
-        format!("{:X}", sha)
+        format!("{sha:X}")
     } else {
-        format!("{:x}", sha)
+        format!("{sha:x}")
     })
 }
 

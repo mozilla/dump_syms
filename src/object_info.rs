@@ -50,7 +50,7 @@ impl Display for ObjectInfo {
 
         if let Some(code_id) = self.code_id.as_ref() {
             let pe_name = self.pe_name.as_deref().unwrap_or_default();
-            let line = format!("INFO CODE_ID {} {}", code_id, pe_name);
+            let line = format!("INFO CODE_ID {code_id} {pe_name}");
             writeln!(f, "{}", line.trim())?;
         }
 
@@ -61,7 +61,7 @@ impl Display for ObjectInfo {
         )?;
 
         for (n, file_name) in self.files.get_mapping().iter().enumerate() {
-            writeln!(f, "FILE {} {}", n, file_name)?;
+            writeln!(f, "FILE {n} {file_name}")?;
         }
 
         for (n, function_name) in self.inline_origins.iter().enumerate() {
@@ -70,11 +70,11 @@ impl Display for ObjectInfo {
             } else {
                 function_name
             };
-            writeln!(f, "INLINE_ORIGIN {} {}", n, function_name)?;
+            writeln!(f, "INLINE_ORIGIN {n} {function_name}")?;
         }
 
         for (_, sym) in self.symbols.iter() {
-            write!(f, "{}", sym)?;
+            write!(f, "{sym}")?;
         }
 
         write!(f, "{}", self.stack)?;
@@ -275,7 +275,7 @@ impl ObjectInfo {
     }
 
     pub fn dump<W: Write>(&self, mut writer: W) -> common::Result<()> {
-        write!(writer, "{}", self)?;
+        write!(writer, "{self}")?;
         Ok(())
     }
 

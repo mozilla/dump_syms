@@ -455,7 +455,7 @@ pub fn several_files(config: &Config, filenames: &[&str]) -> common::Result<()> 
         let check_cfi = config.check_cfi;
 
         let t = thread::Builder::new()
-            .name(format!("dump-syms {}", i))
+            .name(format!("dump-syms {i}"))
             .spawn(move || {
                 consumer(
                     arch, sender, receiver, results, counter, num_jobs, output, check_cfi,

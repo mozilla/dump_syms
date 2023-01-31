@@ -226,7 +226,7 @@ fn main() {
     };
 
     if let Err(e) = action.action(&filenames) {
-        eprintln!("{}", e);
+        eprintln!("{e}");
         std::process::exit(1);
     }
 }

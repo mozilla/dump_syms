@@ -40,7 +40,7 @@ impl Platform {
             Platform::Linux | Platform::Mac => {
                 let left = left.trim_end_matches('/');
                 let right = right.trim_start_matches('/');
-                format!("{}/{}", left, right)
+                format!("{left}/{right}")
             }
             Platform::Win => {
                 // We need to support both Linux-style paths and Windows-style paths.
@@ -54,9 +54,9 @@ impl Platform {
                 // the separator. This covers the PDB-on-Linux case we care about; all
                 // the paths in such a PDB appear to be absolute paths.
                 if left.starts_with('/') {
-                    format!("{}/{}", left, right)
+                    format!("{left}/{right}")
                 } else {
-                    format!("{}\\{}", left, right)
+                    format!("{left}\\{right}")
                 }
             }
         }
@@ -70,7 +70,7 @@ impl Display for Platform {
             Self::Mac => "Mac",
             Self::Win => "windows",
         };
-        write!(f, "{}", p)
+        write!(f, "{p}")
     }
 }
 
