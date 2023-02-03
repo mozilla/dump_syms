@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+
+- dump_syms now supports dumping DWARF debug information in Windows PE files
+
+### Changed
+
+- Use the last version of symbolic (11) and various other crates
+
+### Fixed
+
+- Avoid underflows when infering the length of the last line in a function
+- Do not emit `INLINE_ORIGIN` directives where the name is made entirely of
+  whitespace, these are replaced with a `<name omitted>` symbol
+
 ## [2.1.1] - 2022-11-29
 
 ### Changed
@@ -16,9 +30,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- INLINE_ORIGIN names could contain line-breaks if the debuginfo contained them.
-  These caused parsing the .sym file to fail so they're now stripped before
-  emitting them.
+- `INLINE_ORIGIN` names could contain line-breaks if the debuginfo contained
+  them. These caused parsing the .sym file to fail so they're now stripped
+  before emitting them.
 
 ## [2.1.0] - 2022-11-18
 
@@ -51,9 +65,9 @@ the right repository.
 ### Fixed
 
 - Function names are properly demangled even when inlined
-- Emit an <unknown> symbol when an inline function doesn't have a name (this
-  can happen with debug information that has been split with tools like dwz),
-  this avoids emitting INLINE_ORIGIN directives without a name
+- Emit a `<name omitted>` symbol when an inline function doesn't have a name
+  (this can happen with debug information that has been split with tools like
+  dwz), this avoids emitting `INLINE_ORIGIN` directives without a name
 
 ## [2.0.0] - 2022-08-18
 
