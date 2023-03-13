@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+## [2.2.1] - 2023-03-13
+
 ### Changed
 
 - Use the last version of the symbolic crates and update several other
@@ -122,7 +124,8 @@ The crate can be used to build a stand-alone executable or as a library to
 provide symbol-file generation in other tools.
 
 <!-- next-url -->
-[Unreleased]: https://github.com/mozilla/dump_syms/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/mozilla/dump_syms/compare/v2.2.1...HEAD
+[2.2.1]: https://github.com/mozilla/dump_syms/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/mozilla/dump_syms/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/mozilla/dump_syms/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/mozilla/dump_syms/compare/v2.0.2...v2.1.0
