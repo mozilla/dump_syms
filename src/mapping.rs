@@ -3,11 +3,11 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use hashbrown::{HashMap, HashSet};
 use log::warn;
 use regex::Regex;
 use serde::Deserialize;
 use sha2::{Digest, Sha512};
+use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::sync::Mutex;
 

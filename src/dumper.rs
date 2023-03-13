@@ -4,8 +4,8 @@
 // copied, modified, or distributed except according to those terms.
 
 use crossbeam::channel::{bounded, Receiver, Sender};
-use hashbrown::HashMap;
 use log::{error, info};
+use std::collections::HashMap;
 use std::fmt;
 use std::fs;
 use std::path::{Path, PathBuf};
