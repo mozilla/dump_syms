@@ -44,7 +44,7 @@ sha2 = "0.10"
 simplelog = { version = "0.12", optional = true, features = ["local-offset"] }
 symbolic = { version = "12", features = ["demangle", "cfi"] }
 tokio = { version = "1.23", optional = true }
-url = "2.2"
+url = "2.4"
 uuid = "1"
 
 [dev-dependencies]
