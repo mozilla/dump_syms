@@ -75,7 +75,7 @@ pub fn merge_inline_origins(left: &mut Vec<String>, right: Vec<String>) -> Vec<u
     // Just append the two vecs to each other. We don't bother with deduplication.
     let count = right.len() as u32;
     let offset = left.len() as u32;
-    left.extend(right.into_iter());
+    left.extend(right);
     (offset..(offset + count)).collect()
 }
 
