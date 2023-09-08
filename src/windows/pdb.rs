@@ -246,7 +246,7 @@ mod tests {
         old: &BreakpadFuncRecord,
         file_map_new: &BreakpadFileMap,
         file_map_old: &BreakpadFileMap,
-        flags: TestFlags,
+        flags: &TestFlags,
     ) {
         assert_eq!(
             new.address,
@@ -377,7 +377,7 @@ mod tests {
             let func_n = func_n.as_ref().unwrap();
             let func_o = func_o.as_ref().unwrap();
 
-            check_func(i, func_n, func_o, &file_map_new, &file_map_old, flags);
+            check_func(i, func_n, func_o, &file_map_new, &file_map_old, &flags);
         }
 
         let public_old = old.public_records();
