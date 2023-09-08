@@ -35,7 +35,7 @@ tasks:
         workerType: ci
         payload:
           maxRunTime: 3600
-          image: "rust:bullseye"
+          image: "rust:bookworm"
           command:
             - "/bin/bash"
             - "-cx"
@@ -60,7 +60,7 @@ tasks:
         workerType: ci
         payload:
           maxRunTime: 3600
-          image: "rust:bullseye"
+          image: "rust:bookworm"
           env:
             CODECOV_TOKEN: 0951320b-00b4-481a-b38e-2248fe45256b
             CARGO_INCREMENTAL: 0
@@ -96,7 +96,7 @@ tasks:
           workerType: ci
           payload:
             maxRunTime: 3600
-            image: "rust:bullseye"
+            image: "rust:bookworm"
             env:
               PROJECT_NAME: dump_syms
             command:
