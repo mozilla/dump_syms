@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+### Changed
+
+- Update the goblin crate to match the one used by symbolic and the bitflags
+  crate to the next major version. This restores the ability to build the tool.
+
 ## [2.2.1] - 2023-03-13
 
 ### Changed
