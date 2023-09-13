@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+## [2.2.2] - 2023-09-13
+
 ### Changed
 
 - Update the goblin crate to match the one used by symbolic and the bitflags
@@ -129,7 +131,8 @@ The crate can be used to build a stand-alone executable or as a library to
 provide symbol-file generation in other tools.
 
 <!-- next-url -->
-[Unreleased]: https://github.com/mozilla/dump_syms/compare/v2.2.1...HEAD
+[Unreleased]: https://github.com/mozilla/dump_syms/compare/v2.2.2...HEAD
+[2.2.2]: https://github.com/mozilla/dump_syms/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/mozilla/dump_syms/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/mozilla/dump_syms/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/mozilla/dump_syms/compare/v2.1.0...v2.1.1
