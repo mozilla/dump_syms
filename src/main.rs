@@ -6,6 +6,8 @@
 use clap::ArgAction;
 use clap::{crate_authors, crate_version, Arg, Command};
 use log::error;
+use once_cell::sync::Lazy;
+use regex::Regex;
 use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
 use std::ops::Deref;
 use std::panic;
@@ -13,7 +15,7 @@ use std::panic;
 mod action;
 
 use action::Action;
-use dump_syms::common;
+use dump_syms::common::{self, EXTRA_INFO};
 use dump_syms::dumper;
 
 fn cli() -> Command {
@@ -123,6 +125,11 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
             .long("inlines")
             .action(ArgAction::SetTrue)
     )
+    .arg(Arg::new("extra_info")
+             .help("Add an INFO line with the value passed to this argument")
+             .long("extra-info")
+             .action(ArgAction::Append)
+    )
 }
 
 fn main() {
@@ -186,6 +193,8 @@ fn main() {
     let mapping_file = matches
         .get_one::<String>("mapping_file")
         .map(String::as_str);
+    get_extra_info(&matches);
+
     let num_jobs = if let Ok(num_jobs) = matches
         .get_one::<String>("num_jobs")
         .unwrap()
@@ -233,6 +242,27 @@ fn main() {
 
 fn to_vec(values: clap::parser::ValuesRef<String>) -> Vec<&str> {
     values.map(String::as_str).collect()
+}
+
+fn get_extra_info(matches: &clap::ArgMatches) {
+    static INFO_LINE_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^[A-Z_]+ .*").unwrap());
+
+    let extra_info: Option<Vec<String>> = matches.get_many::<String>("extra_info").map(|values| {
+        values
+            .map(|line| {
+                if !INFO_LINE_RE.is_match(line) {
+                    panic!(
+                        "Extra INFO line format is invalid: {}. Valid format is <UPPERCASE_KEYWORD> <string>",
+                        line
+                    );
+                }
+                line.to_owned()
+            })
+            .collect()
+    });
+    if let Some(extra_info) = extra_info {
+        EXTRA_INFO.set(extra_info).unwrap();
+    }
 }
 
 #[test]

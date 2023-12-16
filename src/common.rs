@@ -3,7 +3,7 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use once_cell::sync::Lazy;
+use once_cell::sync::{Lazy, OnceCell};
 use regex::Regex;
 use std::env::consts::ARCH;
 use std::result;
@@ -11,6 +11,8 @@ use symbolic::common::{Arch, Name};
 use symbolic::demangle::DemangleOptions;
 
 pub type Result<T> = result::Result<T, anyhow::Error>;
+
+pub static EXTRA_INFO: OnceCell<Vec<String>> = OnceCell::new();
 
 pub fn demangle_options() -> DemangleOptions {
     DemangleOptions::complete().return_type(false)

@@ -14,7 +14,7 @@ use symbolic::debuginfo::Object;
 use super::source::{SourceFiles, SourceMap};
 use super::symbol::{ContainsSymbol, Symbols};
 use crate::collector::Collector;
-use crate::common;
+use crate::common::{self, EXTRA_INFO};
 use crate::inline_origins::{merge_inline_origins, InlineOrigins};
 use crate::mapping::PathMappings;
 use crate::platform::Platform;
@@ -52,6 +52,12 @@ impl Display for ObjectInfo {
             let pe_name = self.pe_name.as_deref().unwrap_or_default();
             let line = format!("INFO CODE_ID {code_id} {pe_name}");
             writeln!(f, "{}", line.trim())?;
+        }
+
+        if let Some(extra_info) = EXTRA_INFO.get() {
+            for line in extra_info {
+                writeln!(f, "{line:}")?;
+            }
         }
 
         writeln!(
