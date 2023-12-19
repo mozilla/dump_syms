@@ -1,6 +1,5 @@
 MODULE windows x86_64 D09EA7D6D2C24C1EBFFE78B0C866BB7F2 basic64.pdb
 INFO CODE_ID 5DDC1E998C000 basic64.dll
-INFO GENERATOR mozilla/dump_syms XYZ
 FILE 0 C:\Users\Calixte\dump_syms\test_data\basic.cpp
 FILE 1 C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include\xstring
 FILE 2 C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include\xmemory0

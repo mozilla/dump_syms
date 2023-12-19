@@ -1,6 +1,5 @@
 MODULE windows x86 878E82E5E282481B88FCBBA2CFF8C7F12 basic32-min.pdb
 INFO CODE_ID 5DDC1E9B6C000 basic32-min.dll
-INFO GENERATOR mozilla/dump_syms XYZ
 PUBLIC 6be0 0 test1(int*)
 PUBLIC 6c00 0 test2(int, unsigned int)
 PUBLIC 6c20 0 test3(int, unsigned int, short)

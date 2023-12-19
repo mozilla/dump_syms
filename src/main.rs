@@ -130,6 +130,11 @@ For example with --mapping-var="rev=123abc" --mapping-src="/foo/bar/(.*)" --mapp
              .long("extra-info")
              .action(ArgAction::Append)
     )
+    .arg(Arg::new("no-generator")
+             .help("Do not emit an INFO GENERATOR line holding the name and version of the dump_syms tool")
+             .long("no-generator")
+             .action(ArgAction::SetTrue)
+    )
 }
 
 fn main() {
@@ -247,7 +252,7 @@ fn to_vec(values: clap::parser::ValuesRef<String>) -> Vec<&str> {
 fn get_extra_info(matches: &clap::ArgMatches) {
     static INFO_LINE_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^[A-Z_]+ .*").unwrap());
 
-    let extra_info: Option<Vec<String>> = matches.get_many::<String>("extra_info").map(|values| {
+    let mut extra_info: Vec<String> = matches.get_many::<String>("extra_info").map(|values| {
         values
             .map(|line| {
                 if !INFO_LINE_RE.is_match(line) {
@@ -259,10 +264,16 @@ fn get_extra_info(matches: &clap::ArgMatches) {
                 line.to_owned()
             })
             .collect()
-    });
-    if let Some(extra_info) = extra_info {
-        EXTRA_INFO.set(extra_info).unwrap();
+    }).unwrap_or_default();
+
+    if !*matches.get_one::<bool>("no-generator").unwrap() {
+        extra_info.push(format!(
+            "GENERATOR mozilla/dump_syms {}",
+            env!("CARGO_PKG_VERSION")
+        ));
     }
+
+    EXTRA_INFO.set(extra_info).unwrap();
 }
 
 #[test]

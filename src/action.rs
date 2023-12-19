@@ -68,15 +68,9 @@ mod tests {
 
     // Read and process the input so it can be compared with the output
     fn read_input(input_path: &str) -> Vec<String> {
-        let generator_re = Regex::new(r"INFO GENERATOR mozilla/dump_syms XYZ\n").unwrap();
-        let generator_string = format!(
-            "INFO GENERATOR mozilla/dump_syms {}\n",
-            env!("CARGO_PKG_VERSION")
-        );
         let basic = PathBuf::from(input_path);
         let data = read(basic).unwrap();
         let data = String::from_utf8(data).unwrap();
-        let data = generator_re.replace(&data, generator_string);
         data.split(|c: char| c == '\n')
             .skip(1)
             .map(String::from)

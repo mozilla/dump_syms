@@ -56,15 +56,9 @@ impl Display for ObjectInfo {
 
         if let Some(extra_info) = EXTRA_INFO.get() {
             for line in extra_info {
-                writeln!(f, "{line:}")?;
+                writeln!(f, "INFO {line:}")?;
             }
         }
-
-        writeln!(
-            f,
-            "INFO GENERATOR mozilla/dump_syms {}",
-            env!("CARGO_PKG_VERSION")
-        )?;
 
         for (n, file_name) in self.files.get_mapping().iter().enumerate() {
             writeln!(f, "FILE {n} {file_name}")?;

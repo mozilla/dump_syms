@@ -1,6 +1,5 @@
 MODULE windows x86_64 2B02EEDFFB7C497B9F3A107E5193B3652 basic-opt64.pdb
 INFO CODE_ID 5DDC1E9E8B000 basic-opt64.dll
-INFO GENERATOR mozilla/dump_syms XYZ
 FILE 0 C:\Users\Calixte\dump_syms\test_data\basic.cpp
 FILE 1 d:\agent\_work\2\s\src\vctools\crt\vcstartup\src\heap\delete_scalar_size.cpp
 FILE 2 d:\agent\_work\2\s\src\vctools\crt\vcstartup\src\startup\dll_dllmain.cpp

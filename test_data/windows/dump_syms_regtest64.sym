@@ -1,6 +1,5 @@
 MODULE windows x86_64 72E103A85CB249078B76B2E7C06257B13 dump_syms_regtest64.pdb
 INFO CODE_ID 589DFD111A000 dump_syms_regtest64.exe
-INFO GENERATOR mozilla/dump_syms XYZ
 FILE 0 c:\cygwin64\wip\breakpad-depot\src\src\tools\windows\dump_syms\testdata\dump_syms_regtest.cc
 FILE 1 f:\dd\vctools\crt\crtw32\misc\amd64\amdsecgs.asm
 FILE 2 f:\dd\vctools\crt\crtw32\misc\amd64\chandler.c
