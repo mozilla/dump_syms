@@ -1,6 +1,5 @@
 MODULE Linux x86_64 20AD60B0B4C68177552708AA192E77390 basic.full
 INFO CODE_ID B060AD20C6B47781552708AA192E7739FAC7C84A
-INFO GENERATOR mozilla/dump_syms XYZ
 FILE 0 /home/calixte/dev/mozilla/dump_syms.calixteman/test_data/linux/basic.cpp
 INLINE_ORIGIN 0 inline_4(int)
 INLINE_ORIGIN 1 inline_3(int)

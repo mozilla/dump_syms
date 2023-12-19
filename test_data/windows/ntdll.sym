@@ -1,6 +1,5 @@
 MODULE windows x86_64 BD298DA990CD4BF9BE5CE4796D7924C61 ntdll.pdb
 INFO CODE_ID 5D6AA5581AD000 ntdll.dll
-INFO GENERATOR mozilla/dump_syms XYZ
 PUBLIC 1000 0 _guard_fids_table
 PUBLIC 2f60 0 NtDllUserStubs
 PUBLIC 3910 0 _newctype
