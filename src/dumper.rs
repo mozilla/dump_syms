@@ -89,6 +89,30 @@ pub struct Config<'a> {
     pub mapping_file: Option<&'a str>,
 }
 
+impl Config<'_> {
+    /// Create a [`Config`] using the given [`Output`], with all other
+    /// fields set to reasonable defaults.
+    ///
+    /// The architecture will be set to the architecture for which
+    /// compilation is happening, the number of jobs will be set to one.
+    pub fn with_output(output: Output) -> Self {
+        Self {
+            output,
+            symbol_server: None,
+            debug_id: None,
+            code_id: None,
+            arch: common::get_compile_time_arch(),
+            num_jobs: 1,
+            check_cfi: true,
+            emit_inlines: true,
+            mapping_var: None,
+            mapping_src: None,
+            mapping_dest: None,
+            mapping_file: None,
+        }
+    }
+}
+
 fn get_pdb_object_info(
     buf: &[u8],
     path: &Path,
