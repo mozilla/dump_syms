@@ -22,13 +22,13 @@ http = ["reqwest", "futures", "tokio"]
 [dependencies]
 anyhow = "1.0"
 bitflags = "2"
-cab = "0.4"
+cab = "0.5"
 clap = { version = "4", optional = true, features = ["cargo"] }
-crossbeam = "0.8.2"
-dirs = "4.0"
+crossbeam = "0.8"
+dirs = "5"
 futures = { version = "0.3", optional = true }
 goblin = "0.7" # Keep in sync with symbolic-debuginfo
-hashbrown = { version = "0.12", features = ["serde"] }
+hashbrown = { version = "0.14", features = ["serde"] }
 log = "0.4"
 lzma-rs = "0.3.0"
 num_cpus = "1.13"
