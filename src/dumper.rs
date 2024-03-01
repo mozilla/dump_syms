@@ -57,7 +57,7 @@ impl fmt::Display for FileOutput {
 #[derive(Clone)]
 pub enum Output {
     File(FileOutput),
-    /// Store output symbols as FILENAME.<ext>/DEBUG_ID/FILENAME.sym in the
+    /// Store output symbols as FILENAME.\<ext\>/DEBUG_ID/FILENAME.sym in the
     /// specified directory, ie the symbol store format
     Store(PathBuf),
     /// Writes symbols to a file as well as storing them in the symbol store
