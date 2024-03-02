@@ -57,7 +57,6 @@ jobs:
           profile: minimal
           components: rust-docs
           override: true
-      - uses: swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
         with:
           command: doc
@@ -76,7 +75,6 @@ jobs:
           toolchain: ${{ matrix.rust }}
           profile: minimal
           override: true
-      - uses: swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
         env:
           PWD: ${{ env.GITHUB_WORKSPACE }}
