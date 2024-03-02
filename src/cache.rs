@@ -5,7 +5,7 @@
 
 use dirs::home_dir;
 use futures::{stream, StreamExt};
-use reqwest::{self, blocking, header::USER_AGENT, Client};
+use reqwest::{blocking, header::USER_AGENT, Client};
 use std::fs::{self, File};
 use std::io::{BufWriter, Read, Write};
 use std::path::{Path, PathBuf};
