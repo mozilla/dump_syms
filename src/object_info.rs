@@ -9,7 +9,7 @@ use std::fmt::{Display, Formatter};
 use std::io::Write;
 use std::sync::Arc;
 use symbolic::cfi::AsciiCfiWriter;
-use symbolic::debuginfo::Object;
+use symbolic::debuginfo::{FileFormat, Object};
 
 use super::source::{SourceFiles, SourceMap};
 use super::symbol::{ContainsSymbol, Symbols};
@@ -117,7 +117,11 @@ impl ObjectInfo {
         };
 
         let ds = main_object.debug_session()?;
-        let mut source = SourceFiles::new(mapping, platform);
+        let mut source = SourceFiles::new(
+            mapping,
+            platform,
+            Self::canonicalize(&platform, main_object),
+        );
         let mut inline_origins = InlineOrigins::default();
         let debug_id = format!("{}", main_object.debug_id().breakpad());
         let code_id = pe_object
@@ -176,6 +180,19 @@ impl ObjectInfo {
             bin_type,
             platform,
         })
+    }
+
+    // Check whether file paths should be canonicalized, this will be true if
+    // the target and the platform are the same, with the exception of MingW
+    // executables where we never want to canonicalize.
+    fn canonicalize(platform: &Platform, object: &Object) -> bool {
+        if (object.file_format() == FileFormat::Pe) && object.has_debug_info() {
+            // PE objects don't have debug information, unless it's been built
+            // with MingW in which case it will have DWARF debug info.
+            false
+        } else {
+            platform.is_target()
+        }
     }
 
     fn file_name_only(file_name: &str) -> &str {
