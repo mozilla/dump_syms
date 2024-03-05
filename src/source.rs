@@ -19,6 +19,7 @@ type SliceRef = (*const u8, usize);
 #[derive(Debug)]
 pub struct SourceFiles {
     platform: Platform,
+    canonicalize: bool,
     ref_to_id: HashMap<String, u32>,
     fake_id_to_ref: Vec<(Option<u32>, String)>,
     id_to_ref: Vec<String>,
@@ -33,10 +34,15 @@ pub struct SourceMap {
 }
 
 impl SourceFiles {
-    pub(super) fn new(mapping: Option<Arc<PathMappings>>, platform: Platform) -> Self {
+    pub(super) fn new(
+        mapping: Option<Arc<PathMappings>>,
+        platform: Platform,
+        canonicalize: bool,
+    ) -> Self {
         SourceFiles {
             mapping,
             platform,
+            canonicalize,
             ref_to_id: Default::default(),
             fake_id_to_ref: Default::default(),
             id_to_ref: Default::default(),
@@ -59,7 +65,12 @@ impl SourceFiles {
         }
     }
 
-    fn get_path(platform: Platform, compilation_dir: &[u8], file: &FileInfo) -> String {
+    fn get_path(
+        platform: Platform,
+        canonicalize: bool,
+        compilation_dir: &[u8],
+        file: &FileInfo,
+    ) -> String {
         let mut dir = file.dir_str().to_string();
         let name = file.name_str();
         if !platform.is_absolute_path(&dir) && !compilation_dir.is_empty() {
@@ -68,7 +79,7 @@ impl SourceFiles {
         };
         let path = platform.join_paths(&dir, &name);
 
-        if platform.is_target() {
+        if canonicalize {
             // Try to get the real path and in case we're on the machine where the files have been compiled
             // else fallback on the basic way to normalize a path
             let path = PathBuf::from(path);
@@ -93,7 +104,7 @@ impl SourceFiles {
         match self.cache.entry(cache_key) {
             hash_map::Entry::Occupied(e) => *e.get(),
             hash_map::Entry::Vacant(e) => {
-                let path = Self::get_path(self.platform, compilation_dir, file);
+                let path = Self::get_path(self.platform, self.canonicalize, compilation_dir, file);
                 let id = match self.ref_to_id.entry(path.clone()) {
                     hash_map::Entry::Occupied(e) => *e.get(),
                     hash_map::Entry::Vacant(e) => {
