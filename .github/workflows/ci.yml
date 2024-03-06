@@ -16,51 +16,45 @@ jobs:
   fmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           profile: minimal
           components: rustfmt
           override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+      - name: rustfmt
+        run: cargo fmt --all -- --check
 
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           profile: minimal
           components: clippy
           override: true
-      - uses: actions-rs/clippy-check@v1
+      - name: clippy
+        run: cargo clippy --workspace --tests --examples
         env:
           PWD: ${{ env.GITHUB_WORKSPACE }}
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --workspace --tests --examples
 
   docs:
     runs-on: ubuntu-latest
     env:
       RUSTDOCFLAGS: -Dwarnings
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           profile: minimal
           components: rust-docs
           override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: doc
-          args: --workspace --no-deps
+      - name: doc
+        run: cargo doc --workspace --no-deps
 
   test:
     runs-on: ${{ matrix.os }}
@@ -69,33 +63,25 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
         rust: [nightly, stable]
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
           profile: minimal
           override: true
-      - uses: actions-rs/cargo@v1
+      - name: test
+        run: cargo test --workspace
         env:
           PWD: ${{ env.GITHUB_WORKSPACE }}
-        with:
-          command: test
-          args: --workspace
-      - uses: actions-rs/cargo@v1
+      - name: test-all-features
+        run: cargo test --workspace --all-features
         env:
           PWD: ${{ env.GITHUB_WORKSPACE }}
-        with:
-          command: test
-          args: --workspace --all-features
-      - uses: actions-rs/cargo@v1
+      - name: test-examples-bins
+        run: cargo test --workspace --examples --bins
         env:
           PWD: ${{ env.GITHUB_WORKSPACE }}
-        with:
-          command: test
-          args: --workspace --examples --bins
-      - uses: actions-rs/cargo@v1
+      - name: test-all-features-examples-bins
+        run: cargo test --workspace --all-features --examples --bins
         env:
           PWD: ${{ env.GITHUB_WORKSPACE }}
-        with:
-          command: test
-          args: --workspace --all-features --examples --bins
