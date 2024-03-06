@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
+      - uses: ./.github/actions/toolchain
         with:
           toolchain: stable
           profile: minimal
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
+      - uses: ./.github/actions/toolchain
         with:
           toolchain: stable
           profile: minimal
@@ -47,7 +47,7 @@ jobs:
       RUSTDOCFLAGS: -Dwarnings
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
+      - uses: ./.github/actions/toolchain
         with:
           toolchain: stable
           profile: minimal
@@ -64,7 +64,7 @@ jobs:
         rust: [nightly, stable]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
+      - uses: ./.github/actions/toolchain
         with:
           toolchain: ${{ matrix.rust }}
           profile: minimal
