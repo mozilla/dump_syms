@@ -257,7 +257,7 @@ jobs:
           # Remove the granular manifests
           rm -f artifacts/*-dist-manifest.json
       - name: Create Github Release
-        uses: ncipollo/release-action@v1
+        uses: ./.github/actions/release-action
         with:
           tag: ${{ needs.plan.outputs.tag }}
           name: ${{ fromJson(needs.host.outputs.val).announcement_title }}
