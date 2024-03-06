@@ -37,7 +37,7 @@ jobs:
           components: clippy
           override: true
       - name: clippy
-        run: cargo clippy --workspace --tests --examples
+        run: cargo clippy --all-features --tests --all --examples -- -D clippy::all
         env:
           PWD: ${{ env.GITHUB_WORKSPACE }}
 
