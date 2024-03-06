@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+
+- The `--extra-info` option can be used to add additional information via
+  `INFO` lines at the beginning of the output file
+- The `--no-generator` option can be used to prevent dump_syms from emitting
+  the `INFO GENERATOR` line thus restoring the traditional Breakpad-based
+  dump_syms behavior
+
+### Changed
+
+- Paths in MinGW executables are never canonicalized, they will be printed out
+  exactly like they appear in the debug information
+
 ## [2.2.2] - 2023-09-13
 
 ### Changed
