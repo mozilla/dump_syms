@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+### Fixed
+
+- Fixes a build issue when newer versions of the dependencies are used
+
 ## [2.3.0] - 2024-03-06
 
 ### Added
