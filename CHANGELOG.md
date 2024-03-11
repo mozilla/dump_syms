@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+## [2.3.1] - 2024-03-11
+
 ### Fixed
 
 - Fixes a build issue when newer versions of the dependencies are used
@@ -150,7 +152,8 @@ The crate can be used to build a stand-alone executable or as a library to
 provide symbol-file generation in other tools.
 
 <!-- next-url -->
-[Unreleased]: https://github.com/mozilla/dump_syms/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/mozilla/dump_syms/compare/v2.3.1...HEAD
+[2.3.1]: https://github.com/mozilla/dump_syms/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/mozilla/dump_syms/compare/v2.2.2...v2.3.0
 [2.2.2]: https://github.com/mozilla/dump_syms/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/mozilla/dump_syms/compare/v2.2.0...v2.2.1
