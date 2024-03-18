@@ -79,20 +79,6 @@ mod tests {
         }
     }
 
-    #[derive(Debug, PartialEq)]
-    struct StackWin {
-        typ: u32,
-        rva: u32,
-        code_size: u32,
-        prolog_size: u32,
-        epilog_size: u32,
-        params_size: u32,
-        regs_size: u32,
-        locals_size: u32,
-        max_stack_size: u32,
-        extra: String,
-    }
-
     const MS: &str = "https://msdl.microsoft.com/download/symbols";
 
     fn dl_from_server(url: &str) -> Vec<u8> {
