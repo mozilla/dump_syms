@@ -495,7 +495,7 @@ pub fn several_files(config: &Config, filenames: &[&str]) -> common::Result<()> 
             .send(Some(JobItem {
                 file: f.to_string(),
                 typ: JobType::Get,
-                mapping: file_mapping.as_ref().map(Arc::clone),
+                mapping: file_mapping.clone(),
                 collect_inlines: config.emit_inlines,
             }))
             .unwrap();
