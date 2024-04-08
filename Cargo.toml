@@ -22,7 +22,7 @@ http = ["reqwest", "futures", "tokio"]
 [dependencies]
 anyhow = "1.0"
 bitflags = "2"
-cab = "0.5"
+cab = "0.6"
 clap = { version = "4", optional = true, features = ["cargo"] }
 crossbeam = "0.8"
 dirs = "5"
