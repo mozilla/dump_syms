@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+### Changed
+
+- Updated all the crate dependencies, removing some very old ones and importing
+  a number of fixes along the way. One notable change is that PDB files with
+  a debug filename held by an array larger than the string itself now work
+  correctly instead of failing without output.
+
 ## [2.3.1] - 2024-03-11
 
 ### Fixed
