@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+### Fixed
+
+- Fixed an issue in the automation machinery that prevented a proper release
+  to happen automatically on GitHub.
+
 ## [2.3.2] - 2024-06-04
 
 ### Changed
