@@ -195,7 +195,7 @@ impl ParsedWinFuncName {
     }
 
     pub fn parse_unknown(name: &str) -> Self {
-        if name.contains(|c| c == ':' || c == '(') {
+        if name.contains([':', '(']) {
             Self::name_only(name.to_string())
         } else {
             Self::parse_c_decorated(name)

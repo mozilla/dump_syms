@@ -76,9 +76,7 @@ fn parse_srv(path: &str) -> Option<SymbolServer> {
 }
 
 fn parse_sympath(path: &str) -> Vec<SymbolServer> {
-    path.split(|c| c == ';' || c == '\n')
-        .filter_map(parse_srv)
-        .collect()
+    path.split([';', '\n']).filter_map(parse_srv).collect()
 }
 
 fn read_config() -> Option<Vec<SymbolServer>> {

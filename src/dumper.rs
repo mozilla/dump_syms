@@ -418,9 +418,8 @@ fn consumer(
 
                 let mut results = results.lock().unwrap();
                 let info = if let Some(prev) = results.remove(info.get_debug_id()) {
-                    ObjectInfo::merge(info, prev).map_err(|e| {
+                    ObjectInfo::merge(info, prev).inspect_err(|_e| {
                         poison_queue(&sender, num_threads);
-                        e
                     })?
                 } else {
                     info

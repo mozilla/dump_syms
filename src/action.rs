@@ -71,19 +71,13 @@ mod tests {
         let basic = PathBuf::from(input_path);
         let data = read(basic).unwrap();
         let data = String::from_utf8(data).unwrap();
-        data.split(|c: char| c == '\n')
-            .skip(1)
-            .map(String::from)
-            .collect()
+        data.split('\n').skip(1).map(String::from).collect()
     }
 
     fn read_output(output_path: &PathBuf) -> Vec<String> {
         let data = read(output_path).unwrap();
         let data = String::from_utf8(data).unwrap();
-        data.split(|c: char| c == '\n')
-            .skip(1)
-            .map(String::from)
-            .collect()
+        data.split('\n').skip(1).map(String::from).collect()
     }
 
     #[test]
