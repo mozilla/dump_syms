@@ -47,7 +47,7 @@ impl Platform {
                 // That's because Platform::Win is used for all PDB files, even for
                 // PDB files for build that were (cross-)compiled on a Linux machine;
                 // those contain Linux paths.
-                let left = left.trim_end_matches(&['/', '\\']);
+                let left = left.trim_end_matches(['/', '\\']);
                 let right = right.trim_start_matches(['/', '\\']);
 
                 // If `left` happens to be an absolute Linux-style path, use `/` as
