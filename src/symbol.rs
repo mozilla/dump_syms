@@ -33,7 +33,7 @@ pub trait ContainsSymbol {
 impl ContainsSymbol for Symbols {
     fn is_inside_symbol(&self, rva: u32) -> bool {
         let last = self.range((Included(0), Excluded(rva))).next_back();
-        last.map_or(false, |last| rva < (last.1.rva + last.1.len))
+        last.is_some_and(|last| rva < (last.1.rva + last.1.len))
     }
 }
 
