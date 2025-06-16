@@ -245,7 +245,7 @@ fn main() {
     }
 }
 
-fn to_vec(values: clap::parser::ValuesRef<String>) -> Vec<&str> {
+fn to_vec(values: clap::parser::ValuesRef<'_, String>) -> Vec<&str> {
     values.map(String::as_str).collect()
 }
 
