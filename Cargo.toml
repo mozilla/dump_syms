@@ -25,10 +25,10 @@ bitflags = "2"
 cab = "0.6"
 clap = { version = "4", optional = true, features = ["cargo"] }
 crossbeam = "0.8"
-dirs = "5"
+dirs = "6"
 futures = { version = "0.3", optional = true }
 goblin = "0.8" # Keep in sync with symbolic-debuginfo
-hashbrown = { version = "0.14", features = ["serde"] }
+hashbrown = { version = "0.15", features = ["serde"] }
 log = "0.4"
 lzma-rs = "0.3.0"
 num_cpus = "1.13"
