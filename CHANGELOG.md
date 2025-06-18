@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+- Updated the symbolic crates as well as most of the other dependencies.
+
 ## [2.3.4] - 2024-09-06
 
 ### Changed
