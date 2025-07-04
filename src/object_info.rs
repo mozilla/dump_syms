@@ -94,7 +94,7 @@ fn get_stack_info(pdb: Option<&Object>, pe: Option<&Object>) -> String {
     };
 
     if let Err(e) = result {
-        error!("CFI: {:?}", e);
+        error!("CFI: {e:?}");
     }
 
     String::from_utf8(buf).unwrap()

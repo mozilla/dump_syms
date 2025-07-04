@@ -65,7 +65,7 @@ pub fn get_pe_pdb_buf<'a>(
         let pdb_filename = pdb_filename.into_owned();
         let (pdb, pdb_name) = os_specific_try_to_find_pdb(path, &pdb_filename);
         if pdb_name.is_empty() {
-            log::warn!("Invalid pdb filename in PE file: \"{}\"", pdb_filename);
+            log::warn!("Invalid pdb filename in PE file: \"{pdb_filename}\"");
             None
         } else if let Some(pdb_buf) = pdb {
             Some((pe, pdb_buf, pdb_name))

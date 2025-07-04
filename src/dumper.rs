@@ -233,14 +233,14 @@ fn store(output: &Output, check_cfi: bool, object_info: ObjectInfo) -> common::R
         let output = get_writer_for_sym(&fo);
         object_info.dump(output)?;
 
-        info!("Store symbols at {}", fo);
+        info!("Store symbols at {fo}");
     }
 
     if let Some(file) = foutput {
         let writer = get_writer_for_sym(file);
         object_info.dump(writer)?;
 
-        info!("Write symbols at {}", file);
+        info!("Write symbols at {file}");
     }
     Ok(())
 }
@@ -502,7 +502,7 @@ pub fn several_files(config: &Config, filenames: &[&str]) -> common::Result<()> 
 
     for receiver in receivers {
         if let Err(e) = receiver.join().unwrap() {
-            error!("{}", e);
+            error!("{e}");
         }
     }
 

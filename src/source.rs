@@ -113,7 +113,7 @@ impl SourceFiles {
                             match mapping.map(&path) {
                                 Ok(p) => p,
                                 Err(e) => {
-                                    error!("Mapping error: {}", e);
+                                    error!("Mapping error: {e}");
                                     None
                                 }
                             }

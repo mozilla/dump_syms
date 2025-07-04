@@ -63,7 +63,7 @@ impl Collector {
             Some(demangled) => demangled,
             None => {
                 let aname = name.as_str();
-                warn!("Didn't manage to demangle {:?}", name);
+                warn!("Didn't manage to demangle {name:?}");
                 aname.to_string()
             }
         }
@@ -81,7 +81,7 @@ impl Collector {
         match name.demangle(demangle_options()) {
             Some(demangled) => demangled,
             None => {
-                warn!("Didn't manage to demangle {}", name);
+                warn!("Didn't manage to demangle {name}");
                 name.to_string()
             }
         }
@@ -351,7 +351,7 @@ impl Collector {
                     self.collect_function(&fun, source, inline_origins);
                 }
                 Err(e) => {
-                    error!("Function collection: {:?}", e);
+                    error!("Function collection: {e:?}");
                 }
             }
         }

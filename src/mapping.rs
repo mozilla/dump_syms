@@ -330,7 +330,7 @@ impl PathMappings {
             return Ok(Some(res));
         }
 
-        warn!("Cannot find a mapping for file {}", file_str);
+        warn!("Cannot find a mapping for file {file_str}");
 
         Ok(None)
     }

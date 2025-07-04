@@ -178,7 +178,7 @@ fn main() {
                     .copied()
                     .unwrap_or("<cause unknown>")
             });
-        error!("A panic occurred at {}:{}: {}", filename, line, cause);
+        error!("A panic occurred at {filename}:{line}: {cause}");
     }));
 
     let output = matches.get_one::<String>("output").map(String::as_str);

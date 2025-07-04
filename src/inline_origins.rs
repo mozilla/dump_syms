@@ -48,7 +48,7 @@ impl<'a> InlineOrigins<'a> {
             Some(demangled) => demangled,
             None => {
                 let aname = name.as_str();
-                warn!("Didn't manage to demangle {:?}", name);
+                warn!("Didn't manage to demangle {name:?}");
                 aname.to_string()
             }
         }
