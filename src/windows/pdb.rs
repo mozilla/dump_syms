@@ -59,8 +59,7 @@ fn win_path_file_name(pdb_name: &str) -> &str {
 mod tests {
 
     use bitflags::bitflags;
-    use fxhash::{FxHashMap, FxHashSet};
-    use std::collections::HashSet;
+    use hashbrown::{HashMap, HashSet};
     use std::fs::File;
     use std::io::{Cursor, Read};
     use std::path::PathBuf;
@@ -185,20 +184,20 @@ mod tests {
     ) {
         if func_new.len() != func_old.len() {
             // Try to find the diff in the addresses
-            let mut old_addresses = FxHashMap::default();
-            let mut old_keys = FxHashSet::default();
+            let mut old_addresses = HashMap::<u64, u32>::default();
+            let mut old_keys = HashSet::<u64>::default();
             for addr in func_old.iter().map(|f| f.as_ref().unwrap().address) {
                 *old_addresses.entry(addr).or_insert(0) += 1;
                 old_keys.insert(addr);
             }
-            let mut new_addresses = FxHashMap::default();
-            let mut new_keys = FxHashSet::default();
+            let mut new_addresses = HashMap::<u64, u32>::default();
+            let mut new_keys = HashSet::<u64>::default();
             for addr in func_new.iter().map(|f| f.as_ref().unwrap().address) {
                 *new_addresses.entry(addr).or_insert(0) += 1;
                 new_keys.insert(addr);
             }
             let diff: Vec<_> = old_keys.symmetric_difference(&new_keys).collect();
-            for addr in diff.iter() {
+            for &addr in diff.iter() {
                 old_addresses.remove(addr);
                 new_addresses.remove(addr);
             }
