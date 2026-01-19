@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+- Fixed an issue when generating symbols for AArch64 binaries
+- Removed duplicate dependencies and yanked crates
+
 ## [2.3.5] - 2025-06-18
 
 - Updated the symbolic crates as well as most of the other dependencies.
