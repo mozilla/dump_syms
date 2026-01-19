@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+## [2.3.6] - 2026-01-19
+
 - Fixed an issue when generating symbols for AArch64 binaries
 - Removed duplicate dependencies and yanked crates
 
@@ -181,7 +183,8 @@ The crate can be used to build a stand-alone executable or as a library to
 provide symbol-file generation in other tools.
 
 <!-- next-url -->
-[Unreleased]: https://github.com/mozilla/dump_syms/compare/v2.3.5...HEAD
+[Unreleased]: https://github.com/mozilla/dump_syms/compare/v2.3.6...HEAD
+[2.3.6]: https://github.com/mozilla/dump_syms/compare/v2.3.5...v2.3.6
 [2.3.5]: https://github.com/mozilla/dump_syms/compare/v2.3.4...v2.3.5
 [2.3.4]: https://github.com/mozilla/dump_syms/compare/v2.3.3...v2.3.4
 [2.3.3]: https://github.com/mozilla/dump_syms/compare/v2.3.2...v2.3.3
