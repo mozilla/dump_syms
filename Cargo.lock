@@ -414,7 +414,7 @@ dependencies = [
 
 [[package]]
 name = "dump_syms"
-version = "2.3.6"
+version = "2.3.7"
 dependencies = [
  "anyhow",
  "bitflags 2.9.1",
