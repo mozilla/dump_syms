@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+- Updated various dependencies to pick up security fixes and improvements.
+
 ## [2.3.6] - 2026-01-19
 
 - Fixed an issue when generating symbols for AArch64 binaries
