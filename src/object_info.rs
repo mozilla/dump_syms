@@ -73,7 +73,7 @@ impl Display for ObjectInfo {
             writeln!(f, "INLINE_ORIGIN {n} {function_name}")?;
         }
 
-        for (_, sym) in self.symbols.iter() {
+        for sym in self.symbols.values() {
             write!(f, "{sym}")?;
         }
 
