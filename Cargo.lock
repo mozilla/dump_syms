@@ -434,7 +434,6 @@ dependencies = [
  "log",
  "lzma-rs",
  "num_cpus",
- "once_cell",
  "regex",
  "reqwest",
  "serde",

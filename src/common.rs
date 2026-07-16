@@ -3,16 +3,16 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use once_cell::sync::{Lazy, OnceCell};
 use regex::Regex;
 use std::env::consts::ARCH;
 use std::result;
+use std::sync::{LazyLock, OnceLock};
 use symbolic::common::{Arch, Name};
 use symbolic::demangle::DemangleOptions;
 
 pub type Result<T> = result::Result<T, anyhow::Error>;
 
-pub static EXTRA_INFO: OnceCell<Vec<String>> = OnceCell::new();
+pub static EXTRA_INFO: OnceLock<Vec<String>> = OnceLock::new();
 
 pub fn demangle_options() -> DemangleOptions {
     DemangleOptions::complete().return_type(false)
@@ -41,7 +41,7 @@ pub(crate) fn normalize_anonymous_namespace(text: &str) -> String {
 }
 
 pub(crate) fn fix_symbol_name<'a>(name: &'a Name<'a>) -> Name<'a> {
-    static COMPILER_NNN: Lazy<Regex> = Lazy::new(|| {
+    static COMPILER_NNN: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(
             r"((\.(cold|constprop|llvm|localalias|lto_priv|isra|part|str)(\.[0-9]+)?)|( ?\[clone[^\]]*\] ?))+$",
         )

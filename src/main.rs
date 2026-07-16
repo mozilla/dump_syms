@@ -6,11 +6,11 @@
 use clap::ArgAction;
 use clap::{crate_authors, crate_version, Arg, Command};
 use log::error;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
 use std::ops::Deref;
 use std::panic;
+use std::sync::LazyLock;
 
 mod action;
 
@@ -250,7 +250,7 @@ fn to_vec(values: clap::parser::ValuesRef<'_, String>) -> Vec<&str> {
 }
 
 fn get_extra_info(matches: &clap::ArgMatches) {
-    static INFO_LINE_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^[A-Z_]+ .*").unwrap());
+    static INFO_LINE_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[A-Z_]+ .*").unwrap());
 
     let mut extra_info: Vec<String> = matches.get_many::<String>("extra_info").map(|values| {
         values
