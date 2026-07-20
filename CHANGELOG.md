@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 
+- Updated the symbolic crates to the 13.x series
+- Updated most of the other dependencies to include fix for potential security
+  issues and to remove a lot of the duplications during the build
+
 ## [2.3.7] - 2026-03-11
 
 - Updated various dependencies to pick up security fixes and improvements.
