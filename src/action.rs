@@ -95,6 +95,7 @@ mod tests {
             mapping_src: None,
             mapping_dest: None,
             mapping_file: None,
+            accept_unknown_variant: false,
             check_cfi: false,
             emit_inlines: false,
         }
@@ -280,5 +281,32 @@ mod tests {
         let basic = read_input("./test_data/linux/basic.minidebuginfo.sym");
 
         assert_eq!(basic, new);
+    }
+
+    #[test]
+    fn test_macho_unknown_variant_fallback() {
+        let tmp_dir = Builder::new().prefix("unknown_variant").tempdir().unwrap();
+        let fat_exe_path = PathBuf::from("./test_data/macos/fat_arm64e_x1");
+        let tmp_out = tmp_dir.path().join("output.sym");
+
+        let mut config = make_config(&tmp_out);
+        config.arch = "arm64e.x1";
+        config.accept_unknown_variant = true;
+        let action = Action::Dump(config);
+
+        action.action(&[fat_exe_path.to_str().unwrap()]).unwrap();
+
+        let new = read_output(&tmp_out);
+        let basic = read_input("./test_data/macos/fat_arm64e_x1.sym");
+
+        assert_eq!(basic, new);
+
+        let mut config = make_config(&tmp_out);
+        config.arch = "arm64e.x1";
+        let action = Action::Dump(config);
+
+        let res = action.action(&[fat_exe_path.to_str().unwrap()]);
+
+        assert!(res.is_err())
     }
 }

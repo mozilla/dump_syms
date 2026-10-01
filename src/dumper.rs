@@ -13,7 +13,7 @@ use std::str::FromStr;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
-use symbolic::common::Arch;
+use symbolic::common::{Arch, UnknownArchError};
 use symbolic::debuginfo::pdb::PdbObject;
 use symbolic::debuginfo::pe::PeObject;
 use symbolic::debuginfo::{peek, FileFormat};
@@ -81,6 +81,7 @@ pub struct Config<'a> {
     pub code_id: Option<&'a str>,
     pub arch: &'a str,
     pub num_jobs: usize,
+    pub accept_unknown_variant: bool,
     pub check_cfi: bool,
     pub emit_inlines: bool,
     pub mapping_var: Option<Vec<&'a str>>,
@@ -104,6 +105,7 @@ impl Config<'_> {
             arch: common::get_compile_time_arch(),
             num_jobs: 1,
             check_cfi: true,
+            accept_unknown_variant: false,
             emit_inlines: true,
             mapping_var: None,
             mapping_src: None,
@@ -286,7 +288,7 @@ pub fn single_file(config: &Config, filename: &str) -> common::Result<()> {
         &config.mapping_file,
     )?
     .map(Arc::new);
-    let arch = Arch::from_str(config.arch)?;
+    let arch = get_arch(config)?;
     let object_info = get_object_info(
         buf,
         path,
@@ -334,6 +336,28 @@ fn get_object_info(
         _ => anyhow::bail!("Unknown file format"),
     };
     Ok(object_info)
+}
+
+/// Provides the architecture as the corresponding value of the symbolic `Arch`
+/// enumeration.
+fn get_arch(config: &Config) -> Result<Arch, UnknownArchError> {
+    let arch = Arch::from_str(config.arch);
+
+    if arch.is_err() && config.accept_unknown_variant {
+        if config.arch.starts_with("x86_64") {
+            Ok(Arch::Amd64Unknown)
+        } else if config.arch.starts_with("x86") {
+            Ok(Arch::X86Unknown)
+        } else if config.arch.starts_with("arm64") {
+            Ok(Arch::Arm64Unknown)
+        } else if config.arch.starts_with("arm") {
+            Ok(Arch::ArmUnknown)
+        } else {
+            arch
+        }
+    } else {
+        arch
+    }
 }
 
 #[allow(clippy::large_enum_variant)]
@@ -460,7 +484,7 @@ pub fn several_files(config: &Config, filenames: &[&str]) -> common::Result<()> 
         &config.mapping_file,
     )?
     .map(Arc::new);
-    let arch = Arch::from_str(config.arch)?;
+    let arch = get_arch(config)?;
     let results = Arc::new(Mutex::new(HashMap::default()));
     let num_jobs = config.num_jobs.min(filenames.len());
     let counter = Arc::new(AtomicUsize::new(filenames.len()));
