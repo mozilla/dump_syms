@@ -63,6 +63,12 @@ fn cli() -> Command {
             .action(ArgAction::SetTrue)
     )
     .arg(
+        Arg::new("accept_unknown_variant")
+            .help("Fallback to the generic CPU architecture when encountering an unknown variant")
+            .long("accept-unknown-variant")
+            .action(ArgAction::SetTrue)
+    )
+    .arg(
         Arg::new("verbose")
             .help("Set the level of verbosity (off, error (default), warn, info, debug, trace)")
             .long("verbose")
@@ -191,6 +197,7 @@ fn main() {
     let code_id = matches.get_one::<String>("code_id").map(String::as_str);
     let arch = matches.get_one::<String>("arch").unwrap().as_str();
     let check_cfi = matches.get_flag("check_cfi");
+    let accept_unknown_variant = matches.get_flag("accept_unknown_variant");
     let emit_inlines = matches.get_flag("inlines");
     let mapping_var = matches.get_many("mapping_var").map(to_vec);
     let mapping_src = matches.get_many("mapping_src").map(to_vec);
@@ -231,6 +238,7 @@ fn main() {
             arch,
             num_jobs,
             check_cfi,
+            accept_unknown_variant,
             emit_inlines,
             mapping_var,
             mapping_src,
