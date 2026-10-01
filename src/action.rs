@@ -61,7 +61,10 @@ impl Action<'_> {
 mod tests {
 
     use regex::Regex;
-    use std::fs::{copy, read};
+    use std::{
+        fs::{copy, read},
+        path::Path,
+    };
     use tempfile::Builder;
 
     use super::*;
@@ -80,17 +83,9 @@ mod tests {
         data.split('\n').skip(1).map(String::from).collect()
     }
 
-    #[test]
-    fn test_missing_pe() {
-        let tmp_dir = Builder::new().prefix("no_pe").tempdir().unwrap();
-        let basic64 = PathBuf::from("./test_data/windows/basic64.pdb");
-        let tmp_file = tmp_dir.path().join("basic64.pdb");
-        let tmp_out = tmp_dir.path().join("output.sym");
-
-        copy(basic64, &tmp_file).unwrap();
-
-        let action = Action::Dump(Config {
-            output: tmp_out.clone().into(),
+    fn make_config<'a>(out: &Path) -> Config<'a> {
+        Config {
+            output: out.to_path_buf().into(),
             symbol_server: None,
             debug_id: None,
             code_id: None,
@@ -102,7 +97,19 @@ mod tests {
             mapping_file: None,
             check_cfi: false,
             emit_inlines: false,
-        });
+        }
+    }
+
+    #[test]
+    fn test_missing_pe() {
+        let tmp_dir = Builder::new().prefix("no_pe").tempdir().unwrap();
+        let basic64 = PathBuf::from("./test_data/windows/basic64.pdb");
+        let tmp_file = tmp_dir.path().join("basic64.pdb");
+        let tmp_out = tmp_dir.path().join("output.sym");
+
+        copy(basic64, &tmp_file).unwrap();
+
+        let action = Action::Dump(make_config(&tmp_out));
 
         action.action(&[tmp_file.to_str().unwrap()]).unwrap();
 
@@ -122,20 +129,9 @@ mod tests {
 
         copy(basic64, &tmp_file).unwrap();
 
-        let action = Action::Dump(Config {
-            output: tmp_out.into(),
-            symbol_server: None,
-            debug_id: None,
-            code_id: None,
-            arch: common::get_compile_time_arch(),
-            num_jobs: 1,
-            mapping_var: None,
-            mapping_src: None,
-            mapping_dest: None,
-            mapping_file: None,
-            check_cfi: true,
-            emit_inlines: false,
-        });
+        let mut config = make_config(&tmp_out);
+        config.check_cfi = true;
+        let action = Action::Dump(config);
 
         let res = action.action(&[tmp_file.to_str().unwrap()]);
         assert!(res.is_err());
@@ -153,20 +149,7 @@ mod tests {
         copy(basic64_pdb, &tmp_pdb).unwrap();
         copy(basic64_dll, tmp_dll).unwrap();
 
-        let action = Action::Dump(Config {
-            output: tmp_out.clone().into(),
-            symbol_server: None,
-            debug_id: None,
-            code_id: None,
-            arch: common::get_compile_time_arch(),
-            num_jobs: 1,
-            mapping_var: None,
-            mapping_src: None,
-            mapping_dest: None,
-            mapping_file: None,
-            check_cfi: false,
-            emit_inlines: false,
-        });
+        let action = Action::Dump(make_config(&tmp_out));
 
         action.action(&[tmp_pdb.to_str().unwrap()]).unwrap();
 
@@ -183,20 +166,7 @@ mod tests {
         let full = PathBuf::from("./test_data/linux/basic.full");
         let tmp_out = tmp_dir.path().join("output.sym");
 
-        let action = Action::Dump(Config {
-            output: tmp_out.clone().into(),
-            symbol_server: None,
-            debug_id: None,
-            code_id: None,
-            arch: common::get_compile_time_arch(),
-            num_jobs: 1,
-            mapping_var: None,
-            mapping_src: None,
-            mapping_dest: None,
-            mapping_file: None,
-            check_cfi: false,
-            emit_inlines: false,
-        });
+        let action = Action::Dump(make_config(&tmp_out));
 
         action.action(&[full.to_str().unwrap()]).unwrap();
 
@@ -212,20 +182,9 @@ mod tests {
         let full = PathBuf::from("./test_data/linux/basic.full");
         let tmp_out = tmp_dir.path().join("output.sym");
 
-        let action = Action::Dump(Config {
-            output: tmp_out.clone().into(),
-            symbol_server: None,
-            debug_id: None,
-            code_id: None,
-            arch: common::get_compile_time_arch(),
-            num_jobs: 1,
-            mapping_var: None,
-            mapping_src: None,
-            mapping_dest: None,
-            mapping_file: None,
-            check_cfi: false,
-            emit_inlines: true,
-        });
+        let mut config = make_config(&tmp_out);
+        config.emit_inlines = true;
+        let action = Action::Dump(config);
 
         action.action(&[full.to_str().unwrap()]).unwrap();
 
@@ -242,20 +201,10 @@ mod tests {
         let dbg = PathBuf::from("./test_data/linux/basic.dbg");
         let tmp_out = tmp_dir.path().join("output.sym");
 
-        let action = Action::Dump(Config {
-            output: tmp_out.clone().into(),
-            symbol_server: None,
-            debug_id: None,
-            code_id: None,
-            arch: common::get_compile_time_arch(),
-            num_jobs: 2,
-            mapping_var: None,
-            mapping_src: None,
-            mapping_dest: None,
-            mapping_file: None,
-            check_cfi: false,
-            emit_inlines: true,
-        });
+        let mut config = make_config(&tmp_out);
+        config.num_jobs = 2;
+        config.emit_inlines = true;
+        let action = Action::Dump(config);
 
         action
             .action(&[stripped.to_str().unwrap(), dbg.to_str().unwrap()])
@@ -283,20 +232,9 @@ mod tests {
         let dbg = PathBuf::from("./test_data/linux/basic.dbg");
         let tmp_out = tmp_dir.path().join("output.sym");
 
-        let action = Action::Dump(Config {
-            output: tmp_out.clone().into(),
-            symbol_server: None,
-            debug_id: None,
-            code_id: None,
-            arch: common::get_compile_time_arch(),
-            num_jobs: 2,
-            mapping_var: None,
-            mapping_src: None,
-            mapping_dest: None,
-            mapping_file: None,
-            check_cfi: false,
-            emit_inlines: false,
-        });
+        let mut config = make_config(&tmp_out);
+        config.num_jobs = 2;
+        let action = Action::Dump(config);
 
         action
             .action(&[dbg.to_str().unwrap(), stripped.to_str().unwrap()])
@@ -314,20 +252,9 @@ mod tests {
         let full = PathBuf::from("./test_data/linux/basic.dwz");
         let tmp_out = tmp_dir.path().join("output.sym");
 
-        let action = Action::Dump(Config {
-            output: tmp_out.clone().into(),
-            symbol_server: None,
-            debug_id: None,
-            code_id: None,
-            arch: common::get_compile_time_arch(),
-            num_jobs: 1,
-            mapping_var: None,
-            mapping_src: None,
-            mapping_dest: None,
-            mapping_file: None,
-            check_cfi: false,
-            emit_inlines: true,
-        });
+        let mut config = make_config(&tmp_out);
+        config.emit_inlines = true;
+        let action = Action::Dump(config);
 
         action.action(&[full.to_str().unwrap()]).unwrap();
 
@@ -343,20 +270,9 @@ mod tests {
         let minidebuginfo = PathBuf::from("./test_data/linux/basic.minidebuginfo");
         let tmp_out = tmp_dir.path().join("output.sym");
 
-        let action = Action::Dump(Config {
-            output: tmp_out.clone().into(),
-            symbol_server: None,
-            debug_id: None,
-            code_id: None,
-            arch: common::get_compile_time_arch(),
-            num_jobs: 1,
-            mapping_var: None,
-            mapping_src: None,
-            mapping_dest: None,
-            mapping_file: None,
-            check_cfi: false,
-            emit_inlines: true,
-        });
+        let mut config = make_config(&tmp_out);
+        config.emit_inlines = true;
+        let action = Action::Dump(config);
 
         action.action(&[minidebuginfo.to_str().unwrap()]).unwrap();
 
