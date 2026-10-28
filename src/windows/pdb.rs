@@ -92,13 +92,25 @@ mod tests {
         let name = toks[2];
         let pe_buf = dl_from_server(url);
         let pe_buf = crate::utils::read_cabinet(pe_buf, PathBuf::from(name)).unwrap();
-        let (pe, pdb_buf, pdb_name) = crate::windows::utils::get_pe_pdb_buf(
-            &PathBuf::from("."),
-            &pe_buf,
-            crate::cache::get_sym_servers(Some(&format!("SRV*~/symcache*{MS}"))).as_ref(),
-        )
-        .unwrap();
 
+        // Fetching PDBs from Microsoft symbols servers fails occasionally so
+        // try this three times before failing the test.
+        let mut attempts = 3;
+        let res = loop {
+            let res = crate::windows::utils::get_pe_pdb_buf(
+                &PathBuf::from("."),
+                &pe_buf,
+                crate::cache::get_sym_servers(Some(&format!("SRV*~/symcache*{MS}"))).as_ref(),
+            );
+
+            if res.is_some() || attempts == 0 {
+                break res;
+            } else {
+                attempts -= 1;
+            }
+        };
+
+        let (pe, pdb_buf, pdb_name) = res.unwrap();
         let pdb = PdbObject::parse(&pdb_buf).unwrap();
 
         let mut output = Vec::new();
